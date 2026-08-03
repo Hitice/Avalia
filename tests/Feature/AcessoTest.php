@@ -45,6 +45,28 @@ it('registra o ultimo acesso', function () {
     expect($staff->fresh()->ultimo_acesso_em)->not->toBeNull();
 });
 
+it('mantem conectado quando marca lembrar', function () {
+    $staff = Staff::factory()->admin()->create(['email' => 'lembra@avalia.local']);
+
+    $this->post('/entrar', [
+        'email' => 'lembra@avalia.local',
+        'senha' => 'senha-valida-123',
+        'lembrar' => '1',
+    ])->assertRedirect(route('painel'))->assertCookie(auth('staff')->getRecallerName());
+
+    // Sem o token gravado o cookie de lembranca nao vale nada na volta.
+    expect($staff->fresh()->remember_token)->not->toBeNull();
+});
+
+it('nao mantem conectado quando nao marca lembrar', function () {
+    $cliente = Cliente::factory()->create(['email' => 'esquece@lojas.com.br']);
+
+    $this->post('/entrar', ['email' => 'esquece@lojas.com.br', 'senha' => 'senha-valida-123'])
+        ->assertRedirect(route('empresa.painel'));
+
+    expect($cliente->fresh()->remember_token)->toBeNull();
+});
+
 it('nao revela se o e-mail existe', function () {
     Staff::factory()->create(['email' => 'existe@avalia.local']);
 
