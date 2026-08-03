@@ -1,0 +1,8 @@
+node_modules
+data
+.env
+.env.bak
+.git
+test.mjs
+stub-boavista.mjs
+README.md

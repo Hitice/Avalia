@@ -1,0 +1,35 @@
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# --- Legado e material sensivel ---------------------------------------------
+# old/ guarda o app Node arquivado, com credencial real da Equifax (old/.env) e
+# o banco com dados de clientes (old/data). Fica inteiro fora do git: credencial
+# versionada nao se apaga do historico, so se rotaciona.
+#
+# As regras de negocio que importam desse codigo estao no PORTE.md, que sobe.
+/old/
+
+# PDFs da tabela de precos e material de referencia do cliente.
+/temp/
