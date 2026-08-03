@@ -1,12 +1,11 @@
-<div class="mx-auto mb-10 w-full max-w-60 rounded-2xl bg-gray-50 px-4 py-5 text-center dark:bg-white/[0.03]">
-    <h3 class="mb-2 font-semibold text-gray-900 dark:text-white">
-        #1 Tailwind CSS Dashboard
-    </h3>
-    <p class="mb-4 text-gray-500 text-theme-sm dark:text-gray-400">
-        Leading Tailwind CSS Admin Template with 500+ UI Component and Pages.
+{{-- Estado da construcao. Sai quando os modulos estiverem todos de pe. --}}
+<div class="mx-auto mb-8 w-full max-w-60 rounded-2xl bg-gray-50 px-4 py-4 dark:bg-white/[0.03]">
+    <h3 class="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Em construcao</h3>
+    <p class="text-theme-sm mb-3 text-gray-500 dark:text-gray-400">
+        Modulo Acesso concluido. Proximo: Catalogo de planos.
     </p>
-    <a href="https://tailadmin.com/pricing" target="_blank" rel="nofollow"
-        class="flex items-center justify-center p-3 font-medium text-white rounded-lg bg-brand-500 text-theme-sm hover:bg-brand-600">
-        Purchase Plan
-    </a>
+    <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
+        <div class="bg-brand-500 h-full rounded-full" style="width: 15%"></div>
+    </div>
+    <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">1 de 7 modulos</p>
 </div>

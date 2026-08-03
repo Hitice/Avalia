@@ -64,13 +64,12 @@
         'xl:justify-center' :
         'justify-start'">
         <a href="/">
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width="150" height="40" />
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width="150"
-                height="40" />
-            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
-                src="/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
+            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
+                <x-avalia.logotipo :tamanho="30" />
+            </span>
+            <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)">
+                <x-avalia.logotipo :tamanho="32" class="!gap-0 [&>span:last-child]:hidden" />
+            </span>
 
         </a>
     </div>
@@ -177,6 +176,23 @@
                                                 @endforeach
                                             </ul>
                                         </div>
+                                    @elseif (!empty($item['emBreve']))
+                                        {{-- Modulo ainda nao construido: mostra, mas nao navega.
+                                             Linkar para rota inexistente devolveria 404. --}}
+                                        <span class="menu-item group menu-item-inactive cursor-not-allowed opacity-45"
+                                            title="Modulo ainda nao construido"
+                                            :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'xl:justify-center' : 'justify-start'">
+                                            <span class="menu-item-icon-inactive">
+                                                {!! MenuHelper::getIconSvg($item['icon']) !!}
+                                            </span>
+                                            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                                class="menu-item-text flex flex-1 items-center gap-2">
+                                                {{ $item['name'] }}
+                                                <span class="ml-auto rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-gray-500 uppercase dark:bg-white/5 dark:text-gray-500">
+                                                    em breve
+                                                </span>
+                                            </span>
+                                        </span>
                                     @else
                                         <!-- Simple Menu Item -->
                                         <a href="{{ $item['path'] }}" class="menu-item group"

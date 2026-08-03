@@ -4,80 +4,45 @@ namespace App\Helpers;
 
 class MenuHelper
 {
+    /**
+     * Menu da area de gestao.
+     *
+     * `emBreve` marca modulo ainda nao construido: aparece esmaecido e nao
+     * navega. Melhor do que esconder — o operador ve o que esta por vir — e
+     * infinitamente melhor do que linkar para uma rota que devolve 404.
+     *
+     * `papeis` restringe o item. Ausente = todo mundo do staff ve.
+     */
     public static function getMainNavItems()
     {
         return [
-            [
-                'icon' => 'dashboard',
-                'name' => 'Dashboard',
-                'subItems' => [
-                    ['name' => 'Ecommerce', 'path' => '/'],
-                ],
-            ],
-            [
-                'icon' => 'calendar',
-                'name' => 'Calendar',
-                'path' => '/calendar',
-            ],
-            [
-                'icon' => 'user-profile',
-                'name' => 'User Profile',
-                'path' => '/profile',
-            ],
-            [
-                'name' => 'Forms',
-                'icon' => 'forms',
-                'subItems' => [
-                    ['name' => 'Form Elements', 'path' => '/form-elements', 'pro' => false],
-                ],
-            ],
-            [
-                'name' => 'Tables',
-                'icon' => 'tables',
-                'subItems' => [
-                    ['name' => 'Basic Tables', 'path' => '/basic-tables', 'pro' => false]
-                ],
-            ],
-            [
-                'name' => 'Pages',
-                'icon' => 'pages',
-                'subItems' => [
-                    ['name' => 'Blank Page', 'path' => '/blank', 'pro' => false],
-                    ['name' => '404 Error', 'path' => '/error-404', 'pro' => false]
-                ],
-            ],
+            ['icon' => 'dashboard', 'name' => 'Painel', 'path' => '/'],
+            ['icon' => 'ecommerce', 'name' => 'Nova consulta', 'emBreve' => true],
+            ['icon' => 'tables', 'name' => 'Historico', 'emBreve' => true],
+            ['icon' => 'user-profile', 'name' => 'Clientes', 'emBreve' => true],
+            ['icon' => 'pages', 'name' => 'Planos', 'emBreve' => true, 'papeis' => ['admin']],
+            ['icon' => 'charts', 'name' => 'Faturamento', 'emBreve' => true],
+            ['icon' => 'task', 'name' => 'Equipe', 'emBreve' => true, 'papeis' => ['admin']],
+            ['icon' => 'authentication', 'name' => 'Auditoria', 'emBreve' => true, 'papeis' => ['admin']],
         ];
     }
 
+    /** Vitrine do template, para consultar componentes prontos. */
     public static function getOthersItems()
     {
         return [
             [
-                'icon' => 'charts',
-                'name' => 'Charts',
-                'subItems' => [
-                    ['name' => 'Line Chart', 'path' => '/line-chart', 'pro' => false],
-                    ['name' => 'Bar Chart', 'path' => '/bar-chart', 'pro' => false]
-                ],
-            ],
-            [
                 'icon' => 'ui-elements',
-                'name' => 'UI Elements',
+                'name' => 'Componentes',
                 'subItems' => [
-                    ['name' => 'Alerts', 'path' => '/alerts', 'pro' => false],
-                    ['name' => 'Avatar', 'path' => '/avatars', 'pro' => false],
-                    ['name' => 'Badge', 'path' => '/badge', 'pro' => false],
-                    ['name' => 'Buttons', 'path' => '/buttons', 'pro' => false],
-                    ['name' => 'Images', 'path' => '/image', 'pro' => false],
-                    ['name' => 'Videos', 'path' => '/videos', 'pro' => false],
-                ],
-            ],
-            [
-                'icon' => 'authentication',
-                'name' => 'Authentication',
-                'subItems' => [
-                    ['name' => 'Sign In', 'path' => '/signin', 'pro' => false],
-                    ['name' => 'Sign Up', 'path' => '/signup', 'pro' => false],
+                    ['name' => 'Painel exemplo', 'path' => '/kit'],
+                    ['name' => 'Formularios', 'path' => '/kit/formularios'],
+                    ['name' => 'Tabelas', 'path' => '/kit/tabelas'],
+                    ['name' => 'Alertas', 'path' => '/kit/alertas'],
+                    ['name' => 'Botoes', 'path' => '/kit/botoes'],
+                    ['name' => 'Selos', 'path' => '/kit/selos'],
+                    ['name' => 'Grafico de linha', 'path' => '/kit/grafico-linha'],
+                    ['name' => 'Grafico de barra', 'path' => '/kit/grafico-barra'],
                 ],
             ],
         ];
@@ -85,20 +50,23 @@ class MenuHelper
 
     public static function getMenuGroups()
     {
+        $papel = auth('staff')->user()?->papel;
+
+        $permitido = fn (array $item) => ! isset($item['papeis'])
+            || in_array($papel, $item['papeis'], true);
+
         return [
-            [
-                'title' => 'Menu',
-                'items' => self::getMainNavItems()
-            ],
-            [
-                'title' => 'Others',
-                'items' => self::getOthersItems()
-            ]
+            ['title' => 'Avalia', 'items' => array_values(array_filter(self::getMainNavItems(), $permitido))],
+            ['title' => 'Referencia', 'items' => self::getOthersItems()],
         ];
     }
 
     public static function isActive($path)
     {
+        if (! $path) {
+            return false;
+        }
+
         return request()->is(ltrim($path, '/'));
     }
 
