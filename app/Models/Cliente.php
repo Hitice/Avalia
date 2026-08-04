@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * A empresa contratante. Entra na plataforma para consultar e ver as proprias
  * faturas — nunca para gerir a Avalia.
  *
- * O modulo Cadastro acrescenta a ficha completa (proposta Bancredi) por
+ * O modulo Cadastro acrescenta a ficha completa (proposta comercial) por
  * migration propria. Aqui fica so o que o Acesso precisa.
  */
 class Cliente extends Authenticatable implements ContaAutenticavel

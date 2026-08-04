@@ -4,7 +4,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Catalogo</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Cada versao e uma tabela de precos datada. A que esta em vigor nao aceita
+            Cada linha e uma tabela de precos datada. A que esta em vigor nao aceita
             alteracao: reajuste nasce de uma copia.
         </p>
     </div>
@@ -28,7 +28,7 @@
                     <tr>
                         {{-- text-left explicito: o navegador centraliza th por
                              padrao, e o text-left da tabela nao vence isso. --}}
-                        <th class="{{ $celula }} text-left">Versao</th>
+                        <th class="{{ $celula }} text-left">Tabela</th>
                         <th class="{{ $celula }} text-left">Situacao</th>
                         <th class="{{ $celula }} text-right">Precos</th>
                         <th class="{{ $celula }} text-right">Planos</th>

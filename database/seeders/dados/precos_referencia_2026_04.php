@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Tabela de referencia Bancredi 04/2026, transcrita dos PDFs de temp/.
+ * Tabela de referencia do fornecedor, 04/2026, transcrita dos PDFs de temp/.
  *
  * ARQUIVO GERADO por tools/gera_precos_catalogo.py. Nao edite a mao: rode o
  * script de novo quando o fornecedor publicar tabela nova.

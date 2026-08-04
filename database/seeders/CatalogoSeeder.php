@@ -21,11 +21,11 @@ use Illuminate\Support\Facades\DB;
  */
 class CatalogoSeeder extends Seeder
 {
-    private const ROTULO = 'Referência Bancredi 04/2026';
+    private const ROTULO = 'Tabela de referência 04/2026';
 
     public function run(): void
     {
-        $dados = require database_path('seeders/dados/precos_bancredi_2026_04.php');
+        $dados = require database_path('seeders/dados/precos_referencia_2026_04.php');
 
         $versao = VersaoCatalogo::firstOrCreate(
             ['rotulo' => self::ROTULO],

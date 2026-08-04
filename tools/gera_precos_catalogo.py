@@ -1,6 +1,6 @@
 """Transcreve as tabelas de preco dos PDFs de temp/ para o seeder do catalogo.
 
-Gera database/seeders/dados/precos_bancredi_2026_04.php. Rode de novo quando o
+Gera database/seeders/dados/precos_referencia_2026_04.php. Rode de novo quando o
 fornecedor publicar uma tabela nova; nao edite o PHP a mao.
 
     python tools/gera_precos_catalogo.py
@@ -16,7 +16,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / 'database' / 'seeders' / 'dados' / 'precos_bancredi_2026_04.php'
+OUTPUT = ROOT / 'database' / 'seeders' / 'dados' / 'precos_referencia_2026_04.php'
 
 VALOR = re.compile(r'R\$\s+(\d+,\d{2})')
 ACENTOS = str.maketrans('ÁÂÃÀÇÉÊÍÓÔÕÚ', 'AAAACEEIOOOU')
@@ -159,7 +159,7 @@ def php(servicos: list[dict]) -> str:
         '<?php',
         '',
         '/*',
-        ' * Tabela de referencia Bancredi 04/2026, transcrita dos PDFs de temp/.',
+        ' * Tabela de referencia do fornecedor, 04/2026, transcrita dos PDFs de temp/.',
         ' *',
         ' * ARQUIVO GERADO por tools/gera_precos_catalogo.py. Nao edite a mao: rode o',
         ' * script de novo quando o fornecedor publicar tabela nova.',

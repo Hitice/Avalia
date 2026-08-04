@@ -59,7 +59,7 @@ no catálogo versionado — nunca no código.
 | Vencimento da fatura | dez dias após o fim da competência | Padrão, até configuração comercial aprovada. |
 | Carência antes da suspensão | cinco dias | Idem. |
 | Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. |
-| Fidelidade e carência de contrato | não há | Conforme o contrato de referência da Bancredi. |
+| Fidelidade e carência de contrato | não há | Conforme o contrato de referência do fornecedor. |
 
 Todos os valores financeiros são inteiros em centavos, do banco até a tela. Não
 se usa ponto flutuante em nenhuma etapa de cálculo, armazenamento ou exibição.
@@ -108,22 +108,14 @@ Os preços de partida estão nos anexos A e B, transcritos dos PDFs em `temp/`.
 Eles precisam ser homologados pelo time comercial antes da ativação e então
 cadastrados no catálogo, em centavos.
 
-O diretório `temp/` é referência documental apenas: contém tabelas e contratos em
-PDF usados na transição. Não é parte da aplicação e não deve ser lido pelo código
-em produção. Arquivos atuais:
+O diretório `temp/` é referência documental apenas: guarda a tabela de crédito, a
+tabela veicular e o contrato de referência do fornecedor, em PDF, usados na
+transição. Não é parte da aplicação, não é versionado e não deve ser lido pelo
+código em produção.
 
-- `0 - 042026 - TABELA CREDITO - 49,00.pdf`;
-- `0 - 042026 - TABELA VEICULAR - 49,00.pdf`;
-- `1 - CONTRATO E CADASTRO BANCREDI CPF-CNPJ 01-2025.pdf`.
-
-A modelagem atual do repositório (`planos` + `precos`) é um ponto de partida e
-ainda não captura a granularidade dos anexos. O catálogo técnico deve evoluir
-para suportar:
-
-- serviços de crédito e veiculares com códigos e descrições próprias;
-- as sete faixas de consumo mínimo, com preço unitário por faixa;
-- quantidade incluída e regras de excedente por serviço;
-- contratos e versões comerciais que fixem valores e garantam auditabilidade.
+Os nomes comerciais dos serviços são da Avalia. Marca, razão social e
+nomenclatura do fornecedor não aparecem no catálogo, no portal nem em documento
+gerado para o cliente.
 
 ### Cálculo mensal
 
@@ -413,7 +405,7 @@ permite que a entrega seja feita por fases sem quebrar o fluxo de uso.
 
 ## Anexo A — Preços de referência: crédito
 
-> Transcrito de `temp/0 - 042026 - TABELA CREDITO - 49,00.pdf`. Valores unitários
+> Transcrito da tabela de crédito do fornecedor (`temp/`). Valores unitários
 > em reais, por faixa de consumo mínimo contratada. Provisórios até homologação
 > comercial. Serviços marcados com `*` dependem de liberação do SCR.
 
@@ -452,7 +444,7 @@ endereços, telefones e pessoas de contato.
 
 ## Anexo B — Preços de referência: veicular
 
-> Transcrito de `temp/0 - 042026 - TABELA VEICULAR - 49,00.pdf`. Mesmas regras do
+> Transcrito da tabela veicular do fornecedor (`temp/`). Mesmas regras do
 > anexo A.
 
 | Serviço | Sem mínimo | 75 | 200 | 500 | 900 | 1.500 | 5.000 |

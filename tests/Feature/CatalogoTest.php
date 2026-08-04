@@ -219,7 +219,7 @@ it('conta franquia por quantidade de consultas, nao por valor', function () {
 it('importa a tabela do fornecedor como rascunho, nunca ativa', function () {
     $this->seed(CatalogoSeeder::class);
 
-    $versao = VersaoCatalogo::firstWhere('rotulo', 'Referência Bancredi 04/2026');
+    $versao = VersaoCatalogo::firstWhere('rotulo', 'Tabela de referência 04/2026');
 
     // Ativa direto significaria vender com preco nao homologado.
     expect($versao->situacao)->toBe('rascunho')
@@ -234,7 +234,7 @@ it('mantem cada preco na faixa certa ao importar', function () {
     // jogando todo preco uma faixa para o lado.
     $this->seed(CatalogoSeeder::class);
 
-    $versao = VersaoCatalogo::firstWhere('rotulo', 'Referência Bancredi 04/2026');
+    $versao = VersaoCatalogo::firstWhere('rotulo', 'Tabela de referência 04/2026');
 
     expect($versao->faixas())->toBe([0, 7_500, 20_000, 50_000, 90_000, 150_000, 500_000])
         ->and($versao->precoDe('cheques-sem-fundos', 0))->toBe(209)
