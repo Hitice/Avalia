@@ -39,11 +39,22 @@ class CatalogoController extends Controller
             $categoria = null;
         }
 
+        $precos = $catalogo->precos()->with('servico')->get();
+
+        // As faixas saem dos precos ja carregados. Perguntar faixas() ao
+        // catalogo seria um SELECT a mais, e contra banco remoto cada ida e
+        // volta custa quase meio segundo na cara do operador.
+        $faixas = $precos
+            ->pluck('consumo_minimo_cents')
+            ->unique()
+            ->sort()
+            ->values()
+            ->map(intval(...))
+            ->all();
+
         // Uma linha por servico, com os precos indexados pela faixa. Assim a
         // tabela da tela e so um loop sobre as faixas.
-        $linhas = $catalogo->precos()
-            ->with('servico')
-            ->get()
+        $linhas = $precos
             ->groupBy('servico_id')
             ->map(fn ($precos) => [
                 'servico' => $precos->first()->servico,
@@ -57,7 +68,7 @@ class CatalogoController extends Controller
 
         return view('paginas.catalogo.tabela', [
             'catalogo' => $catalogo,
-            'faixas' => $catalogo->faixas(),
+            'faixas' => $faixas,
             'linhas' => $linhas,
             'categoria' => $categoria,
         ]);
