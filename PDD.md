@@ -556,7 +556,7 @@ permite que a entrega seja feita por fases sem quebrar o fluxo de uso.
 
 Os filtros extras citados nos nomes são score, faturamento e renda presumida,
 pontualidade de pagamento, balanço máximo e mínimo, quantidade de funcionários,
-endereços, telefones e pessoas de contato.
+endereços, telefones, pessoas de contato, cartórios e Bacen direto.
 
 ## Anexo B — Preços de referência: veicular
 
