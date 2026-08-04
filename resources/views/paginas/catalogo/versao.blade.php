@@ -27,6 +27,8 @@
 
     @include('paginas.catalogo.avisos')
 
+    @include('paginas.catalogo.acoes-versao')
+
     {{-- Filtro por categoria. Sem parametro = tudo. --}}
     <div class="mb-4 flex flex-wrap gap-2">
         @php
@@ -42,6 +44,12 @@
             </a>
         @endforeach
     </div>
+
+    {{-- Em rascunho a tabela inteira e um formulario: o operador ajusta
+         quantas celulas quiser e grava tudo de uma vez. --}}
+    <form method="POST" action="{{ route('catalogo.versoes.precos', $versao) }}">
+        @csrf
+        @method('PUT')
 
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
@@ -79,7 +87,14 @@
                             @foreach ($faixas as $faixa)
                                 @php $preco = $linha['precos']->get($faixa); @endphp
                                 <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
-                                    {{ $preco?->preco ?? '—' }}
+                                    @if ($preco && $versao->podeEditar())
+                                        <input type="text" inputmode="decimal"
+                                               name="precos[{{ $preco->id }}]"
+                                               value="{{ \App\Support\Dinheiro::numero($preco->preco_cents) }}"
+                                               class="focus:border-brand-500 w-24 rounded-lg border border-gray-300 bg-white px-2 py-1 text-right text-sm tabular-nums text-gray-800 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                                    @else
+                                        {{ $preco?->preco ?? '—' }}
+                                    @endif
                                 </td>
                             @endforeach
                         </tr>
@@ -94,6 +109,13 @@
             </table>
         </div>
     </div>
+
+        @if ($versao->podeEditar() && $linhas->isNotEmpty())
+            <button type="submit" class="bg-brand-500 hover:bg-brand-600 mt-5 rounded-lg px-4 py-2.5 text-sm font-medium text-white">
+                Salvar precos
+            </button>
+        @endif
+    </form>
 
     <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
         Precos de venda ao cliente. Custo do fornecedor e margem sao internos e nao aparecem

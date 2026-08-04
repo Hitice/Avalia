@@ -53,6 +53,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             Route::get('/', [CatalogoController::class, 'index'])->name('index');
             Route::get('/{versao}', [CatalogoController::class, 'versao'])->name('mostrar');
             Route::post('/{versao}/ativar', [CatalogoController::class, 'ativar'])->name('ativar');
+
+            // Caminho do reajuste: a versao em vigor e imutavel, entao mudar
+            // preco comeca sempre por uma copia em rascunho.
+            Route::post('/{versao}/duplicar', [CatalogoController::class, 'duplicar'])->name('duplicar');
+            Route::put('/{versao}/precos', [CatalogoController::class, 'precos'])->name('precos');
+            Route::post('/{versao}/reajustar', [CatalogoController::class, 'reajustar'])->name('reajustar');
         });
     });
 });

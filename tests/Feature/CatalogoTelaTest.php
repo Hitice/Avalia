@@ -57,12 +57,26 @@ it('mostra a tabela de precos da versao com uma coluna por faixa', function () {
         ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 500_000 => 370])
         ->create();
 
+    // Rascunho: cada preco vira campo editavel com o valor preenchido.
     admin()->get(route('catalogo.versoes.mostrar', $versao))
         ->assertOk()
         ->assertSee('scpc-bvs')
         ->assertSee('Sem mínimo')
+        ->assertSee('value="6,31"', false)
+        ->assertSee('value="3,70"', false);
+});
+
+it('mostra o preco como texto depois que a versao entra em vigor', function () {
+    $versao = VersaoCatalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 500_000 => 370])
+        ->ativa()
+        ->create();
+
+    admin()->get(route('catalogo.versoes.mostrar', $versao))
+        ->assertOk()
         ->assertSee("R$\u{00A0}6,31", false)
-        ->assertSee("R$\u{00A0}3,70", false);
+        ->assertSee("R$\u{00A0}3,70", false)
+        ->assertDontSee('value="6,31"', false);
 });
 
 it('filtra a tabela por categoria', function () {
