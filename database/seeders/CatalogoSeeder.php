@@ -9,15 +9,13 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Carrega a tabela de referencia do fornecedor como RASCUNHO.
+ * Carrega a tabela de referencia do fornecedor no catalogo.
  *
- * Nao e dado de exemplo: sao os precos reais transcritos dos PDFs de temp/.
- * Entram como rascunho de proposito — o PDD exige homologacao comercial antes
- * da ativacao, e uma versao ativa e imutavel. Quem ativa e a administracao,
- * depois de conferir.
+ * Nao e dado de exemplo: sao os precos reais transcritos dos PDFs de temp/,
+ * ponto de partida para a administracao ajustar na tela.
  *
- * Idempotente: rodar de novo atualiza a versao em rascunho em vez de duplicar.
- * Se a versao ja tiver sido ativada, o seeder nao toca em nada.
+ * Idempotente: rodar de novo atualiza os precos em vez de duplicar. Cuidado —
+ * isso sobrescreve ajuste feito a mao, entao nao rode depois de reajustar.
  */
 class CatalogoSeeder extends Seeder
 {
@@ -30,19 +28,10 @@ class CatalogoSeeder extends Seeder
         $versao = VersaoCatalogo::firstOrCreate(
             ['rotulo' => self::ROTULO],
             [
-                'situacao' => 'rascunho',
-                'observacao' => 'Transcrita de temp/*.pdf por tools/gera_precos_catalogo.py. '
-                    .'Homologar preco, custo e franquia antes de ativar.',
+                'observacao' => 'Transcrita dos PDFs de referencia por '
+                    .'tools/gera_precos_catalogo.py. Homologar preco, custo e franquia.',
             ],
         );
-
-        if ($versao->estaCongelada()) {
-            $this->command->warn(
-                "Versao '{$versao->rotulo}' ja esta {$versao->situacao}: nada alterado."
-            );
-
-            return;
-        }
 
         DB::transaction(function () use ($versao, $dados) {
             // Grava em lote, nao linha a linha. Sao 43 servicos e 301 precos:
@@ -81,9 +70,6 @@ class CatalogoSeeder extends Seeder
                 }
             }
 
-            // upsert nao dispara evento de model, entao a guarda de
-            // congelamento do Preco nao roda aqui — e por isso que o
-            // estaCongelada() acima e obrigatorio, e nao mera cortesia.
             Preco::upsert(
                 $precos,
                 ['versao_id', 'servico_id', 'consumo_minimo_cents'],

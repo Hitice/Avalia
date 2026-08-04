@@ -14,22 +14,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * O que o cliente contrata.
  *
  * Tres decisoes comerciais num registro so:
- *   versao_id            -> a tabela de precos congelada no fechamento
+ *   versao_id            -> a tabela de precos que o plano le
  *   mensalidade_cents    -> cobrada sempre, consumindo ou nao
  *   consumo_minimo_cents -> piso do consumo do mes E a coluna de precos
  *
  * A fatura e mensalidade + max(minimo, consumido). Ver PDD.md, secao 6.
+ * A comissao do vendedor nao sai daqui: e aliquota unica sobre o consumo
+ * realizado, em App\Support\Comissao.
  */
 class Plano extends Model
 {
     use HasFactory, SoftDeletes;
-
-    /** Faixa que separa as duas aliquotas de comissao: R$ 900,00. */
-    public const FAIXA_COMISSAO_CENTS = 90_000;
-
-    public const COMISSAO_ATE_FAIXA = 20;
-
-    public const COMISSAO_ACIMA_FAIXA = 15;
 
     protected $fillable = [
         'versao_id', 'nome', 'descricao', 'mensalidade_cents', 'consumo_minimo_cents', 'ativo',
@@ -53,20 +48,6 @@ class Plano extends Model
     public function franquias(): HasMany
     {
         return $this->hasMany(FranquiaPlano::class);
-    }
-
-    /**
-     * Aliquota de comissao do vendedor neste plano.
-     *
-     * Le o consumo minimo, NAO o valor da fatura. Essa distincao e a razao de
-     * mensalidade e minimo serem colunas separadas: somados, o plano de R$ 900
-     * passaria de R$ 900 e cairia de 20% para 15% sozinho.
-     */
-    public function pctComissao(): int
-    {
-        return $this->consumo_minimo_cents > self::FAIXA_COMISSAO_CENTS
-            ? self::COMISSAO_ACIMA_FAIXA
-            : self::COMISSAO_ATE_FAIXA;
     }
 
     /** Menor valor que o cliente paga no mes, mesmo sem consumir nada. */

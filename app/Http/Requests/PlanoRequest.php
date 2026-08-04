@@ -40,7 +40,6 @@ class PlanoRequest extends FormRequest
                 Rule::unique('planos', 'nome')->ignore($this->route('plano')),
             ],
             'descricao' => ['nullable', 'string', 'max:500'],
-            'versao_id' => ['required', Rule::exists('versoes_catalogo', 'id')],
             'mensalidade_cents' => ['required', 'integer', 'min:0'],
             'consumo_minimo_cents' => ['required', 'integer', 'min:0'],
             'ativo' => ['boolean'],
@@ -48,32 +47,34 @@ class PlanoRequest extends FormRequest
     }
 
     /**
-     * O consumo minimo tem que ser uma das faixas da versao escolhida.
+     * O consumo minimo tem que ser uma das faixas do catalogo.
      *
-     * Sem isso da para salvar um plano de R$ 300 numa versao com faixas de
+     * Sem isso da para salvar um plano de R$ 300 num catalogo com faixas de
      * 75/200/500: nenhuma consulta acharia coluna de preco, e o erro so
      * apareceria na hora de faturar.
      */
     public function withValidator(Validator $validador): void
     {
         $validador->after(function (Validator $validador) {
-            $versao = VersaoCatalogo::find($this->input('versao_id'));
+            $catalogo = VersaoCatalogo::vigente();
 
-            if (! $versao) {
+            if (! $catalogo) {
+                $validador->errors()->add('consumo_minimo', 'Nao ha catalogo cadastrado.');
+
                 return;
             }
 
-            $faixas = $versao->faixas();
+            $faixas = $catalogo->faixas();
 
             if ($faixas === []) {
-                $validador->errors()->add('versao_id', 'Esta versao ainda nao tem preco nenhum cadastrado.');
+                $validador->errors()->add('consumo_minimo', 'O catalogo ainda nao tem preco nenhum.');
 
                 return;
             }
 
             if (! in_array($this->input('consumo_minimo_cents'), $faixas, true)) {
                 $validador->errors()->add('consumo_minimo', sprintf(
-                    'Faixa inexistente nesta versao. Disponiveis: %s.',
+                    'Faixa inexistente no catalogo. Disponiveis: %s.',
                     implode(', ', array_map(
                         fn (int $faixa) => $faixa === 0 ? 'sem minimo' : Dinheiro::brl($faixa),
                         $faixas,
@@ -86,7 +87,6 @@ class PlanoRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'versao_id' => 'versao do catalogo',
             'mensalidade_cents' => 'mensalidade',
             'consumo_minimo_cents' => 'consumo minimo',
         ];

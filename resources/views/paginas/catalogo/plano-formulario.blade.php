@@ -3,17 +3,12 @@
 @php
     use App\Support\Dinheiro;
 
-    // Faixas de cada versao, para o select acompanhar a versao escolhida sem
-    // recarregar a pagina. O valor vai no formato que o operador digitaria,
+    // Faixas do catalogo. O valor vai no formato que o operador digitaria,
     // porque e o mesmo campo que aceita digitacao livre no servidor.
-    $faixasPorVersao = $versoes->mapWithKeys(fn ($v) => [
-        $v->id => collect($v->faixas())
-            ->map(fn ($centavos) => [
-                'valor' => Dinheiro::numero($centavos),
-                'rotulo' => $centavos === 0 ? 'Sem mínimo' : Dinheiro::brl($centavos),
-            ])
-            ->values(),
-    ]);
+    $opcoesFaixa = collect($faixas)->map(fn ($centavos) => [
+        'valor' => Dinheiro::numero($centavos),
+        'rotulo' => $centavos === 0 ? 'Sem mínimo' : Dinheiro::brl($centavos),
+    ])->values();
 
     $rotulo = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5';
     $campo = 'w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
@@ -39,10 +34,8 @@
         <form method="POST"
               action="{{ $plano->exists ? route('catalogo.planos.atualizar', $plano) : route('catalogo.planos.salvar') }}"
               x-data="{
-                  faixasPorVersao: {{ Js::from($faixasPorVersao) }},
-                  versaoId: '{{ old('versao_id', $plano->versao_id) }}',
+                  faixas: {{ Js::from($opcoesFaixa) }},
                   faixa: '{{ old('consumo_minimo', Dinheiro::numero($plano->consumo_minimo_cents ?? 0)) }}',
-                  get faixas() { return this.faixasPorVersao[this.versaoId] ?? [] },
               }">
             @csrf
             @if ($plano->exists)
@@ -61,17 +54,6 @@
                     <label for="descricao" class="{{ $rotulo }}">Descricao</label>
                     <textarea id="descricao" name="descricao" rows="2" class="{{ $campo }}">{{ old('descricao', $plano->descricao) }}</textarea>
                     @error('descricao') <span class="{{ $erro }}">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <label for="versao_id" class="{{ $rotulo }}">Versao do catalogo</label>
-                    <select id="versao_id" name="versao_id" class="{{ $campo }}" x-model="versaoId" required>
-                        <option value="">Escolha</option>
-                        @foreach ($versoes as $v)
-                            <option value="{{ $v->id }}">{{ $v->rotulo }} ({{ $v->rotuloSituacao() }})</option>
-                        @endforeach
-                    </select>
-                    @error('versao_id') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
                 <div>

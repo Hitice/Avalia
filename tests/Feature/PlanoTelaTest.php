@@ -49,7 +49,6 @@ it('cria plano convertendo o dinheiro digitado em centavos', function () {
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano 900',
-        'versao_id' => $versao->id,
         'mensalidade' => '79,90',
         'consumo_minimo' => '900,00',
         'ativo' => '1',
@@ -59,8 +58,7 @@ it('cria plano convertendo o dinheiro digitado em centavos', function () {
 
     expect($plano->mensalidade_cents)->toBe(7_990)
         ->and($plano->consumo_minimo_cents)->toBe(90_000)
-        ->and($plano->ativo)->toBeTrue()
-        ->and($plano->pctComissao())->toBe(20);
+        ->and($plano->ativo)->toBeTrue();
 });
 
 it('aceita valor com separador de milhar', function () {
@@ -68,7 +66,6 @@ it('aceita valor com separador de milhar', function () {
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano 5000',
-        'versao_id' => $versao->id,
         'mensalidade' => '1.234,56',
         'consumo_minimo' => '5.000,00',
     ])->assertRedirect();
@@ -76,18 +73,16 @@ it('aceita valor com separador de milhar', function () {
     $plano = Plano::firstWhere('nome', 'Plano 5000');
 
     expect($plano->mensalidade_cents)->toBe(123_456)
-        ->and($plano->consumo_minimo_cents)->toBe(500_000)
-        ->and($plano->pctComissao())->toBe(15);
+        ->and($plano->consumo_minimo_cents)->toBe(500_000);
 });
 
-it('recusa consumo minimo que nao e faixa da versao', function () {
+it('recusa consumo minimo que nao e faixa do catalogo', function () {
     // R$ 300 nao existe no catalogo: o plano ficaria sem coluna de preco e o
     // erro so apareceria no fechamento da fatura.
     $versao = catalogo();
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano torto',
-        'versao_id' => $versao->id,
         'mensalidade' => '79,90',
         'consumo_minimo' => '300,00',
     ])->assertSessionHasErrors('consumo_minimo');
@@ -95,15 +90,16 @@ it('recusa consumo minimo que nao e faixa da versao', function () {
     expect(Plano::count())->toBe(0);
 });
 
-it('recusa versao sem preco nenhum', function () {
-    $versao = VersaoCatalogo::factory()->create();
+it('recusa plano quando o catalogo nao tem preco nenhum', function () {
+    VersaoCatalogo::factory()->create();
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano orfao',
-        'versao_id' => $versao->id,
         'mensalidade' => '79,90',
         'consumo_minimo' => '0,00',
-    ])->assertSessionHasErrors('versao_id');
+    ])->assertSessionHasErrors('consumo_minimo');
+
+    expect(Plano::count())->toBe(0);
 });
 
 it('recusa nome repetido, mas deixa salvar o proprio nome na edicao', function () {
@@ -113,14 +109,12 @@ it('recusa nome repetido, mas deixa salvar o proprio nome na edicao', function (
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano 900',
-        'versao_id' => $versao->id,
         'mensalidade' => '79,90',
         'consumo_minimo' => '0,00',
     ])->assertSessionHasErrors('nome');
 
     admin()->put(route('catalogo.planos.atualizar', $outro), [
         'nome' => 'Plano 75',
-        'versao_id' => $versao->id,
         'mensalidade' => '89,90',
         'consumo_minimo' => '0,00',
     ])->assertSessionHasNoErrors();
@@ -137,7 +131,6 @@ it('lista os planos em ordem crescente de valor, nao alfabetica', function () {
     foreach ([150_000, 0, 20_000] as $faixa) {
         Plano::factory()->create([
             'nome' => 'Consumo mínimo R$ '.App\Support\Dinheiro::numero($faixa),
-            'versao_id' => $versao->id,
             'consumo_minimo_cents' => $faixa,
         ]);
     }

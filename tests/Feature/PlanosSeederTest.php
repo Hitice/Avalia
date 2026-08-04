@@ -7,10 +7,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('cria um plano por faixa da versao vigente', function () {
+it('cria um plano por faixa do catalogo', function () {
     VersaoCatalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])
-        ->ativa()
         ->create();
 
     $this->seed(PlanosSeeder::class);
@@ -23,7 +22,6 @@ it('cria um plano por faixa da versao vigente', function () {
 it('deixa todo plano criado com faixa valida e vendavel', function () {
     VersaoCatalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 90_000 => 493])
-        ->ativa()
         ->create();
 
     $this->seed(PlanosSeeder::class);
@@ -35,25 +33,8 @@ it('deixa todo plano criado com faixa valida e vendavel', function () {
     });
 });
 
-it('separa mensalidade do consumo minimo na faixa de comissao', function () {
-    // O plano de R$ 900 fatura R$ 979,90 e ainda assim paga 20%.
-    VersaoCatalogo::factory()
-        ->comServico('scpc-bvs', [90_000 => 493, 150_000 => 463])
-        ->ativa()
-        ->create();
-
-    $this->seed(PlanosSeeder::class);
-
-    $novecentos = Plano::firstWhere('consumo_minimo_cents', 90_000);
-    $milEQuinhentos = Plano::firstWhere('consumo_minimo_cents', 150_000);
-
-    expect($novecentos->faturaMinimaCents())->toBe(97_990)
-        ->and($novecentos->pctComissao())->toBe(20)
-        ->and($milEQuinhentos->pctComissao())->toBe(15);
-});
-
 it('roda duas vezes sem duplicar e sem desfazer ajuste manual', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [90_000 => 493])->ativa()->create();
+    VersaoCatalogo::factory()->comServico('scpc-bvs', [90_000 => 493])->create();
 
     $this->seed(PlanosSeeder::class);
 

@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Planos</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Cada plano aponta para uma versao do catalogo e escolhe uma faixa dela.
+                Cada plano escolhe uma faixa do catalogo. A comissao e 10% sobre o consumo do mes, 20% se houver excedente — igual para todos.
             </p>
         </div>
 
@@ -25,11 +25,9 @@
                 <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Plano</th>
-                        <th class="px-5 py-3 text-left font-medium">Versao</th>
-                        <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
+                                                <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
                         <th class="px-5 py-3 text-right font-medium">Consumo minimo</th>
                         <th class="px-5 py-3 text-right font-medium">Fatura minima</th>
-                        <th class="px-5 py-3 text-right font-medium">Comissao</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -55,15 +53,13 @@
                                     @endunless
                                 </span>
                             </td>
-                            <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $plano->versao->rotulo }}</td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->mensalidade }}</td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->consumo_minimo }}</td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->fatura_minima }}</td>
-                            <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $plano->pctComissao() }}%</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="5" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                 Nenhum plano cadastrado.
                             </td>
                         </tr>

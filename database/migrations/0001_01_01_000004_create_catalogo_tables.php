@@ -95,14 +95,11 @@ return new class extends Migration
             $t->string('nome')->unique();
             $t->text('descricao')->nullable();
 
-            // ATENCAO: mensalidade e consumo minimo sao colunas separadas e tem
-            // que continuar assim.
-            //
-            // A fatura e  mensalidade + max(consumo_minimo, consumo_realizado),
-            // mas a faixa de comissao le SO o consumo minimo. Juntar os dois num
-            // campo unico faz o plano de R$ 900 virar R$ 979,90 e cair de 20%
-            // para 15% sem ninguem perceber — o vendedor perde comissao em
-            // silencio.
+            // Mensalidade e consumo minimo sao colunas separadas porque a
+            // fatura e mensalidade + max(consumo_minimo, consumo_realizado).
+            // Num campo unico nao da para saber quanto do valor e piso de
+            // consumo e quanto e assinatura, e o excedente deixa de ser
+            // calculavel.
             $t->bigInteger('mensalidade_cents')->default(0);
 
             // Tem que casar com uma das faixas da versao: e ela que escolhe a

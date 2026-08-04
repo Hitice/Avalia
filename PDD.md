@@ -14,7 +14,7 @@ somente o serviço contratado, o resultado permitido e o seu consumo.
 ## 2. Objetivos
 
 - Permitir que administração e vendedores criem e gerenciem carteiras de empresas clientes.
-- Precificar planos com mensalidade, franquia, excedentes e taxa de cadastro.
+- Precificar planos com mensalidade, franquia, excedentes e taxa de adesão.
 - Executar consultas com rastreabilidade, controle de consumo e retenção de dados.
 - Automatizar cobrança recorrente e inadimplência por meio do Asaas.
 - Dar a cada papel um painel restrito às informações necessárias.
@@ -25,7 +25,7 @@ somente o serviço contratado, o resultado permitido e o seu consumo.
 | Papel | Responsabilidades |
 | --- | --- |
 | Administrador | Acesso concedido por permissões de comercial, financeiro, operação ou superadmin; configura catálogo, bases, campanhas e documentos e acompanha os módulos autorizados. |
-| Vendedor | Administra apenas suas carteiras, acompanha clientes, consumo, previsão de ganhos, bônus e materiais liberados. |
+| Vendedor | Administra apenas suas carteiras, acompanha clientes, consumo, previsão de ganhos, participação na adesão e materiais liberados. |
 | Empresa cliente | Consulta os serviços contratados, acompanha franquia, excedentes, plano, faturas e atendimento. |
 
 As contas de operação (admin e vendedor) ficam na tabela staff; empresas ficam
@@ -35,7 +35,7 @@ nunca obtém acesso a rotas, registros ou indicadores de outro papel sem permiss
 ## 4. Jornada de cliente
 
 1. O vendedor fecha a venda e entrega os dados comerciais à administração.
-2. O administrador cria a empresa, vincula o vendedor, configura o plano e registra a taxa de cadastro.
+2. O administrador cria a empresa, vincula o vendedor, configura o plano e registra a taxa de adesão.
 3. A plataforma cadastra ou atualiza o cliente no Asaas e cria a cobrança correspondente.
 4. O cliente recebe acesso ao portal e documentos de aceite necessários.
 5. O cliente realiza consultas e acompanha consumo, franquia e excedentes.
@@ -53,19 +53,24 @@ no catálogo versionado — nunca no código.
 | --- | --- | --- |
 | Mensalidade da Avalia | R$ 79,90 | Fixa, cobrada consumindo ou não. |
 | Faixas de consumo mínimo | sem mínimo, R$ 75,00, R$ 200,00, R$ 500,00, R$ 900,00, R$ 1.500,00, R$ 5.000,00 | A faixa escolhida define o preço unitário de todos os serviços. |
-| Taxa de licença e implantação | R$ 390,00, com 20% de desconto à vista | Cobrança única na adesão. |
-| Taxa de cadastro | de R$ 89,90 a R$ 400,00 | Escolhida pelo vendedor; fora da faixa exige aprovação comercial registrada. |
-| Comissão recorrente | 20% até R$ 900,00 de consumo mínimo; 15% acima | A faixa lê o consumo mínimo, nunca o total da fatura. |
-| Vencimento da fatura | dez dias após o fim da competência | Padrão, até configuração comercial aprovada. |
-| Carência antes da suspensão | cinco dias | Idem. |
+| Taxa de adesão | valor livre, definido pelo vendedor | Cobre licença de uso, liberação de acesso e implantação. Pode ser parcelada e pode ser isentada pelo vendedor. |
+| Rateio da adesão | 50% vendedor, 50% Avalia | Isentar significa nenhum dos dois receber. |
+| Comissão recorrente | 10% sobre o consumo realizado no mês | Lê o que o cliente usou, não a franquia nem o valor da fatura. |
+| Adicional de excedente | +10 pontos, totalizando 20% | Aplica-se ao mês em que houver excedente. |
+| Vencimento da fatura | todo dia 10 | Data fixa de calendário, igual para todos os clientes. |
+| Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
+| Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
+| Imposto sobre a venda | 27% (provisório) | Média estimada. Depende do regime tributário e precisa de confirmação contábil. |
 | Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. |
-| Fidelidade e carência de contrato | não há | Conforme o contrato de referência do fornecedor. |
 
 Todos os valores financeiros são inteiros em centavos, do banco até a tela. Não
 se usa ponto flutuante em nenhuma etapa de cálculo, armazenamento ou exibição.
 
 A mensalidade de R$ 49,00 que aparece nos documentos de referência é histórica do
 fornecedor e não substitui a mensalidade da Avalia.
+
+A taxa de adesão substitui e unifica o que antes eram dois parâmetros separados,
+taxa de cadastro e taxa de licença: eram a mesma cobrança descrita duas vezes.
 
 ## 6. Clientes, planos e consumo
 
@@ -92,12 +97,20 @@ ao vendedor.
 Cada serviço do catálogo tem código, descrição, preço de venda por faixa, custo
 interno, franquia, regras de consumo e congelamento por contrato.
 
-### Versionamento do catálogo
+### Edição do catálogo
 
-O administrador com permissão comercial ou financeira pode criar, agendar e
-ativar novas versões do catálogo. Uma versão já usada em proposta, contrato,
-consulta ou fatura não pode ser editada: qualquer mudança de preço, custo,
-franquia, faixa ou disponibilidade cria uma nova versão e gera auditoria.
+O catálogo é único e editável a qualquer momento pelo administrador com permissão
+comercial ou financeira, célula a célula ou por reajuste percentual. Toda
+alteração de preço, custo, franquia ou disponibilidade gera auditoria.
+
+Não há congelamento do catálogo, e isso é decisão consciente. O que impede um
+reajuste de hoje de alterar cobrança de ontem é cada consulta e cada fatura
+gravarem preço e custo **no momento da emissão** (seções 7 e 8). Quem cobra
+guarda o próprio valor; o catálogo responde apenas quanto custa hoje.
+
+Essa regra é o alicerce de todo o faturamento: se uma consulta for gravada sem o
+preço da época, ou se a fatura passar a ler o catálogo em vez do valor congelado
+no fechamento, um reajuste passa a reescrever o passado silenciosamente.
 
 Preço é sempre valor numérico por faixa. Nenhuma célula do catálogo aceita texto
 monetário, intervalo ou dois valores no mesmo campo.
@@ -141,8 +154,21 @@ situação da última fatura. Ele não mostra fornecedor, custo interno, margem 
 | Bloqueado | Conforme decisão administrativa | Bloqueada |
 | Inativo | Bloqueado | Bloqueada |
 
-O ciclo seguinte só é restaurado para contas elegíveis. Regras de carência,
-suspensão, reativação e competência devem ser parametrizáveis e auditadas.
+A linha do tempo da inadimplência é fixa:
+
+| Dia | Evento |
+| --- | --- |
+| 10 | Vencimento da fatura. |
+| 11 a 19 | Fatura em atraso. Consultas continuam liberadas; o cliente é avisado. |
+| 20 | Bloqueio das consultas. O login permanece aberto para o cliente ver a fatura, obter a segunda via e regularizar. |
+| Liquidação | Consultas liberadas de volta no mesmo ciclo, sem esperar a competência seguinte. |
+
+O bloqueio existe para forçar o pagamento, não para punir: por isso ele fecha a
+consulta e mantém o acesso à fatura. Cliente que não consegue ver o que deve não
+tem como pagar.
+
+O ciclo seguinte só é restaurado para contas elegíveis. Prazos de vencimento,
+bloqueio e reativação devem ser parametrizáveis e auditados.
 
 ## 7. Serviços e consultas
 
@@ -232,7 +258,15 @@ Um comando agendado deve:
 6. Abrir a competência seguinte quando houver condição de acesso.
 
 O fechamento de mês em andamento exige ação administrativa explícita e auditoria.
-Vencimento e carência seguem a seção 5.
+
+Toda fatura vence no dia 10, independentemente do dia em que a competência foi
+fechada ou em que o cliente aderiu. É data de calendário, não contagem a partir
+do fechamento: o cliente que adere no dia 28 recebe a primeira fatura no
+vencimento seguinte, com a competência proporcional.
+
+A taxa de adesão pode ser parcelada. Cada parcela é uma cobrança própria no
+Asaas, com o mesmo vencimento dia 10, e o não pagamento de uma parcela segue a
+mesma política de bloqueio das demais faturas.
 
 ## 9. Vendedores e carteiras
 
@@ -243,26 +277,62 @@ própria carteira.
 Carteira legada e mailing distribuído ficam fora do escopo. O sistema preserva
 responsável, histórico de transferências e regras de visibilidade de cada cliente.
 
-### Ganhos e bônus
+### Ganhos do vendedor
 
-O painel mostra previsão de comissão, bônus de taxa de cadastro, repasses pagos,
-pendências e histórico por competência. Comissão e bônus tornam-se elegíveis
+O painel mostra previsão de comissão, participação na adesão, repasses pagos,
+pendências e histórico por competência. Comissão e adesão tornam-se elegíveis
 somente após a liquidação da cobrança correspondente no Asaas.
 
-A taxa de cadastro escolhida pelo vendedor deve constar na proposta e no contrato
-versionados e é repassada integralmente a ele como bônus, separada da comissão
-recorrente.
+### Comissão recorrente
 
-A comissão recorrente usa a alíquota da faixa de consumo mínimo do plano, nunca o
-valor total da fatura. Mensalidade e consumo mínimo permanecem separados no
-cadastro justamente para que a faixa não seja alterada indevidamente: somados,
-um plano de R$ 900,00 passaria da faixa e cairia de 20% para 15% sozinho.
+A alíquota é **10% sobre o consumo realizado no mês**, uma só para todos os
+planos e todas as faixas.
 
-A comissão incide sobre os itens recorrentes faturáveis do cliente — mensalidade,
-consumo mínimo e excedentes — e é calculada sobre a receita líquida efetivamente
-liquidada: valor recebido menos custo do fornecedor, taxas Asaas, impostos,
-descontos, estornos e chargebacks aplicáveis. A taxa de cadastro não entra nessa
-base.
+A base é o que o cliente efetivamente usou, não a franquia contratada nem o valor
+da fatura. Isso tem uma consequência que precisa estar clara no treinamento
+comercial: um cliente com consumo mínimo de R$ 900,00 que consome R$ 300,00 paga
+R$ 979,90 de fatura e gera R$ 30,00 de comissão, não R$ 97,99. O vendedor ganha
+sobre uso, e o piso da fatura protege a Avalia, não a comissão.
+
+No mês em que houver consumo excedente, a alíquota sobe **10 pontos, para 20%**,
+e essa elevação vale para o plano como um todo naquela competência.
+
+    consumo_do_mes  = valor das consultas concluídas com sucesso
+    houve_excedente = consumo acima da franquia contratada
+    aliquota        = houve_excedente ? 20% : 10%
+    comissao        = aliquota × consumo_do_mes
+
+Mensalidade e taxa de adesão não entram na base da comissão. Mensalidade e
+consumo mínimo continuam sendo colunas separadas do plano por causa do cálculo da
+fatura, não mais por causa da comissão.
+
+### Taxa de adesão
+
+O valor é livre: quem define é o vendedor, na proposta. Pode ser parcelada — uma
+adesão de R$ 12.000,00 em doze parcelas de R$ 1.000,00 é caso previsto — e cada
+parcela vira uma cobrança própria.
+
+O rateio é **50% para o vendedor e 50% para a Avalia**, e cada metade só se torna
+elegível conforme as parcelas forem liquidadas.
+
+O vendedor pode isentar a adesão. Isentar significa que ninguém recebe: não é
+desconto na parte da Avalia, é ausência da cobrança inteira. O valor acordado, ou
+a isenção, deve constar na proposta e no contrato.
+
+### Vigência
+
+A vigência é escolhida pelo vendedor na proposta, entre quatro opções:
+
+| Opção | Efeito |
+| --- | --- |
+| Sem vigência | Cliente pode encerrar a qualquer momento. |
+| 12 meses | Vigência padrão. |
+| 24 meses | Vigência longa. |
+| Carência especial | Três meses de acesso liberado para teste, sem vigência; ao fim do período, o contrato passa a valer por 12 ou 24 meses, definidos na assinatura. |
+
+A carência especial é período de avaliação da plataforma, não de gratuidade: as
+regras de cobrança de consumo continuam valendo, o que não corre é o prazo de
+permanência.
 
 Cliente que não pagou não gera comissão; se atrasar, o vendedor aguarda a
 liquidação e é responsável pelo relacionamento e acompanhamento da cobrança.
@@ -317,7 +387,7 @@ integrada fica fora do escopo inicial.
 | Painel | Conteúdo |
 | --- | --- |
 | Administração | Consumo por cliente, vendedor, base, serviço e competência; faturamento previsto e realizado; inadimplência; margem; comissões; campanhas; cobranças Asaas e integrações pendentes. |
-| Vendedor | Carteira, consumo de clientes, previsão de ganhos, bônus de adesão, situação de pagamento, metas, campanhas e bases liberadas. |
+| Vendedor | Carteira, consumo de clientes, previsão de ganhos, participação na adesão, situação de pagamento, metas, campanhas e bases liberadas. |
 | Cliente | Plano, consumo, franquia, consultas disponíveis, excedentes, serviços, faturas e atendimento. |
 
 As métricas possuem filtros por período, vendedor, cliente, serviço, base,
@@ -358,7 +428,7 @@ acesso, retenção e criptografia quando aplicável.
 | Fundação | Usuários, clientes, planos, preços, políticas, auditoria e catálogo. |
 | Consultas | Conectores, serviços, consumo, relatórios, retenção e painel de cliente. |
 | Financeiro | Faturas, fechamento automático, Asaas, webhooks, boleto, QR Code, inadimplência e reativação. |
-| Comercial | Carteiras, taxa de cadastro, comissões, bônus, repasses e campanhas. |
+| Comercial | Carteiras, taxa de adesão, comissões, repasses e campanhas. |
 | Operação | Documentos, atendimento, indicadores e BI. |
 
 Cada fase inclui migrations, políticas, testes automatizados, filas, tratamento de
@@ -366,10 +436,23 @@ falhas, logs seguros e documentação de operação.
 
 ## 16. Decisões pendentes
 
+- **Confirmar o adicional de excedente.** A regra escrita é: houve excedente no
+  mês, a alíquota do mês inteiro vai a 20%. A leitura alternativa seria aplicar
+  20% só sobre a parcela excedente e 10% sobre o resto. A diferença é grande e
+  muda o incentivo do vendedor.
+- **Confirmar a base da comissão.** Está escrito consumo realizado. Cliente que
+  paga o mínimo sem usar gera comissão menor que o valor da fatura — confirmar se
+  é isso mesmo ou se a base deve ser o valor faturado de consumo.
+- **Confirmar a alíquota de imposto.** Os 27% são estimativa. Os 6% citados
+  correspondem ao ISS de serviço em muitos municípios, que é só uma parte da
+  carga; PIS, COFINS e tributo sobre o lucro dependem do regime. Precisa de
+  fechamento contábil antes de virar cálculo de margem.
+- Cadastrar o custo do fornecedor por serviço e faixa: hoje está vazio, e sem ele
+  não há margem, piso de preço nem comissão líquida.
 - Homologar comercialmente os preços dos anexos A e B e a margem sobre o custo do fornecedor.
 - Definir a quantidade incluída na franquia de cada serviço, por faixa.
 - Definir quais serviços dos anexos entram no catálogo inicial e quais ficam desativados.
-- Formalizar fórmulas de comissão, imposto, taxa administrativa e repasse.
+- Formalizar fórmulas de imposto, taxa administrativa e repasse.
 - Confirmar conectores, contratos e credenciais de SPC, Serasa, Boa Vista/SCPC e SCR.
 - Definir política comercial de campanhas e reativação após inadimplência.
 - Validar documentos jurídicos, LGPD, base legal de consulta e fluxos de aceite.

@@ -1,6 +1,5 @@
 <?php
 
-use App\Exceptions\CatalogoCongelado;
 use App\Models\Plano;
 use App\Models\Preco;
 use App\Models\Servico;
@@ -10,28 +9,6 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
-
-/*
-|--------------------------------------------------------------------------
-| Comissao do vendedor
-|--------------------------------------------------------------------------
-*/
-
-it('paga 20% ate a faixa de R$ 900 e 15% acima dela', function () {
-    expect(Plano::factory()->consumoMinimo(75)->create()->pctComissao())->toBe(20)
-        ->and(Plano::factory()->consumoMinimo(900)->create()->pctComissao())->toBe(20)
-        ->and(Plano::factory()->consumoMinimo(1_500)->create()->pctComissao())->toBe(15);
-});
-
-it('nao deixa a mensalidade empurrar o plano para a faixa de baixo', function () {
-    // O plano de R$ 900 fatura R$ 979,90 com a mensalidade. Se a faixa lesse a
-    // fatura em vez do consumo minimo, o vendedor cairia de 20% para 15% sem
-    // ninguem ter mudado o contrato.
-    $plano = Plano::factory()->consumoMinimo(900)->create(['mensalidade_cents' => 7_990]);
-
-    expect($plano->faturaMinimaCents())->toBe(97_990)
-        ->and($plano->pctComissao())->toBe(20);
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -92,81 +69,6 @@ it('recusa dois precos para o mesmo servico na mesma faixa e versao', function (
 
 /*
 |--------------------------------------------------------------------------
-| Congelamento
-|--------------------------------------------------------------------------
-*/
-
-it('nao aceita preco novo em versao ja ativa', function () {
-    $versao = VersaoCatalogo::factory()->comServico('scpc-bvs')->ativa()->create();
-    $servico = Servico::factory()->create();
-
-    expect(fn () => $versao->precos()->create([
-        'servico_id' => $servico->id,
-        'consumo_minimo_cents' => 0,
-        'preco_cents' => 100,
-    ]))->toThrow(CatalogoCongelado::class);
-});
-
-it('nao aceita alterar nem apagar preco de versao ativa', function () {
-    $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->ativa()->create();
-    $preco = $versao->precos()->first();
-
-    expect(fn () => $preco->update(['preco_cents' => 1]))->toThrow(CatalogoCongelado::class)
-        ->and(fn () => $preco->delete())->toThrow(CatalogoCongelado::class);
-
-    expect($versao->precos()->first()->preco_cents)->toBe(631);
-});
-
-it('deixa editar enquanto a versao e rascunho', function () {
-    $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
-
-    $versao->precos()->first()->update(['preco_cents' => 600]);
-
-    expect($versao->precos()->first()->preco_cents)->toBe(600);
-});
-
-it('duplica a versao para reajuste sem tocar na original', function () {
-    $original = VersaoCatalogo::factory()
-        ->comServico('scpc-bvs', [0 => 631, 7_500 => 594])
-        ->ativa()
-        ->create();
-
-    $nova = $original->duplicar('Catálogo 05/2026');
-
-    expect($nova->situacao)->toBe('rascunho')
-        ->and($nova->precos()->count())->toBe(2)
-        ->and($nova->precoDe('scpc-bvs', 0))->toBe(631);
-
-    $nova->precos()->where('consumo_minimo_cents', 0)->first()->update(['preco_cents' => 700]);
-
-    expect($nova->precoDe('scpc-bvs', 0))->toBe(700)
-        ->and($original->precoDe('scpc-bvs', 0))->toBe(631);
-});
-
-it('mantem uma unica versao ativa e encerra a anterior', function () {
-    $antiga = VersaoCatalogo::factory()->ativa()->create();
-    $nova = VersaoCatalogo::factory()->create();
-
-    $nova->ativar();
-
-    expect($antiga->fresh()->situacao)->toBe('encerrada')
-        ->and($antiga->fresh()->vigencia_fim)->not->toBeNull()
-        ->and(VersaoCatalogo::ativa()->count())->toBe(1)
-        ->and(VersaoCatalogo::vigente()->is($nova))->toBeTrue();
-});
-
-it('carimba a data em que a versao deixou de ser editavel', function () {
-    $versao = VersaoCatalogo::factory()->create();
-    expect($versao->congelada_em)->toBeNull();
-
-    $versao->ativar();
-
-    expect($versao->congelada_em)->not->toBeNull()
-        ->and($versao->podeEditar())->toBeFalse();
-});
-
-/*
-|--------------------------------------------------------------------------
 | Servicos e franquia
 |--------------------------------------------------------------------------
 */
@@ -222,9 +124,7 @@ it('importa a tabela do fornecedor como rascunho, nunca ativa', function () {
     $versao = VersaoCatalogo::firstWhere('rotulo', 'Tabela de referência 04/2026');
 
     // Ativa direto significaria vender com preco nao homologado.
-    expect($versao->situacao)->toBe('rascunho')
-        ->and(VersaoCatalogo::vigente())->toBeNull()
-        ->and(Servico::count())->toBe(43)
+    expect(Servico::count())->toBe(43)
         ->and($versao->precos()->count())->toBe(43 * 7);
 });
 

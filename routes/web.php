@@ -49,17 +49,11 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             Route::put('/{plano}/franquias', [PlanoController::class, 'franquias'])->name('franquias');
         });
 
-        Route::prefix('versoes')->name('versoes.')->group(function () {
-            Route::get('/', [CatalogoController::class, 'index'])->name('index');
-            Route::get('/{versao}', [CatalogoController::class, 'versao'])->name('mostrar');
-            Route::post('/{versao}/ativar', [CatalogoController::class, 'ativar'])->name('ativar');
-
-            // Caminho do reajuste: a versao em vigor e imutavel, entao mudar
-            // preco comeca sempre por uma copia em rascunho.
-            Route::post('/{versao}/duplicar', [CatalogoController::class, 'duplicar'])->name('duplicar');
-            Route::put('/{versao}/precos', [CatalogoController::class, 'precos'])->name('precos');
-            Route::post('/{versao}/reajustar', [CatalogoController::class, 'reajustar'])->name('reajustar');
-        });
+        // A tabela de precos abre direto: e um catalogo so, sem lista de
+        // versoes no meio do caminho.
+        Route::get('/tabela', [CatalogoController::class, 'tabela'])->name('tabela');
+        Route::put('/tabela/{catalogo}/precos', [CatalogoController::class, 'precos'])->name('precos');
+        Route::post('/tabela/{catalogo}/reajustar', [CatalogoController::class, 'reajustar'])->name('reajustar');
     });
 });
 

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Exceptions\CatalogoCongelado;
 use App\Support\Dinheiro;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,29 +33,6 @@ class Preco extends Model
             'preco_cents' => 'integer',
             'custo_cents' => 'integer',
         ];
-    }
-
-    /**
-     * Guarda do congelamento.
-     *
-     * A regra vale para gravacao e exclusao, e vive aqui e nao no controller
-     * porque tem que valer tambem para seeder, comando de console e job — nao
-     * so para o formulario da administracao.
-     */
-    protected static function booted(): void
-    {
-        $barra = function (Preco $preco) {
-            $versao = $preco->relationLoaded('versao')
-                ? $preco->versao
-                : VersaoCatalogo::find($preco->versao_id);
-
-            if ($versao && $versao->estaCongelada()) {
-                throw CatalogoCongelado::para($versao);
-            }
-        };
-
-        static::saving($barra);
-        static::deleting($barra);
     }
 
     public function versao(): BelongsTo

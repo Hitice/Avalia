@@ -4,7 +4,7 @@
 @php
     $abas = [
         'planos' => ['rotulo' => 'Planos', 'url' => route('catalogo.index')],
-        'versoes' => ['rotulo' => 'Catalogo', 'url' => route('catalogo.versoes.index')],
+        'catalogo' => ['rotulo' => 'Catalogo', 'url' => route('catalogo.tabela')],
     ];
 @endphp
 

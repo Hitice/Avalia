@@ -11,9 +11,8 @@ use Illuminate\Http\Request;
 /**
  * Cadastro de planos e da franquia de cada servico.
  *
- * Plano nao e catalogo: ele aponta para uma versao do catalogo e escolhe uma
- * faixa dela. Por isso da para editar um plano a vontade sem violar o
- * congelamento — o que nao muda e a tabela de precos para a qual ele aponta.
+ * O plano escolhe uma faixa do catalogo: e ela que define a coluna de precos
+ * que o cliente paga e a aliquota de comissao do vendedor.
  */
 class PlanoController extends Controller
 {
@@ -21,29 +20,24 @@ class PlanoController extends Controller
     {
         // Ordem comercial, nao alfabetica: a grade e uma escada de faixas, e
         // "R$ 1.500,00" viria antes de "R$ 200,00" se ordenasse por nome.
-        $planos = Plano::with('versao')
+        $planos = Plano::query()
             ->orderBy('consumo_minimo_cents')
             ->orderBy('nome')
             ->get();
 
-        // Quais faixas cada versao envolvida oferece, numa consulta so. Perguntar
+        // Faixas que o catalogo oferece, numa consulta so. Perguntar
         // faixaValida() linha a linha custaria uma ida ao banco por plano.
-        $faixasPorVersao = Preco::query()
+        $faixas = Preco::query()
             ->whereIn('versao_id', $planos->pluck('versao_id')->unique())
-            ->select('versao_id', 'consumo_minimo_cents')
             ->distinct()
-            ->get()
-            ->groupBy('versao_id')
-            ->map(fn ($linhas) => $linhas->pluck('consumo_minimo_cents')->map(intval(...))->all());
+            ->pluck('consumo_minimo_cents')
+            ->map(intval(...))
+            ->all();
 
         return view('paginas.catalogo.planos', [
             'planos' => $planos,
             'faixaValida' => $planos->mapWithKeys(fn (Plano $plano) => [
-                $plano->id => in_array(
-                    $plano->consumo_minimo_cents,
-                    $faixasPorVersao[$plano->versao_id] ?? [],
-                    true,
-                ),
+                $plano->id => in_array($plano->consumo_minimo_cents, $faixas, true),
             ]),
         ]);
     }
@@ -52,13 +46,15 @@ class PlanoController extends Controller
     {
         return view('paginas.catalogo.plano-formulario', [
             'plano' => new Plano(['mensalidade_cents' => 7_990, 'ativo' => true]),
-            'versoes' => $this->versoesUsaveis(),
+            'faixas' => $this->faixas(),
         ]);
     }
 
     public function salvar(PlanoRequest $request)
     {
-        $plano = Plano::create($request->validated());
+        $plano = Plano::create($request->validated() + [
+            'versao_id' => VersaoCatalogo::vigente()?->id,
+        ]);
 
         return redirect()
             ->route('catalogo.planos.editar', $plano)
@@ -69,7 +65,7 @@ class PlanoController extends Controller
     {
         return view('paginas.catalogo.plano-formulario', [
             'plano' => $plano,
-            'versoes' => $this->versoesUsaveis(),
+            'faixas' => $this->faixas(),
             'servicos' => $plano->servicosDisponiveis(),
             'franquias' => $plano->franquias()->pluck('quantidade', 'servico_id'),
             // Preco da faixa do plano, numa consulta so em vez de uma por linha.
@@ -122,17 +118,9 @@ class PlanoController extends Controller
         return back()->with('ok', 'Franquia atualizada.');
     }
 
-    /**
-     * Versoes que podem receber plano novo.
-     *
-     * Rascunho entra na lista: e normal montar o plano junto com a tabela,
-     * antes de ativar as duas coisas. Encerrada fica de fora — plano novo
-     * apontando para tabela fora de vigencia seria erro de cadastro.
-     */
-    private function versoesUsaveis()
+    /** Faixas do catalogo, prontas para o select do formulario. */
+    private function faixas(): array
     {
-        return VersaoCatalogo::whereIn('situacao', ['rascunho', 'agendada', 'ativa'])
-            ->orderByDesc('id')
-            ->get();
+        return VersaoCatalogo::vigente()?->faixas() ?? [];
     }
 }
