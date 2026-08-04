@@ -1,7 +1,7 @@
 {{-- Aliquota de imposto usada no calculo de margem. Recebe $catalogo. --}}
 
 @php
-    $campo = 'rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
+    $campo = 'h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
 @endphp
 
 <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -24,9 +24,7 @@
             @enderror
         </div>
 
-        <button type="submit" class="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2 text-sm font-medium text-white whitespace-nowrap">
-            Recalcular
-        </button>
+        <x-avalia.botao>Recalcular</x-avalia.botao>
 
         <p class="w-full text-xs text-gray-500 dark:text-gray-400">
             Estimativa registrada no PDD, ainda a confirmar com a contabilidade. Entra no calculo da

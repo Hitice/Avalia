@@ -10,10 +10,7 @@
             </p>
         </div>
 
-        <a href="{{ route('catalogo.servicos.criar') }}"
-           class="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2 text-sm font-medium text-white">
-            Novo servico
-        </a>
+        <x-avalia.botao :href="route('catalogo.servicos.criar')">Novo servico</x-avalia.botao>
     </div>
 
     @include('paginas.catalogo.abas', ['atual' => 'servicos'])

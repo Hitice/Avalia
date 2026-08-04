@@ -113,13 +113,10 @@
             </div>
 
             <div class="mt-6 flex gap-3">
-                <button type="submit" class="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2.5 text-sm font-medium text-white">
+                <x-avalia.botao>
                     {{ $servico->exists ? 'Salvar' : 'Criar servico' }}
-                </button>
-                <a href="{{ route('catalogo.servicos.index') }}"
-                   class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300">
-                    Cancelar
-                </a>
+                </x-avalia.botao>
+                <x-avalia.botao variante="secundario" :href="route('catalogo.servicos.index')">Cancelar</x-avalia.botao>
             </div>
         </form>
     </div>

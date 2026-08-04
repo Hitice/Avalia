@@ -14,9 +14,22 @@
         array_merge(['categoria' => $categoria, 'visao' => $visao], $troca),
     ));
 
-    $aba = 'rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium dark:border-gray-800';
-    $abaAtiva = 'bg-brand-500 text-white';
-    $abaInativa = 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/[0.06]';
+    // Os dois filtros da matriz, montados juntos para ficarem lado a lado: sao
+    // eixos do mesmo recorte, e empilhar cada um numa fileira dava tres faixas
+    // de pilulas iguais sem hierarquia nenhuma.
+    $itensVisao = collect(CatalogoController::VISOES)
+        ->map(fn ($rotulo, $chave) => [
+            'rotulo' => $rotulo,
+            'url' => $comFiltro(['visao' => $chave === 'venda' ? null : $chave]),
+        ])
+        ->all();
+
+    $itensCategoria = collect(\App\Models\Servico::CATEGORIAS + ['' => 'Todos'])
+        ->map(fn ($rotulo, $chave) => [
+            'rotulo' => $rotulo,
+            'url' => $comFiltro(['categoria' => $chave ?: null]),
+        ])
+        ->all();
 @endphp
 
 @section('content')
@@ -38,15 +51,12 @@
             a tabela de referencia.
         </div>
     @else
-        {{-- Venda, custo e margem sobre a mesma matriz. Custo e margem sao
-             internos: nao vao para vendedor nem para cliente. --}}
-        <div data-abas="visoes" class="mb-4 flex flex-wrap gap-2">
-            @foreach (CatalogoController::VISOES as $chave => $rotulo)
-                <a href="{{ $comFiltro(['visao' => $chave === 'venda' ? null : $chave]) }}"
-                   class="{{ $aba }} {{ $visao === $chave ? $abaAtiva : $abaInativa }}">
-                    {{ $rotulo }}
-                </a>
-            @endforeach
+        {{-- Os dois eixos do recorte na mesma linha: o que a matriz mostra e
+             que servicos ela lista. Credito e Veicular vem antes de Todos
+             porque o operador trabalha por bloco; a visao completa e a excecao. --}}
+        <div class="mb-6 flex flex-wrap items-end gap-x-8 gap-y-4">
+            <x-avalia.segmentado data-abas="visoes" rotulo="Mostrar" :atual="$visao" :itens="$itensVisao" />
+            <x-avalia.segmentado data-abas="categorias" rotulo="Servicos" :atual="$categoria ?? ''" :itens="$itensCategoria" />
         </div>
 
         @if ($visao === 'venda')
@@ -56,19 +66,6 @@
         @if ($visao === 'margem')
             @include('paginas.catalogo.acoes-imposto')
         @endif
-
-        {{-- Credito, Veicular e depois Todos: o operador trabalha por bloco de
-             servico, e a visao completa e a excecao. --}}
-        <div data-abas="categorias" class="mb-4 flex flex-wrap gap-2">
-            @php $abasCategoria = \App\Models\Servico::CATEGORIAS + ['' => 'Todos']; @endphp
-
-            @foreach ($abasCategoria as $chave => $rotulo)
-                <a href="{{ $comFiltro(['categoria' => $chave ?: null]) }}"
-                   class="{{ $aba }} {{ ($categoria ?? '') === $chave ? $abaAtiva : $abaInativa }}">
-                    {{ $rotulo }}
-                </a>
-            @endforeach
-        </div>
 
         <form method="POST" action="{{ $editando ? route($acao, $catalogo) : '' }}">
             @csrf
@@ -149,9 +146,9 @@
             </div>
 
             @if ($editando && $linhas->isNotEmpty())
-                <button type="submit" class="bg-brand-500 hover:bg-brand-600 mt-5 rounded-lg px-4 py-2.5 text-sm font-medium text-white">
+                <x-avalia.botao class="mt-5">
                     {{ $visao === 'custo' ? 'Salvar custos' : 'Salvar precos' }}
-                </button>
+                </x-avalia.botao>
             @endif
         </form>
 
