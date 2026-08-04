@@ -492,10 +492,17 @@ Os preços dos anexos A e B entram pelo `CatalogoSeeder` como **rascunho**, a
 partir de `database/seeders/dados/`, gerado por `tools/gera_precos_catalogo.py`.
 Ativar a versão é ação administrativa consciente — o seeder nunca ativa.
 
-As telas de catálogo (`/catalogo`, restritas a administração) listam as versões,
-mostram a matriz de preços por faixa, ativam uma versão em rascunho e cadastram
-planos com a franquia de cada serviço. Falta a tela de reajuste: hoje `duplicar()`
-e a edição de preço de um rascunho só existem no model.
+As telas de catálogo (`/catalogo`, restritas a administração) têm três abas:
+
+- **Planos** — cadastro de plano, faixa contratada e franquia por serviço;
+- **Catálogo** — a matriz de preços por faixa, em três visões (venda, custo e
+  margem), com edição direta, reajuste percentual e alíquota de imposto;
+- **Serviços** — cadastro, renomeação, categoria, ativação e trava de liberação
+  jurídica.
+
+Serviço não é excluído, apenas desativado: franquia de plano, consulta e fatura
+apontam para ele, e apagar levaria a franquia junto por cascata e deixaria
+histórico órfão. O código do serviço é imutável depois da criação.
 
 Ainda futuros: `consultas`, `faturas` e `itens_fatura`, `cobrancas_asaas` e
 `eventos_asaas`, `comissoes`, `bonus_cadastro` e `repasses`, `campanhas` e

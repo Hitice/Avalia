@@ -98,6 +98,11 @@
                                         </span>
                                         <span class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                             <code>{{ $linha['servico']->codigo }}</code>
+                                            @unless ($linha['servico']->ativo)
+                                                <span class="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-500 dark:bg-white/5 dark:text-gray-400">
+                                                    inativo
+                                                </span>
+                                            @endunless
                                             @if ($linha['servico']->exige_liberacao)
                                                 <span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2 py-0.5 font-medium">
                                                     aguarda liberacao

@@ -5,6 +5,7 @@
     $abas = [
         'planos' => ['rotulo' => 'Planos', 'url' => route('catalogo.index')],
         'catalogo' => ['rotulo' => 'Catalogo', 'url' => route('catalogo.tabela')],
+        'servicos' => ['rotulo' => 'Servicos', 'url' => route('catalogo.servicos.index')],
     ];
 @endphp
 

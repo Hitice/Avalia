@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\PlanoController;
+use App\Http\Controllers\ServicoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,6 +57,14 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::put('/tabela/{catalogo}/custos', [CatalogoController::class, 'custos'])->name('custos');
         Route::put('/tabela/{catalogo}/imposto', [CatalogoController::class, 'imposto'])->name('imposto');
         Route::post('/tabela/{catalogo}/reajustar', [CatalogoController::class, 'reajustar'])->name('reajustar');
+
+        Route::prefix('servicos')->name('servicos.')->group(function () {
+            Route::get('/', [ServicoController::class, 'index'])->name('index');
+            Route::get('/novo', [ServicoController::class, 'criar'])->name('criar');
+            Route::post('/', [ServicoController::class, 'salvar'])->name('salvar');
+            Route::get('/{servico}', [ServicoController::class, 'editar'])->name('editar');
+            Route::put('/{servico}', [ServicoController::class, 'atualizar'])->name('atualizar');
+        });
     });
 });
 
