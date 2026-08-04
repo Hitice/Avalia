@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'sessao' => App\Http\Middleware\ConfereSessao::class,
+            'admin' => App\Http\Middleware\SomenteAdmin::class,
         ]);
 
         // Visitante sem sessao vai para /entrar, e nao para a rota 'login'

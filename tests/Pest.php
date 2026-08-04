@@ -41,7 +41,16 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Sessao de administrador pronta para pedir uma rota de gestao.
+ *
+ * O `versao_staff` na sessao nao e detalhe de teste: sem ele o ConfereSessao
+ * derruba a sessao na primeira requisicao, e todo teste de tela viraria um
+ * redirect para /entrar.
+ */
+function admin(): Tests\TestCase
 {
-    // ..
+    return test()
+        ->actingAs(App\Models\Staff::factory()->admin()->create(), 'staff')
+        ->withSession(['versao_staff' => 1]);
 }
