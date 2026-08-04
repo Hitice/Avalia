@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AcessoSeeder::class,
             CatalogoSeeder::class,
+            PlanosSeeder::class,
         ]);
     }
 }
