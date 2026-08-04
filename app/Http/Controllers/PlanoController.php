@@ -31,7 +31,7 @@ class PlanoController extends Controller
             ->whereIn('versao_id', $planos->pluck('versao_id')->unique())
             ->distinct()
             ->pluck('consumo_minimo_cents')
-            ->map(intval(...))
+            ->map(fn ($faixa) => (int) $faixa)
             ->all();
 
         return view('paginas.catalogo.planos', [

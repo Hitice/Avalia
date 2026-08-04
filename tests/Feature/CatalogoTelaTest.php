@@ -215,3 +215,35 @@ it('mostra o catalogo no menu do admin e esconde do vendedor', function () {
         ->assertOk()
         ->assertDontSee('Catálogo');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Faixas
+|--------------------------------------------------------------------------
+*/
+
+it('converte faixa para inteiro venha ela como for do banco', function () {
+    // Driver de banco decide se bigint volta como int ou string. Em string,
+    // `$faixa === 0` falha e o cabecalho troca "Sem minimo" por "R$ 0,00".
+    $precos = new Illuminate\Database\Eloquent\Collection([
+        new App\Models\Preco(['consumo_minimo_cents' => '90000']),
+        new App\Models\Preco(['consumo_minimo_cents' => '0']),
+        new App\Models\Preco(['consumo_minimo_cents' => '7500']),
+        new App\Models\Preco(['consumo_minimo_cents' => '7500']),
+    ]);
+
+    expect(App\Models\VersaoCatalogo::faixasDe($precos))->toBe([0, 7_500, 90_000]);
+});
+
+it('da a cada faixa o seu proprio rotulo no cabecalho', function () {
+    VersaoCatalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])
+        ->create();
+
+    $html = admin()->get('/catalogo/tabela')->assertOk()->getContent();
+
+    // Uma coluna "Sem mínimo" e nao tres.
+    expect(substr_count($html, 'Sem mínimo'))->toBe(1)
+        ->and($html)->toContain("R$\u{00A0}75,00")
+        ->and($html)->toContain("R$\u{00A0}900,00");
+});

@@ -280,3 +280,91 @@ it('esconde senha e versao da sessao ao serializar', function () {
     expect($json)->not->toHaveKey('senha')
         ->and($json)->not->toHaveKey('sessao_versao');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Volta pelo cookie de lembranca
+|--------------------------------------------------------------------------
+*/
+
+/** Simula o retorno com a sessao expirada e so o cookie de lembranca na mao. */
+function voltaComLembranca(App\Contracts\ContaAutenticavel $conta, string $guarda): Illuminate\Testing\TestResponse
+{
+    test()->flushSession();
+    app('auth')->forgetGuards();
+
+    $conta = $conta->fresh();
+
+    return test()->withCookie(
+        auth($guarda)->getRecallerName(),
+        $conta->getKey().'|'.$conta->getRememberToken().'|'.$conta->getAuthPassword(),
+    )->get($guarda === 'staff' ? '/' : '/empresa');
+}
+
+it('volta a entrar pelo cookie depois de a sessao expirar', function () {
+    // Sem isto o operador perde o POST que estava enviando: o middleware
+    // derruba a lembranca antes de a requisicao chegar ao controller.
+    $staff = Staff::factory()->admin()->create(['email' => 'volta@avalia.local']);
+
+    $this->post('/entrar', [
+        'email' => 'volta@avalia.local',
+        'senha' => 'senha-valida-123',
+        'lembrar' => '1',
+    ])->assertRedirect(route('painel'));
+
+    voltaComLembranca($staff, 'staff')->assertOk();
+
+    expect(auth('staff')->check())->toBeTrue();
+});
+
+it('recarimba a sessao ao voltar pelo cookie', function () {
+    $staff = Staff::factory()->admin()->create(['email' => 'carimbo@avalia.local']);
+
+    $this->post('/entrar', [
+        'email' => 'carimbo@avalia.local',
+        'senha' => 'senha-valida-123',
+        'lembrar' => '1',
+    ]);
+
+    voltaComLembranca($staff, 'staff')->assertOk();
+
+    // O carimbo tem que ficar gravado, senao a proxima requisicao cai de novo.
+    expect(session('versao_staff'))->toBe($staff->fresh()->sessao_versao);
+});
+
+it('a empresa tambem volta pelo cookie', function () {
+    $cliente = Cliente::factory()->create(['email' => 'volta@lojas.com.br']);
+
+    $this->post('/entrar', [
+        'email' => 'volta@lojas.com.br',
+        'senha' => 'senha-valida-123',
+        'lembrar' => '1',
+    ])->assertRedirect(route('empresa.painel'));
+
+    voltaComLembranca($cliente, 'empresa')->assertOk();
+});
+
+it('revogar acesso invalida tambem o cookie de lembranca', function () {
+    // Revogacao que deixa o cookie valendo e revogacao so no nome.
+    $staff = Staff::factory()->admin()->create(['email' => 'revoga@avalia.local']);
+
+    $this->post('/entrar', [
+        'email' => 'revoga@avalia.local',
+        'senha' => 'senha-valida-123',
+        'lembrar' => '1',
+    ]);
+
+    $staff->refresh();
+    $cookie = $staff->getKey().'|'.$staff->getRememberToken().'|'.$staff->getAuthPassword();
+
+    $staff->revogaSessoes();
+
+    expect($staff->fresh()->remember_token)->toBeNull();
+
+    $this->flushSession();
+    app('auth')->forgetGuards();
+
+    $this->withCookie(auth('staff')->getRecallerName(), $cookie)
+        ->get('/')
+        ->assertRedirect(route('entrar'));
+});

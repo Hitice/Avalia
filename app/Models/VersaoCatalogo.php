@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection as ColecaoEloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -67,6 +68,26 @@ class VersaoCatalogo extends Model
             ->orderBy('consumo_minimo_cents')
             ->pluck('consumo_minimo_cents')
             ->map(fn ($faixa) => (int) $faixa)
+            ->all();
+    }
+
+    /**
+     * Faixas ordenadas a partir de precos ja carregados, sem ir ao banco.
+     *
+     * O cast para int e obrigatorio: driver de banco decide se bigint volta
+     * como int ou como string, e faixa em string faz `$faixa === 0` falhar,
+     * trocando "Sem minimo" por "R$ 0,00" no cabecalho.
+     *
+     * @return list<int>
+     */
+    public static function faixasDe(ColecaoEloquent $precos): array
+    {
+        return $precos
+            ->pluck('consumo_minimo_cents')
+            ->map(fn ($faixa) => (int) $faixa)
+            ->unique()
+            ->sort()
+            ->values()
             ->all();
     }
 

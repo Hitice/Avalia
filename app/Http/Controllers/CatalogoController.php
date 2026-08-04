@@ -58,13 +58,7 @@ class CatalogoController extends Controller
         // As faixas saem dos precos ja carregados. Perguntar faixas() ao
         // catalogo seria um SELECT a mais, e contra banco remoto cada ida e
         // volta custa quase meio segundo na cara do operador.
-        $faixas = $precos
-            ->pluck('consumo_minimo_cents')
-            ->unique()
-            ->sort()
-            ->values()
-            ->map(intval(...))
-            ->all();
+        $faixas = VersaoCatalogo::faixasDe($precos);
 
         // Uma linha por servico, com os precos indexados pela faixa. Assim a
         // tabela da tela e so um loop sobre as faixas.

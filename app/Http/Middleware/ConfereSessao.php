@@ -37,6 +37,20 @@ class ConfereSessao
 
         $versaoNaSessao = $request->session()->get("versao_{$guarda}");
 
+        // Entrou pelo cookie de "manter conectado": a sessao e nova e ainda nao
+        // tem carimbo, porque quem carimba e o formulario de login. Sem esta
+        // linha o middleware derruba exatamente o que a lembranca acabou de
+        // restaurar, e o efeito nao e so voltar para a tela de entrada: um POST
+        // feito nesse instante e descartado antes de chegar ao controller, e o
+        // operador ve o formulario voltar sem ter salvado.
+        //
+        // Aceitar aqui nao afrouxa a revogacao: revogaSessoes() apaga o
+        // remember_token junto, entao conta revogada nem chega a autenticar.
+        if ($conta && $versaoNaSessao === null && Auth::guard($guarda)->viaRemember()) {
+            $request->session()->put("versao_{$guarda}", $conta->sessao_versao);
+            $versaoNaSessao = $conta->sessao_versao;
+        }
+
         if (! $conta || $versaoNaSessao !== $conta->sessao_versao || ! $conta->podeEntrar()) {
             Auth::guard($guarda)->logout();
             $request->session()->invalidate();

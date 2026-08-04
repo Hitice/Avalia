@@ -76,10 +76,14 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     /**
      * Derruba todas as sessoes abertas desta conta.
-     * Usado ao desativar, trocar papel ou redefinir senha.
+     *
+     * Apaga tambem o token de lembranca: sem isso, quem tem o cookie de
+     * "manter conectado" voltaria a entrar depois de ter o acesso revogado, e
+     * a revogacao seria so aparente.
      */
     public function revogaSessoes(): void
     {
         $this->increment('sessao_versao');
+        $this->forceFill(['remember_token' => null])->saveQuietly();
     }
 }
