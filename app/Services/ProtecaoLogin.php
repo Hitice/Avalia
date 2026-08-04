@@ -41,10 +41,8 @@ class ProtecaoLogin
     {
         $restantes = 0;
 
-        foreach ($this->chaves($email, $req) as $chave) {
-            $reg = $this->registro($chave);
-
-            if ($reg && $reg->bloqueado_ate) {
+        foreach ($this->registros($this->chaves($email, $req)) as $reg) {
+            if ($reg->bloqueado_ate) {
                 $falta = Carbon::parse($reg->bloqueado_ate)->diffInSeconds(now(), false);
                 // diffInSeconds negativo = ainda no futuro = ainda de castigo.
                 if ($falta < 0) {
@@ -59,8 +57,12 @@ class ProtecaoLogin
     /** Registra uma tentativa falha nas duas chaves e aplica o castigo. */
     public function falhou(string $email, Request $req): void
     {
-        foreach ($this->chaves($email, $req) as $chave) {
-            $reg = $this->registro($chave);
+        $chaves = $this->chaves($email, $req);
+        $registros = $this->registros($chaves);
+        $linhas = [];
+
+        foreach ($chaves as $chave) {
+            $reg = $registros[$chave] ?? null;
 
             // Silencio prolongado zera a contagem: quem errou a senha em
             // marco nao deve pagar por isso em agosto.
@@ -69,17 +71,24 @@ class ProtecaoLogin
 
             $falhas = ($expirou || ! $reg) ? 1 : $reg->falhas + 1;
 
-            DB::table('tentativas_login')->updateOrInsert(
-                ['chave' => $chave],
-                [
-                    'falhas' => $falhas,
-                    'bloqueado_ate' => $this->castigo($falhas),
-                    'ultima_falha_em' => now(),
-                    'updated_at' => now(),
-                    'created_at' => $reg->created_at ?? now(),
-                ],
-            );
+            $linhas[] = [
+                'chave' => $chave,
+                'falhas' => $falhas,
+                'bloqueado_ate' => $this->castigo($falhas),
+                'ultima_falha_em' => now(),
+                'updated_at' => now(),
+                'created_at' => $reg->created_at ?? now(),
+            ];
         }
+
+        // Uma escrita para as duas chaves. Contra banco remoto cada ida e
+        // volta custa caro, e a tela de login paga esse preco na cara do
+        // usuario.
+        DB::table('tentativas_login')->upsert(
+            $linhas,
+            ['chave'],
+            ['falhas', 'bloqueado_ate', 'ultima_falha_em', 'updated_at'],
+        );
     }
 
     /** Login certo limpa o castigo da conta e da origem. */
@@ -125,6 +134,24 @@ class ProtecaoLogin
 
     private function registro(string $chave): ?object
     {
-        return DB::table('tentativas_login')->where('chave', $chave)->first();
+        return $this->registros([$chave])[$chave] ?? null;
+    }
+
+    /**
+     * Le as duas chaves de uma vez, indexadas pela propria chave.
+     *
+     * Uma consulta por chave dobrava o custo do login contra banco remoto,
+     * onde cada ida e volta passa de 400ms.
+     *
+     * @param  array<int, string>  $chaves
+     * @return array<string, object>
+     */
+    private function registros(array $chaves): array
+    {
+        return DB::table('tentativas_login')
+            ->whereIn('chave', $chaves)
+            ->get()
+            ->keyBy('chave')
+            ->all();
     }
 }
