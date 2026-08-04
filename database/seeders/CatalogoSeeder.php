@@ -38,9 +38,11 @@ class CatalogoSeeder extends Seeder
             // contra um Postgres remoto, um save() por preco vira ~600 idas e
             // voltas pela internet e o seeder nao termina.
             //
-            // `ativo` fica de fora da lista de atualizacao de proposito: se a
-            // administracao desligou um servico, reimportar a tabela do
-            // fornecedor nao pode religa-lo.
+            // `ativo` e `exige_liberacao` ficam de fora da lista de atualizacao
+            // de proposito: as duas sao decisao da administracao, tomada na
+            // tela. Reimportar a tabela do fornecedor nao pode religar um
+            // servico desligado nem retravar um SCR que o juridico ja liberou.
+            // Valem so na criacao, como estado inicial.
             Servico::upsert(
                 array_map(fn (array $linha) => [
                     'codigo' => $linha['codigo'],
@@ -49,7 +51,7 @@ class CatalogoSeeder extends Seeder
                     'exige_liberacao' => $linha['exige_liberacao'],
                 ], $dados['servicos']),
                 ['codigo'],
-                ['nome', 'categoria', 'exige_liberacao'],
+                ['nome', 'categoria'],
             );
 
             $idPorCodigo = Servico::whereIn('codigo', array_column($dados['servicos'], 'codigo'))

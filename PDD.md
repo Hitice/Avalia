@@ -200,11 +200,18 @@ O administrador configura bases e produtos disponíveis. Vendedores acessam
 somente as bases liberadas a eles. O cliente consome serviços do plano sem saber
 qual base realizou a pesquisa.
 
-SCR e Veicular têm catálogo e permissões implementados desde já, com a integração
-externa desativada por feature flag. Nenhuma requisição a API, nem liberação
-comercial, ocorre antes da homologação jurídica, contratual e técnica. O SCR
-recebe nome comercial mascarado e depende ainda de autorização expressa
-verificável para cada consulta.
+SCR e Veicular têm catálogo e permissões implementados desde já. A trava por
+serviço é operada na tela de Serviços: enquanto marcada, o serviço aparece no
+catálogo e pode ser precificado, mas não entra em plano nenhum.
+
+Os serviços de SCR foram liberados dessa trava por decisão comercial. Isso os
+torna vendáveis no catálogo; **não** os torna consultáveis, porque o conector
+ainda não existe. A homologação jurídica, contratual e técnica continua sendo
+pré-requisito da integração, e o SCR depende de autorização expressa verificável
+para cada consulta. Quando o módulo Consultas for construído, essa verificação
+precisa existir no próprio conector — a trava do catálogo não a substitui.
+
+O SCR recebe nome comercial mascarado.
 
 ### Serviços apresentados ao cliente
 
