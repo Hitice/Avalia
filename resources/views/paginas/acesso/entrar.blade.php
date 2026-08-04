@@ -98,7 +98,7 @@
                 <div class="z-1 flex items-center justify-center">
                     <x-common.common-grid-shape />
                     <div class="flex max-w-xs flex-col items-center">
-                        <x-avalia.logotipo class="mb-5" />
+                        <x-avalia.logotipo :tamanho="42" class="mb-5 [&>span:last-child]:text-white [&>span:last-child]:text-3xl" />
                         <p class="text-center text-gray-400 dark:text-white/60">
                             Consulta de credito para quem vende a prazo.
                         </p>

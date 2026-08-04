@@ -68,7 +68,7 @@
                 <x-avalia.logotipo :tamanho="30" />
             </span>
             <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)">
-                <x-avalia.logotipo :tamanho="32" class="!gap-0 [&>span:last-child]:hidden" />
+                <x-avalia.logotipo :tamanho="30" somente-icone />
             </span>
 
         </a>
@@ -233,12 +233,7 @@
             </div>
         </nav>
 
-        <!-- Sidebar Widget -->
-        <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" x-transition class="mt-auto">
-            @include('layouts.sidebar-widget')
-        </div>
-
-    </div>
+</div>
 </aside>
 
 <!-- Mobile Overlay -->

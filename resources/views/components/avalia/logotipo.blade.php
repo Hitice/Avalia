@@ -1,15 +1,36 @@
-@props(['tamanho' => 34])
+@props([
+    'tamanho' => 32,
+    'somenteIcone' => false,
+])
 
-{{-- Icone: arco de velocimetro com ponteiro, remetendo a score de credito. --}}
+{{--
+    Marca da Avalia.
+
+    O icone e um arco de medidor com o ponteiro apontando para a faixa alta —
+    a leitura de risco que o produto entrega. Fica em azul da marca; o arco de
+    fundo em cinza claro marca a escala sem competir com o ponteiro.
+
+    Sem preenchimento solido atras: o simbolo respira sobre fundo claro ou
+    escuro sem precisar de duas versoes.
+--}}
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-2.5']) }}>
-    <svg width="{{ $tamanho }}" height="{{ $tamanho }}" viewBox="0 0 32 32" role="img" aria-label="Avalia">
-        <rect width="32" height="32" rx="7" fill="#12B76A" />
-        <path d="M7.5 19.2a8.5 8.5 0 0 1 17 0" fill="none" stroke="#04180F" stroke-width="3" stroke-linecap="round" />
-        <path d="M16 19.2 21 13" stroke="#04180F" stroke-width="3" stroke-linecap="round" />
-        <circle cx="16" cy="19.2" r="2.2" fill="#04180F" />
+    <svg width="{{ $tamanho }}" height="{{ $tamanho }}" viewBox="0 0 32 32" fill="none"
+        role="img" aria-label="Avalia" class="shrink-0">
+        {{-- Escala --}}
+        <path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="currentColor"
+            class="text-gray-300 dark:text-gray-700" stroke-width="3" stroke-linecap="round" />
+        {{-- Faixa atingida --}}
+        <path d="M4.5 22.5A11.5 11.5 0 0 1 16 11" stroke="currentColor"
+            class="text-brand-500" stroke-width="3" stroke-linecap="round" />
+        {{-- Ponteiro --}}
+        <path d="M16 22.5 22.3 14.6" stroke="currentColor" class="text-brand-500"
+            stroke-width="3" stroke-linecap="round" />
+        <circle cx="16" cy="22.5" r="2.6" fill="currentColor" class="text-brand-500" />
     </svg>
 
-    <span class="text-xl font-semibold tracking-tight text-gray-800 dark:text-white/90">
-        Aval<span class="relative">ı<span class="absolute -top-0.5 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-[#EC4899]"></span></span>a
-    </span>
+    @unless ($somenteIcone)
+        <span class="text-[1.35rem] leading-none font-semibold tracking-tight text-gray-800 dark:text-white/90">
+            Avalia
+        </span>
+    @endunless
 </span>
