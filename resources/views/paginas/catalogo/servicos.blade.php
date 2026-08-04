@@ -17,10 +17,10 @@
 
     @include('paginas.catalogo.avisos')
 
-    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="overflow-hidden cartao">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[44rem] text-sm">
-                <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            <table class="tabela min-w-[44rem]">
+                <thead class="tabela-cabecalho">
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Servico</th>
                         <th class="px-5 py-3 text-left font-medium">Categoria</th>
@@ -44,19 +44,19 @@
                             <td class="px-5 py-4 text-left">
                                 <span class="flex flex-wrap gap-2 text-xs">
                                     @if ($servico->disponivel())
-                                        <span class="bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400 rounded-full px-2 py-0.5 font-medium">
+                                        <span class="etiqueta etiqueta-sucesso">
                                             disponivel
                                         </span>
                                     @endif
 
                                     @unless ($servico->ativo)
-                                        <span class="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-500 dark:bg-white/5 dark:text-gray-400">
+                                        <span class="etiqueta etiqueta-neutra">
                                             inativo
                                         </span>
                                     @endunless
 
                                     @if ($servico->exige_liberacao)
-                                        <span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2 py-0.5 font-medium">
+                                        <span class="etiqueta etiqueta-alerta">
                                             aguarda liberacao
                                         </span>
                                     @endif
@@ -68,7 +68,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="4" class="tabela-vazia">
                                 Nenhum servico cadastrado.
                             </td>
                         </tr>

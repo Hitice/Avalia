@@ -27,7 +27,7 @@
         </p>
     </div>
 
-    <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="cartao p-6">
         <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
                 <h2 class="font-medium text-gray-800 dark:text-white/90">Construcao da plataforma</h2>

@@ -46,7 +46,7 @@
     @include('paginas.catalogo.avisos')
 
     @if (! $catalogo)
-        <div class="border-warning-300 bg-warning-50 text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-400 rounded-lg border p-4 text-sm">
+        <div class="aviso aviso-alerta">
             Catalogo vazio. Rode <code>php artisan db:seed --class=CatalogoSeeder</code> para importar
             a tabela de referencia.
         </div>
@@ -71,10 +71,10 @@
             @csrf
             @method('PUT')
 
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="overflow-hidden cartao">
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[54rem] text-sm">
-                        <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                    <table class="tabela min-w-[54rem]">
+                        <thead class="tabela-cabecalho">
                             <tr>
                                 {{-- text-left explicito: o navegador centraliza th por
                                      padrao, e o text-left da tabela nao vence isso. --}}
@@ -96,12 +96,12 @@
                                         <span class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                             <code>{{ $linha['servico']->codigo }}</code>
                                             @unless ($linha['servico']->ativo)
-                                                <span class="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-500 dark:bg-white/5 dark:text-gray-400">
+                                                <span class="etiqueta etiqueta-neutra">
                                                     inativo
                                                 </span>
                                             @endunless
                                             @if ($linha['servico']->exige_liberacao)
-                                                <span class="bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400 rounded-full px-2 py-0.5 font-medium">
+                                                <span class="etiqueta etiqueta-alerta">
                                                     aguarda liberacao
                                                 </span>
                                             @endif
@@ -128,14 +128,14 @@
                                                        name="{{ $campo }}[{{ $preco->id }}]"
                                                        value="{{ $valor === null ? '' : Dinheiro::numero($valor) }}"
                                                        @if ($visao === 'custo') placeholder="-" @endif
-                                                       class="focus:border-brand-500 w-24 rounded-lg border border-gray-300 bg-white px-2 py-1 text-right text-sm tabular-nums text-gray-800 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                                                       class="campo-celula">
                                             @endif
                                         </td>
                                     @endforeach
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($faixas) + 1 }}" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    <td colspan="{{ count($faixas) + 1 }}" class="tabela-vazia">
                                         Nenhum servico nesta categoria.
                                     </td>
                                 </tr>

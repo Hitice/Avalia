@@ -207,11 +207,11 @@ it('nao deixa vendedor editar nem reajustar', function () {
 */
 
 it('mostra o catalogo no menu do admin e esconde do vendedor', function () {
-    admin()->get('/')->assertOk()->assertSee('Catálogo e planos');
+    admin()->get('/')->assertOk()->assertSee('Catálogo');
 
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
         ->get('/')
         ->assertOk()
-        ->assertDontSee('Catálogo e planos');
+        ->assertDontSee('Catálogo');
 });

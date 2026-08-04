@@ -10,9 +10,9 @@
         'rotulo' => $centavos === 0 ? 'Sem mínimo' : Dinheiro::brl($centavos),
     ])->values();
 
-    $rotulo = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5';
-    $campo = 'w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
-    $erro = 'mt-1.5 block text-xs text-error-600 dark:text-error-400';
+    $rotulo = 'rotulo-campo';
+    $campo = 'campo';
+    $erro = 'erro-campo';
 @endphp
 
 @section('content')
@@ -30,7 +30,7 @@
 
     @include('paginas.catalogo.avisos')
 
-    <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="cartao p-6">
         <form method="POST"
               action="{{ $plano->exists ? route('catalogo.planos.atualizar', $plano) : route('catalogo.planos.salvar') }}"
               x-data="{
@@ -63,7 +63,7 @@
                             <option :value="f.valor" x-text="f.rotulo"></option>
                         </template>
                     </select>
-                    <span class="mt-1.5 block text-xs text-gray-500 dark:text-gray-400">
+                    <span class="ajuda-campo">
                         Define a coluna de precos e a aliquota de comissao.
                     </span>
                     @error('consumo_minimo') <span class="{{ $erro }}">{{ $message }}</span> @enderror
@@ -73,7 +73,7 @@
                     <label for="mensalidade" class="{{ $rotulo }}">Mensalidade</label>
                     <input id="mensalidade" name="mensalidade" type="text" inputmode="decimal" class="{{ $campo }}"
                            value="{{ old('mensalidade', Dinheiro::numero($plano->mensalidade_cents ?? 0)) }}" required>
-                    <span class="mt-1.5 block text-xs text-gray-500 dark:text-gray-400">
+                    <span class="ajuda-campo">
                         Cobrada sempre, consumindo ou nao. Nao entra na faixa de comissao.
                     </span>
                     @error('mensalidade_cents') <span class="{{ $erro }}">{{ $message }}</span> @enderror
@@ -99,7 +99,7 @@
     </div>
 
     @if ($plano->exists)
-        <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div class="mt-6 cartao p-6">
             <h2 class="font-medium text-gray-800 dark:text-white/90">Franquia por servico</h2>
             <p class="mt-1 mb-5 text-sm text-gray-500 dark:text-gray-400">
                 Quantas consultas de cada servico ja vem pagas na mensalidade. Zero significa
@@ -107,7 +107,7 @@
             </p>
 
             @if ($servicos->isEmpty())
-                <div class="border-warning-300 bg-warning-50 text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-400 rounded-lg border p-4 text-sm">
+                <div class="aviso aviso-alerta">
                     Nenhum servico precificado na faixa deste plano. Confira a versao e o consumo minimo.
                 </div>
             @else
@@ -116,8 +116,8 @@
                     @method('PUT')
 
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[34rem] text-sm">
-                            <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                        <table class="tabela min-w-[34rem]">
+                            <thead class="tabela-cabecalho">
                                 <tr>
                                     <th class="py-3 pr-4 text-left font-medium">Servico</th>
                                     <th class="px-4 py-3 text-right font-medium">Preco na faixa</th>

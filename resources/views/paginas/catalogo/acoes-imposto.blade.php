@@ -1,10 +1,10 @@
 {{-- Aliquota de imposto usada no calculo de margem. Recebe $catalogo. --}}
 
 @php
-    $campo = 'h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
+    $campo = 'campo-linha';
 @endphp
 
-<div class="mb-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+<div class="mb-6 cartao p-5">
     <form method="POST" action="{{ route('catalogo.imposto', $catalogo) }}" class="flex flex-wrap items-end gap-3">
         @csrf
         @method('PUT')
@@ -20,7 +20,7 @@
                 <span class="text-sm text-gray-500 dark:text-gray-400">%</span>
             </div>
             @error('imposto')
-                <span class="text-error-600 dark:text-error-400 mt-1.5 block text-xs">{{ $message }}</span>
+                <span class="erro-campo">{{ $message }}</span>
             @enderror
         </div>
 

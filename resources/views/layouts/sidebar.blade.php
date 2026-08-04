@@ -59,7 +59,7 @@
     @mouseenter="if (!$store.sidebar.isExpanded) $store.sidebar.setHovered(true)"
     @mouseleave="$store.sidebar.setHovered(false)">
     <!-- Logo Section -->
-    <div class="pt-8 pb-7 flex"
+    <div class="-mx-5 mb-6 flex border-b border-gray-200 px-5 pt-8 pb-7 dark:border-gray-800"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start'">
@@ -188,7 +188,7 @@
                                             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                                                 class="menu-item-text flex flex-1 items-center gap-2">
                                                 {{ $item['name'] }}
-                                                <span class="ml-auto rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-gray-500 uppercase dark:bg-white/5 dark:text-gray-500">
+                                                <span class="menu-badge-embreve ml-auto">
                                                     em breve
                                                 </span>
                                             </span>

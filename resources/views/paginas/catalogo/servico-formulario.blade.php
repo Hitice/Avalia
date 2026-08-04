@@ -3,9 +3,9 @@
 @php
     use App\Support\Dinheiro;
 
-    $rotulo = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5';
-    $campo = 'w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
-    $erro = 'mt-1.5 block text-xs text-error-600 dark:text-error-400';
+    $rotulo = 'rotulo-campo';
+    $campo = 'campo';
+    $erro = 'erro-campo';
 @endphp
 
 @section('content')
@@ -23,7 +23,7 @@
 
     @include('paginas.catalogo.avisos')
 
-    <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="cartao p-6">
         <form method="POST"
               action="{{ $servico->exists ? route('catalogo.servicos.atualizar', $servico) : route('catalogo.servicos.salvar') }}">
             @csrf
@@ -36,7 +36,7 @@
                     <label for="nome" class="{{ $rotulo }}">Nome comercial</label>
                     <input id="nome" name="nome" type="text" class="{{ $campo }}"
                            value="{{ old('nome', $servico->nome) }}" required>
-                    <span class="mt-1.5 block text-xs text-gray-500 dark:text-gray-400">
+                    <span class="ajuda-campo">
                         E o que o cliente ve. Nao use marca nem nomenclatura do fornecedor.
                     </span>
                     @error('nome') <span class="{{ $erro }}">{{ $message }}</span> @enderror
@@ -47,14 +47,14 @@
                     @if ($servico->exists)
                         <input id="codigo" type="text" class="{{ $campo }} cursor-not-allowed opacity-60"
                                value="{{ $servico->codigo }}" disabled>
-                        <span class="mt-1.5 block text-xs text-gray-500 dark:text-gray-400">
+                        <span class="ajuda-campo">
                             Nao muda depois de criado: e por ele que franquia, relatorio e integracao
                             acham o servico.
                         </span>
                     @else
                         <input id="codigo" name="codigo" type="text" class="{{ $campo }}"
                                value="{{ old('codigo') }}" placeholder="score-positivo" required>
-                        <span class="mt-1.5 block text-xs text-gray-500 dark:text-gray-400">
+                        <span class="ajuda-campo">
                             Minusculas, numeros e hifen. Escolha com calma: e definitivo.
                         </span>
                     @endif
@@ -78,7 +78,7 @@
                         <label for="preco_base" class="{{ $rotulo }}">Preco inicial</label>
                         <input id="preco_base" name="preco_base" type="text" inputmode="decimal"
                                class="{{ $campo }}" value="{{ old('preco_base') }}" placeholder="6,31" required>
-                        <span class="mt-1.5 block text-xs text-gray-500 dark:text-gray-400">
+                        <span class="ajuda-campo">
                             Entra igual em {{ count($faixas) }} faixa(s) do catalogo. Servico sem preco nao
                             apareceria na matriz, que e o unico lugar onde se edita preco. Ajuste faixa a
                             faixa depois de criar.

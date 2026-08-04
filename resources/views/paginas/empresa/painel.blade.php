@@ -21,7 +21,7 @@
         </div>
     @endif
 
-    <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="cartao p-6">
         <p class="text-sm text-gray-500 dark:text-gray-400">
             Consultas e faturas aparecem aqui quando os modulos Consulta e Faturamento entrarem.
         </p>

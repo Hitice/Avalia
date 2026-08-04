@@ -264,6 +264,138 @@
   @apply bg-success-50 group-hover:bg-success-100 dark:bg-success-500/15 dark:group-hover:bg-success-500/20;
 }
 
+/* ---------------------------------------------------------------------------
+   Vocabulario da Avalia.
+
+   Mesma convencao do tema: estilo que se repete vira @utility aqui, e o Blade
+   usa o nome. Classe solta espalhada pelas telas foi o que produziu tres
+   tamanhos de botao e etiquetas de alturas diferentes.
+   --------------------------------------------------------------------------- */
+
+@utility cartao {
+  @apply rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03];
+}
+
+@utility tabela {
+  @apply w-full text-sm;
+}
+
+@utility tabela-cabecalho {
+  @apply border-b border-gray-100 text-xs tracking-wide text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400;
+}
+
+@utility tabela-th {
+  @apply px-5 py-3 font-medium;
+}
+
+@utility tabela-td {
+  @apply px-5 py-4;
+}
+
+@utility tabela-vazia {
+  @apply px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400;
+}
+
+@utility campo {
+  @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90;
+}
+
+@utility campo-linha {
+  @apply h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90;
+}
+
+@utility campo-celula {
+  @apply w-24 rounded-lg border border-gray-300 bg-white px-2 py-1 text-right text-sm tabular-nums text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90;
+}
+
+@utility rotulo-campo {
+  @apply mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+@utility ajuda-campo {
+  @apply mt-1.5 block text-xs text-gray-500 dark:text-gray-400;
+}
+
+@utility erro-campo {
+  @apply text-error-600 dark:text-error-400 mt-1.5 block text-xs;
+}
+
+@utility etiqueta {
+  @apply inline-flex rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap;
+}
+
+@utility etiqueta-neutra {
+  @apply bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400;
+}
+
+@utility etiqueta-sucesso {
+  @apply bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400;
+}
+
+@utility etiqueta-alerta {
+  @apply bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400;
+}
+
+@utility etiqueta-erro {
+  @apply bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400;
+}
+
+@utility aviso {
+  @apply rounded-lg border p-4 text-sm;
+}
+
+@utility aviso-ok {
+  @apply border-success-300 bg-success-50 text-success-700 dark:border-success-500/30 dark:bg-success-500/10 dark:text-success-400;
+}
+
+@utility aviso-erro {
+  @apply border-error-300 bg-error-50 text-error-700 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-400;
+}
+
+@utility aviso-alerta {
+  @apply border-warning-300 bg-warning-50 text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-400;
+}
+
+@utility botao {
+  @apply focus-visible:ring-brand-500/50 inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition focus:outline-none focus-visible:ring-2;
+}
+
+@utility botao-sm {
+  @apply h-9 px-3;
+}
+
+@utility botao-primario {
+  @apply bg-brand-500 text-white hover:bg-brand-600;
+}
+
+@utility botao-secundario {
+  @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/[0.06];
+}
+
+@utility segmento-grupo {
+  @apply inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-800 dark:bg-white/[0.03];
+}
+
+@utility segmento {
+  @apply inline-flex h-9 min-w-28 items-center justify-center rounded-md px-4 text-sm font-medium transition;
+}
+
+@utility segmento-ativo {
+  @apply bg-brand-500 text-white shadow-sm;
+}
+
+@utility segmento-inativo {
+  @apply text-gray-600 hover:bg-white hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-gray-200;
+}
+
+@utility rotulo-grupo {
+  @apply text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500;
+}
+
+@utility menu-badge-embreve {
+  @apply block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-gray-500 uppercase dark:bg-white/5 dark:text-gray-400;
+}
+
 @utility menu-dropdown-badge-pro {
   @apply text-brand-600 dark:text-brand-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
 }

@@ -16,10 +16,10 @@
 
     @include('paginas.catalogo.avisos')
 
-    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="overflow-hidden cartao">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[48rem] text-sm">
-                <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            <table class="tabela min-w-[48rem]">
+                <thead class="tabela-cabecalho">
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Plano</th>
                                                 <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
@@ -37,14 +37,14 @@
                                 </a>
                                 <span class="mt-0.5 flex flex-wrap gap-2 text-xs">
                                     @unless ($plano->ativo)
-                                        <span class="rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-500 dark:bg-white/5 dark:text-gray-400">
+                                        <span class="etiqueta etiqueta-neutra">
                                             inativo
                                         </span>
                                     @endunless
 
                                     @unless ($faixaValida[$plano->id])
                                         {{-- Sem faixa valida nenhuma consulta acha preco. --}}
-                                        <span class="bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400 rounded-full px-2 py-0.5 font-medium">
+                                        <span class="etiqueta etiqueta-erro">
                                             faixa fora do catalogo
                                         </span>
                                     @endunless
@@ -56,7 +56,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="5" class="tabela-vazia">
                                 Nenhum plano cadastrado.
                             </td>
                         </tr>
