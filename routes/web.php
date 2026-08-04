@@ -53,6 +53,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // versoes no meio do caminho.
         Route::get('/tabela', [CatalogoController::class, 'tabela'])->name('tabela');
         Route::put('/tabela/{catalogo}/precos', [CatalogoController::class, 'precos'])->name('precos');
+        Route::put('/tabela/{catalogo}/custos', [CatalogoController::class, 'custos'])->name('custos');
+        Route::put('/tabela/{catalogo}/imposto', [CatalogoController::class, 'imposto'])->name('imposto');
         Route::post('/tabela/{catalogo}/reajustar', [CatalogoController::class, 'reajustar'])->name('reajustar');
     });
 });

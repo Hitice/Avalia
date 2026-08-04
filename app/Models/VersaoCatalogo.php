@@ -20,13 +20,20 @@ class VersaoCatalogo extends Model
 
     protected $table = 'versoes_catalogo';
 
-    protected $fillable = ['rotulo', 'observacao', 'vigencia_inicio'];
+    protected $fillable = ['rotulo', 'observacao', 'vigencia_inicio', 'imposto_bps'];
 
     protected function casts(): array
     {
         return [
             'vigencia_inicio' => 'date',
+            'imposto_bps' => 'integer',
         ];
+    }
+
+    /** Aliquota de imposto legivel: 2700 -> "27%". */
+    public function impostoRotulo(): string
+    {
+        return rtrim(rtrim(number_format($this->imposto_bps / 100, 2, ',', '.'), '0'), ',').'%';
     }
 
     public function precos(): HasMany

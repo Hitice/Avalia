@@ -20,6 +20,13 @@ use Illuminate\Validation\Rule;
  */
 class CatalogoController extends Controller
 {
+    /** O que a matriz mostra. Venda e o dia a dia; custo e margem sao internos. */
+    public const VISOES = [
+        'venda' => 'Preço de venda',
+        'custo' => 'Custo do fornecedor',
+        'margem' => 'Margem',
+    ];
+
     public function tabela(Request $request)
     {
         $catalogo = VersaoCatalogo::vigente();
@@ -30,6 +37,7 @@ class CatalogoController extends Controller
                 'faixas' => [],
                 'linhas' => collect(),
                 'categoria' => null,
+                'visao' => 'venda',
             ]);
         }
 
@@ -37,6 +45,12 @@ class CatalogoController extends Controller
 
         if (! array_key_exists($categoria, Servico::CATEGORIAS)) {
             $categoria = null;
+        }
+
+        $visao = $request->query('visao');
+
+        if (! array_key_exists($visao, self::VISOES)) {
+            $visao = 'venda';
         }
 
         $precos = $catalogo->precos()->with('servico')->get();
@@ -71,47 +85,88 @@ class CatalogoController extends Controller
             'faixas' => $faixas,
             'linhas' => $linhas,
             'categoria' => $categoria,
+            'visao' => $visao,
         ]);
     }
 
-    /**
-     * Grava os precos editados.
-     *
-     * Escreve em lote: sao ate 301 linhas, e uma consulta por linha contra
-     * banco remoto levaria minutos.
-     */
+    /** Grava os precos de venda editados. */
     public function precos(Request $request, VersaoCatalogo $catalogo)
     {
-        $request->validate([
-            'precos' => ['array'],
-            'precos.*' => ['nullable', 'string', 'max:20'],
+        return $this->gravarColuna($request, $catalogo, 'precos', 'preco_cents', 'preco');
+    }
+
+    /**
+     * Grava o custo do fornecedor.
+     *
+     * Aceita campo vazio: apagar o custo devolve a linha ao estado "custo nao
+     * cadastrado", que a tela mostra como travessao em vez de zero. Zero seria
+     * mentira — significaria fornecedor de graca.
+     */
+    public function custos(Request $request, VersaoCatalogo $catalogo)
+    {
+        return $this->gravarColuna($request, $catalogo, 'custos', 'custo_cents', 'custo', true);
+    }
+
+    /** Aliquota de imposto usada no calculo de margem e de piso. */
+    public function imposto(Request $request, VersaoCatalogo $catalogo)
+    {
+        $dados = $request->validate([
+            'imposto' => ['required', 'numeric', 'min:0', 'max:99.99'],
         ]);
 
-        $informados = collect($request->input('precos', []))
+        $catalogo->update(['imposto_bps' => (int) round((float) $dados['imposto'] * 100)]);
+
+        return back()->with('ok', "Imposto ajustado para {$catalogo->fresh()->impostoRotulo()}.");
+    }
+
+    /**
+     * Escreve uma coluna de dinheiro da matriz em lote.
+     *
+     * Sao ate 301 linhas: uma consulta por linha contra banco remoto levaria
+     * minutos. Grava so o que mudou, e so o que pertence a este catalogo — id
+     * chutado no formulario nao reprecifica outra tabela.
+     */
+    private function gravarColuna(
+        Request $request,
+        VersaoCatalogo $catalogo,
+        string $campo,
+        string $coluna,
+        string $rotulo,
+        bool $aceitaVazio = false,
+    ) {
+        $request->validate([
+            $campo => ['array'],
+            $campo.'.*' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $informados = collect($request->input($campo, []))
             ->map(fn ($valor) => Dinheiro::paraCentavos($valor))
-            ->filter(fn (?int $centavos) => $centavos !== null && $centavos >= 0);
+            ->reject(fn (?int $centavos) => $centavos !== null && $centavos < 0)
+            ->when(! $aceitaVazio, fn ($valores) => $valores->filter(fn (?int $c) => $c !== null));
 
         $linhas = $catalogo->precos()
             ->whereIn('id', $informados->keys())
-            ->get(['id', 'versao_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents'])
-            ->filter(fn (Preco $preco) => $preco->preco_cents !== $informados[$preco->id])
+            ->get(['id', 'versao_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents'])
+            ->filter(fn (Preco $preco) => $preco->{$coluna} !== $informados[$preco->id])
             ->map(fn (Preco $preco) => [
                 'id' => $preco->id,
                 'versao_id' => $preco->versao_id,
                 'servico_id' => $preco->servico_id,
                 'consumo_minimo_cents' => $preco->consumo_minimo_cents,
-                'preco_cents' => $informados[$preco->id],
+                'preco_cents' => $preco->preco_cents,
+                'custo_cents' => $preco->custo_cents,
+                $coluna => $informados[$preco->id],
             ])
             ->values()
             ->all();
 
         if ($linhas === []) {
-            return back()->with('ok', 'Nenhum preco mudou.');
+            return back()->with('ok', "Nenhum {$rotulo} mudou.");
         }
 
-        Preco::upsert($linhas, ['id'], ['preco_cents']);
+        Preco::upsert($linhas, ['id'], [$coluna]);
 
-        return back()->with('ok', count($linhas).' preco(s) atualizado(s).');
+        return back()->with('ok', count($linhas)." {$rotulo}(s) atualizado(s).");
     }
 
     /**

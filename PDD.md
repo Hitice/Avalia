@@ -94,6 +94,24 @@ O preço de tabela é o valor final ao cliente da Avalia. O custo efetivo do
 fornecedor é interno, cadastrado separadamente, e nunca é exibido ao cliente ou
 ao vendedor.
 
+### Margem e piso de preço
+
+A administração vê a mesma matriz do catálogo sob três visões: preço de venda,
+custo do fornecedor e margem. As duas últimas são internas e ficam atrás da mesma
+restrição de acesso do catálogo — vendedor não entra.
+
+    imposto = preço de venda × alíquota
+    margem  = preço de venda − custo do fornecedor − imposto
+    piso    = menor preço de venda cuja margem ainda não é negativa
+
+O piso não é cadastrado, é calculado: abaixo dele a venda não paga fornecedor e
+imposto. A tela marca em vermelho toda célula vendida abaixo do piso.
+
+Custo em branco significa **custo ainda não cadastrado**, e é diferente de custo
+zero: sem o dado, a plataforma não exibe margem nem piso em vez de exibir um
+número inventado. A alíquota de imposto vive no catálogo, não no código, porque
+muda com o regime tributário e precisa de rastro.
+
 Cada serviço do catálogo tem código, descrição, preço de venda por faixa, custo
 interno, franquia, regras de consumo e congelamento por contrato.
 
@@ -447,8 +465,9 @@ falhas, logs seguros e documentação de operação.
   correspondem ao ISS de serviço em muitos municípios, que é só uma parte da
   carga; PIS, COFINS e tributo sobre o lucro dependem do regime. Precisa de
   fechamento contábil antes de virar cálculo de margem.
-- Cadastrar o custo do fornecedor por serviço e faixa: hoje está vazio, e sem ele
-  não há margem, piso de preço nem comissão líquida.
+- Cadastrar o custo do fornecedor por serviço e faixa. A tela já existe; o dado é
+  que ainda não foi levantado. Sem ele não há margem nem piso de preço, e as 301
+  linhas aparecem como custo não cadastrado.
 - Homologar comercialmente os preços dos anexos A e B e a margem sobre o custo do fornecedor.
 - Definir a quantidade incluída na franquia de cada serviço, por faixa.
 - Definir quais serviços dos anexos entram no catálogo inicial e quais ficam desativados.
