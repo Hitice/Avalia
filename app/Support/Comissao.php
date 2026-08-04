@@ -7,7 +7,7 @@ namespace App\Support;
  *
  * Aliquota unica para todo plano e toda faixa: 10% sobre o que o cliente
  * efetivamente consumiu no mes. Nao mora no Plano justamente porque nao e
- * atributo de plano nenhum — e parametro comercial da Avalia (PDD.md, secao 5).
+ * atributo de plano nenhum, e sim parametro comercial da Avalia (PDD.md, secao 5).
  *
  * A base e o consumo REALIZADO, nao o valor faturado. Cliente com minimo de
  * R$ 900 que consome R$ 300 paga R$ 979,90 e gera R$ 30,00 de comissao: o piso
@@ -39,7 +39,7 @@ final class Comissao
         }
 
         // round e nao trunca: sempre a favor de ninguem em particular, mas
-        // estavel — dois calculos do mesmo mes dao o mesmo centavo.
+        // estavel: dois calculos do mesmo mes dao o mesmo centavo.
         return (int) round($consumoRealizadoCents * self::pct($houveExcedente) / 100);
     }
 

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Coluna que sustenta o "manter conectado".
  *
  * O guard de sessao grava aqui o token do cookie de lembranca. Sem a coluna,
- * o login com "lembrar" marcado quebra em 500 — e como a caixa vem marcada por
+ * o login com "lembrar" marcado quebra em 500, e como a caixa vem marcada por
  * padrao, quebrava para praticamente todo mundo.
  */
 return new class extends Migration

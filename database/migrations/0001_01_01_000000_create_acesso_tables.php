@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Aqui a tabela `clientes` nasce so com o que o login precisa. O modulo
  * Cadastro acrescenta depois a ficha completa (proposta comercial) numa
- * migration propria — migration e aditiva, entao nao ha remendo.
+ * migration propria, porque migration e aditiva, entao nao ha remendo.
  */
 return new class extends Migration
 {

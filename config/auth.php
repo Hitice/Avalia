@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | O guard padrao e o `staff`. Rota que esquecer de declarar o guard cai na
-    | area de gestao, que e a mais protegida — errar o roteamento passa a
+    | area de gestao, que e a mais protegida, e errar o roteamento passa a
     | fechar a porta em vez de abrir.
     |
     */

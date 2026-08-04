@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Porta unica de entrada: um formulario resolve as duas naturezas de conta.
-| Ja as areas protegidas sao declaradas separadamente — nenhuma rota de gestao
+| Ja as areas protegidas sao declaradas separadamente: nenhuma rota de gestao
 | aceita o guard `empresa`, e nenhuma rota da empresa aceita `staff`.
 |
 */

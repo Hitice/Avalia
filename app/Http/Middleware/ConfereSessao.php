@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * Existe porque cookie valido nao e o mesmo que acesso permitido. Sem isto,
  * desativar um vendedor ou encerrar um cliente so teria efeito quando o cookie
- * dele expirasse — ate la ele continuaria operando normalmente.
+ * dele expirasse, e ate la ele continuaria operando normalmente.
  *
  * Duas checagens:
  *   1. sessao_versao gravada na sessao == a do banco (revogacao explicita)
@@ -30,7 +30,7 @@ class ConfereSessao
 
         // Rele do banco em vez de confiar no model que o guard trouxe. O guard
         // guarda a instancia em memoria, e sob Octane esse processo sobrevive a
-        // varias requisicoes — revogar so teria efeito quando o worker
+        // varias requisicoes, e revogar so teria efeito quando o worker
         // reciclasse. Uma consulta por requisicao e o preco de a revogacao ser
         // imediata de verdade.
         $conta = $conta->fresh();

@@ -1,4 +1,4 @@
-# Documento de Produto — Avalia
+# Documento de Produto: Avalia
 
 ## 1. Visão do produto
 
@@ -47,7 +47,7 @@ nunca obtém acesso a rotas, registros ou indicadores de outro papel sem permiss
 
 Esta seção é a fonte única dos valores citados no restante do documento. Todos
 são provisórios até homologação comercial e, uma vez homologados, passam a viver
-no catálogo versionado — nunca no código.
+no catálogo versionado, nunca no código.
 
 | Parâmetro | Valor | Observação |
 | --- | --- | --- |
@@ -98,7 +98,7 @@ ao vendedor.
 
 A administração vê a mesma matriz do catálogo sob três visões: preço de venda,
 custo do fornecedor e margem. As duas últimas são internas e ficam atrás da mesma
-restrição de acesso do catálogo — vendedor não entra.
+restrição de acesso do catálogo: vendedor não entra.
 
     imposto = preço de venda × alíquota
     margem  = preço de venda − custo do fornecedor − imposto
@@ -209,7 +209,7 @@ torna vendáveis no catálogo; **não** os torna consultáveis, porque o conecto
 ainda não existe. A homologação jurídica, contratual e técnica continua sendo
 pré-requisito da integração, e o SCR depende de autorização expressa verificável
 para cada consulta. Quando o módulo Consultas for construído, essa verificação
-precisa existir no próprio conector — a trava do catálogo não a substitui.
+precisa existir no próprio conector, porque a trava do catálogo não a substitui.
 
 O SCR recebe nome comercial mascarado.
 
@@ -333,8 +333,8 @@ fatura, não mais por causa da comissão.
 
 ### Taxa de adesão
 
-O valor é livre: quem define é o vendedor, na proposta. Pode ser parcelada — uma
-adesão de R$ 12.000,00 em doze parcelas de R$ 1.000,00 é caso previsto — e cada
+O valor é livre: quem define é o vendedor, na proposta. Pode ser parcelada, e
+uma adesão de R$ 12.000,00 em doze parcelas de R$ 1.000,00 é caso previsto. Cada
 parcela vira uma cobrança própria.
 
 O rateio é **50% para o vendedor e 50% para a Avalia**, e cada metade só se torna
@@ -466,7 +466,7 @@ falhas, logs seguros e documentação de operação.
   20% só sobre a parcela excedente e 10% sobre o resto. A diferença é grande e
   muda o incentivo do vendedor.
 - **Confirmar a base da comissão.** Está escrito consumo realizado. Cliente que
-  paga o mínimo sem usar gera comissão menor que o valor da fatura — confirmar se
+  paga o mínimo sem usar gera comissão menor que o valor da fatura. Confirmar se
   é isso mesmo ou se a base deve ser o valor faturado de consumo.
 - **Confirmar a alíquota de imposto.** Os 27% são estimativa. Os 6% citados
   correspondem ao ISS de serviço em muitos municípios, que é só uma parte da
@@ -497,14 +497,14 @@ de uma versão), `planos` (versão contratada, mensalidade, consumo mínimo) e
 
 Os preços dos anexos A e B entram pelo `CatalogoSeeder` como **rascunho**, a
 partir de `database/seeders/dados/`, gerado por `tools/gera_precos_catalogo.py`.
-Ativar a versão é ação administrativa consciente — o seeder nunca ativa.
+Ativar a versão é ação administrativa consciente: o seeder nunca ativa.
 
 As telas de catálogo (`/catalogo`, restritas a administração) têm três abas:
 
-- **Planos** — cadastro de plano, faixa contratada e franquia por serviço;
-- **Catálogo** — a matriz de preços por faixa, em três visões (venda, custo e
+- **Planos**: cadastro de plano, faixa contratada e franquia por serviço;
+- **Catálogo**: a matriz de preços por faixa, em três visões (venda, custo e
   margem), com edição direta, reajuste percentual e alíquota de imposto;
-- **Serviços** — cadastro, renomeação, categoria, ativação e trava de liberação
+- **Serviços**: cadastro, renomeação, categoria, ativação e trava de liberação
   jurídica.
 
 Serviço não é excluído, apenas desativado: franquia de plano, consulta e fatura
@@ -519,7 +519,7 @@ A navegação já expõe Consultas, Histórico, Empresas clientes, Financeiro e
 Auditoria como módulos futuros (`emBreve`). Isso reflete o plano estrutural, mas
 permite que a entrega seja feita por fases sem quebrar o fluxo de uso.
 
-## Anexo A — Preços de referência: crédito
+## Anexo A. Preços de referência: crédito
 
 > Transcrito da tabela de crédito do fornecedor (`temp/`). Valores unitários
 > em reais, por faixa de consumo mínimo contratada. Provisórios até homologação
@@ -527,28 +527,28 @@ permite que a entrega seja feita por fases sem quebrar o fluxo de uso.
 
 | Serviço | Sem mínimo | 75 | 200 | 500 | 900 | 1.500 | 5.000 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Cheques sem fundos — Banco Central PF/PJ | 2,09 | 1,88 | 1,70 | 1,53 | 1,37 | 1,24 | 0,98 |
-| Ações judiciais — nacional PF/PJ | 5,94 | 5,22 | 4,60 | 4,05 | 3,56 | 3,13 | 2,34 |
-| SCPC BVS PF/PJ — Base III | 6,31 | 5,94 | 5,58 | 5,24 | 4,93 | 4,63 | 3,70 |
-| Relatório Plus PF/PJ + cartórios e CCF Bacen — Base III | 7,81 | 7,42 | 7,05 | 6,70 | 6,36 | 6,04 | 5,40 |
-| Crédito Net Básica PF/PJ — Base I | 15,93 | 15,13 | 14,37 | 13,66 | 12,97 | 12,32 | 10,97 |
-| Mix PF/PJ — Base I e II | 18,52 | 17,41 | 16,37 | 15,39 | 14,46 | 13,60 | 12,01 |
-| Crédito Net PF/PJ — Base I e III | 18,97 | 17,83 | 16,76 | 15,75 | 14,81 | 13,92 | 12,26 |
-| Crédito Net Top + cartórios e CCF Bacen — Base I e III | 21,91 | 20,59 | 19,36 | 18,20 | 17,10 | 16,08 | 14,21 |
-| Relatório Score Positivo + filtros — Base III | 9,93 | 9,44 | 8,97 | 8,52 | 8,09 | 7,69 | 6,94 |
-| Risco de Crédito Top PF/PJ + filtros — Base I | 20,95 | 19,69 | 18,51 | 17,40 | 16,36 | 15,38 | 13,59 |
-| Relatório Top PF/PJ + filtros — Base I e III | 28,57 | 27,43 | 26,33 | 25,28 | 24,27 | 23,30 | 21,25 |
-| Relatório Top + SCR Bacen — Base I e III * | 44,50 | 40,94 | 37,67 | 34,65 | 31,88 | 29,33 | 26,99 |
-| Maxi Top PF/PJ + score e filtros — Base I e II | 28,15 | 27,03 | 25,95 | 24,91 | 23,91 | 22,96 | 20,94 |
-| Relatório Prime Básica + cartórios e CCF Bacen — Base I, II e III | 26,70 | 25,10 | 23,59 | 22,18 | 20,85 | 19,60 | 17,09 |
-| Relatório Prime Completa + filtros — Base I, II e III | 37,05 | 35,20 | 33,44 | 31,77 | 30,18 | 28,67 | 25,60 |
-| Relatório Prime Completa + SCR Bacen — Base I, II e III * | 52,89 | 48,66 | 44,77 | 41,18 | 37,89 | 34,86 | 32,42 |
+| Cheques sem fundos - Banco Central PF/PJ | 2,09 | 1,88 | 1,70 | 1,53 | 1,37 | 1,24 | 0,98 |
+| Ações judiciais - nacional PF/PJ | 5,94 | 5,22 | 4,60 | 4,05 | 3,56 | 3,13 | 2,34 |
+| SCPC BVS PF/PJ - Base III | 6,31 | 5,94 | 5,58 | 5,24 | 4,93 | 4,63 | 3,70 |
+| Relatório Plus PF/PJ + cartórios e CCF Bacen - Base III | 7,81 | 7,42 | 7,05 | 6,70 | 6,36 | 6,04 | 5,40 |
+| Crédito Net Básica PF/PJ - Base I | 15,93 | 15,13 | 14,37 | 13,66 | 12,97 | 12,32 | 10,97 |
+| Mix PF/PJ - Base I e II | 18,52 | 17,41 | 16,37 | 15,39 | 14,46 | 13,60 | 12,01 |
+| Crédito Net PF/PJ - Base I e III | 18,97 | 17,83 | 16,76 | 15,75 | 14,81 | 13,92 | 12,26 |
+| Crédito Net Top + cartórios e CCF Bacen - Base I e III | 21,91 | 20,59 | 19,36 | 18,20 | 17,10 | 16,08 | 14,21 |
+| Relatório Score Positivo + filtros - Base III | 9,93 | 9,44 | 8,97 | 8,52 | 8,09 | 7,69 | 6,94 |
+| Risco de Crédito Top PF/PJ + filtros - Base I | 20,95 | 19,69 | 18,51 | 17,40 | 16,36 | 15,38 | 13,59 |
+| Relatório Top PF/PJ + filtros - Base I e III | 28,57 | 27,43 | 26,33 | 25,28 | 24,27 | 23,30 | 21,25 |
+| Relatório Top + SCR Bacen - Base I e III * | 44,50 | 40,94 | 37,67 | 34,65 | 31,88 | 29,33 | 26,99 |
+| Maxi Top PF/PJ + score e filtros - Base I e II | 28,15 | 27,03 | 25,95 | 24,91 | 23,91 | 22,96 | 20,94 |
+| Relatório Prime Básica + cartórios e CCF Bacen - Base I, II e III | 26,70 | 25,10 | 23,59 | 22,18 | 20,85 | 19,60 | 17,09 |
+| Relatório Prime Completa + filtros - Base I, II e III | 37,05 | 35,20 | 33,44 | 31,77 | 30,18 | 28,67 | 25,60 |
+| Relatório Prime Completa + SCR Bacen - Base I, II e III * | 52,89 | 48,66 | 44,77 | 41,18 | 37,89 | 34,86 | 32,42 |
 | SCR Bacen + score PF/PJ * | 20,03 | 18,83 | 17,70 | 16,64 | 15,64 | 14,70 | 12,99 |
-| Cadastro especial PF — endereço, telefone, e-mail, trabalho, renda | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
-| Cadastro especial PJ — dados da empresa, sócios, regime fiscal, faturamento | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
+| Cadastro especial PF - endereço, telefone, e-mail, trabalho, renda | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
+| Cadastro especial PJ - dados da empresa, sócios, regime fiscal, faturamento | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
 | Telefones por CPF/CNPJ | 1,11 | 1,00 | 0,90 | 0,81 | 0,73 | 0,66 | 0,53 |
 | Endereços por CPF/CNPJ | 1,11 | 1,00 | 0,90 | 0,81 | 0,73 | 0,66 | 0,53 |
-| InfoBusca por CPF/CNPJ — telefone, endereço e e-mails | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
+| InfoBusca por CPF/CNPJ - telefone, endereço e e-mails | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
 | InfoBusca por nome (mostra CPF) | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
 | Localizador por telefone (mostra nome e CPF/CNPJ) | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
 | Localizador por CEP (mostra nomes e CPF/CNPJ) | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
@@ -558,7 +558,7 @@ Os filtros extras citados nos nomes são score, faturamento e renda presumida,
 pontualidade de pagamento, balanço máximo e mínimo, quantidade de funcionários,
 endereços, telefones, pessoas de contato, cartórios e Bacen direto.
 
-## Anexo B — Preços de referência: veicular
+## Anexo B. Preços de referência: veicular
 
 > Transcrito da tabela veicular do fornecedor (`temp/`). Mesmas regras do
 > anexo A.
@@ -570,15 +570,15 @@ endereços, telefones, pessoas de contato, cartórios e Bacen direto.
 | Proprietário atual | 5,94 | 5,76 | 5,59 | 5,42 | 5,26 | 5,10 | 4,80 |
 | Agregados | 3,63 | 3,52 | 3,42 | 3,31 | 3,21 | 3,12 | 2,93 |
 | RenaJud | 10,55 | 10,13 | 9,73 | 9,34 | 8,96 | 8,61 | 7,93 |
-| RenaInf — infrações completa | 8,97 | 8,61 | 8,27 | 7,94 | 7,62 | 7,31 | 6,74 |
-| CRLV — documento de licenciamento | 23,78 | 23,07 | 22,37 | 21,70 | 21,05 | 20,42 | 19,21 |
-| BIN — base estadual e nacional | 5,96 | 5,72 | 5,49 | 5,27 | 5,06 | 4,86 | 4,48 |
-| Leilão — Base I | 11,94 | 11,58 | 11,23 | 10,89 | 10,57 | 10,25 | 9,54 |
-| Leilão conjugado completo + score do veículo — Base II | 21,95 | 21,29 | 20,65 | 20,03 | 19,43 | 18,84 | 17,55 |
-| CSV — certificado de segurança veicular | 7,95 | 7,71 | 7,48 | 7,25 | 7,03 | 6,82 | 6,35 |
+| RenaInf - infrações completa | 8,97 | 8,61 | 8,27 | 7,94 | 7,62 | 7,31 | 6,74 |
+| CRLV - documento de licenciamento | 23,78 | 23,07 | 22,37 | 21,70 | 21,05 | 20,42 | 19,21 |
+| BIN - base estadual e nacional | 5,96 | 5,72 | 5,49 | 5,27 | 5,06 | 4,86 | 4,48 |
+| Leilão - Base I | 11,94 | 11,58 | 11,23 | 10,89 | 10,57 | 10,25 | 9,54 |
+| Leilão conjugado completo + score do veículo - Base II | 21,95 | 21,29 | 20,65 | 20,03 | 19,43 | 18,84 | 17,55 |
+| CSV - certificado de segurança veicular | 7,95 | 7,71 | 7,48 | 7,25 | 7,03 | 6,82 | 6,35 |
 | Histórico de roubo e furto | 7,99 | 7,67 | 7,37 | 7,07 | 6,79 | 6,52 | 5,94 |
 | Gravame indicativo | 7,95 | 7,63 | 7,32 | 7,03 | 6,75 | 6,48 | 5,97 |
 | Gravame indicativo + agregados | 11,00 | 10,56 | 10,14 | 9,73 | 9,34 | 8,97 | 8,27 |
 | Confere RG/CNH | 5,88 | 5,70 | 5,53 | 5,37 | 5,21 | 5,05 | 4,75 |
 | Precificador / decodificador | 5,95 | 5,77 | 5,60 | 5,43 | 5,27 | 5,11 | 4,81 |
-| VIP Car — informação completa do veículo | 55,30 | 53,64 | 52,03 | 50,47 | 48,96 | 47,49 | 44,68 |
+| VIP Car - informação completa do veículo | 55,30 | 53,64 | 52,03 | 50,47 | 48,96 | 47,49 | 44,68 |

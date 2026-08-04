@@ -40,7 +40,7 @@ class ServicoController extends Controller
      * Cria o servico ja precificado em todas as faixas.
      *
      * Servico sem preco nao aparece na matriz do catalogo, e a matriz e o unico
-     * lugar onde se edita preco — nasceria invisivel e inalcancavel. Por isso o
+     * lugar onde se edita preco, e nasceria invisivel e inalcancavel. Por isso o
      * preco inicial e obrigatorio: entra igual em todas as faixas e a
      * administracao ajusta coluna a coluna depois.
      */

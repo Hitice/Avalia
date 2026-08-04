@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 
 /*
  * O middleware de CSRF nao roda em teste, entao o caminho e exercitar o
- * renderizador de excecao direto — que e exatamente a peca registrada em
+ * renderizador de excecao direto, que e exatamente a peca registrada em
  * bootstrap/app.php.
  */
 

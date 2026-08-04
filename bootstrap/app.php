@@ -46,7 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
         };
 
         // O Laravel converte TokenMismatchException em HttpException 419 antes
-        // de consultar os renderizadores, entao o gancho util e o status — o
+        // de consultar os renderizadores, entao o gancho util e o status, nao o
         // tipo original nunca chega aqui. Os dois ficam registrados para o dia
         // em que essa ordem mudar.
         $exceptions->render(fn (TokenMismatchException $e, Request $request) => $expirou($request));

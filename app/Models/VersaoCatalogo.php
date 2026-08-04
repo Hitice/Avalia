@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * O catalogo: a tabela de precos da Avalia.
  *
  * Editavel a qualquer momento. O que garante que um reajuste nao mude cobranca
- * ja emitida nao e travar esta tabela — e cada consulta e cada fatura gravarem
+ * ja emitida nao e travar esta tabela. Sao a consulta e cada fatura gravarem
  * preco e custo no momento da emissao (PDD.md, secoes 7 e 8). Quem cobra guarda
  * o proprio valor; aqui fica so quanto custa hoje.
  */

@@ -132,7 +132,7 @@
                                             <code class="text-xs text-gray-500 dark:text-gray-400">{{ $servico->codigo }}</code>
                                         </td>
                                         <td class="px-4 py-2.5 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
-                                            {{ isset($precos[$servico->id]) ? Dinheiro::brl($precos[$servico->id]) : '—' }}
+                                            {{ isset($precos[$servico->id]) ? Dinheiro::brl($precos[$servico->id]) : '-' }}
                                         </td>
                                         <td class="py-2.5 pl-4 text-right">
                                             <input type="number" min="0" max="1000000"

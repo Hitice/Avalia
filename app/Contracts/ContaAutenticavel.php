@@ -8,7 +8,7 @@ namespace App\Contracts;
  *
  * Existe porque o LoginController trata as duas naturezas pelo mesmo caminho.
  * Sem o contrato, um metodo presente so em um dos models passa despercebido
- * ate alguem com a conta suspensa tentar entrar — que foi exatamente o que
+ * ate alguem com a conta suspensa tentar entrar, que foi exatamente o que
  * aconteceu na primeira rodada de testes.
  */
 interface ContaAutenticavel

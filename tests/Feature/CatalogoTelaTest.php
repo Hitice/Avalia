@@ -15,7 +15,7 @@ uses(RefreshDatabase::class);
 
 it('nao deixa vendedor abrir o catalogo', function () {
     // O vendedor e usuario legitimo do sistema; o que ele nao pode ver e custo
-    // e margem — que sairiam junto com a tabela de precos.
+    // e margem, que sairiam junto com a tabela de precos.
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
         ->get('/catalogo/tabela')

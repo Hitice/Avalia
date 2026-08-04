@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Fecha a rota para quem nao e administracao.
  *
- * Vendedor autenticado e um usuario legitimo do sistema — por isso `auth:staff`
+ * Vendedor autenticado e um usuario legitimo do sistema, e por isso `auth:staff`
  * sozinho nao basta aqui. Preco, custo e margem sao justamente o que ele nao
  * pode ver: a tabela de custo interno revelaria a margem da Avalia sobre a
  * propria comissao dele.

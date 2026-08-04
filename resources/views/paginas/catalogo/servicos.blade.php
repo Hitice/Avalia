@@ -6,7 +6,7 @@
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Servicos</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 O que a Avalia vende. Servico inativo some das telas de venda mas continua
-                explicando consulta e fatura antigas — por isso nao ha exclusao, so desativacao.
+                explicando consulta e fatura antigas. Por isso nao ha exclusao, so desativacao.
             </p>
         </div>
 

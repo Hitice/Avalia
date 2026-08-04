@@ -11,12 +11,12 @@ use Illuminate\Database\Seeder;
  * Um plano por faixa da versao vigente.
  *
  * O produto do fornecedor e literalmente "mensalidade + consumo minimo a
- * escolher, e o preco da consulta segue a coluna escolhida" — entao a grade
+ * escolher, e o preco da consulta segue a coluna escolhida". Entao a grade
  * inicial da Avalia e uma linha por faixa, com a mensalidade propria.
  *
  * Franquia fica zerada: quantas consultas de cada servico entram na
  * mensalidade e decisao comercial ainda pendente (PDD.md, secao 16). Zero nao
- * quebra nada — significa que toda consulta e excedente, e o piso do mes
+ * quebra nada: significa que toda consulta e excedente, e o piso do mes
  * continua sendo o consumo minimo.
  *
  * Idempotente: rodar de novo nao duplica nem sobrescreve plano ja ajustado a

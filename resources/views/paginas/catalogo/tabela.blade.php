@@ -36,7 +36,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Catalogo</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Preco de venda por servico e faixa de consumo minimo. Editavel a qualquer momento —
+            Preco de venda por servico e faixa de consumo minimo. Editavel a qualquer momento;
             consulta e fatura guardam o preco do dia da emissao.
         </p>
     </div>
@@ -117,7 +117,7 @@
 
                                         <td class="{{ $prejuizo ? 'bg-error-50 dark:bg-error-500/10' : '' }} px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
                                             @if (! $preco)
-                                                —
+                                                -
                                             @elseif ($visao === 'margem')
                                                 @include('paginas.catalogo.celula-margem')
                                             @else
@@ -127,7 +127,7 @@
                                                 <input type="text" inputmode="decimal"
                                                        name="{{ $campo }}[{{ $preco->id }}]"
                                                        value="{{ $valor === null ? '' : Dinheiro::numero($valor) }}"
-                                                       @if ($visao === 'custo') placeholder="—" @endif
+                                                       @if ($visao === 'custo') placeholder="-" @endif
                                                        class="focus:border-brand-500 w-24 rounded-lg border border-gray-300 bg-white px-2 py-1 text-right text-sm tabular-nums text-gray-800 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
                                             @endif
                                         </td>
@@ -157,7 +157,7 @@
                 Precos de venda ao cliente. Custo do fornecedor e margem sao internos e nao aparecem
                 para vendedor nem para cliente.
             @elseif ($visao === 'custo')
-                Custo cobrado pelo fornecedor. Campo em branco significa custo ainda nao cadastrado —
+                Custo cobrado pelo fornecedor. Campo em branco significa custo ainda nao cadastrado,
                 nao e o mesmo que custo zero.
             @else
                 Margem = venda − custo − imposto de {{ $catalogo->impostoRotulo() }}. Celula em vermelho

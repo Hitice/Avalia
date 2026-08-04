@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Aliquota de imposto sobre a venda, para calcular margem.
  *
  * Em pontos-base (bps) e nao em porcentagem com virgula: 2700 = 27,00%. Mesma
- * disciplina do dinheiro em centavos — inteiro do banco ate a tela, sem float
+ * disciplina do dinheiro em centavos: inteiro do banco ate a tela, sem float
  * no meio do caminho de um calculo que decide preco.
  *
  * Fica no catalogo e nao em config porque muda com regime tributario e precisa

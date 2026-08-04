@@ -15,7 +15,7 @@ use Illuminate\View\View;
  * Porta unica de entrada.
  *
  * Um formulario so resolve as duas naturezas de conta: tenta `staff` e depois
- * `empresa`. Quem entra nao precisa saber em que tabela mora — e o produto que
+ * `empresa`. Quem entra nao precisa saber em que tabela mora: e o produto que
  * sabe. A separacao rigorosa acontece depois, nos guards e nas policies.
  */
 class LoginController extends Controller

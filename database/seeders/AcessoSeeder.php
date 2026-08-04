@@ -11,7 +11,7 @@ use Illuminate\Database\Seeder;
  * E o unico dado semeado do sistema. Nao ha cliente, plano ou consulta de
  * exemplo: a decisao do produto e operar so com dado real.
  *
- * Idempotente — rodar de novo atualiza o registro em vez de duplicar.
+ * Idempotente: rodar de novo atualiza o registro em vez de duplicar.
  */
 class AcessoSeeder extends Seeder
 {

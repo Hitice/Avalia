@@ -6,7 +6,7 @@
 {{--
     Marca da Avalia.
 
-    O icone e um arco de medidor com o ponteiro apontando para a faixa alta —
+    O icone e um arco de medidor com o ponteiro apontando para a faixa alta,
     a leitura de risco que o produto entrega. Fica em azul da marca; o arco de
     fundo em cinza claro marca a escala sem competir com o ponteiro.
 

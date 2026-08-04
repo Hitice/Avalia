@@ -7,11 +7,11 @@
  *
  * O custo e UM por servico, nao por faixa: o fornecedor cobra o mesmo da
  * Avalia independentemente da faixa de consumo minimo do cliente final. Quem
- * varia com a faixa e o preco de venda — e e por isso que a margem muda tanto
+ * varia com a faixa e o preco de venda, e e por isso que a margem muda tanto
  * de coluna para coluna.
  *
  * Servicos ausentes desta lista continuam sem custo cadastrado, o que a tela
- * mostra como travessao. Sao eles, na tabela recebida:
+ * deixa em branco. Sao eles, na tabela recebida:
  *
  *   - os tres de SCR (relatorio-top-scr, prime-completa-scr, scr-score);
  *   - cadastro-especial-pf e cadastro-especial-pj;

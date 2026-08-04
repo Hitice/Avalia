@@ -6,8 +6,8 @@ fornecedor publicar uma tabela nova; nao edite o PHP a mao.
     python tools/gera_precos_catalogo.py
 
 Os PDFs tem 7 colunas de preco: sem consumo minimo, depois as seis faixas
-(75, 200, 500, 900, 1.500 e 5.000 reais). O extrator precisa do modo layout —
-sem ele as colunas saem embaralhadas e os precos vao parar na faixa errada.
+(75, 200, 500, 900, 1.500 e 5.000 reais). O extrator precisa do modo layout.
+Sem ele as colunas saem embaralhadas e os precos vao parar na faixa errada.
 """
 
 import re
@@ -29,49 +29,49 @@ FAIXAS = [0, 7_500, 20_000, 50_000, 90_000, 150_000, 500_000]
 # juridica e contratual antes de qualquer chamada externa.
 SERVICOS = {
     'CHEQUES SEM FUNDOS - BANCO CENTRAL PF / PJ': (
-        'cheques-sem-fundos', 'Cheques sem fundos — Banco Central PF/PJ', False),
+        'cheques-sem-fundos', 'Cheques sem fundos - Banco Central PF/PJ', False),
     'ACOES JUDICIAIS - NACIONAL PF / PJ': (
-        'acoes-judiciais', 'Ações judiciais — nacional PF/PJ', False),
+        'acoes-judiciais', 'Ações judiciais - nacional PF/PJ', False),
     'BANCREDI - 16 - SCPC BVS PF / PJ - BASE I I I': (
-        'scpc-bvs', 'SCPC BVS PF/PJ — Base III', False),
+        'scpc-bvs', 'SCPC BVS PF/PJ - Base III', False),
     'RELATORIO PLUS PF/PJ + (CARTORIOS E CCF BACEN) - BASE I I I': (
-        'relatorio-plus', 'Relatório Plus PF/PJ + cartórios e CCF Bacen — Base III', False),
+        'relatorio-plus', 'Relatório Plus PF/PJ + cartórios e CCF Bacen - Base III', False),
     'CREDITO NET BASICA PF / PJ - BASE I': (
-        'credito-net-basica', 'Crédito Net Básica PF/PJ — Base I', False),
+        'credito-net-basica', 'Crédito Net Básica PF/PJ - Base I', False),
     'BANCREDI MIX PF / PJ - BASE I E I I': (
-        'mix', 'Mix PF/PJ — Base I e II', False),
+        'mix', 'Mix PF/PJ - Base I e II', False),
     'CREDITO NET PF / PJ - BASE I E I I I': (
-        'credito-net', 'Crédito Net PF/PJ — Base I e III', False),
+        'credito-net', 'Crédito Net PF/PJ - Base I e III', False),
     'CREDITO NET TOP + (CARTORIOS E CCF BACEN) - BASE I E I I I': (
-        'credito-net-top', 'Crédito Net Top + cartórios e CCF Bacen — Base I e III', False),
+        'credito-net-top', 'Crédito Net Top + cartórios e CCF Bacen - Base I e III', False),
     'RELATORIO SCORE POSITIVO + (FILTROS EXTRAS) - BASE I I I': (
-        'score-positivo', 'Relatório Score Positivo + filtros — Base III', False),
+        'score-positivo', 'Relatório Score Positivo + filtros - Base III', False),
     'RISCO DE CREDITO TOP PF / PJ + (FILTROS EXTRAS) - BASE I': (
-        'risco-credito-top', 'Risco de Crédito Top PF/PJ + filtros — Base I', False),
+        'risco-credito-top', 'Risco de Crédito Top PF/PJ + filtros - Base I', False),
     'RELATORIO TOP PF / PJ + (FILTROS EXTRAS) - BASE I E I I I': (
-        'relatorio-top', 'Relatório Top PF/PJ + filtros — Base I e III', False),
+        'relatorio-top', 'Relatório Top PF/PJ + filtros - Base I e III', False),
     'RELATORIO TOP + SCR BACEN - BASE I E I I I': (
-        'relatorio-top-scr', 'Relatório Top + SCR — Base I e III', True),
+        'relatorio-top-scr', 'Relatório Top + SCR - Base I e III', True),
     'BANCREDI MAXI TOP PF / PJ + SCORE (FILTROS EXTRAS) BASE I E II': (
-        'maxi-top', 'Maxi Top PF/PJ + score e filtros — Base I e II', False),
+        'maxi-top', 'Maxi Top PF/PJ + score e filtros - Base I e II', False),
     'RELATORIO PRIME BASICA + CARTORIOS E CCF BACEN BASE I, II E III': (
-        'prime-basica', 'Relatório Prime Básica + cartórios e CCF Bacen — Base I, II e III', False),
+        'prime-basica', 'Relatório Prime Básica + cartórios e CCF Bacen - Base I, II e III', False),
     'RELATORIO PRIME COMPLETA + (FILTROS EXTRAS) - BASE I, II E III': (
-        'prime-completa', 'Relatório Prime Completa + filtros — Base I, II e III', False),
+        'prime-completa', 'Relatório Prime Completa + filtros - Base I, II e III', False),
     'RELATORIO PRIME COMPLETA + SCR BACEN BASE I, II E III': (
-        'prime-completa-scr', 'Relatório Prime Completa + SCR — Base I, II e III', True),
+        'prime-completa-scr', 'Relatório Prime Completa + SCR - Base I, II e III', True),
     'BANCREDI SCR BACEN + SCORE PF / PJ': (
         'scr-score', 'SCR + score PF/PJ', True),
     'CADASTRO ESPECIAL PF - MOSTRA END, TEL, EMAIL - FONTE I': (
-        'cadastro-especial-pf', 'Cadastro especial PF — endereço, telefone, e-mail, trabalho, renda', False),
+        'cadastro-especial-pf', 'Cadastro especial PF - endereço, telefone, e-mail, trabalho, renda', False),
     'CADASTRO ESPECIAL PJ - MOSTRA DADOS DA EMPRESA, SOCIOS,': (
-        'cadastro-especial-pj', 'Cadastro especial PJ — dados da empresa, sócios, regime fiscal, faturamento', False),
+        'cadastro-especial-pj', 'Cadastro especial PJ - dados da empresa, sócios, regime fiscal, faturamento', False),
     'ENCONTRA TELEFONES ATRAVES DO CPF OU CNPJ - FONTE I': (
         'telefones-por-documento', 'Telefones por CPF/CNPJ', False),
     'ENCONTRA ENDERECOS ATRAVES DO CPF OU CNPJ - FONTE I': (
         'enderecos-por-documento', 'Endereços por CPF/CNPJ', False),
     'INFOBUSCA POR CPF / CNPJ - FONTE I I': (
-        'infobusca-por-documento', 'InfoBusca por CPF/CNPJ — telefone, endereço e e-mails', False),
+        'infobusca-por-documento', 'InfoBusca por CPF/CNPJ - telefone, endereço e e-mails', False),
     'INFOBUSCA POR NOME (MOSTRA CPF) - FONTE I I': (
         'infobusca-por-nome', 'InfoBusca por nome (mostra CPF)', False),
     'LOCALIZADOR POR TELEFONE (MOSTRA NOME E CPF / CNPJ)': (
@@ -91,17 +91,17 @@ SERVICOS = {
     'RENAJUD': (
         'renajud', 'RenaJud', False),
     'RENAINF - INFRACOES COMPLETA': (
-        'renainf', 'RenaInf — infrações completa', False),
+        'renainf', 'RenaInf - infrações completa', False),
     'CRLV - DOCUMENTO DE LICENCIAMENTO DO VEICULO': (
-        'crlv', 'CRLV — documento de licenciamento', False),
+        'crlv', 'CRLV - documento de licenciamento', False),
     'BIN OU BASE ESTADUAL E NACIONAL': (
-        'bin', 'BIN — base estadual e nacional', False),
+        'bin', 'BIN - base estadual e nacional', False),
     'LEILAO - BASE I': (
-        'leilao', 'Leilão — Base I', False),
+        'leilao', 'Leilão - Base I', False),
     'LEILAO CONJUGADO COMPLETO + SCORE DO VEICULO - BASE II': (
-        'leilao-conjugado', 'Leilão conjugado completo + score do veículo — Base II', False),
+        'leilao-conjugado', 'Leilão conjugado completo + score do veículo - Base II', False),
     'CSV - CERTIFICADO DE SEGURANCA DO VEICULAR': (
-        'csv-veicular', 'CSV — certificado de segurança veicular', False),
+        'csv-veicular', 'CSV - certificado de segurança veicular', False),
     'HISTORICO DE ROUBO E FURTO': (
         'roubo-e-furto', 'Histórico de roubo e furto', False),
     'GRAVAME INDICATIVO': (
@@ -113,7 +113,7 @@ SERVICOS = {
     'PRECIFICADOR / DECODIFICADOR': (
         'precificador', 'Precificador / decodificador', False),
     'VIP CAR - INFORMACAO COMPLETA DO VEICULO': (
-        'vip-car', 'VIP Car — informação completa do veículo', False),
+        'vip-car', 'VIP Car - informação completa do veículo', False),
 }
 
 

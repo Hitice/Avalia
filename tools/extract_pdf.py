@@ -5,7 +5,7 @@
 Usa extraction_mode='layout' de proposito. No modo padrao o pypdf devolve as
 celulas na ordem interna do PDF, sem preservar colunas: as tabelas de preco
 saem embaralhadas, linhas cujo nome ocupa duas linhas somem, e o cabecalho
-"SEM CONSUMO MINIMO" se perde — foi assim que a primeira transcricao jogou
+"SEM CONSUMO MINIMO" se perde. Foi assim que a primeira transcricao jogou
 todo preco uma faixa para o lado.
 
 Para gerar dado de catalogo use tools/gera_precos_catalogo.py; este script e

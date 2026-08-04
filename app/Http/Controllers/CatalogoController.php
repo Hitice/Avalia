@@ -99,8 +99,8 @@ class CatalogoController extends Controller
      * Grava o custo do fornecedor.
      *
      * Aceita campo vazio: apagar o custo devolve a linha ao estado "custo nao
-     * cadastrado", que a tela mostra como travessao em vez de zero. Zero seria
-     * mentira — significaria fornecedor de graca.
+     * cadastrado", que a tela deixa em branco em vez de mostrar zero. Zero seria
+     * mentira, porque significaria fornecedor de graca.
      */
     public function custos(Request $request, VersaoCatalogo $catalogo)
     {
@@ -123,7 +123,7 @@ class CatalogoController extends Controller
      * Escreve uma coluna de dinheiro da matriz em lote.
      *
      * Sao ate 301 linhas: uma consulta por linha contra banco remoto levaria
-     * minutos. Grava so o que mudou, e so o que pertence a este catalogo — id
+     * minutos. Grava so o que mudou, e so o que pertence a este catalogo: id
      * chutado no formulario nao reprecifica outra tabela.
      */
     private function gravarColuna(

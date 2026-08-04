@@ -8,7 +8,7 @@ class MenuHelper
      * Menu da area de gestao.
      *
      * `emBreve` marca modulo ainda nao construido: aparece esmaecido e nao
-     * navega. Melhor do que esconder — o operador ve o que esta por vir — e
+     * navega. Melhor do que esconder, porque o operador ve o que esta por vir, e
      * infinitamente melhor do que linkar para uma rota que devolve 404.
      *
      * `papeis` restringe o item. Ausente = todo mundo do staff ve.

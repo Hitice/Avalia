@@ -6,7 +6,7 @@ namespace App\Support;
  * Dinheiro em centavos inteiros, do banco ate a tela.
  *
  * Float nao entra nesta aplicacao: 0.1 + 0.2 nao da 0.3 em ponto flutuante, e
- * num sistema de cobranca isso vira divergencia de centavo em fatura — o tipo
+ * num sistema de cobranca isso vira divergencia de centavo em fatura, o tipo
  * de erro que so aparece depois do cliente reclamar.
  */
 final class Dinheiro

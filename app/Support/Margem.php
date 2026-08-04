@@ -23,7 +23,7 @@ final class Margem
 
     /**
      * Sobra depois do fornecedor e do fisco, ou null enquanto o custo nao
-     * estiver cadastrado. Pode ser negativa — e justamente isso que a tela
+     * estiver cadastrado. Pode ser negativa, e e justamente isso que a tela
      * precisa mostrar.
      */
     public static function liquidaCents(int $vendaCents, ?int $custoCents, int $impostoBps): ?int
@@ -66,7 +66,7 @@ final class Margem
         $piso = (int) ceil($custoCents * 10_000 / $restante);
 
         // A formula trata o imposto como continuo, mas ele e arredondado ao
-        // centavo — o que pode deixar o piso um centavo acima do necessario.
+        // centavo, o que pode deixar o piso um centavo acima do necessario.
         // Desce enquanto o centavo anterior ainda nao der prejuizo, para o piso
         // ser exatamente o menor preco que se paga.
         while ($piso > 0 && ! self::daPrejuizo($piso - 1, $custoCents, $impostoBps)) {

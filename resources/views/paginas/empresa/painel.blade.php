@@ -11,7 +11,7 @@
     </div>
 
     {{-- Conta suspensa entra, mas nao consulta. A tela diz o porque em vez de
-         so esconder o botao — cliente sem explicacao liga para o vendedor. --}}
+         so esconder o botao. Cliente sem explicacao liga para o vendedor. --}}
     @if (! $empresa->podeConsultar())
         <div class="mb-6 flex items-start gap-3 rounded-2xl border border-warning-300 bg-warning-50 p-5 text-sm text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-400">
             <svg class="mt-0.5 size-5 shrink-0 fill-current" viewBox="0 0 20 20">

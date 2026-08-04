@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  * Nao e dado de exemplo: sao os precos reais transcritos dos PDFs de temp/,
  * ponto de partida para a administracao ajustar na tela.
  *
- * Idempotente: rodar de novo atualiza os precos em vez de duplicar. Cuidado —
+ * Idempotente: rodar de novo atualiza os precos em vez de duplicar. Cuidado:
  * isso sobrescreve ajuste feito a mao, entao nao rode depois de reajustar.
  */
 class CatalogoSeeder extends Seeder
@@ -80,7 +80,7 @@ class CatalogoSeeder extends Seeder
         });
 
         $this->command->info(sprintf(
-            "Catalogo '%s' em rascunho: %d servicos, %d precos. Ative apos homologar.",
+            "Catalogo '%s': %d servicos, %d precos. Homologue os valores antes de vender.",
             $versao->rotulo,
             count($dados['servicos']),
             $versao->precos()->count(),

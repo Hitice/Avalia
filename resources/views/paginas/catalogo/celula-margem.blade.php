@@ -14,7 +14,7 @@
 @endphp
 
 @if ($liquida === null)
-    <span class="text-gray-400 dark:text-gray-600" title="Custo do fornecedor ainda nao cadastrado">—</span>
+    <span class="text-gray-400 dark:text-gray-600" title="Custo do fornecedor ainda nao cadastrado">-</span>
 @else
     <span class="{{ $liquida < 0 ? 'text-error-600 dark:text-error-400 font-medium' : 'text-gray-700 dark:text-gray-200' }}"
           title="Venda {{ Dinheiro::brl($preco->preco_cents) }} · Custo {{ Dinheiro::brl($preco->custo_cents) }} · Imposto {{ Dinheiro::brl(Margem::impostoCents($preco->preco_cents, $imposto)) }} · Sobra {{ Dinheiro::brl($liquida) }} · Piso {{ Dinheiro::brl($piso) }}">

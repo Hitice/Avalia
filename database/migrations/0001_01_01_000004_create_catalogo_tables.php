@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Modulo Catalogo: o que a Avalia vende e por quanto.
  *
- * Raiz de dependencia de todo o resto — plano aponta para versao, consulta
+ * Raiz de dependencia de todo o resto: plano aponta para versao, consulta
  * apontara para preco, fatura apontara para os dois.
  *
  * A ideia central e a VERSAO. Preco nao e um numero solto no servico: e um
@@ -51,7 +51,7 @@ return new class extends Migration
             $t->string('nome');
             $t->enum('categoria', ['credito', 'veicular'])->index();
 
-            // O custo do fornecedor e interno e fica no preco, por faixa —
+            // O custo do fornecedor e interno e fica no preco, por faixa.
             // aqui so mora a identidade do servico.
             $t->boolean('ativo')->default(true)->index();
 

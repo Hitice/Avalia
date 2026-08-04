@@ -121,7 +121,7 @@ return [
              * "operator does not exist: boolean = integer".
              *
              * Pior: a suite roda em SQLite, onde `= 1` funciona. Ou seja, o
-             * teste passa e a producao quebra — divergencia que nenhum teste
+             * teste passa e a producao quebra, divergencia que nenhum teste
              * atual consegue ver. Por isso fica desligado.
              *
              * A resposta de verdade para a latencia nao e esta: e aproximar o

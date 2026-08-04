@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 /**
  * Quem opera a Avalia: administrador ou vendedor.
  *
- * Nao confundir com Cliente — sao guards distintos justamente para que um
+ * Nao confundir com Cliente: sao guards distintos justamente para que um
  * cliente nunca caia numa rota de gestao por descuido de roteamento.
  */
 class Staff extends Authenticatable implements ContaAutenticavel

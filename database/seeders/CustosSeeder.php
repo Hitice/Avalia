@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  * consulta, nao por faixa contratada pelo cliente final.
  *
  * So preenche o que esta vazio. Custo ja cadastrado e ajuste da administracao
- * feito na tela, e reimportar a tabela do fornecedor nao pode desfazer isso —
+ * feito na tela, e reimportar a tabela do fornecedor nao pode desfazer isso,
  * mesma regra que ja vale para `ativo` e `exige_liberacao`.
  */
 class CustosSeeder extends Seeder
