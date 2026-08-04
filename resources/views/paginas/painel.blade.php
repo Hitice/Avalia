@@ -7,7 +7,7 @@
     // consulta aponta para preco, fatura aponta para os dois.
     $modulos = [
         ['nome' => 'Acesso', 'estado' => 'pronto', 'nota' => 'Login, sessao e protecao contra forca bruta'],
-        ['nome' => 'Catalogo', 'estado' => 'agora', 'nota' => 'Versoes, servicos e preco por faixa; falta a tela de planos'],
+        ['nome' => 'Catalogo', 'estado' => 'agora', 'nota' => 'Versoes, precos, planos e franquia; falta a tela de reajuste'],
         ['nome' => 'Cadastro', 'estado' => 'fila', 'nota' => 'Ficha do cliente e situacao contratual'],
         ['nome' => 'Consulta', 'estado' => 'fila', 'nota' => 'Integracao Boa Vista e relatorio'],
         ['nome' => 'Faturamento', 'estado' => 'fila', 'nota' => 'Competencia, fechamento e vencimento'],

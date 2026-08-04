@@ -398,9 +398,10 @@ Os preços dos anexos A e B entram pelo `CatalogoSeeder` como **rascunho**, a
 partir de `database/seeders/dados/`, gerado por `tools/gera_precos_catalogo.py`.
 Ativar a versão é ação administrativa consciente — o seeder nunca ativa.
 
-A tela de catálogo (`/catalogo`, restrita a administração) lista as versões,
-mostra a matriz de preços por faixa e ativa uma versão em rascunho. Cadastro de
-plano e de franquia ainda não têm tela.
+As telas de catálogo (`/catalogo`, restritas a administração) listam as versões,
+mostram a matriz de preços por faixa, ativam uma versão em rascunho e cadastram
+planos com a franquia de cada serviço. Falta a tela de reajuste: hoje `duplicar()`
+e a edição de preço de um rascunho só existem no model.
 
 Ainda futuros: `consultas`, `faturas` e `itens_fatura`, `cobrancas_asaas` e
 `eventos_asaas`, `comissoes`, `bonus_cadastro` e `repasses`, `campanhas` e

@@ -9,6 +9,8 @@
         </p>
     </div>
 
+    @include('paginas.catalogo.abas', ['atual' => 'versoes'])
+
     @include('paginas.catalogo.avisos')
 
     @if (! $vigente)

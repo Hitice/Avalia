@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\PlanoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,8 +38,17 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // nao entra: `admin` fecha a porta alem do `auth:staff` do grupo.
     Route::middleware('admin')->prefix('catalogo')->name('catalogo.')->group(function () {
         Route::get('/', [CatalogoController::class, 'index'])->name('index');
-        Route::get('/{versao}', [CatalogoController::class, 'versao'])->name('versao');
-        Route::post('/{versao}/ativar', [CatalogoController::class, 'ativar'])->name('ativar');
+        Route::get('/versoes/{versao}', [CatalogoController::class, 'versao'])->name('versao');
+        Route::post('/versoes/{versao}/ativar', [CatalogoController::class, 'ativar'])->name('ativar');
+
+        Route::prefix('planos')->name('planos.')->group(function () {
+            Route::get('/', [PlanoController::class, 'index'])->name('index');
+            Route::get('/novo', [PlanoController::class, 'criar'])->name('criar');
+            Route::post('/', [PlanoController::class, 'salvar'])->name('salvar');
+            Route::get('/{plano}', [PlanoController::class, 'editar'])->name('editar');
+            Route::put('/{plano}', [PlanoController::class, 'atualizar'])->name('atualizar');
+            Route::put('/{plano}/franquias', [PlanoController::class, 'franquias'])->name('franquias');
+        });
     });
 });
 

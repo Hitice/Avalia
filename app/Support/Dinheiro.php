@@ -20,6 +20,17 @@ final class Dinheiro
     }
 
     /**
+     * Numero sem simbolo, para preencher campo de formulario: 7990 -> "79,90".
+     *
+     * Nao usa espaco nem "R$" porque o valor volta por paraCentavos() no
+     * submit, e o campo deve mostrar exatamente o que o operador digitaria.
+     */
+    public static function numero(int $centavos): string
+    {
+        return number_format($centavos / 100, 2, ',', '.');
+    }
+
+    /**
      * Le o que o usuario digitou e devolve centavos.
      *
      * Aceita "1.234,56", "1234,56", "1234.56" e "1234". A regra: se houver
