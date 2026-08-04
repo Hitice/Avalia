@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         // Nao existe dado de exemplo: a plataforma opera so com dado real.
         $this->call([
             AcessoSeeder::class,
+            CatalogoSeeder::class,
         ]);
     }
 }
