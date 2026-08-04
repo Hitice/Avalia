@@ -1,10 +1,10 @@
-{{-- Navegacao entre as duas metades do modulo: a tabela e quem a contrata.
+{{-- Navegacao entre as duas metades do modulo: quem contrata e a tabela.
      Recebe $atual por @include. --}}
 
 @php
     $abas = [
-        'versoes' => ['rotulo' => 'Versoes', 'url' => route('catalogo.index')],
-        'planos' => ['rotulo' => 'Planos', 'url' => route('catalogo.planos.index')],
+        'planos' => ['rotulo' => 'Planos', 'url' => route('catalogo.index')],
+        'versoes' => ['rotulo' => 'Versoes do catalogo', 'url' => route('catalogo.versoes.index')],
     ];
 @endphp
 

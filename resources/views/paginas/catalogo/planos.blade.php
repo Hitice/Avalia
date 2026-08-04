@@ -21,11 +21,11 @@
 
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[48rem] text-left text-sm">
+            <table class="w-full min-w-[48rem] text-sm">
                 <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
                     <tr>
-                        <th class="px-5 py-3 font-medium">Plano</th>
-                        <th class="px-5 py-3 font-medium">Versao</th>
+                        <th class="px-5 py-3 text-left font-medium">Plano</th>
+                        <th class="px-5 py-3 text-left font-medium">Versao</th>
                         <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
                         <th class="px-5 py-3 text-right font-medium">Consumo minimo</th>
                         <th class="px-5 py-3 text-right font-medium">Fatura minima</th>
@@ -35,7 +35,7 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($planos as $plano)
                         <tr>
-                            <td class="px-5 py-4">
+                            <td class="px-5 py-4 text-left">
                                 <a href="{{ route('catalogo.planos.editar', $plano) }}"
                                    class="hover:text-brand-500 dark:hover:text-brand-400 font-medium text-gray-800 dark:text-white/90">
                                     {{ $plano->nome }}
@@ -47,7 +47,7 @@
                                         </span>
                                     @endunless
 
-                                    @unless ($plano->faixaValida())
+                                    @unless ($faixaValida[$plano->id])
                                         {{-- Sem faixa valida nenhuma consulta acha preco. --}}
                                         <span class="bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400 rounded-full px-2 py-0.5 font-medium">
                                             faixa fora do catalogo
@@ -55,10 +55,10 @@
                                     @endunless
                                 </span>
                             </td>
-                            <td class="px-5 py-4 text-gray-600 dark:text-gray-300">{{ $plano->versao->rotulo }}</td>
-                            <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $plano->mensalidade }}</td>
-                            <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $plano->consumo_minimo }}</td>
-                            <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $plano->fatura_minima }}</td>
+                            <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $plano->versao->rotulo }}</td>
+                            <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->mensalidade }}</td>
+                            <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->consumo_minimo }}</td>
+                            <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->fatura_minima }}</td>
                             <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $plano->pctComissao() }}%</td>
                         </tr>
                     @empty

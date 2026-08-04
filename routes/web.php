@@ -37,17 +37,22 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // Catalogo mostra preco de venda, custo do fornecedor e margem. Vendedor
     // nao entra: `admin` fecha a porta alem do `auth:staff` do grupo.
     Route::middleware('admin')->prefix('catalogo')->name('catalogo.')->group(function () {
-        Route::get('/', [CatalogoController::class, 'index'])->name('index');
-        Route::get('/versoes/{versao}', [CatalogoController::class, 'versao'])->name('versao');
-        Route::post('/versoes/{versao}/ativar', [CatalogoController::class, 'ativar'])->name('ativar');
+        // A porta do modulo e a lista de planos: e o que a operacao usa todo
+        // dia. Versao de catalogo se mexe uma vez por reajuste.
+        Route::get('/', [PlanoController::class, 'index'])->name('index');
 
         Route::prefix('planos')->name('planos.')->group(function () {
-            Route::get('/', [PlanoController::class, 'index'])->name('index');
             Route::get('/novo', [PlanoController::class, 'criar'])->name('criar');
             Route::post('/', [PlanoController::class, 'salvar'])->name('salvar');
             Route::get('/{plano}', [PlanoController::class, 'editar'])->name('editar');
             Route::put('/{plano}', [PlanoController::class, 'atualizar'])->name('atualizar');
             Route::put('/{plano}/franquias', [PlanoController::class, 'franquias'])->name('franquias');
+        });
+
+        Route::prefix('versoes')->name('versoes.')->group(function () {
+            Route::get('/', [CatalogoController::class, 'index'])->name('index');
+            Route::get('/{versao}', [CatalogoController::class, 'versao'])->name('mostrar');
+            Route::post('/{versao}/ativar', [CatalogoController::class, 'ativar'])->name('ativar');
         });
     });
 });

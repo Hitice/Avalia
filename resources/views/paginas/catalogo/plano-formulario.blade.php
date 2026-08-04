@@ -21,7 +21,7 @@
 @endphp
 
 @section('content')
-    <a href="{{ route('catalogo.planos.index') }}"
+    <a href="{{ route('catalogo.index') }}"
        class="hover:text-brand-500 dark:hover:text-brand-400 mb-2 inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -111,7 +111,7 @@
                 <button type="submit" class="bg-brand-500 hover:bg-brand-600 rounded-lg px-4 py-2.5 text-sm font-medium text-white">
                     {{ $plano->exists ? 'Salvar' : 'Criar plano' }}
                 </button>
-                <a href="{{ route('catalogo.planos.index') }}"
+                <a href="{{ route('catalogo.index') }}"
                    class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 dark:border-gray-700 dark:text-gray-300">
                     Cancelar
                 </a>
@@ -137,10 +137,10 @@
                     @method('PUT')
 
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[34rem] text-left text-sm">
+                        <table class="w-full min-w-[34rem] text-sm">
                             <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
                                 <tr>
-                                    <th class="py-3 pr-4 font-medium">Servico</th>
+                                    <th class="py-3 pr-4 text-left font-medium">Servico</th>
                                     <th class="px-4 py-3 text-right font-medium">Preco na faixa</th>
                                     <th class="py-3 pl-4 text-right font-medium">Incluidas</th>
                                 </tr>

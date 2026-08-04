@@ -11,6 +11,8 @@
 
     @include('paginas.catalogo.abas', ['atual' => 'versoes'])
 
+    @php $celula = 'px-5 py-3 font-medium'; @endphp
+
     @include('paginas.catalogo.avisos')
 
     @if (! $vigente)
@@ -21,14 +23,16 @@
 
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[42rem] text-left text-sm">
+            <table class="w-full min-w-[42rem] text-sm">
                 <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
                     <tr>
-                        <th class="px-5 py-3 font-medium">Versao</th>
-                        <th class="px-5 py-3 font-medium">Situacao</th>
-                        <th class="px-5 py-3 text-right font-medium">Precos</th>
-                        <th class="px-5 py-3 text-right font-medium">Planos</th>
-                        <th class="px-5 py-3 font-medium">Vigencia</th>
+                        {{-- text-left explicito: o navegador centraliza th por
+                             padrao, e o text-left da tabela nao vence isso. --}}
+                        <th class="{{ $celula }} text-left">Versao</th>
+                        <th class="{{ $celula }} text-left">Situacao</th>
+                        <th class="{{ $celula }} text-right">Precos</th>
+                        <th class="{{ $celula }} text-right">Planos</th>
+                        <th class="{{ $celula }} text-left">Vigencia</th>
                         <th class="px-5 py-3"></th>
                     </tr>
                 </thead>
@@ -36,7 +40,7 @@
                     @forelse ($versoes as $v)
                         <tr>
                             <td class="px-5 py-4">
-                                <a href="{{ route('catalogo.versao', $v) }}"
+                                <a href="{{ route('catalogo.versoes.mostrar', $v) }}"
                                    class="font-medium text-gray-800 hover:text-brand-500 dark:text-white/90 dark:hover:text-brand-400">
                                     {{ $v->rotulo }}
                                 </a>
@@ -57,7 +61,7 @@
                             </td>
                             <td class="px-5 py-4 text-right">
                                 @if ($v->podeEditar())
-                                    <form method="POST" action="{{ route('catalogo.ativar', $v) }}"
+                                    <form method="POST" action="{{ route('catalogo.versoes.ativar', $v) }}"
                                           onsubmit="return confirm('Ativar {{ $v->rotulo }}? Depois disso os precos ficam congelados.')">
                                         @csrf
                                         <button type="submit"

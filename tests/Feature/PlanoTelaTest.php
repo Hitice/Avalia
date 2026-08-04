@@ -6,6 +6,7 @@ use App\Models\Servico;
 use App\Models\Staff;
 use App\Models\VersaoCatalogo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -31,7 +32,7 @@ it('nao deixa vendedor mexer em plano', function () {
         ->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1]);
 
-    $vendedor()->get('/catalogo/planos')->assertForbidden();
+    $vendedor()->get('/catalogo')->assertForbidden();
     $vendedor()->get(route('catalogo.planos.criar'))->assertForbidden();
     $vendedor()->post(route('catalogo.planos.salvar'), [])->assertForbidden();
     $vendedor()->put(route('catalogo.planos.atualizar', $plano), [])->assertForbidden();
@@ -127,11 +128,49 @@ it('recusa nome repetido, mas deixa salvar o proprio nome na edicao', function (
     expect($outro->fresh()->mensalidade_cents)->toBe(8_990);
 });
 
+it('lista os planos em ordem crescente de valor, nao alfabetica', function () {
+    // Por nome, "Consumo minimo R$ 1.500,00" viria antes de "R$ 200,00".
+    $versao = VersaoCatalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 20_000 => 558, 150_000 => 463])
+        ->create();
+
+    foreach ([150_000, 0, 20_000] as $faixa) {
+        Plano::factory()->create([
+            'nome' => 'Consumo mínimo R$ '.App\Support\Dinheiro::numero($faixa),
+            'versao_id' => $versao->id,
+            'consumo_minimo_cents' => $faixa,
+        ]);
+    }
+
+    $listados = admin()->get('/catalogo')->assertOk()->viewData('planos');
+
+    expect($listados->pluck('consumo_minimo_cents')->all())->toBe([0, 20_000, 150_000]);
+});
+
+it('nao consulta o banco uma vez por plano para validar a faixa', function () {
+    // A 447 ms por ida e volta ao banco remoto, um SELECT por linha da lista
+    // custava segundos de tela.
+    $versao = VersaoCatalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 20_000 => 558, 150_000 => 463])
+        ->create();
+
+    Plano::factory()->count(6)->create(['versao_id' => $versao->id, 'consumo_minimo_cents' => 0]);
+
+    DB::enableQueryLog();
+    admin()->get('/catalogo')->assertOk();
+    $consultas = count(DB::getQueryLog());
+    DB::disableQueryLog();
+
+    // Sessao, conta e as duas consultas da tela. O numero nao pode crescer
+    // junto com a quantidade de planos.
+    expect($consultas)->toBeLessThan(8);
+});
+
 it('marca na listagem o plano cuja faixa saiu do catalogo', function () {
     $versao = catalogo();
     Plano::factory()->consumoMinimo(300)->create(['nome' => 'Plano torto', 'versao_id' => $versao->id]);
 
-    admin()->get('/catalogo/planos')
+    admin()->get('/catalogo')
         ->assertOk()
         ->assertSee('faixa fora do catalogo');
 });

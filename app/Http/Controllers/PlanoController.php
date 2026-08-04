@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PlanoRequest;
 use App\Models\Plano;
+use App\Models\Preco;
 use App\Models\VersaoCatalogo;
 use Illuminate\Http\Request;
 
@@ -18,9 +19,33 @@ class PlanoController extends Controller
 {
     public function index()
     {
-        $planos = Plano::with('versao')->orderBy('nome')->get();
+        // Ordem comercial, nao alfabetica: a grade e uma escada de faixas, e
+        // "R$ 1.500,00" viria antes de "R$ 200,00" se ordenasse por nome.
+        $planos = Plano::with('versao')
+            ->orderBy('consumo_minimo_cents')
+            ->orderBy('nome')
+            ->get();
 
-        return view('paginas.catalogo.planos', ['planos' => $planos]);
+        // Quais faixas cada versao envolvida oferece, numa consulta so. Perguntar
+        // faixaValida() linha a linha custaria uma ida ao banco por plano.
+        $faixasPorVersao = Preco::query()
+            ->whereIn('versao_id', $planos->pluck('versao_id')->unique())
+            ->select('versao_id', 'consumo_minimo_cents')
+            ->distinct()
+            ->get()
+            ->groupBy('versao_id')
+            ->map(fn ($linhas) => $linhas->pluck('consumo_minimo_cents')->map(intval(...))->all());
+
+        return view('paginas.catalogo.planos', [
+            'planos' => $planos,
+            'faixaValida' => $planos->mapWithKeys(fn (Plano $plano) => [
+                $plano->id => in_array(
+                    $plano->consumo_minimo_cents,
+                    $faixasPorVersao[$plano->versao_id] ?? [],
+                    true,
+                ),
+            ]),
+        ]);
     }
 
     public function criar()

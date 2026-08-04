@@ -19,12 +19,12 @@ it('nao deixa vendedor abrir o catalogo', function () {
     // e margem — que sairiam junto com a tabela de precos.
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
-        ->get('/catalogo')
+        ->get('/catalogo/versoes')
         ->assertForbidden();
 });
 
 it('nao deixa visitante nem empresa abrirem o catalogo', function () {
-    $this->get('/catalogo')->assertRedirect(route('entrar'));
+    $this->get('/catalogo/versoes')->assertRedirect(route('entrar'));
 });
 
 it('deixa admin e super abrirem o catalogo', function () {
@@ -32,13 +32,13 @@ it('deixa admin e super abrirem o catalogo', function () {
 
     $this->actingAs(Staff::factory()->admin()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
-        ->get('/catalogo')
+        ->get('/catalogo/versoes')
         ->assertOk()
         ->assertSee('Catálogo 04/2026');
 
     $this->actingAs(Staff::factory()->super()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
-        ->get('/catalogo')
+        ->get('/catalogo/versoes')
         ->assertOk();
 });
 
@@ -49,7 +49,7 @@ it('deixa admin e super abrirem o catalogo', function () {
 */
 
 it('avisa quando nao ha versao em vigor', function () {
-    admin()->get('/catalogo')->assertSee('Nenhuma versao em vigor');
+    admin()->get('/catalogo/versoes')->assertSee('Nenhuma versao em vigor');
 });
 
 it('mostra a tabela de precos da versao com uma coluna por faixa', function () {
@@ -57,7 +57,7 @@ it('mostra a tabela de precos da versao com uma coluna por faixa', function () {
         ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 500_000 => 370])
         ->create();
 
-    admin()->get(route('catalogo.versao', $versao))
+    admin()->get(route('catalogo.versoes.mostrar', $versao))
         ->assertOk()
         ->assertSee('scpc-bvs')
         ->assertSee('Sem mínimo')
@@ -73,7 +73,7 @@ it('filtra a tabela por categoria', function () {
 
     Servico::where('codigo', 'renajud')->update(['categoria' => 'veicular']);
 
-    admin()->get(route('catalogo.versao', ['versao' => $versao, 'categoria' => 'veicular']))
+    admin()->get(route('catalogo.versoes.mostrar', ['versao' => $versao, 'categoria' => 'veicular']))
         ->assertOk()
         ->assertSee('renajud')
         ->assertDontSee('scpc-bvs');
@@ -82,7 +82,7 @@ it('filtra a tabela por categoria', function () {
 it('ignora filtro de categoria invalido em vez de quebrar', function () {
     $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
-    admin()->get(route('catalogo.versao', ['versao' => $versao, 'categoria' => 'sei-la']))
+    admin()->get(route('catalogo.versoes.mostrar', ['versao' => $versao, 'categoria' => 'sei-la']))
         ->assertOk()
         ->assertSee('scpc-bvs');
 });
@@ -96,7 +96,7 @@ it('ignora filtro de categoria invalido em vez de quebrar', function () {
 it('ativa a versao e congela os precos', function () {
     $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
-    admin()->post(route('catalogo.ativar', $versao))
+    admin()->post(route('catalogo.versoes.ativar', $versao))
         ->assertRedirect()
         ->assertSessionHas('ok');
 
@@ -107,7 +107,7 @@ it('ativa a versao e congela os precos', function () {
 it('recusa ativar versao que ja esta em vigor', function () {
     $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->ativa()->create();
 
-    admin()->post(route('catalogo.ativar', $versao))->assertSessionHas('erro');
+    admin()->post(route('catalogo.versoes.ativar', $versao))->assertSessionHas('erro');
 
     expect(VersaoCatalogo::ativa()->count())->toBe(1);
 });
@@ -117,7 +117,7 @@ it('recusa ativar versao sem preco nenhum', function () {
     // como fechar.
     $versao = VersaoCatalogo::factory()->create();
 
-    admin()->post(route('catalogo.ativar', $versao))->assertSessionHas('erro');
+    admin()->post(route('catalogo.versoes.ativar', $versao))->assertSessionHas('erro');
 
     expect($versao->fresh()->situacao)->toBe('rascunho');
 });
@@ -127,7 +127,7 @@ it('nao deixa vendedor ativar versao', function () {
 
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
-        ->post(route('catalogo.ativar', $versao))
+        ->post(route('catalogo.versoes.ativar', $versao))
         ->assertForbidden();
 
     expect($versao->fresh()->situacao)->toBe('rascunho');
@@ -153,7 +153,7 @@ it('conta os planos de cada versao na listagem', function () {
     $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [7_500 => 594])->create();
     Plano::factory()->count(2)->create(['versao_id' => $versao->id]);
 
-    $resposta = admin()->get('/catalogo')->assertOk();
+    $resposta = admin()->get('/catalogo/versoes')->assertOk();
 
     expect($resposta->viewData('versoes')->first()->planos_count)->toBe(2);
 });

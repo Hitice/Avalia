@@ -95,6 +95,22 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+
+            /*
+             * Conexao persistente reaproveita o socket entre requisicoes.
+             *
+             * Contra um Postgres remoto isso pesa: abrir conexao custa ~1,5s
+             * (TLS mais latencia de rede), enquanto a consulta em si custa
+             * ~450ms. Sem persistencia, toda tela paga o pedagio de novo.
+             *
+             * Fica desligada por padrao porque em producao, com varios
+             * processos php-fpm, cada worker segura uma conexao aberta e o
+             * limite do servidor estoura antes do esperado. Ligue no ambiente
+             * de desenvolvimento, onde ha um processo so.
+             */
+            'options' => env('DB_PERSISTENT', false)
+                ? [PDO::ATTR_PERSISTENT => true]
+                : [],
         ],
 
         'sqlsrv' => [

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('catalogo.index') }}"
+        <a href="{{ route('catalogo.versoes.index') }}"
            class="hover:text-brand-500 dark:hover:text-brand-400 mb-2 inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
             <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -34,7 +34,7 @@
         @endphp
 
         @foreach ($abas as $chave => $rotulo)
-            <a href="{{ route('catalogo.versao', $versao) }}{{ $chave ? '?categoria='.$chave : '' }}"
+            <a href="{{ route('catalogo.versoes.mostrar', $versao) }}{{ $chave ? '?categoria='.$chave : '' }}"
                class="{{ ($categoria ?? '') === $chave
                    ? 'bg-brand-500 text-white'
                    : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-white/[0.03] dark:text-gray-300 dark:hover:bg-white/[0.06]' }} rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium dark:border-gray-800">
@@ -45,10 +45,12 @@
 
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[54rem] text-left text-sm">
+            <table class="w-full min-w-[54rem] text-sm">
                 <thead class="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:text-gray-400">
                     <tr>
-                        <th class="px-5 py-3 font-medium">Servico</th>
+                        {{-- text-left explicito: o navegador centraliza th por
+                             padrao, e o text-left da tabela nao vence isso. --}}
+                        <th class="px-5 py-3 text-left font-medium">Servico</th>
                         @foreach ($faixas as $faixa)
                             <th class="px-4 py-3 text-right font-medium whitespace-nowrap">
                                 {{ $faixa === 0 ? 'Sem mínimo' : \App\Support\Dinheiro::brl($faixa) }}
