@@ -45,32 +45,50 @@ class CatalogoSeeder extends Seeder
         }
 
         DB::transaction(function () use ($versao, $dados) {
+            // Grava em lote, nao linha a linha. Sao 43 servicos e 301 precos:
+            // contra um Postgres remoto, um save() por preco vira ~600 idas e
+            // voltas pela internet e o seeder nao termina.
+            //
+            // `ativo` fica de fora da lista de atualizacao de proposito: se a
+            // administracao desligou um servico, reimportar a tabela do
+            // fornecedor nao pode religa-lo.
+            Servico::upsert(
+                array_map(fn (array $linha) => [
+                    'codigo' => $linha['codigo'],
+                    'nome' => $linha['nome'],
+                    'categoria' => $linha['categoria'],
+                    'exige_liberacao' => $linha['exige_liberacao'],
+                ], $dados['servicos']),
+                ['codigo'],
+                ['nome', 'categoria', 'exige_liberacao'],
+            );
+
+            $idPorCodigo = Servico::whereIn('codigo', array_column($dados['servicos'], 'codigo'))
+                ->pluck('id', 'codigo');
+
+            $precos = [];
+
             foreach ($dados['servicos'] as $linha) {
-                $servico = Servico::updateOrCreate(
-                    ['codigo' => $linha['codigo']],
-                    [
-                        'nome' => $linha['nome'],
-                        'categoria' => $linha['categoria'],
-                        'exige_liberacao' => $linha['exige_liberacao'],
-                    ],
-                );
-
                 foreach ($dados['faixas'] as $indice => $faixaCents) {
-                    $preco = Preco::firstOrNew([
-                        'versao_id' => $versao->id,
-                        'servico_id' => $servico->id,
-                        'consumo_minimo_cents' => $faixaCents,
-                    ]);
-
                     // Custo do fornecedor fica nulo: a tabela transcrita traz
                     // preco de venda, e o custo vem do contrato, em separado.
-                    $preco->preco_cents = $linha['precos'][$indice];
-
-                    // A guarda de congelamento ja consultou a versao acima.
-                    $preco->setRelation('versao', $versao);
-                    $preco->save();
+                    $precos[] = [
+                        'versao_id' => $versao->id,
+                        'servico_id' => $idPorCodigo[$linha['codigo']],
+                        'consumo_minimo_cents' => $faixaCents,
+                        'preco_cents' => $linha['precos'][$indice],
+                    ];
                 }
             }
+
+            // upsert nao dispara evento de model, entao a guarda de
+            // congelamento do Preco nao roda aqui — e por isso que o
+            // estaCongelada() acima e obrigatorio, e nao mera cortesia.
+            Preco::upsert(
+                $precos,
+                ['versao_id', 'servico_id', 'consumo_minimo_cents'],
+                ['preco_cents'],
+            );
         });
 
         $this->command->info(sprintf(
