@@ -109,14 +109,24 @@ return [
              * de desenvolvimento, onde ha um processo so.
              */
             /*
-             * Prepare emulado manda a consulta ja com os valores, numa ida so.
-             * O modo nativo do Postgres gasta duas: uma para preparar, outra
-             * para executar. Contra banco remoto isso dobra o custo de CADA
-             * consulta — medido aqui, 470ms no nativo contra 163ms no emulado.
+             * NAO LIGUE DB_EMULA_PREPARE sem ler isto.
              *
-             * O risco classico de injecao com emulacao e do MySQL em charset
-             * GBK/SJIS, onde a escapagem podia ser burlada. Postgres em UTF-8
-             * nao tem esse buraco: o PDO usa a escapagem da propria libpq.
+             * Prepare emulado manda a consulta numa ida so em vez de duas, e
+             * contra banco remoto isso vale muito: medido aqui, 163ms por
+             * consulta contra 470ms no modo nativo.
+             *
+             * So que ele quebra booleano no Postgres. O Laravel converte bool
+             * em int nas bindings; no modo nativo o Postgres aceita, no emulado
+             * a consulta sai como `where ativo = 1` e o banco recusa com
+             * "operator does not exist: boolean = integer".
+             *
+             * Pior: a suite roda em SQLite, onde `= 1` funciona. Ou seja, o
+             * teste passa e a producao quebra — divergencia que nenhum teste
+             * atual consegue ver. Por isso fica desligado.
+             *
+             * A resposta de verdade para a latencia nao e esta: e aproximar o
+             * banco (PDD e README). Sao Paulo em vez de Canada derruba o RTT de
+             * 172ms para ~15ms e nao muda semantica de SQL nenhuma.
              */
             'options' => array_filter([
                 PDO::ATTR_PERSISTENT => env('DB_PERSISTENT', false),
