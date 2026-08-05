@@ -31,9 +31,23 @@ final class Comissao
      */
     public const PCT_PADRAO = 10;
 
-    public static function pct(): int
+    /** Teto de sanidade: comissao acima disso comeria a operacao inteira. */
+    public const PCT_MAXIMO = 50;
+
+    /**
+     * Aliquota valida, com o padrao para quem nao tem taxa propria.
+     *
+     * A administracao negocia caso a caso, entao cada vendedor pode ter a sua.
+     * Fora da faixa, vale o padrao: taxa invalida no cadastro nao pode virar
+     * repasse errado no fechamento.
+     */
+    public static function pct(?int $doVendedor = null): int
     {
-        return self::PCT_PADRAO;
+        if ($doVendedor === null || $doVendedor < 0 || $doVendedor > self::PCT_MAXIMO) {
+            return self::PCT_PADRAO;
+        }
+
+        return $doVendedor;
     }
 
     /**
@@ -43,7 +57,7 @@ final class Comissao
      * nao ganha sobre lucro que nao existiu, mas tambem nao paga para ter
      * vendido.
      */
-    public static function cents(int $lucroCents): int
+    public static function cents(int $lucroCents, ?int $pct = null): int
     {
         if ($lucroCents <= 0) {
             return 0;
@@ -51,7 +65,7 @@ final class Comissao
 
         // round e nao trunca: sempre a favor de ninguem em particular, mas
         // estavel: dois calculos do mesmo mes dao o mesmo centavo.
-        return (int) round($lucroCents * self::PCT_PADRAO / 100);
+        return (int) round($lucroCents * self::pct($pct) / 100);
     }
 
     /**

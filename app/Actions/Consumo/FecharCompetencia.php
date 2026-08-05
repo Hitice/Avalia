@@ -86,9 +86,14 @@ class FecharCompetencia
         $imposto = Margem::impostoCents($total, $impostoBps);
 
         $lucro = $total - $imposto - $custo;
-        $comissao = Comissao::cents($lucro);
 
-        $fatura = DB::transaction(function () use ($cliente, $competencia, $plano, $realizado, $faturado, $total, $impostoBps, $imposto, $custo, $lucro, $comissao, $bruto, $franquia, $excedente, $itens) {
+        // A taxa e a do vendedor da carteira, e nao a do sistema: a
+        // administracao negocia caso a caso. Ela e congelada na fatura logo
+        // abaixo, entao renegociar amanha nao reescreve competencia fechada.
+        $pct = Comissao::pct($cliente->vendedor?->comissao_pct);
+        $comissao = Comissao::cents($lucro, $pct);
+
+        $fatura = DB::transaction(function () use ($cliente, $competencia, $plano, $realizado, $faturado, $total, $impostoBps, $imposto, $custo, $lucro, $comissao, $pct, $bruto, $franquia, $excedente, $itens) {
             $fatura = Fatura::create([
                 'cliente_id' => $cliente->id,
                 'vendedor_id' => $cliente->vendedor_id,
@@ -102,7 +107,7 @@ class FecharCompetencia
                 'imposto_cents' => $imposto,
                 'custo_cents' => $custo,
                 'lucro_cents' => $lucro - $comissao,
-                'comissao_pct' => Comissao::pct(),
+                'comissao_pct' => $pct,
                 'comissao_cents' => $comissao,
                 'situacao_pagamento' => Fatura::PAGAMENTO_PENDENTE,
                 'consumo_bruto_cents' => $bruto,

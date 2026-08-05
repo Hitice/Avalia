@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\ContaAutenticavel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -21,7 +22,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
@@ -41,6 +42,12 @@ class Staff extends Authenticatable implements ContaAutenticavel
     public function getAuthPassword(): string
     {
         return $this->senha;
+    }
+
+    /** Carteira do vendedor. */
+    public function clientes(): HasMany
+    {
+        return $this->hasMany(Cliente::class, 'vendedor_id');
     }
 
     public function ehAdmin(): bool

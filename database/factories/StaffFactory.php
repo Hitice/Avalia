@@ -16,6 +16,7 @@ class StaffFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'senha' => 'senha-valida-123',
             'papel' => 'vendedor',
+            'comissao_pct' => \App\Support\Comissao::PCT_PADRAO,
             'super' => false,
             'ativo' => true,
             'sessao_versao' => 1,

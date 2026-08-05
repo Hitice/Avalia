@@ -7,6 +7,7 @@ use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
@@ -65,6 +66,16 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware('admin')->prefix('financeiro')->name('financeiro.')->group(function () {
         Route::get('/', [FinanceiroController::class, 'index'])->name('index');
         Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
+    });
+
+    // Quem trabalha na Avalia. E aqui que se define a comissao de cada
+    // vendedor, que vale do proximo fechamento em diante.
+    Route::middleware('admin')->prefix('equipe')->name('equipe.')->group(function () {
+        Route::get('/', [EquipeController::class, 'index'])->name('index');
+        Route::get('/nova', [EquipeController::class, 'criar'])->name('criar');
+        Route::post('/', [EquipeController::class, 'salvar'])->name('salvar');
+        Route::get('/{membro}', [EquipeController::class, 'editar'])->name('editar');
+        Route::put('/{membro}', [EquipeController::class, 'atualizar'])->name('atualizar');
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
