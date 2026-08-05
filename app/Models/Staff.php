@@ -48,11 +48,6 @@ class Staff extends Authenticatable implements ContaAutenticavel
         return $this->papel === 'admin';
     }
 
-    public function ehVendedor(): bool
-    {
-        return $this->papel === 'vendedor';
-    }
-
     /** Superusuario passa por cima de qualquer policy. */
     public function ehSuper(): bool
     {

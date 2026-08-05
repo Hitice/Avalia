@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Support\Dinheiro;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -54,22 +53,5 @@ class Preco extends Model
         return $this->custo_cents === null
             ? null
             : $this->preco_cents - $this->custo_cents;
-    }
-
-    public function getPrecoAttribute(): string
-    {
-        return Dinheiro::brl($this->preco_cents);
-    }
-
-    public function getCustoAttribute(): ?string
-    {
-        return $this->custo_cents === null ? null : Dinheiro::brl($this->custo_cents);
-    }
-
-    public function getFaixaAttribute(): string
-    {
-        return $this->consumo_minimo_cents === 0
-            ? 'Sem mínimo'
-            : Dinheiro::brl($this->consumo_minimo_cents);
     }
 }

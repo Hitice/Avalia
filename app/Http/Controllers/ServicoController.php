@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Catalogo\GravarServicoCompleto;
 use App\Http\Requests\ServicoRequest;
 use App\Models\Catalogo;
 use App\Models\Servico;
+use App\Support\Dinheiro;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -32,7 +34,9 @@ class ServicoController extends Controller
     {
         return view('paginas.catalogo.servico-formulario', [
             'servico' => new Servico(['categoria' => 'credito', 'ativo' => true]),
+            'catalogo' => Catalogo::vigente(),
             'faixas' => Catalogo::vigente()?->faixas() ?? [],
+            'precos' => collect(),
         ]);
     }
 
@@ -78,22 +82,60 @@ class ServicoController extends Controller
             ));
     }
 
+    /**
+     * Uma pagina com tudo do servico: cadastro, custo e preco de cada faixa.
+     *
+     * Editar linha a linha em vez de uma matriz de 301 campos. O operador ve a
+     * margem do que digitou antes de salvar.
+     */
     public function editar(Servico $servico)
     {
+        $catalogo = Catalogo::vigente();
+
         return view('paginas.catalogo.servico-formulario', [
             'servico' => $servico,
-            'faixas' => [],
+            'catalogo' => $catalogo,
+            'faixas' => $catalogo?->faixas() ?? [],
+            'precos' => $servico->precos()
+                ->where('catalogo_id', $catalogo?->id)
+                ->get()
+                ->keyBy('consumo_minimo_cents'),
         ]);
     }
 
-    public function atualizar(ServicoRequest $request, Servico $servico)
+    public function atualizar(ServicoRequest $request, Servico $servico, GravarServicoCompleto $gravar)
     {
         // O codigo nao esta em validated() na edicao, entao nao ha como trocar
         // por payload forjado.
-        $servico->update($request->validated());
+        $resultado = $gravar(
+            Catalogo::vigente(),
+            $servico,
+            $request->validated(),
+            $request->input('custo'),
+            $request->input('precos', []),
+        );
+
+        if ($resultado['piso'] !== null) {
+            return back()->withInput()->with('erro', sprintf(
+                'Preco abaixo do piso e nada foi gravado. O menor valor que paga fornecedor, imposto e comissao e %s.',
+                Dinheiro::brl($resultado['piso']),
+            ));
+        }
 
         return redirect()
             ->route('catalogo.servicos.index')
             ->with('ok', "Servico '{$servico->nome}' atualizado.");
+    }
+
+    /** Liga e desliga o servico no clique, sem abrir formulario. */
+    public function alternar(Servico $servico)
+    {
+        $servico->update(['ativo' => ! $servico->ativo]);
+
+        return back()->with('ok', sprintf(
+            "Servico '%s' %s.",
+            $servico->nome,
+            $servico->ativo ? 'ativado' : 'pausado',
+        ));
     }
 }

@@ -25,7 +25,6 @@
                         <th class="px-5 py-3 text-left font-medium">Servico</th>
                         <th class="px-5 py-3 text-left font-medium">Categoria</th>
                         <th class="px-5 py-3 text-left font-medium">Situacao</th>
-                        <th class="px-5 py-3 text-right font-medium">Precos</th>
                         <th class="px-5 py-3"><span class="sr-only">Acoes</span></th>
                     </tr>
                 </thead>
@@ -40,28 +39,16 @@
                                 {{ $servico->rotuloCategoria() }}
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <span class="flex flex-wrap gap-2 text-xs">
-                                    @if ($servico->disponivel())
-                                        <span class="etiqueta etiqueta-sucesso">
-                                            disponivel
-                                        </span>
-                                    @endif
-
-                                    @unless ($servico->ativo)
-                                        <span class="etiqueta etiqueta-neutra">
-                                            inativo
-                                        </span>
-                                    @endunless
+                                <div class="flex items-center gap-3">
+                                    <x-avalia.interruptor
+                                        :ligado="$servico->ativo"
+                                        :acao="route('catalogo.servicos.alternar', $servico)"
+                                        :titulo="$servico->ativo ? 'Ativo: clique para pausar' : 'Pausado: clique para ativar'" />
 
                                     @if ($servico->exige_liberacao)
-                                        <span class="etiqueta etiqueta-alerta">
-                                            aguarda liberacao
-                                        </span>
+                                        <span class="etiqueta etiqueta-alerta">aguarda liberacao</span>
                                     @endif
-                                </span>
-                            </td>
-                            <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">
-                                {{ $servico->precos_count }}
+                                </div>
                             </td>
                             <td class="px-5 py-4 text-right">
                                 <x-avalia.botao variante="secundario" tamanho="sm"
@@ -70,7 +57,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="tabela-vazia">
+                            <td colspan="4" class="tabela-vazia">
                                 Nenhum servico cadastrado.
                             </td>
                         </tr>

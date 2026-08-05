@@ -56,11 +56,6 @@ class Servico extends Model
         return $query->where('ativo', true)->where('exige_liberacao', false);
     }
 
-    public function scopeDaCategoria(Builder $query, Categoria $categoria): Builder
-    {
-        return $query->where('categoria', $categoria);
-    }
-
     public function rotuloCategoria(): string
     {
         return $this->categoria->rotulo();

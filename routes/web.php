@@ -54,11 +54,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // A tabela de precos abre direto: e um catalogo so, sem lista de
         // versoes no meio do caminho.
         Route::get('/tabela', [CatalogoController::class, 'tabela'])->name('tabela');
-        Route::put('/tabela/{catalogo}/precos', [CatalogoController::class, 'precos'])->name('precos');
-        Route::put('/tabela/{catalogo}/custos', [CatalogoController::class, 'custos'])->name('custos');
-        Route::put('/tabela/{catalogo}/parametros', [CatalogoController::class, 'parametros'])->name('parametros');
-        Route::post('/tabela/{catalogo}/precificar', [CatalogoController::class, 'precificar'])->name('precificar');
-        Route::post('/tabela/{catalogo}/reajustar', [CatalogoController::class, 'reajustar'])->name('reajustar');
+
+        // Parametros comerciais em pagina propria: mexem no catalogo inteiro e
+        // nao tem lugar no meio da matriz que se consulta todo dia.
+        Route::get('/parametros', [CatalogoController::class, 'parametros'])->name('parametros');
+        Route::put('/parametros/{catalogo}', [CatalogoController::class, 'salvarParametros'])->name('parametros.salvar');
+        Route::post('/parametros/{catalogo}/precificar', [CatalogoController::class, 'precificar'])->name('precificar');
 
         // Modulo inteiro numa planilha de tres abas, e de volta.
         Route::get('/planilha', [PlanilhaController::class, 'exportar'])->name('planilha.exportar');
@@ -69,6 +70,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             Route::get('/novo', [ServicoController::class, 'criar'])->name('criar');
             Route::post('/', [ServicoController::class, 'salvar'])->name('salvar');
             Route::get('/{servico}', [ServicoController::class, 'editar'])->name('editar');
+            Route::patch('/{servico}/situacao', [ServicoController::class, 'alternar'])->name('alternar');
             Route::put('/{servico}', [ServicoController::class, 'atualizar'])->name('atualizar');
         });
     });

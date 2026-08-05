@@ -2,17 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Catalogo\AplicarReajuste;
-use App\Actions\Catalogo\GravarCustos;
-use App\Actions\Catalogo\GravarPrecos;
 use App\Actions\Catalogo\PrecificarPelaMargem;
 use App\Enums\Categoria;
-use App\Http\Requests\CustosRequest;
 use App\Http\Requests\ParametrosCatalogoRequest;
-use App\Http\Requests\PrecosRequest;
-use App\Http\Requests\ReajusteRequest;
 use App\Models\Catalogo;
-use App\Support\Dinheiro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -67,33 +60,20 @@ class CatalogoController extends Controller
         ]);
     }
 
-    public function precos(PrecosRequest $request, Catalogo $catalogo, GravarPrecos $gravar)
+    /** Pagina propria: parametro mexe no catalogo inteiro e nao na linha. */
+    public function parametros()
     {
-        $resultado = $gravar($catalogo, $request->valores());
+        $catalogo = Catalogo::vigente();
 
-        if ($resultado['furam'] > 0) {
-            return back()->with('erro', sprintf(
-                '%d preco(s) abaixo do piso e nenhum foi gravado. O menor valor que paga fornecedor, imposto e comissao neste caso e %s.',
-                $resultado['furam'],
-                Dinheiro::brl($resultado['piso']),
-            ));
-        }
+        abort_if($catalogo === null, 404);
 
-        return back()->with('ok', $resultado['gravados'] === 0
-            ? 'Nenhum preco mudou.'
-            : $resultado['gravados'].' preco(s) atualizado(s).');
+        return view('paginas.catalogo.parametros', [
+            'catalogo' => $catalogo,
+            'faixas' => $catalogo->faixas(),
+        ]);
     }
 
-    public function custos(CustosRequest $request, Catalogo $catalogo, GravarCustos $gravar)
-    {
-        $servicos = $gravar($catalogo, $request->valores());
-
-        return back()->with('ok', $servicos === 0
-            ? 'Nenhum custo mudou.'
-            : "Custo atualizado em {$servicos} servico(s), valendo para todas as faixas.");
-    }
-
-    public function parametros(ParametrosCatalogoRequest $request, Catalogo $catalogo)
+    public function salvarParametros(ParametrosCatalogoRequest $request, Catalogo $catalogo)
     {
         $catalogo->update([
             'imposto_bps' => $request->bps('imposto'),
@@ -125,18 +105,6 @@ class CatalogoController extends Controller
             $catalogo->margemAlvoRotulo(),
             $catalogo->degrauRotulo(),
             $resultado['sem_custo'] > 0 ? " {$resultado['sem_custo']} sem custo ficaram de fora." : '',
-        ));
-    }
-
-    public function reajustar(ReajusteRequest $request, Catalogo $catalogo, AplicarReajuste $reajustar)
-    {
-        $afetados = $reajustar($catalogo, $request->percentual(), $request->categoria());
-
-        return back()->with('ok', sprintf(
-            '%s%s%% aplicado em %d preco(s).',
-            $request->percentual() > 0 ? '+' : '',
-            $request->percentual(),
-            $afetados,
         ));
     }
 

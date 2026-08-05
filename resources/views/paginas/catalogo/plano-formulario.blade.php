@@ -7,7 +7,7 @@
     // porque e o mesmo campo que aceita digitacao livre no servidor.
     $opcoesFaixa = collect($faixas)->map(fn ($centavos) => [
         'valor' => Dinheiro::numero($centavos),
-        'rotulo' => $centavos === 0 ? 'Sem mínimo' : Dinheiro::brl($centavos),
+        'rotulo' => Dinheiro::faixa($centavos),
     ])->values();
 
     $rotulo = 'rotulo-campo';

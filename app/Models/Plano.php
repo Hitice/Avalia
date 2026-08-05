@@ -103,6 +103,16 @@ class Plano extends Model
             ->get();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Leitura para tela
+    |--------------------------------------------------------------------------
+    |
+    | Centavos entram no banco, reais saem na tela. A formatacao vive em
+    | Dinheiro; aqui so se diz qual campo cada rotulo le.
+    |
+    */
+
     public function getMensalidadeAttribute(): string
     {
         return Dinheiro::brl($this->mensalidade_cents);
@@ -110,9 +120,7 @@ class Plano extends Model
 
     public function getConsumoMinimoAttribute(): string
     {
-        return $this->consumo_minimo_cents === 0
-            ? 'Sem mínimo'
-            : Dinheiro::brl($this->consumo_minimo_cents);
+        return Dinheiro::faixa($this->consumo_minimo_cents);
     }
 
     public function getFaturaMinimaAttribute(): string

@@ -1,6 +1,6 @@
 {{-- Navegacao do modulo. Recebe $atual por @include. --}}
 
-<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <x-avalia.segmentado
         :atual="$atual"
         :itens="[
@@ -9,21 +9,25 @@
             'servicos' => ['rotulo' => 'Servicos', 'url' => route('catalogo.servicos.index')],
         ]" />
 
-    <div class="flex flex-wrap items-center gap-2">
+    {{-- Os dois botoes tem o mesmo tamanho e o mesmo peso. O input de arquivo
+         fica escondido atras do label porque o texto nativo do navegador
+         ("Escolher arquivo / Nenhum escolhido") nao cabe no desenho e nao diz
+         nada: quem clica ja sabe que vai escolher um arquivo. --}}
+    <form method="POST" action="{{ route('catalogo.planilha.importar') }}" enctype="multipart/form-data"
+          class="flex items-center gap-2"
+          x-data="{ enviando: false }">
+        @csrf
+
         <x-avalia.botao variante="secundario" tamanho="sm" :href="route('catalogo.planilha.exportar')">
-            Exportar planilha
+            Exportar
         </x-avalia.botao>
 
-        {{-- Importar e um upload, entao o form fica aqui e nao numa tela propria:
-             quem exporta para ajustar no Excel volta pelo mesmo lugar. --}}
-        <form method="POST" action="{{ route('catalogo.planilha.importar') }}" enctype="multipart/form-data"
-              class="flex items-center gap-2">
-            @csrf
-            <input type="file" name="planilha" accept=".xlsx,.csv" required
-                   class="max-w-56 text-xs text-gray-500 file:mr-2 file:rounded-lg file:border file:border-gray-300 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-gray-700 dark:text-gray-400 dark:file:border-gray-700 dark:file:bg-white/[0.03] dark:file:text-gray-300">
-            <x-avalia.botao variante="secundario" tamanho="sm">Importar</x-avalia.botao>
-        </form>
-    </div>
+        <label class="botao botao-secundario botao-sm cursor-pointer">
+            <span x-text="enviando ? 'Enviando...' : 'Importar'">Importar</span>
+            <input type="file" name="planilha" accept=".xlsx,.csv" class="hidden"
+                   @change="enviando = true; $el.form.submit()">
+        </label>
+    </form>
 </div>
 
 @error('planilha')

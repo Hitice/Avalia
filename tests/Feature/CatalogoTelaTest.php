@@ -28,19 +28,30 @@ it('nao deixa visitante abrir o catalogo', function () {
 
 /*
 |--------------------------------------------------------------------------
-| A tabela
+| A matriz, so de leitura
 |--------------------------------------------------------------------------
 */
 
-it('abre a tabela direto, sem lista no meio do caminho', function () {
+it('mostra o preco como texto, sem campo editavel', function () {
+    // Edicao acontece na pagina do servico. A matriz serve para consultar.
     Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 500_000 => 370])->create();
 
     admin()->get('/catalogo/tabela')
         ->assertOk()
         ->assertSee('scpc-bvs')
-        ->assertSee('Sem mínimo')
-        ->assertSee('value="6,31"', false)
-        ->assertSee('value="3,70"', false);
+        ->assertSee("R$\u{00A0}6,31", false)
+        ->assertSee("R$\u{00A0}3,70", false)
+        ->assertDontSee('name="precos[', false);
+});
+
+it('leva ao cadastro do servico pelo botao da linha', function () {
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    admin()->get('/catalogo/tabela')
+        ->assertOk()
+        ->assertSee(route('catalogo.servicos.editar', $servico), false)
+        ->assertSee('Editar');
 });
 
 it('oferece as categorias na ordem credito, veicular e todos', function () {
@@ -48,8 +59,6 @@ it('oferece as categorias na ordem credito, veicular e todos', function () {
 
     $html = admin()->get('/catalogo/tabela')->assertOk()->getContent();
 
-    // So o bloco das abas: "Todos" tambem aparece no select de reajuste, e
-    // procurar no documento inteiro daria falso positivo.
     preg_match('/data-abas="categorias".*?<\/div>/s', $html, $bloco);
     preg_match_all('/>\s*(Crédito|Veicular|Todos)\s*</u', $bloco[0], $rotulos);
 
@@ -78,126 +87,43 @@ it('ignora filtro de categoria invalido em vez de quebrar', function () {
         ->assertSee('scpc-bvs');
 });
 
+it('mostra uma coluna de custo so, e nao uma por faixa', function () {
+    // O fornecedor cobra por consulta: sete colunas iguais seriam ruido.
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo->precos()->update(['custo_cents' => 280]);
+
+    $html = admin()->get(route('catalogo.tabela', ['visao' => 'custo']))->assertOk()->getContent();
+
+    expect(substr_count($html, "R$\u{00A0}2,80"))->toBe(1);
+});
+
 it('avisa quando nao ha catalogo nenhum', function () {
     admin()->get('/catalogo/tabela')->assertOk()->assertSee('Catalogo vazio');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Edicao
-|--------------------------------------------------------------------------
-*/
-
-it('grava os precos editados', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
-    $precos = $catalogo->precos()->orderBy('consumo_minimo_cents')->get();
-
-    admin()->put(route('catalogo.precos', $catalogo), [
-        'precos' => [
-            $precos[0]->id => '7,00',
-            $precos[1]->id => '5,50',
-        ],
-    ])->assertSessionHas('ok');
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(700)
-        ->and($catalogo->precoDe('scpc-bvs', 90_000))->toBe(550);
-});
-
-it('aceita o dinheiro como o operador digita', function () {
-    $catalogo = Catalogo::factory()->comServico('vip-car', [0 => 5_530])->create();
-    $preco = $catalogo->precos()->first();
-
-    admin()->put(route('catalogo.precos', $catalogo), [
-        'precos' => [$preco->id => '1.234,56'],
-    ]);
-
-    expect($preco->fresh()->preco_cents)->toBe(123_456);
-});
-
-it('ignora preco que nao pertence a este catalogo', function () {
-    // Defesa contra id chutado no formulario.
-    $alvo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
-    $outro = Catalogo::factory()->comServico('renajud', [0 => 1_055])->create();
-
-    $alheio = $outro->precos()->first();
-
-    admin()->put(route('catalogo.precos', $alvo), [
-        'precos' => [$alheio->id => '1,00'],
-    ]);
-
-    expect($alheio->fresh()->preco_cents)->toBe(1_055);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Reajuste
-|--------------------------------------------------------------------------
-*/
-
-it('aplica percentual em todos os precos', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000, 90_000 => 500])->create();
-
-    admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => 10])
-        ->assertSessionHas('ok');
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(1_100)
-        ->and($catalogo->precoDe('scpc-bvs', 90_000))->toBe(550);
-});
-
-it('arredonda o reajuste para o centavo mais proximo', function () {
-    // 631 + 5% = 662,55 centavos. Centavo fracionado nao existe em fatura.
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
-
-    admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => 5]);
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(663);
-});
-
-it('aceita reajuste negativo', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
-
-    admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => -10]);
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(900);
-});
-
-it('reajusta so a categoria escolhida', function () {
-    $catalogo = Catalogo::factory()
-        ->comServico('scpc-bvs', [0 => 1_000])
-        ->comServico('renajud', [0 => 1_000])
+it('da a cada faixa o seu proprio rotulo no cabecalho', function () {
+    Catalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])
         ->create();
 
-    Servico::where('codigo', 'renajud')->update(['categoria' => 'veicular']);
+    $html = admin()->get('/catalogo/tabela')->assertOk()->getContent();
 
-    admin()->post(route('catalogo.reajustar', $catalogo), [
-        'percentual' => 10,
-        'categoria' => 'veicular',
+    expect(substr_count($html, 'Sem mínimo'))->toBe(1)
+        ->and($html)->toContain("R$\u{00A0}75,00")
+        ->and($html)->toContain("R$\u{00A0}900,00");
+});
+
+it('converte faixa para inteiro venha ela como for do banco', function () {
+    // Driver de banco decide se bigint volta como int ou string. Em string,
+    // `$faixa === 0` falha e o cabecalho troca "Sem minimo" por "R$ 0,00".
+    $precos = new Illuminate\Database\Eloquent\Collection([
+        new App\Models\Preco(['consumo_minimo_cents' => '90000']),
+        new App\Models\Preco(['consumo_minimo_cents' => '0']),
+        new App\Models\Preco(['consumo_minimo_cents' => '7500']),
+        new App\Models\Preco(['consumo_minimo_cents' => '7500']),
     ]);
 
-    expect($catalogo->precoDe('renajud', 0))->toBe(1_100)
-        ->and($catalogo->precoDe('scpc-bvs', 0))->toBe(1_000);
-});
-
-it('recusa percentual fora da faixa aceitavel', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
-
-    admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => -100])
-        ->assertSessionHasErrors('percentual');
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(1_000);
-});
-
-it('nao deixa vendedor editar nem reajustar', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
-
-    $vendedor = fn () => test()
-        ->actingAs(Staff::factory()->create(), 'staff')
-        ->withSession(['versao_staff' => 1]);
-
-    $vendedor()->put(route('catalogo.precos', $catalogo), [])->assertForbidden();
-    $vendedor()->post(route('catalogo.reajustar', $catalogo), ['percentual' => 10])->assertForbidden();
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(1_000);
+    expect(Catalogo::faixasDe($precos))->toBe([0, 7_500, 90_000]);
 });
 
 /*
@@ -214,36 +140,4 @@ it('mostra o catalogo no menu do admin e esconde do vendedor', function () {
         ->get('/')
         ->assertOk()
         ->assertDontSee('Catálogo');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Faixas
-|--------------------------------------------------------------------------
-*/
-
-it('converte faixa para inteiro venha ela como for do banco', function () {
-    // Driver de banco decide se bigint volta como int ou string. Em string,
-    // `$faixa === 0` falha e o cabecalho troca "Sem minimo" por "R$ 0,00".
-    $precos = new Illuminate\Database\Eloquent\Collection([
-        new App\Models\Preco(['consumo_minimo_cents' => '90000']),
-        new App\Models\Preco(['consumo_minimo_cents' => '0']),
-        new App\Models\Preco(['consumo_minimo_cents' => '7500']),
-        new App\Models\Preco(['consumo_minimo_cents' => '7500']),
-    ]);
-
-    expect(App\Models\Catalogo::faixasDe($precos))->toBe([0, 7_500, 90_000]);
-});
-
-it('da a cada faixa o seu proprio rotulo no cabecalho', function () {
-    Catalogo::factory()
-        ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])
-        ->create();
-
-    $html = admin()->get('/catalogo/tabela')->assertOk()->getContent();
-
-    // Uma coluna "Sem mínimo" e nao tres.
-    expect(substr_count($html, 'Sem mínimo'))->toBe(1)
-        ->and($html)->toContain("R$\u{00A0}75,00")
-        ->and($html)->toContain("R$\u{00A0}900,00");
 });

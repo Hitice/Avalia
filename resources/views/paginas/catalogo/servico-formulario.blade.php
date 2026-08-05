@@ -2,6 +2,9 @@
 
 @php
     use App\Support\Dinheiro;
+    use App\Support\Margem;
+
+    $primeiroCusto = ($precos ?? collect())->first()?->custo_cents;
 
     $rotulo = 'rotulo-campo';
     $campo = 'campo';
@@ -111,6 +114,61 @@
                     servicos de SCR ate a homologacao juridica e contratual.
                 </p>
             </div>
+
+            @if ($servico->exists && $faixas !== [])
+                <div class="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
+                    <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Custo e preco</h2>
+                    <p class="ajuda-campo mb-5">
+                        O custo vale para todas as faixas: o fornecedor cobra por consulta, nao pelo
+                        pacote do cliente. Campo em branco significa custo ainda nao cadastrado.
+                    </p>
+
+                    <div class="max-w-xs">
+                        <label for="custo" class="rotulo-campo">Custo do fornecedor</label>
+                        <input id="custo" name="custo" type="text" inputmode="decimal" placeholder="-"
+                               value="{{ old('custo', $primeiroCusto === null ? '' : Dinheiro::numero($primeiroCusto)) }}"
+                               class="campo">
+                    </div>
+
+                    <div class="mt-5 overflow-x-auto">
+                        <table class="tabela">
+                            <thead class="tabela-cabecalho">
+                                <tr>
+                                    <th class="tabela-th text-left">Faixa</th>
+                                    <th class="px-4 py-3 text-right font-medium">Preco de venda</th>
+                                    <th class="px-4 py-3 text-right font-medium">Margem</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                @foreach ($faixas as $faixa)
+                                    @php
+                                        $preco = $precos->get($faixa);
+                                        $pct = $preco
+                                            ? Margem::pct($preco->preco_cents, $preco->custo_cents,
+                                                $catalogo->imposto_bps, $catalogo->comissaoBps())
+                                            : null;
+                                    @endphp
+
+                                    <tr>
+                                        <td class="tabela-td text-left text-gray-600 dark:text-gray-300">
+                                            {{ Dinheiro::faixa($faixa) }}
+                                        </td>
+                                        <td class="px-4 py-3 text-right">
+                                            <input type="text" inputmode="decimal"
+                                                   name="precos[{{ $faixa }}]"
+                                                   value="{{ old('precos.'.$faixa, $preco ? Dinheiro::numero($preco->preco_cents) : '') }}"
+                                                   class="campo-celula">
+                                        </td>
+                                        <td class="px-4 py-3 text-right tabular-nums text-gray-600 dark:text-gray-300">
+                                            {{ $pct === null ? '-' : number_format($pct, 1, ',', '.').'%' }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
 
             <div class="mt-6 flex gap-3">
                 <x-avalia.botao>

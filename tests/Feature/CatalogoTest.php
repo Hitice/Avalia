@@ -176,11 +176,13 @@ it('formata os valores do plano em reais', function () {
 });
 
 it('escreve "sem minimo" em vez de R$ 0,00', function () {
+    // Zero centavos e ausencia de piso, nao piso de nada. A regra mora em
+    // Dinheiro::faixa e o plano so a repassa.
     $plano = Plano::factory()->semMinimo()->create();
-    $preco = Preco::factory()->create(['consumo_minimo_cents' => 0]);
 
     expect($plano->consumo_minimo)->toBe('Sem mínimo')
-        ->and($preco->faixa)->toBe('Sem mínimo');
+        ->and(App\Support\Dinheiro::faixa(0))->toBe('Sem mínimo')
+        ->and(App\Support\Dinheiro::faixa(90_000))->toBe("R$\u{00A0}900,00");
 });
 
 it('so calcula margem quando o custo do fornecedor esta cadastrado', function () {
@@ -188,6 +190,5 @@ it('so calcula margem quando o custo do fornecedor esta cadastrado', function ()
     $comCusto = Preco::factory()->create(['preco_cents' => 631, 'custo_cents' => 400]);
 
     expect($semCusto->margemCents())->toBeNull()
-        ->and($semCusto->custo)->toBeNull()
         ->and($comCusto->margemCents())->toBe(231);
 });

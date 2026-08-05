@@ -189,17 +189,21 @@ it('marca e desmarca a liberacao juridica', function () {
 |--------------------------------------------------------------------------
 */
 
-it('mostra a situacao de cada servico', function () {
-    Servico::factory()->create(['nome' => 'Servico normal']);
-    Servico::factory()->inativo()->create(['nome' => 'Servico desligado']);
+it('mostra a situacao de cada servico no interruptor', function () {
+    $ativo = Servico::factory()->create(['nome' => 'Servico normal']);
+    $pausado = Servico::factory()->inativo()->create(['nome' => 'Servico desligado']);
     Servico::factory()->aguardandoLiberacao()->create(['nome' => 'Servico travado']);
 
-    admin()->get(route('catalogo.servicos.index'))
-        ->assertOk()
-        ->assertSee('Servico normal')
-        ->assertSee('disponivel')
-        ->assertSee('inativo')
-        ->assertSee('aguarda liberacao');
+    $html = admin()->get(route('catalogo.servicos.index'))->assertOk()->getContent();
+
+    expect($html)->toContain('Servico normal')
+        ->toContain('aguarda liberacao')
+        // Verde de um lado, vermelho do outro, e cada linha grava no proprio clique.
+        ->toContain(route('catalogo.servicos.alternar', $ativo))
+        ->toContain(route('catalogo.servicos.alternar', $pausado));
+
+    expect(substr_count($html, 'interruptor-ligado'))->toBe(2)
+        ->and(substr_count($html, 'interruptor-desligado'))->toBe(1);
 });
 
 it('conta os precos de cada servico', function () {

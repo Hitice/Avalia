@@ -29,11 +29,6 @@ class FranquiaPlano extends Model
         ];
     }
 
-    public function plano(): BelongsTo
-    {
-        return $this->belongsTo(Plano::class);
-    }
-
     public function servico(): BelongsTo
     {
         return $this->belongsTo(Servico::class);

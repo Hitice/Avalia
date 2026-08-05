@@ -20,6 +20,18 @@ final class Dinheiro
     }
 
     /**
+     * Rotulo de faixa de consumo minimo: 0 -> "Sem minimo", 90000 -> "R$ 900,00".
+     *
+     * Zero centavos nao e preco zero, e ausencia de piso. Escrever "R$ 0,00" na
+     * coluna faria o operador ler consumo minimo de nada. A regra mora aqui e em
+     * nenhum outro lugar: espalhada pelas telas, uma delas sempre fica para tras.
+     */
+    public static function faixa(int $centavos): string
+    {
+        return $centavos === 0 ? 'Sem mínimo' : self::brl($centavos);
+    }
+
+    /**
      * Numero sem simbolo, para preencher campo de formulario: 7990 -> "79,90".
      *
      * Nao usa espaco nem "R$" porque o valor volta por paraCentavos() no
