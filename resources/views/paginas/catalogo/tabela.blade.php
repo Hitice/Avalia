@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Catalogo'])
+@extends('layouts.app', ['title' => 'Catálogo'])
 
 @php
     use App\Http\Controllers\CatalogoController;
@@ -23,7 +23,7 @@
     // houver alguma: a opcao mais ampla mostraria justamente o que esta
     // travado. Liberado o fornecedor, as duas voltam sozinhas.
     $haSuprimida = collect(Categoria::cases())->contains(fn (Categoria $c) => $c->suprimida());
-    $motivoTrava = 'Numeros de veicular ficam fora do catalogo ate o contrato com o fornecedor';
+    $motivoTrava = 'Números de veicular ficam fora do catálogo até o contrato com o fornecedor';
 
     $itensCategoria = collect(Categoria::rotulos() + ['' => 'Todos'])
         ->map(function ($rotulo, $chave) use ($comFiltro, $motivoTrava, $haSuprimida) {
@@ -42,7 +42,7 @@
 @endphp
 
 @section('content')
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">Catalogo</h1>
+    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">Catálogo</h1>
 
     @include('paginas.catalogo.abas', ['atual' => 'catalogo'])
 
@@ -50,20 +50,20 @@
 
     @if (! $catalogo)
         <div class="aviso aviso-alerta">
-            Catalogo vazio. Rode <code>php artisan db:seed --class=CatalogoSeeder</code> para importar
-            a tabela de referencia.
+            Catálogo vazio. Rode <code>php artisan db:seed --class=CatalogoSeeder</code> para importar
+            a tabela de referência.
         </div>
     @else
         <div class="mb-6 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <div class="flex flex-wrap items-end gap-x-8 gap-y-4">
                 <x-avalia.segmentado data-abas="visoes" rotulo="Mostrar" :atual="$visao" :itens="$itensVisao" />
-                <x-avalia.segmentado data-abas="categorias" rotulo="Servicos" :atual="$categoria ?? ''" :itens="$itensCategoria" />
+                <x-avalia.segmentado data-abas="categorias" rotulo="Serviços" :atual="$categoria ?? ''" :itens="$itensCategoria" />
             </div>
 
             @if ($visao === 'margem')
                 <a href="{{ route('catalogo.parametros') }}"
                    class="hover:text-brand-500 dark:hover:text-brand-400 text-xs text-gray-500 dark:text-gray-400">
-                    Imposto {{ $catalogo->impostoRotulo() }} · comissao {{ number_format($catalogo->comissaoBps() / 100, 0) }}%
+                    Imposto {{ $catalogo->impostoRotulo() }} · comissão {{ number_format($catalogo->comissaoBps() / 100, 0) }}%
                     · alvo {{ $catalogo->margemAlvoRotulo() }} · ajustar
                 </a>
             @endif
@@ -74,7 +74,7 @@
                 <table class="tabela min-w-[54rem]">
                     <thead class="tabela-cabecalho tabela-cabecalho-fixo">
                         <tr>
-                            <th class="tabela-th text-left">Servico</th>
+                            <th class="tabela-th text-left">Serviço</th>
 
                             @if ($visao === 'custo')
                                 {{-- Um custo por servico: o fornecedor cobra por consulta,
@@ -88,7 +88,7 @@
                                 @endforeach
                             @endif
 
-                            <th class="px-5 py-3"><span class="sr-only">Acoes</span></th>
+                            <th class="px-5 py-3"><span class="sr-only">Ações</span></th>
                         </tr>
                     </thead>
 
@@ -105,7 +105,7 @@
                                             <span class="etiqueta etiqueta-neutra">pausado</span>
                                         @endunless
                                         @if ($servico->exige_liberacao)
-                                            <span class="etiqueta etiqueta-alerta">aguarda liberacao</span>
+                                            <span class="etiqueta etiqueta-alerta">aguarda liberação</span>
                                         @endif
                                     </span>
                                 </td>
@@ -155,7 +155,7 @@
                         @empty
                             <tr>
                                 <td colspan="{{ ($visao === 'custo' ? 1 : count($faixas)) + 2 }}" class="tabela-vazia">
-                                    Nenhum servico nesta categoria.
+                                    Nenhum serviço nesta categoria.
                                 </td>
                             </tr>
                         @endforelse

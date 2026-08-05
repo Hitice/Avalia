@@ -28,12 +28,14 @@ class ImportarPlanilha
             return $this->falha('Planilha vazia ou sem cabecalho.');
         }
 
-        $colunas = array_map(fn ($titulo) => mb_strtolower(trim((string) $titulo)), array_shift($linhas));
+        // Compara pela forma canonica: o cabecalho e escrito acentuado para
+        // pessoa ler, e quem edita no Excel pode redigitar sem acento.
+        $colunas = array_map(MontarPlanilha::chaveDaColuna(...), array_shift($linhas));
         $colCodigo = array_search('codigo', $colunas, true);
         $colCusto = array_search('custo', $colunas, true);
 
         if ($colCodigo === false) {
-            return $this->falha('A planilha precisa da coluna "codigo".');
+            return $this->falha('A planilha precisa da coluna "Código".');
         }
 
         $faixas = $catalogo->faixas();
@@ -41,7 +43,7 @@ class ImportarPlanilha
 
         foreach ($colunas as $indice => $titulo) {
             foreach ($faixas as $faixa) {
-                if ($titulo === MontarPlanilha::tituloDaFaixa($faixa)) {
+                if ($titulo === MontarPlanilha::chaveDaColuna(MontarPlanilha::tituloDaFaixa($faixa))) {
                     $faixaDaColuna[$indice] = $faixa;
                 }
             }

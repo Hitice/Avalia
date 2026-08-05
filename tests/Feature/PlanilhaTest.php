@@ -118,8 +118,8 @@ it('pinta o cabecalho e formata numero como numero', function () {
     $folha = parteDoXlsx($caminho, 'xl/worksheets/sheet1.xml');
     $estilos = parteDoXlsx($caminho, 'xl/styles.xml');
 
-    // Azul da marca, o mesmo da tela.
-    expect($estilos)->toContain('FF465FFF')
+    // Azul institucional do cabecalho.
+    expect($estilos)->toContain('FF1F4E79')
         ->and($folha)->toContain('s="1" t="inlineStr"')   // cabecalho
         ->toContain('s="2"><v>2.8')                       // dinheiro, duas casas
         ->toContain('s="3"><v>7');                        // contagem, sem casa
@@ -173,10 +173,12 @@ it('leva codigo, custo e preco de cada faixa para a aba de catalogo', function (
 
     $linhas = Planilha::ler($caminho);
 
-    expect($linhas[0])->toContain('codigo')
-        ->and($linhas[0])->toContain('custo')
-        ->and($linhas[0])->toContain('sem minimo')
-        ->and($linhas[0])->toContain('faixa 900,00')
+    // Cabecalho acentuado, para pessoa ler. Quem casa coluna na importacao e
+    // MontarPlanilha::chaveDaColuna, nao o texto cru.
+    expect($linhas[0])->toContain('Código')
+        ->and($linhas[0])->toContain('Custo')
+        ->and($linhas[0])->toContain('Sem mínimo')
+        ->and($linhas[0])->toContain('Faixa 900,00')
         ->and($linhas[1][0])->toBe('scpc-bvs');
 
     unlink($caminho);

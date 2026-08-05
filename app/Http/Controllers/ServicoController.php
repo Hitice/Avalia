@@ -54,7 +54,7 @@ class ServicoController extends Controller
         $faixas = $catalogo?->faixas() ?? [];
 
         if ($faixas === []) {
-            return back()->withInput()->with('erro', 'Nao ha catalogo com faixas cadastradas.');
+            return back()->withInput()->with('erro', 'Não há catálogo com faixas cadastradas.');
         }
 
         $dados = $request->validated();
@@ -76,7 +76,7 @@ class ServicoController extends Controller
         return redirect()
             ->route('catalogo.servicos.index')
             ->with('ok', sprintf(
-                "Servico '%s' criado com preco inicial em %d faixa(s). Ajuste no catalogo.",
+                "Serviço '%s' criado com preço inicial em %d faixa(s). Ajuste no catálogo.",
                 $servico->nome,
                 count($faixas),
             ));
@@ -117,14 +117,14 @@ class ServicoController extends Controller
 
         if ($resultado['piso'] !== null) {
             return back()->withInput()->with('erro', sprintf(
-                'Preco abaixo do piso e nada foi gravado. O menor valor que paga fornecedor, imposto e comissao e %s.',
+                'Preço abaixo do piso e nada foi gravado. O menor valor que paga fornecedor, imposto e comissão é %s.',
                 Dinheiro::brl($resultado['piso']),
             ));
         }
 
         return redirect()
             ->route('catalogo.servicos.index')
-            ->with('ok', "Servico '{$servico->nome}' atualizado.");
+            ->with('ok', "Serviço '{$servico->nome}' atualizado.");
     }
 
     /** Liga e desliga o servico no clique, sem abrir formulario. */
@@ -133,7 +133,7 @@ class ServicoController extends Controller
         $servico->update(['ativo' => ! $servico->ativo]);
 
         return back()->with('ok', sprintf(
-            "Servico '%s' %s.",
+            "Serviço '%s' %s.",
             $servico->nome,
             $servico->ativo ? 'ativado' : 'pausado',
         ));

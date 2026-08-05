@@ -71,15 +71,15 @@ class ServicoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'codigo.regex' => 'O codigo aceita apenas letras minusculas, numeros e hifen.',
+            'codigo.regex' => 'O código aceita apenas letras minúsculas, números e hífen.',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'preco_base_cents' => 'preco inicial',
-            'exige_liberacao' => 'liberacao pendente',
+            'preco_base_cents' => 'preço inicial',
+            'exige_liberacao' => 'liberação pendente',
         ];
     }
 }

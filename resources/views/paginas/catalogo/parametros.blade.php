@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Parametros'])
+@extends('layouts.app', ['title' => 'Parâmetros'])
 
 @php
     use App\Support\Dinheiro;
@@ -13,10 +13,10 @@
         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        Catalogo
+        Catálogo
     </a>
 
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">Parametros comerciais</h1>
+    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">Parâmetros comerciais</h1>
 
     @include('paginas.catalogo.avisos')
 
@@ -58,7 +58,7 @@
         <div class="cartao mt-6 p-6">
             <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Escada de margem</h2>
             <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
-                A comissao do vendedor entra como custo, em {{ number_format($comissao / 100, 0) }}%.
+                A comissão do vendedor entra como custo, em {{ number_format($comissao / 100, 0) }}%.
                 O alvo vale para a maior faixa; cada faixa abaixo ganha o degrau, e e isso que faz o
                 pacote maior sair mais barato por consulta sem render menos que o piso.
             </p>
@@ -89,7 +89,7 @@
             </div>
 
             <form method="POST" action="{{ route('catalogo.precificar', $catalogo) }}" class="mt-6"
-                  onsubmit="return confirm('Recalcular todos os precos pela escada de margem?')">
+                  onsubmit="return confirm('Recalcular todos os preços pela escada de margem?')">
                 @csrf
                 <x-avalia.botao>Aplicar escada de margem</x-avalia.botao>
             </form>

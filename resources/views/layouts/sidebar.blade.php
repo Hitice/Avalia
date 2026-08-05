@@ -180,7 +180,7 @@
                                         {{-- Modulo ainda nao construido: mostra, mas nao navega.
                                              Linkar para rota inexistente devolveria 404. --}}
                                         <span class="menu-item group menu-item-inactive cursor-not-allowed opacity-45"
-                                            title="Modulo ainda nao construido"
+                                            title="Módulo ainda não construído"
                                             :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'xl:justify-center' : 'justify-start'">
                                             <span class="menu-item-icon-inactive">
                                                 {!! MenuHelper::getIconSvg($item['icon']) !!}

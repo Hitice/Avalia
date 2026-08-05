@@ -18,6 +18,12 @@ use ZipArchive;
  */
 final class Planilha
 {
+    /**
+     * Largura extra do cabecalho, em caracteres, para o botao de filtro do
+     * Excel nao cobrir a ultima letra do titulo.
+     */
+    private const FOLGA_DO_FILTRO = 5;
+
     /** Indices de cellXfs em styles.xml. Mudou a ordem la, muda aqui. */
     private const ESTILO_PADRAO = 0;
 
@@ -252,7 +258,9 @@ final class Planilha
         $xml = '<cols>';
 
         foreach (array_keys($cabecalho) as $coluna) {
-            $maior = mb_strlen((string) $cabecalho[$coluna]);
+            // O botao de filtro fica dentro da celula do cabecalho e cobre o
+            // fim do texto. Por isso o titulo pede folga maior que o dado.
+            $maior = mb_strlen((string) $cabecalho[$coluna]) + self::FOLGA_DO_FILTRO;
 
             foreach ($linhas as $linha) {
                 $valor = array_values($linha)[$coluna] ?? null;
@@ -261,13 +269,12 @@ final class Planilha
                     ? number_format($valor, 2, ',', '.')
                     : (string) $valor;
 
-                $maior = max($maior, mb_strlen($texto));
+                $maior = max($maior, mb_strlen($texto) + 2);
             }
 
-            // Duas de folga para o texto nao encostar na borda, e um teto para
-            // que uma observacao longa nao empurre as outras colunas para fora
-            // da tela.
-            $largura = min(48, max(11, $maior + 2));
+            // Teto para que uma observacao longa nao empurre as outras colunas
+            // para fora da tela.
+            $largura = min(52, max(12, $maior));
 
             $xml .= '<col min="'.($coluna + 1).'" max="'.($coluna + 1).'" width="'.$largura.'" customWidth="1"/>';
         }
@@ -293,9 +300,10 @@ final class Planilha
             .'<fills count="3">'
             .'<fill><patternFill patternType="none"/></fill>'
             .'<fill><patternFill patternType="gray125"/></fill>'
-            // Mesmo azul da marca na tela (brand-500), para a planilha e o
-            // sistema nao parecerem dois produtos.
-            .'<fill><patternFill patternType="solid"><fgColor rgb="FF465FFF"/><bgColor indexed="64"/></patternFill></fill>'
+            // Azul institucional, mais fechado que o indigo da tela: em
+            // planilha de credito que circula com fornecedor e contador, o tom
+            // escuro le melhor impresso e nao briga com o branco do cabecalho.
+            .'<fill><patternFill patternType="solid"><fgColor rgb="FF1F4E79"/><bgColor indexed="64"/></patternFill></fill>'
             .'</fills>'
             .'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
             .'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'

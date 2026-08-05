@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => $servico->exists ? $servico->nome : 'Novo servico'])
+@extends('layouts.app', ['title' => $servico->exists ? $servico->nome : 'Novo serviço'])
 
 @php
     use App\Support\Dinheiro;
@@ -17,11 +17,11 @@
         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        Servicos
+        Serviços
     </a>
 
     <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">
-        {{ $servico->exists ? $servico->nome : 'Novo servico' }}
+        {{ $servico->exists ? $servico->nome : 'Novo serviço' }}
     </h1>
 
     @include('paginas.catalogo.avisos')
@@ -40,25 +40,25 @@
                     <input id="nome" name="nome" type="text" class="{{ $campo }}"
                            value="{{ old('nome', $servico->nome) }}" required>
                     <span class="ajuda-campo">
-                        E o que o cliente ve. Nao use marca nem nomenclatura do fornecedor.
+                        É o que o cliente vê. Não use marca nem nomenclatura do fornecedor.
                     </span>
                     @error('nome') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="codigo" class="{{ $rotulo }}">Codigo</label>
+                    <label for="codigo" class="{{ $rotulo }}">Código</label>
                     @if ($servico->exists)
                         <input id="codigo" type="text" class="{{ $campo }} cursor-not-allowed opacity-60"
                                value="{{ $servico->codigo }}" disabled>
                         <span class="ajuda-campo">
-                            Nao muda depois de criado: e por ele que franquia, relatorio e integracao
-                            acham o servico.
+                            Não muda depois de criado: é por ele que franquia, relatório e integração
+                            acham o serviço.
                         </span>
                     @else
                         <input id="codigo" name="codigo" type="text" class="{{ $campo }}"
                                value="{{ old('codigo') }}" placeholder="score-positivo" required>
                         <span class="ajuda-campo">
-                            Minusculas, numeros e hifen. Escolha com calma: e definitivo.
+                            Minúsculas, números e hífen. Escolha com calma: é definitivo.
                         </span>
                     @endif
                     @error('codigo') <span class="{{ $erro }}">{{ $message }}</span> @enderror
@@ -78,12 +78,12 @@
 
                 @unless ($servico->exists)
                     <div class="sm:col-span-2">
-                        <label for="preco_base" class="{{ $rotulo }}">Preco inicial</label>
+                        <label for="preco_base" class="{{ $rotulo }}">Preço inicial</label>
                         <input id="preco_base" name="preco_base" type="text" inputmode="decimal"
                                class="{{ $campo }}" value="{{ old('preco_base') }}" placeholder="6,31" required>
                         <span class="ajuda-campo">
-                            Entra igual em {{ count($faixas) }} faixa(s) do catalogo. Servico sem preco nao
-                            apareceria na matriz, que e o unico lugar onde se edita preco. Ajuste faixa a
+                            Entra igual em {{ count($faixas) }} faixa(s) do catálogo. Serviço sem preço não
+                            apareceria na matriz, que é o único lugar onde se edita preço. Ajuste faixa a
                             faixa depois de criar.
                         </span>
                         @error('preco_base_cents') <span class="{{ $erro }}">{{ $message }}</span> @enderror
@@ -95,7 +95,7 @@
                         <input type="hidden" name="ativo" value="0">
                         <input type="checkbox" name="ativo" value="1" class="size-4 rounded border-gray-300 dark:border-gray-700"
                                @checked(old('ativo', $servico->ativo ?? true))>
-                        Servico ativo
+                        Serviço ativo
                     </label>
                 </div>
 
@@ -104,31 +104,31 @@
                         <input type="hidden" name="exige_liberacao" value="0">
                         <input type="checkbox" name="exige_liberacao" value="1" class="size-4 rounded border-gray-300 dark:border-gray-700"
                                @checked(old('exige_liberacao', $servico->exige_liberacao ?? false))>
-                        Aguarda liberacao juridica
+                        Aguarda liberação jurídica
                     </label>
                 </div>
 
                 <p class="text-xs text-gray-500 sm:col-span-2 dark:text-gray-400">
-                    Servico que aguarda liberacao aparece no catalogo e pode ser precificado, mas nao
+                    Serviço que aguarda liberação aparece no catálogo e pode ser precificado, mas não
                     entra em plano nenhum e nenhuma consulta sai para o fornecedor. E o estado dos
-                    servicos de SCR ate a homologacao juridica e contratual.
+                    serviços de SCR até a homologação jurídica e contratual.
                 </p>
             </div>
 
             @if ($servico->exists && $faixas !== [])
                 <div class="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
-                    <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Custo e preco</h2>
+                    <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Custo e preço</h2>
                     <p class="ajuda-campo mb-5">
-                        O custo vale para todas as faixas: o fornecedor cobra por consulta, nao pelo
-                        pacote do cliente. Campo em branco significa custo ainda nao cadastrado.
+                        O custo vale para todas as faixas: o fornecedor cobra por consulta, não pelo
+                        pacote do cliente. Campo em branco significa custo ainda não cadastrado.
                     </p>
 
                     @if ($servico->suprimido())
                         {{-- Os campos continuam editaveis: e aqui que a estimativa se mantem.
                              O que nao sai daqui e o numero para o resto do sistema. --}}
                         <div class="aviso aviso-alerta mb-5">
-                            Servico veicular. Preco, custo e margem sao estimativa ate o contrato com o
-                            fornecedor: eles aparecem nesta pagina, mas nao no catalogo nem em proposta.
+                            Serviço veicular. Preço, custo e margem são estimativa até o contrato com o
+                            fornecedor: eles aparecem nesta página, mas não no catálogo nem em proposta.
                         </div>
                     @endif
 
@@ -144,7 +144,7 @@
                             <thead class="tabela-cabecalho">
                                 <tr>
                                     <th class="tabela-th text-left">Faixa</th>
-                                    <th class="px-4 py-3 text-right font-medium">Preco de venda</th>
+                                    <th class="px-4 py-3 text-right font-medium">Preço de venda</th>
                                     <th class="px-4 py-3 text-right font-medium">Margem</th>
                                 </tr>
                             </thead>

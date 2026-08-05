@@ -51,20 +51,20 @@
                 </div>
 
                 <div class="sm:col-span-2">
-                    <label for="descricao" class="{{ $rotulo }}">Descricao</label>
+                    <label for="descricao" class="{{ $rotulo }}">Descrição</label>
                     <textarea id="descricao" name="descricao" rows="2" class="{{ $campo }}">{{ old('descricao', $plano->descricao) }}</textarea>
                     @error('descricao') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="consumo_minimo" class="{{ $rotulo }}">Consumo minimo</label>
+                    <label for="consumo_minimo" class="{{ $rotulo }}">Consumo mínimo</label>
                     <select id="consumo_minimo" name="consumo_minimo" class="{{ $campo }}" x-model="faixa" required>
                         <template x-for="f in faixas" :key="f.valor">
                             <option :value="f.valor" x-text="f.rotulo"></option>
                         </template>
                     </select>
                     <span class="ajuda-campo">
-                        Define a coluna de precos e a aliquota de comissao.
+                        Define a coluna de preços e a alíquota de comissão.
                     </span>
                     @error('consumo_minimo') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
@@ -74,7 +74,7 @@
                     <input id="mensalidade" name="mensalidade" type="text" inputmode="decimal" class="{{ $campo }}"
                            value="{{ old('mensalidade', Dinheiro::numero($plano->mensalidade_cents ?? 0)) }}" required>
                     <span class="ajuda-campo">
-                        Cobrada sempre, consumindo ou nao. Nao entra na faixa de comissao.
+                        Cobrada sempre, consumindo ou não. Não entra na faixa de comissão.
                     </span>
                     @error('mensalidade_cents') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
@@ -100,15 +100,15 @@
 
     @if ($plano->exists)
         <div class="mt-6 cartao p-6">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Franquia por servico</h2>
+            <h2 class="font-medium text-gray-800 dark:text-white/90">Franquia por serviço</h2>
             <p class="mt-1 mb-5 text-sm text-gray-500 dark:text-gray-400">
-                Quantas consultas de cada servico ja vem pagas na mensalidade. Zero significa
-                que o servico esta liberado, mas toda consulta e excedente.
+                Quantas consultas de cada serviço já vêm pagas na mensalidade. Zero significa
+                que o serviço está liberado, mas toda consulta é excedente.
             </p>
 
             @if ($servicos->isEmpty())
                 <div class="aviso aviso-alerta">
-                    Nenhum servico precificado na faixa deste plano. Confira a versao e o consumo minimo.
+                    Nenhum serviço precificado na faixa deste plano. Confira a versão e o consumo mínimo.
                 </div>
             @else
                 <form method="POST" action="{{ route('catalogo.planos.franquias', $plano) }}">
@@ -119,8 +119,8 @@
                         <table class="tabela min-w-[34rem]">
                             <thead class="tabela-cabecalho">
                                 <tr>
-                                    <th class="py-3 pr-4 text-left font-medium">Servico</th>
-                                    <th class="px-4 py-3 text-right font-medium">Preco na faixa</th>
+                                    <th class="py-3 pr-4 text-left font-medium">Serviço</th>
+                                    <th class="px-4 py-3 text-right font-medium">Preço na faixa</th>
                                     <th class="py-3 pl-4 text-right font-medium">Incluidas</th>
                                 </tr>
                             </thead>

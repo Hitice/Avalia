@@ -100,7 +100,7 @@ it('mostra uma coluna de custo so, e nao uma por faixa', function () {
 });
 
 it('avisa quando nao ha catalogo nenhum', function () {
-    admin()->get('/catalogo/tabela')->assertOk()->assertSee('Catalogo vazio');
+    admin()->get('/catalogo/tabela')->assertOk()->assertSee('Catálogo vazio');
 });
 
 it('da a cada faixa o seu proprio rotulo no cabecalho', function () {
@@ -135,11 +135,13 @@ it('converte faixa para inteiro venha ela como for do banco', function () {
 */
 
 it('mostra o catalogo no menu do admin e esconde do vendedor', function () {
-    admin()->get('/')->assertOk()->assertSee('Catálogo');
+    // Assercao no link, e nao na palavra: "Catálogo" tambem aparece no painel
+    // de acompanhamento da construcao, que todo mundo ve.
+    admin()->get('/')->assertOk()->assertSee('href="/catalogo"', false);
 
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
         ->get('/')
         ->assertOk()
-        ->assertDontSee('Catálogo');
+        ->assertDontSee('href="/catalogo"', false);
 });

@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Planos</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Cada plano escolhe uma faixa do catalogo. A comissao e 10% sobre o consumo do mes, 20% se houver excedente. Vale igual para todos.
+                Cada plano escolhe uma faixa do catálogo. A comissão é 10% sobre o consumo do mês, 20% se houver excedente. Vale igual para todos.
             </p>
         </div>
 
@@ -23,9 +23,9 @@
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Plano</th>
                                                 <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
-                        <th class="px-5 py-3 text-right font-medium">Consumo minimo</th>
+                        <th class="px-5 py-3 text-right font-medium">Consumo mínimo</th>
                         <th class="px-5 py-3 text-right font-medium">Fatura minima</th>
-                        <th class="px-5 py-3"><span class="sr-only">Acoes</span></th>
+                        <th class="px-5 py-3"><span class="sr-only">Ações</span></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -43,7 +43,7 @@
                                     @unless ($faixaValida[$plano->id])
                                         {{-- Sem faixa valida nenhuma consulta acha preco. --}}
                                         <span class="etiqueta etiqueta-erro">
-                                            faixa fora do catalogo
+                                            faixa fora do catálogo
                                         </span>
                                     @endunless
                                 </span>

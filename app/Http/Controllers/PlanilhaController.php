@@ -32,7 +32,7 @@ class PlanilhaController extends Controller
         $catalogo = Catalogo::vigente();
 
         if (! $catalogo) {
-            return back()->with('erro', 'Nao ha catalogo para receber a importacao.');
+            return back()->with('erro', 'Não há catálogo para receber a importação.');
         }
 
         $resultado = $importar($catalogo, $request->caminho());
@@ -42,7 +42,7 @@ class PlanilhaController extends Controller
         }
 
         if ($resultado['atualizados'] === 0) {
-            return back()->with('ok', 'Planilha lida: nenhum valor diferente do que ja esta cadastrado.');
+            return back()->with('ok', 'Planilha lida: nenhum valor diferente do que já está cadastrado.');
         }
 
         return back()->with('ok', sprintf(

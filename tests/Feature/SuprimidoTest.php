@@ -89,5 +89,5 @@ it('mantem o valor editavel na pagina do servico, com aviso', function () {
     admin()->get(route('catalogo.servicos.editar', $servico))
         ->assertOk()
         ->assertSee('55,30')
-        ->assertSee('Preco, custo e margem sao estimativa', false);
+        ->assertSee('Preço, custo e margem são estimativa', false);
 });

@@ -72,7 +72,7 @@ class LoginController extends Controller
         // Mensagem unica para senha errada e conta inexistente: dizer qual dos
         // dois falhou entrega a lista de e-mails validos a quem esta sondando.
         throw ValidationException::withMessages([
-            'email' => 'E-mail ou senha invalidos.',
+            'email' => 'E-mail ou senha inválidos.',
         ]);
     }
 

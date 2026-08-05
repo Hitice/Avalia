@@ -165,7 +165,7 @@ it('marca na listagem o plano cuja faixa saiu do catalogo', function () {
 
     admin()->get('/catalogo')
         ->assertOk()
-        ->assertSee('faixa fora do catalogo');
+        ->assertSee('faixa fora do catálogo');
 });
 
 /*

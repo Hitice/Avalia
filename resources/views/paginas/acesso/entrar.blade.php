@@ -88,7 +88,7 @@
                     </form>
 
                     <p class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-                        Nao tem acesso? Fale com seu vendedor Avalia.
+                        Não tem acesso? Fale com seu vendedor Avalia.
                     </p>
                 </div>
             </div>

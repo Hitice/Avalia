@@ -26,18 +26,40 @@ class MontarPlanilha
         ]);
     }
 
-    /** Titulo da coluna de faixa, que e tambem a chave usada na importacao. */
+    /** Titulo da coluna de faixa, escrito para pessoa ler. */
     public static function tituloDaFaixa(int $faixa): string
     {
-        return $faixa === 0 ? 'sem minimo' : 'faixa '.number_format($faixa / 100, 2, ',', '.');
+        return $faixa === 0 ? 'Sem mínimo' : 'Faixa '.number_format($faixa / 100, 2, ',', '.');
+    }
+
+    /**
+     * Forma canonica de um titulo de coluna, usada so para casar escrita com
+     * leitura.
+     *
+     * O cabecalho e escrito para pessoa ("Código", "Sem mínimo") e lido para
+     * maquina. Sem esta normalizacao, acentuar o cabecalho quebraria a
+     * importacao em silencio, e ninguem descobriria ate reimportar.
+     */
+    public static function chaveDaColuna(?string $titulo): string
+    {
+        $texto = mb_strtolower(trim(str_replace("\u{00A0}", ' ', (string) $titulo)));
+
+        return strtr($texto, [
+            'á' => 'a', 'à' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a',
+            'é' => 'e', 'è' => 'e', 'ê' => 'e',
+            'í' => 'i', 'ì' => 'i', 'î' => 'i',
+            'ó' => 'o', 'ò' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o',
+            'ú' => 'u', 'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+            'ç' => 'c',
+        ]);
     }
 
     public static function situacao(Servico $servico): string
     {
         return match (true) {
-            ! $servico->ativo => 'pausado',
-            $servico->exige_liberacao => 'aguarda liberacao',
-            default => 'disponivel',
+            ! $servico->ativo => 'Pausado',
+            $servico->exige_liberacao => 'Aguarda liberação',
+            default => 'Disponível',
         };
     }
 
@@ -51,16 +73,16 @@ class MontarPlanilha
     private function catalogo(?Catalogo $catalogo): array
     {
         if (! $catalogo) {
-            return [['codigo'], []];
+            return [['Código'], []];
         }
 
         $faixas = $catalogo->faixas();
         $comissao = $catalogo->comissaoBps();
 
         $cabecalho = array_merge(
-            ['codigo', 'servico', 'categoria', 'situacao', 'custo'],
+            ['Código', 'Serviço', 'Categoria', 'Situação', 'Custo'],
             array_map(self::tituloDaFaixa(...), $faixas),
-            ['margem menor faixa (%)', 'margem maior faixa (%)'],
+            ['Margem menor faixa (%)', 'Margem maior faixa (%)'],
         );
 
         $linhas = $catalogo->precos()
@@ -104,13 +126,13 @@ class MontarPlanilha
                 self::reais($plano->consumo_minimo_cents),
                 self::reais($plano->mensalidade_cents),
                 self::reais($plano->faturaMinimaCents()),
-                $plano->ativo ? 'ativo' : 'inativo',
+                $plano->ativo ? 'Ativo' : 'Inativo',
                 $plano->franquias_count,
             ])
             ->all();
 
         return [
-            ['plano', 'consumo minimo', 'mensalidade', 'fatura minima', 'situacao', 'servicos com franquia'],
+            ['Plano', 'Consumo mínimo', 'Mensalidade', 'Fatura mínima', 'Situação', 'Serviços com franquia'],
             $linhas,
         ];
     }
@@ -131,6 +153,6 @@ class MontarPlanilha
             ])
             ->all();
 
-        return [['codigo', 'servico', 'categoria', 'situacao', 'precos'], $linhas];
+        return [['Código', 'Serviço', 'Categoria', 'Situação', 'Preços'], $linhas];
     }
 }

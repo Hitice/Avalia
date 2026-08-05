@@ -102,11 +102,11 @@ class CatalogoController extends Controller
         $resultado = $precificar($catalogo);
 
         if ($resultado['recalculados'] === 0) {
-            return back()->with('ok', 'Todos os precos ja estao na escada. Nada a mudar.');
+            return back()->with('ok', 'Todos os preços já estão na escada. Nada a mudar.');
         }
 
         return back()->with('ok', sprintf(
-            '%d preco(s) recalculados: %s na maior faixa, subindo %s por degrau.%s',
+            '%d preço(s) recalculados: %s na maior faixa, subindo %s por degrau.%s',
             $resultado['recalculados'],
             $catalogo->margemAlvoRotulo(),
             $catalogo->degrauRotulo(),

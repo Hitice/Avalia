@@ -5,8 +5,8 @@
         :atual="$atual"
         :itens="[
             'planos' => ['rotulo' => 'Planos', 'url' => route('catalogo.index')],
-            'catalogo' => ['rotulo' => 'Catalogo', 'url' => route('catalogo.tabela')],
-            'servicos' => ['rotulo' => 'Servicos', 'url' => route('catalogo.servicos.index')],
+            'catalogo' => ['rotulo' => 'Catálogo', 'url' => route('catalogo.tabela')],
+            'servicos' => ['rotulo' => 'Serviços', 'url' => route('catalogo.servicos.index')],
         ]" />
 
     {{-- Os dois botoes tem o mesmo tamanho e o mesmo peso. O input de arquivo

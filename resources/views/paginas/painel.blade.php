@@ -6,13 +6,13 @@
     // Ordem de construcao, na dependencia real: cliente aponta para plano,
     // consulta aponta para preco, fatura aponta para os dois.
     $modulos = [
-        ['nome' => 'Acesso', 'estado' => 'pronto', 'nota' => 'Login, sessao e protecao contra forca bruta'],
-        ['nome' => 'Catalogo', 'estado' => 'agora', 'nota' => 'Versoes, precos, planos e franquia; falta a tela de reajuste'],
-        ['nome' => 'Cadastro', 'estado' => 'fila', 'nota' => 'Ficha do cliente e situacao contratual'],
-        ['nome' => 'Consulta', 'estado' => 'fila', 'nota' => 'Integracao Boa Vista e relatorio'],
-        ['nome' => 'Faturamento', 'estado' => 'fila', 'nota' => 'Competencia, fechamento e vencimento'],
-        ['nome' => 'Comissao', 'estado' => 'fila', 'nota' => 'Apuracao e repasse ao vendedor'],
-        ['nome' => 'Auditoria', 'estado' => 'fila', 'nota' => 'Trilha de alteracoes'],
+        ['nome' => 'Acesso', 'estado' => 'pronto', 'nota' => 'Login, sessão e proteção contra força bruta'],
+        ['nome' => 'Catálogo', 'estado' => 'agora', 'nota' => 'Preços, planos e franquia por serviço'],
+        ['nome' => 'Cadastro', 'estado' => 'fila', 'nota' => 'Ficha do cliente e situação contratual'],
+        ['nome' => 'Consulta', 'estado' => 'fila', 'nota' => 'Integração com o fornecedor e relatório'],
+        ['nome' => 'Faturamento', 'estado' => 'fila', 'nota' => 'Competência, fechamento e vencimento'],
+        ['nome' => 'Comissão', 'estado' => 'fila', 'nota' => 'Apuração e repasse ao vendedor'],
+        ['nome' => 'Auditoria', 'estado' => 'fila', 'nota' => 'Trilha de alterações'],
     ];
     $prontos = count(array_filter($modulos, fn ($m) => $m['estado'] === 'pronto'));
 @endphp
@@ -23,14 +23,14 @@
             Ola, {{ $eu->nome }}
         </h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {{ $eu->ehAdmin() ? 'Administracao' : 'Carteira de clientes' }}
+            {{ $eu->ehAdmin() ? 'Administração' : 'Carteira de clientes' }}
         </p>
     </div>
 
     <div class="cartao p-6">
         <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Construcao da plataforma</h2>
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Construção da plataforma</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Cada modulo entra completo, com teste, antes do proximo comecar.
                 </p>
@@ -66,7 +66,7 @@
 
                     @if ($m['estado'] === 'agora')
                         <span class="bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 rounded-full px-2.5 py-0.5 text-xs font-medium">
-                            em construcao
+                            em construção
                         </span>
                     @endif
                 </li>

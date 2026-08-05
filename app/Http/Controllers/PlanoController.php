@@ -59,7 +59,7 @@ class PlanoController extends Controller
 
         return redirect()
             ->route('catalogo.planos.editar', $plano)
-            ->with('ok', "Plano '{$plano->nome}' criado. Defina a franquia de cada servico.");
+            ->with('ok', "Plano '{$plano->nome}' criado. Defina a franquia de cada serviço.");
     }
 
     public function editar(Plano $plano)
