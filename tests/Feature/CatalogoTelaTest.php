@@ -66,6 +66,8 @@ it('oferece as categorias na ordem credito, veicular e todos', function () {
 });
 
 it('filtra por categoria', function () {
+    // Enquanto veicular estiver travado, credito e a unica categoria que abre,
+    // e a matriz mostra so ela. A trava em si esta em SuprimidoTest.
     Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631])
         ->comServico('renajud', [0 => 1_055])
@@ -73,10 +75,10 @@ it('filtra por categoria', function () {
 
     Servico::where('codigo', 'renajud')->update(['categoria' => 'veicular']);
 
-    admin()->get(route('catalogo.tabela', ['categoria' => 'veicular']))
+    admin()->get(route('catalogo.tabela', ['categoria' => 'credito']))
         ->assertOk()
-        ->assertSee('renajud')
-        ->assertDontSee('scpc-bvs');
+        ->assertSee('scpc-bvs')
+        ->assertDontSee('renajud');
 });
 
 it('ignora filtro de categoria invalido em vez de quebrar', function () {

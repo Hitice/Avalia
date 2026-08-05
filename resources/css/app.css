@@ -260,14 +260,10 @@
   @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition;
 }
 
-/* Linha com valor comercial suprimido: cadeado apagado e numero substituido
-   por tracejado, para a coluna nao parecer vazia por engano. */
+/* Marca o que existe mas ainda nao abre. Transparente de proposito: e estado,
+   nao alerta. */
 @utility cadeado {
   @apply inline-flex items-center text-gray-400 opacity-40 dark:text-gray-500;
-}
-
-@utility valor-suprimido {
-  @apply text-gray-300 select-none dark:text-gray-700;
 }
 
 @utility interruptor-ligado {
@@ -394,6 +390,12 @@
 
 @utility segmento-inativo {
   @apply text-gray-600 hover:bg-white hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-gray-200;
+}
+
+/* Opcao que existe mas ainda nao abre. Sem hover e sem cursor de link: o
+   desenho precisa dizer "nao clica" antes do clique, nao depois. */
+@utility segmento-travado {
+  @apply cursor-not-allowed gap-1.5 text-gray-400 dark:text-gray-600;
 }
 
 @utility rotulo-grupo {

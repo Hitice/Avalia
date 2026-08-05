@@ -49,6 +49,12 @@ class CatalogoController extends Controller
             ? $request->query('visao')
             : 'venda';
 
+        // Categoria suprimida nao abre nem digitando na URL. A aba travada e o
+        // aviso; a regra e aqui, senao a trava seria so desenho.
+        if ($categoria === null || $categoria->suprimida()) {
+            $categoria = Categoria::Credito;
+        }
+
         $precos = $catalogo->precos()->with('servico')->get();
 
         return view('paginas.catalogo.tabela', [

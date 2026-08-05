@@ -13,7 +13,8 @@ uses(RefreshDatabase::class);
 |--------------------------------------------------------------------------
 |
 | Veicular esta precificado mas o contrato com o fornecedor nao fechou. Os
-| numeros sao estimativa, e estimativa exibida sem aviso vira proposta.
+| numeros sao estimativa, e estimativa exibida sem aviso vira proposta. Fora
+| do catalogo, entao, ate a liberacao.
 |
 */
 
@@ -22,7 +23,21 @@ it('sabe qual familia esta suprimida', function () {
         ->and(Categoria::Credito->suprimida())->toBeFalse();
 });
 
-it('esconde os precos de veicular na matriz e poe o cadeado', function () {
+it('trava a aba de veicular e a de todos', function () {
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+
+    $html = admin()->get(route('catalogo.tabela'))->assertOk()->getContent();
+
+    preg_match('/data-abas="categorias".*?<\/div>\s*<\/div>/s', $html, $bloco);
+
+    // Credito navega; as outras duas viram texto com cadeado.
+    expect(substr_count($bloco[0], 'segmento-travado'))->toBe(2)
+        ->and(substr_count($bloco[0], 'class="cadeado"'))->toBe(2)
+        ->and($bloco[0])->toContain('categoria=credito');
+});
+
+it('nao abre veicular nem digitando na URL', function () {
+    // Aba travada que ainda responde por endereco nao e trava, e desenho.
     Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631])
         ->comServico('vip-car', [0 => 5_530])
@@ -30,37 +45,39 @@ it('esconde os precos de veicular na matriz e poe o cadeado', function () {
 
     Servico::where('codigo', 'vip-car')->update(['categoria' => 'veicular']);
 
-    $html = admin()->get(route('catalogo.tabela'))->assertOk()->getContent();
-
-    // A linha continua visivel: a administracao precisa saber que existe.
-    expect($html)->toContain('vip-car')
-        ->toContain('cadeado')
-        ->toContain('suprimido')
-        // Credito segue mostrando numero; veicular nao.
-        ->toContain("R$\u{00A0}6,31")
-        ->not->toContain("R$\u{00A0}55,30");
+    admin()->get(route('catalogo.tabela', ['categoria' => 'veicular']))
+        ->assertOk()
+        ->assertSee('scpc-bvs')
+        ->assertDontSee('vip-car')
+        ->assertDontSee("R$\u{00A0}55,30", false);
 });
 
-it('esconde tambem o custo e a margem de veicular', function () {
-    $catalogo = Catalogo::factory()->comServico('vip-car', [0 => 5_530])->create();
+it('nao deixa veicular vazar pela visao sem filtro', function () {
+    Catalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631])
+        ->comServico('vip-car', [0 => 5_530])
+        ->create();
+
     Servico::where('codigo', 'vip-car')->update(['categoria' => 'veicular']);
-    $catalogo->precos()->update(['custo_cents' => 2_800]);
+    Catalogo::vigente()->precos()->update(['custo_cents' => 2_800]);
 
-    foreach (['custo', 'margem'] as $visao) {
-        $html = admin()->get(route('catalogo.tabela', ['visao' => $visao]))->assertOk()->getContent();
-
-        expect($html)->not->toContain("R$\u{00A0}28,00")
-            ->and($html)->toContain('suprimido');
+    foreach (['venda', 'custo', 'margem'] as $visao) {
+        admin()->get(route('catalogo.tabela', ['visao' => $visao]))
+            ->assertOk()
+            ->assertDontSee('vip-car');
     }
 });
 
-it('poe o cadeado na lista de servicos', function () {
+it('mostra o servico veicular na lista, com cadeado', function () {
+    // A administracao precisa saber que existe e o que falta liberar. O que
+    // nao aparece la e numero: a lista nao tem preco nenhum.
     Servico::factory()->create(['nome' => 'Consulta veicular', 'categoria' => 'veicular']);
     Servico::factory()->create(['nome' => 'Relatorio de credito', 'categoria' => 'credito']);
 
     $html = admin()->get(route('catalogo.servicos.index'))->assertOk()->getContent();
 
-    expect(substr_count($html, 'class="cadeado"'))->toBe(1);
+    expect($html)->toContain('Consulta veicular')
+        ->and(substr_count($html, 'class="cadeado"'))->toBe(1);
 });
 
 it('mantem o valor editavel na pagina do servico, com aviso', function () {
