@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Contracts\ContaAutenticavel;
+use App\Support\Documento;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -23,7 +26,7 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     /** Situacoes que permitem consultar. As demais suspendem o uso. */
     public const SITUACOES_ATIVAS = ['ativo'];
 
-    protected $fillable = ['razao_social', 'email', 'senha', 'situacao'];
+    protected $fillable = ['razao_social', 'cnpj', 'email', 'senha', 'situacao', 'plano_id', 'vendedor_id'];
 
     protected $hidden = ['senha', 'sessao_versao'];
 
@@ -34,6 +37,32 @@ class Cliente extends Authenticatable implements ContaAutenticavel
             'sessao_versao' => 'integer',
             'ultimo_acesso_em' => 'datetime',
         ];
+    }
+
+    public function plano(): BelongsTo
+    {
+        return $this->belongsTo(Plano::class);
+    }
+
+    /** Vendedor dono da carteira. Vendedor nao mexe em cliente de outro. */
+    public function vendedor(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'vendedor_id');
+    }
+
+    public function consultas(): HasMany
+    {
+        return $this->hasMany(Consulta::class);
+    }
+
+    public function faturas(): HasMany
+    {
+        return $this->hasMany(Fatura::class);
+    }
+
+    public function cnpjRotulo(): string
+    {
+        return Documento::formatarCnpj($this->cnpj);
     }
 
     public function getAuthPassword(): string

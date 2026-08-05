@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ServicoController;
@@ -36,6 +37,20 @@ Route::post('/sair', [LoginController::class, 'sair'])
 
 Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::view('/', 'paginas.painel')->name('painel');
+
+    // Empresas contratantes e o consumo delas. Enquanto nao ha integracao com
+    // o fornecedor, a consulta e registrada a mao na ficha: e assim que se
+    // valida a cadeia catalogo, consumo e fatura de ponta a ponta.
+    Route::middleware('admin')->prefix('empresas')->name('empresas.')->group(function () {
+        Route::get('/', [EmpresaController::class, 'index'])->name('index');
+        Route::get('/nova', [EmpresaController::class, 'criar'])->name('criar');
+        Route::post('/', [EmpresaController::class, 'salvar'])->name('salvar');
+        Route::get('/{empresa}', [EmpresaController::class, 'ficha'])->name('ficha');
+        Route::get('/{empresa}/editar', [EmpresaController::class, 'editar'])->name('editar');
+        Route::put('/{empresa}', [EmpresaController::class, 'atualizar'])->name('atualizar');
+        Route::post('/{empresa}/consultar', [EmpresaController::class, 'consultar'])->name('consultar');
+        Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])->name('fechar');
+    });
 
     // Catalogo mostra preco de venda, custo do fornecedor e margem. Vendedor
     // nao entra: `admin` fecha a porta alem do `auth:staff` do grupo.

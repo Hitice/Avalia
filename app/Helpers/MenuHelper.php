@@ -19,7 +19,7 @@ class MenuHelper
             ['icon' => 'dashboard', 'name' => 'Visão geral', 'path' => '/'],
             ['icon' => 'consulta', 'name' => 'Consultas', 'emBreve' => true],
             ['icon' => 'tables', 'name' => 'Histórico', 'emBreve' => true],
-            ['icon' => 'user-profile', 'name' => 'Clientes', 'emBreve' => true],
+            ['icon' => 'user-profile', 'name' => 'Empresas', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'emBreve' => true],
             ['icon' => 'task', 'name' => 'Equipe', 'emBreve' => true, 'papeis' => ['admin']],
