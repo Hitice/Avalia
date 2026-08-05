@@ -155,7 +155,7 @@ it('nao deixa vendedor alternar servico', function () {
 it('comeca com os parametros comerciais do PDD', function () {
     $catalogo = Catalogo::factory()->create();
 
-    expect($catalogo->impostoRotulo())->toBe('8,6%')
+    expect($catalogo->impostoRotulo())->toBe('13,5%')
         ->and($catalogo->margemAlvoRotulo())->toBe('30%')
         ->and($catalogo->comissaoBps())->toBe(1_000);
 });
@@ -179,7 +179,7 @@ it('recusa aliquota de 100% ou mais', function () {
         'imposto' => '100', 'margem_alvo' => '30', 'degrau_margem' => '3',
     ])->assertSessionHasErrors('imposto');
 
-    expect($catalogo->fresh()->imposto_bps)->toBe(860);
+    expect($catalogo->fresh()->imposto_bps)->toBe(1_350);
 });
 
 it('recusa escada que estoura 100% na faixa mais baixa', function () {
@@ -187,7 +187,7 @@ it('recusa escada que estoura 100% na faixa mais baixa', function () {
     $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 500_000 => 370])->create();
 
     admin()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '8.6', 'margem_alvo' => '60', 'degrau_margem' => '15',
+        'imposto' => '13.5', 'margem_alvo' => '60', 'degrau_margem' => '15',
     ])->assertSessionHasErrors('degrau_margem');
 
     expect($catalogo->fresh()->margem_alvo_bps)->toBe(3_000);
@@ -203,10 +203,11 @@ it('mostra a margem quando o custo esta cadastrado', function () {
     $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_690])->create();
     $catalogo->precos()->first()->update(['custo_cents' => 1_090]);
 
-    // 16,90 − 10,90 − 8,6% de imposto − 10% do liquido = 3,01, ou 17,8%.
+    // 16,90 − 13,5% de imposto − 10,90 de custo = 3,72 de lucro; menos 10%
+    // de comissao sobram 3,35, ou 19,8% da venda.
     admin()->get(route('catalogo.tabela', ['visao' => 'margem']))
         ->assertOk()
-        ->assertSee('17,8%');
+        ->assertSee('19,8%');
 });
 
 it('acusa venda no prejuizo', function () {
@@ -215,7 +216,7 @@ it('acusa venda no prejuizo', function () {
 
     admin()->get(route('catalogo.tabela', ['visao' => 'margem']))
         ->assertOk()
-        ->assertSee('-8,6%')
+        ->assertSee('-4,3%')
         ->assertSee('text-error-600', false);
 });
 

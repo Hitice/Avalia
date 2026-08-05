@@ -17,7 +17,7 @@ class CatalogoFactory extends Factory
             'rotulo' => 'Catálogo '.fake()->unique()->numerify('##/20##'),
             // Espelha o que o CatalogoSeeder grava: sem isto o model
             // recem-criado fica com a coluna nula em memoria ate um fresh().
-            'imposto_bps' => 860,
+            'imposto_bps' => 1_350,
             'margem_alvo_bps' => 3_000,
         ];
     }

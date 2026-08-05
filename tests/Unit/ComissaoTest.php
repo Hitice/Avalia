@@ -1,31 +1,33 @@
 <?php
 
 use App\Support\Comissao;
+use App\Support\Margem;
 
-it('paga 10% sobre o consumo do mes', function () {
+it('paga 10% sobre o lucro do mes', function () {
     expect(Comissao::pct())->toBe(10)
         ->and(Comissao::cents(30_000))->toBe(3_000)
-        ->and(Comissao::cents(97_990))->toBe(9_799);
+        ->and(Comissao::cents(38_591))->toBe(3_859);
 });
 
-it('sobe para 20% no mes com excedente, sobre o consumo inteiro', function () {
+it('sobe para 20% no mes com excedente, sobre o lucro inteiro', function () {
     // O adicional vale para o plano todo na competencia, nao so para a parcela
     // que passou da franquia.
     expect(Comissao::pct(true))->toBe(20)
         ->and(Comissao::cents(30_000, true))->toBe(6_000);
 });
 
-it('le o consumo realizado, nao a fatura', function () {
-    // Plano de R$ 900 de minimo, cliente consumiu R$ 300: a fatura sai
-    // R$ 979,90 mas a comissao e sobre os R$ 300.
-    $consumoRealizado = 30_000;
-    $fatura = 7_990 + 90_000;
+it('le lucro, e nao faturamento', function () {
+    // Duas vendas do mesmo tamanho pagam comissao diferente quando o custo do
+    // fornecedor e diferente. E isso que alinha o vendedor a operacao.
+    $magra = Margem::baseComissaoCents(1_000, 800, 1_350);
+    $gorda = Margem::baseComissaoCents(1_000, 300, 1_350);
 
-    expect(Comissao::cents($consumoRealizado))->toBe(3_000)
-        ->and(Comissao::cents($consumoRealizado))->toBeLessThan(Comissao::cents($fatura));
+    expect(Comissao::cents($magra))->toBeLessThan(Comissao::cents($gorda));
 });
 
-it('nao paga comissao sobre consumo zero ou negativo', function () {
+it('nao paga comissao sobre lucro zero ou prejuizo', function () {
+    // O vendedor nao ganha sobre lucro que nao existiu, mas tambem nao paga
+    // para ter vendido.
     expect(Comissao::cents(0))->toBe(0)
         ->and(Comissao::cents(-500))->toBe(0);
 });
@@ -34,6 +36,14 @@ it('arredonda o centavo de forma estavel', function () {
     // 10% de R$ 1,55 sao 15,5 centavos.
     expect(Comissao::cents(155))->toBe(16)
         ->and(Comissao::cents(155))->toBe(Comissao::cents(155));
+});
+
+it('usa a mesma conta de lucro que a tela mostra', function () {
+    // Duas contas diferentes para a mesma comissao viram divergencia no
+    // primeiro repasse, e o vendedor descobre antes da Avalia.
+    $lucro = Margem::baseComissaoCents(528, 280, 1_350);
+
+    expect(Comissao::cents($lucro))->toBe(Margem::comissaoCents(528, 280, 1_000, 1_350));
 });
 
 it('divide a adesao ao meio entre vendedor e Avalia', function () {

@@ -50,24 +50,6 @@
                                value="{{ Dinheiro::numero($entrada['mensalidade']) }}">
                     </div>
 
-                    <div>
-                        <label for="custo_pct" class="rotulo-campo">Custo do fornecedor</label>
-                        <div class="flex items-center gap-2">
-                            <input id="custo_pct" name="custo_pct" type="number" step="0.1" min="0" max="100"
-                                   class="campo-linha w-24 text-right"
-                                   value="{{ $entrada['custo_bps'] === null ? '' : number_format($entrada['custo_bps'] / 100, 1, '.', '') }}">
-                            <span class="text-sm text-gray-500 dark:text-gray-400">% da venda</span>
-                        </div>
-                        <span class="ajuda-campo">
-                            @if ($custoDoCatalogo === null)
-                                Nenhum custo cadastrado nesta faixa. Informe uma estimativa.
-                            @else
-                                Média do catálogo nesta faixa: {{ number_format($custoDoCatalogo / 100, 1, ',', '.') }}%.
-                                O mix real de consultas muda de cliente para cliente.
-                            @endif
-                        </span>
-                    </div>
-
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label for="adesao" class="rotulo-campo">Taxa de adesão</label>
@@ -124,15 +106,6 @@
                             </tr>
                             <tr>
                                 <td class="py-3 text-left text-gray-600 dark:text-gray-300">
-                                    Custo do fornecedor
-                                    <span class="ajuda-campo block">só sobre o que foi consultado de fato</span>
-                                </td>
-                                <td class="py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
-                                    − {{ Dinheiro::brl($mes['custo_cents']) }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="py-3 text-left text-gray-600 dark:text-gray-300">
                                     Imposto
                                     <span class="ajuda-campo block">{{ $catalogo->impostoRotulo() }} sobre a fatura inteira</span>
                                 </td>
@@ -142,9 +115,33 @@
                             </tr>
                             <tr>
                                 <td class="py-3 text-left text-gray-600 dark:text-gray-300">
+                                    Custo do fornecedor
+                                    <span class="ajuda-campo block">
+                                        @if ($entrada['custo_bps'] === null)
+                                            nenhum custo cadastrado nesta faixa
+                                        @else
+                                            {{ number_format($entrada['custo_bps'] / 100, 1, ',', '.') }}% do consumo,
+                                            pela tabela; só sobre o que foi consultado de fato
+                                        @endif
+                                    </span>
+                                </td>
+                                <td class="py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                    − {{ Dinheiro::brl($mes['custo_cents']) }}
+                                </td>
+                            </tr>
+                            <tr class="border-t border-gray-100 dark:border-gray-800">
+                                <td class="py-3 text-left text-gray-600 dark:text-gray-300">
+                                    Lucro antes da comissão
+                                </td>
+                                <td class="py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                    {{ Dinheiro::brl($mes['lucro_antes_comissao_cents']) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 text-left text-gray-600 dark:text-gray-300">
                                     Comissão do vendedor
                                     <span class="ajuda-campo block">
-                                        {{ $entrada['excedente'] ? '20' : '10' }}% do consumo, líquido de imposto
+                                        {{ $entrada['excedente'] ? '20' : '10' }}% do lucro
                                     </span>
                                 </td>
                                 <td class="py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
@@ -153,7 +150,7 @@
                             </tr>
                             <tr class="border-t-2 border-gray-200 dark:border-gray-700">
                                 <td class="py-4 text-left font-medium text-gray-800 dark:text-white/90">
-                                    Sobra para a Avalia
+                                    Projeção
                                 </td>
                                 <td class="py-4 text-right text-lg font-semibold tabular-nums whitespace-nowrap
                                            {{ $lucro < 0 ? 'text-error-600 dark:text-error-400' : 'text-success-600 dark:text-success-500' }}">
@@ -171,7 +168,7 @@
                     @if ($mes['pagou_sem_usar_cents'] > 0)
                         <div class="aviso aviso-ok mt-5">
                             O cliente paga {{ Dinheiro::brl($mes['pagou_sem_usar_cents']) }} de consumo que não usou.
-                            Isso entra inteiro no lucro: não gera custo de fornecedor nem comissão.
+                            Isso não gera custo de fornecedor, então entra quase inteiro no lucro.
                         </div>
                     @endif
 
@@ -213,8 +210,9 @@
                 @endif
 
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    O custo do fornecedor é estimativa: a conta usa uma média da faixa, e o mix real de
-                    consultas só aparece no fechamento da competência.
+                    O custo vem da tabela: custo e preço de venda são fixos por serviço, então a proporção
+                    entre eles já está decidida e vale para o consumo total, qualquer que seja o mix.
+                    Cliente que só consulte os serviços de margem mais apertada rende menos que isto.
                 </p>
             </div>
         </div>

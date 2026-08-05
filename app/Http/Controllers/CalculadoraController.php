@@ -39,12 +39,11 @@ class CalculadoraController extends Controller
         // exatamente o minimo: e o que a proposta promete.
         $consumo = Dinheiro::paraCentavos($request->query('consumo')) ?? $faixa;
 
-        // Custo estimado do catalogo, mas editavel: o mix real de consultas
-        // muda de cliente para cliente e ninguem sabe qual sera.
-        $custoDoCatalogo = $catalogo?->custoSobreVendaBps($faixa);
-        $custoBps = $request->filled('custo_pct')
-            ? (int) round((float) str_replace(',', '.', (string) $request->query('custo_pct')) * 100)
-            : $custoDoCatalogo;
+        // O custo sai do proprio catalogo e nao se digita: custo e preco de
+        // venda sao fixos na tabela, entao a proporcao entre eles ja esta
+        // decidida. Aplicada ao consumo total do cliente, ela da o custo do mes
+        // sem que ninguem precise adivinhar o mix de consultas.
+        $custoBps = $catalogo?->custoSobreVendaBps($faixa);
 
         $adesao = Dinheiro::paraCentavos($request->query('adesao')) ?? 0;
         $parcelas = max(1, (int) $request->query('parcelas', 1));
@@ -74,7 +73,6 @@ class CalculadoraController extends Controller
                 'parcelas' => $parcelas,
                 'excedente' => $excedente,
             ],
-            'custoDoCatalogo' => $custoDoCatalogo,
         ]);
     }
 

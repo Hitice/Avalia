@@ -55,12 +55,12 @@ no catálogo versionado, nunca no código.
 | Faixas de consumo mínimo | sem mínimo, R$ 75,00, R$ 200,00, R$ 500,00, R$ 900,00, R$ 1.500,00, R$ 5.000,00 | A faixa escolhida define o preço unitário de todos os serviços. |
 | Taxa de adesão | valor livre, definido pelo vendedor | Cobre licença de uso, liberação de acesso e implantação. Pode ser parcelada e pode ser isentada pelo vendedor. |
 | Rateio da adesão | 50% vendedor, 50% Avalia | Isentar significa nenhum dos dois receber. |
-| Comissão recorrente | 10% sobre o consumo realizado no mês, líquido de imposto | Lê o que o cliente usou, não a franquia nem o valor da fatura. A parte proporcional do imposto sai da comissão, não da margem. |
+| Comissão recorrente | 10% sobre o LUCRO do mês | O imposto sai primeiro, o custo do fornecedor em seguida, e o vendedor leva 10% do que sobrar. |
 | Adicional de excedente | +10 pontos, totalizando 20% | Aplica-se ao mês em que houver excedente. |
 | Vencimento da fatura | todo dia 10 | Data fixa de calendário, igual para todos os clientes. |
 | Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
 | Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
-| Imposto sobre a venda | 8,60% | Alíquota efetiva do Simples Nacional, Anexo III, faixa de até R$ 360 mil ao ano. Sobe com o faturamento: 11,05% até R$ 720 mil, 14,02% até R$ 1,8 milhão. |
+| Imposto sobre a venda | 13,50% | Alíquota apurada da Avalia, confirmada em 05/08/2026. Substitui a estimativa anterior de 8,60%, que era a faixa inicial do Simples. Incide sobre a nota cheia, antes de qualquer outro desconto. |
 | Margem líquida alvo | 30% na maior faixa | Depois de custo do fornecedor, imposto e comissão do vendedor. |
 | Ganho por degrau | 3 pontos por faixa | Cada faixa abaixo da maior ganha 3 pontos de margem, o que produz o desconto por volume sem furar o piso. |
 | Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. |
@@ -327,13 +327,20 @@ somente após a liquidação da cobrança correspondente no Asaas.
 
 ### Comissão recorrente
 
-A alíquota é **10% sobre o consumo realizado no mês, líquido de imposto**, uma
-só para todos os planos e todas as faixas.
+A alíquota é **10% sobre o lucro do mês**, uma só para todos os planos e todas as
+faixas.
 
-A base é o consumo menos o imposto sobre ele, e não o consumo cheio: o vendedor
-comissiona sobre o que a Avalia efetivamente recebe. Com imposto de 8,60%, os 10%
-sobre o líquido custam 9,14% da venda. É pouco no bolso do vendedor e é o que
-mantém a margem da operação em 30% sem empurrar o preço para cima.
+A base é lucro, e não faturamento. O imposto de 13,50% sai primeiro, o custo do
+fornecedor sai em seguida, e o vendedor leva 10% do que sobrar. Duas vendas do
+mesmo tamanho pagam comissões diferentes quando o custo do fornecedor é
+diferente, e é isso que alinha o interesse do vendedor ao da operação: ele deixa
+de ser indiferente à margem do que vende.
+
+Mês no prejuízo não gera comissão, e não gera comissão negativa: o vendedor não
+ganha sobre lucro que não existiu, mas também não paga por ter vendido.
+
+A consequência aritmética é que a Avalia fica sempre com 90% do lucro, qualquer
+que seja o preço praticado.
 
 A base é o que o cliente efetivamente usou, não a franquia contratada nem o valor
 da fatura. Isso tem uma consequência que precisa estar clara no treinamento
@@ -344,15 +351,21 @@ sobre uso, e o piso da fatura protege a Avalia, não a comissão.
 No mês em que houver consumo excedente, a alíquota sobe **10 pontos, para 20%**,
 e essa elevação vale para o plano como um todo naquela competência.
 
-    consumo_do_mes  = valor das consultas concluídas com sucesso
-    base_comissao   = consumo_do_mes − imposto × consumo_do_mes
+    fatura          = mensalidade + max(consumo do mês, consumo mínimo)
+    imposto         = 13,50% × fatura
+    custo           = custo do fornecedor sobre o consumo REALIZADO
+    lucro           = fatura − imposto − custo
     houve_excedente = consumo acima da franquia contratada
     aliquota        = houve_excedente ? 20% : 10%
-    comissao        = aliquota × base_comissao
+    comissao        = lucro > 0 ? aliquota × lucro : 0
 
-Mensalidade e taxa de adesão não entram na base da comissão. Mensalidade e
-consumo mínimo continuam sendo colunas separadas do plano por causa do cálculo da
-fatura, não mais por causa da comissão.
+A mensalidade entra na base, porque entra no lucro. A taxa de adesão não: ela tem
+rateio próprio de 50%, descrito adiante, e contar duas vezes pagaria o vendedor
+duas vezes pelo mesmo dinheiro.
+
+Consulta que não aconteceu não tem custo de fornecedor. Por isso o cliente que
+paga o mínimo sem usar é o mais lucrativo: o piso da fatura entra quase inteiro
+no lucro. A calculadora do módulo Catálogo mostra esse efeito faixa a faixa.
 
 ### Taxa de adesão
 
@@ -493,10 +506,10 @@ falhas, logs seguros e documentação de operação.
   fatura. Confirmar se é isso mesmo ou se a base deve ser o valor faturado de
   consumo. A dedução do imposto foi decidida em 05/08/2026 e precisa constar do
   contrato do vendedor, senão vira discussão no primeiro repasse.
-- **Confirmar a alíquota de imposto.** Os 27% são estimativa. Os 6% citados
-  correspondem ao ISS de serviço em muitos municípios, que é só uma parte da
-  carga; PIS, COFINS e tributo sobre o lucro dependem do regime. Precisa de
-  fechamento contábil antes de virar cálculo de margem.
+- **Alíquota de imposto confirmada em 13,50%** (05/08/2026), substituindo a
+  estimativa de 8,60%. Falta o fechamento contábil dizer se ela varia com a
+  faixa de faturamento, porque o imposto sai antes do lucro e mexe no piso de
+  cada preço.
 - Cadastrar o custo do fornecedor por serviço e faixa. A tela já existe; o dado é
   que ainda não foi levantado. Sem ele não há margem nem piso de preço, e as 301
   linhas aparecem como custo não cadastrado.

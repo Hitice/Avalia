@@ -34,7 +34,7 @@ class Catalogo extends Model
         ];
     }
 
-    /** Aliquota de imposto legivel: 860 -> "8,6%". */
+    /** Aliquota de imposto legivel: 1350 -> "13,5%". */
     public function impostoRotulo(): string
     {
         return self::pontosRotulo($this->imposto_bps);

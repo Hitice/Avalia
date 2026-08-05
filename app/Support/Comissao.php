@@ -3,20 +3,20 @@
 namespace App\Support;
 
 /**
- * Comissao do vendedor sobre o consumo do cliente.
+ * Comissao do vendedor sobre o LUCRO do mes.
  *
- * Aliquota unica para todo plano e toda faixa: 10% sobre o que o cliente
- * efetivamente consumiu no mes. Nao mora no Plano justamente porque nao e
+ * Aliquota unica para todo plano e toda faixa: 10% do que sobrar depois do
+ * imposto e do custo do fornecedor. Nao mora no Plano justamente porque nao e
  * atributo de plano nenhum, e sim parametro comercial da Avalia (PDD.md, secao 5).
  *
- * A base e o consumo REALIZADO, nao o valor faturado. Cliente com minimo de
- * R$ 900 que consome R$ 300 paga R$ 979,90 e gera R$ 30,00 de comissao: o piso
- * da fatura protege a Avalia, nao a comissao do vendedor.
+ * A base e lucro, e nao faturamento. Cada real de consumo carrega o custo do
+ * fornecedor junto, entao comissionar sobre faturamento pagaria igual por uma
+ * venda que rende e por uma que sangra. Sobre lucro, o interesse do vendedor e
+ * o mesmo da Avalia.
  *
- * E o consumo LIQUIDO DE IMPOSTO. O vendedor comissiona sobre o que a Avalia
- * recebe de fato, entao a parte proporcional do imposto sai da comissao e nao
- * da margem da operacao. A aliquota vem do catalogo, porque muda com a faixa de
- * faturamento da empresa.
+ * Quem calcula o lucro e Margem::baseComissaoCents, e e de la que este valor
+ * tem de vir: duas contas diferentes para a mesma comissao viram divergencia no
+ * primeiro repasse.
  */
 final class Comissao
 {
@@ -36,18 +36,22 @@ final class Comissao
         return $houveExcedente ? self::PCT_COM_EXCEDENTE : self::PCT_PADRAO;
     }
 
-    /** Comissao em centavos sobre o consumo realizado na competencia. */
-    public static function cents(int $consumoRealizadoCents, bool $houveExcedente = false, int $impostoBps = 0): int
+    /**
+     * Comissao em centavos sobre o lucro da competencia.
+     *
+     * Mes no prejuizo nao gera comissao, e nao comissao negativa: o vendedor
+     * nao ganha sobre lucro que nao existiu, mas tambem nao paga para ter
+     * vendido.
+     */
+    public static function cents(int $lucroCents, bool $houveExcedente = false): int
     {
-        if ($consumoRealizadoCents <= 0) {
+        if ($lucroCents <= 0) {
             return 0;
         }
 
-        $base = Margem::baseComissaoCents($consumoRealizadoCents, $impostoBps);
-
         // round e nao trunca: sempre a favor de ninguem em particular, mas
         // estavel: dois calculos do mesmo mes dao o mesmo centavo.
-        return (int) round($base * self::pct($houveExcedente) / 100);
+        return (int) round($lucroCents * self::pct($houveExcedente) / 100);
     }
 
     /**

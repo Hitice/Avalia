@@ -9,17 +9,18 @@ namespace App\Support;
  * outra pergunta, que e a que se faz na hora de fechar contrato: "este cliente,
  * neste plano, consumindo isto, da quanto?".
  *
- * As bases sao diferentes de proposito e cada uma segue o PDD (secoes 5 e 9):
+ * A conta e uma cascata, e cada degrau segue o PDD (secoes 5 e 9):
  *
  *   fatura   = mensalidade + o MAIOR entre consumo realizado e consumo minimo
  *   imposto  = aliquota sobre a fatura inteira, que e o que a nota diz
- *   comissao = aliquota sobre o consumo REALIZADO, liquido de imposto;
- *              mensalidade e adesao ficam de fora
  *   custo    = so sobre o consumo realizado: consulta que nao aconteceu nao
  *              tem custo de fornecedor, mesmo que o cliente pague o minimo
+ *   lucro    = fatura - imposto - custo
+ *   comissao = 10% do lucro, e 20% no mes em que houve excedente
  *
- * E dai que vem o efeito que interessa ao comercial: cliente que paga o minimo
- * sem usar e o mais lucrativo, porque paga o piso sem gerar custo nem comissao.
+ * Dai vem o efeito que interessa ao comercial: cliente que paga o minimo sem
+ * usar e o mais lucrativo, porque o piso da fatura entra inteiro no lucro sem
+ * gerar custo de fornecedor.
  */
 final class Simulacao
 {
@@ -28,8 +29,8 @@ final class Simulacao
      *                                   fornecedor, em pontos-base
      * @return array{
      *     consumo_faturado_cents: int, fatura_cents: int, imposto_cents: int,
-     *     comissao_cents: int, custo_cents: int, lucro_cents: int,
-     *     margem_pct: float|null, pagou_sem_usar_cents: int
+     *     custo_cents: int, lucro_antes_comissao_cents: int, comissao_cents: int,
+     *     lucro_cents: int, margem_pct: float|null, pagou_sem_usar_cents: int
      * }
      */
     public static function mensal(
@@ -50,22 +51,21 @@ final class Simulacao
 
         $imposto = Margem::impostoCents($fatura, $impostoBps);
 
-        // Comissao le consumo realizado, nao o faturado: o piso da fatura
-        // protege a Avalia, nao a comissao do vendedor.
-        $comissao = (int) round(
-            Margem::baseComissaoCents($consumo, $impostoBps) * max(0, $comissaoPct) / 100
-        );
-
+        // Custo le consumo realizado, nao o faturado: consulta que nao
+        // aconteceu nao tem custo, mesmo que o cliente pague o minimo.
         $custo = (int) round($consumo * max(0, min($custoSobreVendaBps, 10_000)) / 10_000);
 
-        $lucro = $fatura - $imposto - $comissao - $custo;
+        $lucroAntes = $fatura - $imposto - $custo;
+        $comissao = Comissao::cents($lucroAntes, $comissaoPct >= Comissao::PCT_COM_EXCEDENTE);
+        $lucro = $lucroAntes - $comissao;
 
         return [
             'consumo_faturado_cents' => $faturado,
             'fatura_cents' => $fatura,
             'imposto_cents' => $imposto,
-            'comissao_cents' => $comissao,
             'custo_cents' => $custo,
+            'lucro_antes_comissao_cents' => $lucroAntes,
+            'comissao_cents' => $comissao,
             'lucro_cents' => $lucro,
             'margem_pct' => $fatura === 0 ? null : round($lucro * 100 / $fatura, 1),
             'pagou_sem_usar_cents' => max(0, $minimo - $consumo),

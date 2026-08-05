@@ -5,15 +5,18 @@ namespace App\Support;
 /**
  * Margem liquida da Avalia sobre um preco de venda.
  *
- *     margem = venda - custo do fornecedor - imposto - comissao do vendedor
+ *     lucro   = venda - imposto - custo do fornecedor
+ *     comissao = 10% do lucro
+ *     margem  = lucro - comissao
  *
- * A comissao entra como custo porque e isso que ela e: sai do mesmo preco.
- * Margem calculada sem ela mente em 10 pontos, e a decisao comercial e ganhar
- * 30% liquidos DEPOIS de pagar o vendedor.
+ * A comissao incide sobre o LUCRO, nao sobre o faturamento. O imposto sai
+ * primeiro, o fornecedor sai em seguida, e o vendedor leva 10% do que sobrar.
+ * E isso que alinha o incentivo: venda de margem apertada rende menos comissao,
+ * em vez de render igual e sangrar a operacao.
  *
- * A comissao incide sobre a venda MENOS o imposto, nao sobre a venda cheia: o
- * vendedor comissiona sobre o que a Avalia recebe de fato. Assim a parte
- * proporcional do imposto sai da comissao, e nao da margem da operacao.
+ * A consequencia aritmetica de comissionar sobre lucro e que a Avalia fica
+ * sempre com 90% dele, qualquer que seja o preco. Margem alvo de 30% da venda,
+ * entao, quer dizer 30% depois desses 90%.
  *
  * Tudo em centavos inteiros, aliquotas em pontos-base. Nunca vai para tela de
  * cliente nem de vendedor: margem e custo sao internos (PDD.md, secao 6).
@@ -29,28 +32,37 @@ final class Margem
         return (int) round($vendaCents * self::bps($impostoBps) / 10_000);
     }
 
-    /** O que a Avalia recebe de fato, e sobre o que o vendedor comissiona. */
-    public static function baseComissaoCents(int $vendaCents, int $impostoBps): int
+    /**
+     * O lucro antes da comissao, que e a base sobre a qual o vendedor ganha.
+     *
+     * Null enquanto o custo do fornecedor nao estiver cadastrado: sem ele nao
+     * ha lucro conhecido, e comissao chutada vira divergencia no repasse.
+     */
+    public static function baseComissaoCents(int $vendaCents, ?int $custoCents, int $impostoBps): ?int
     {
-        return $vendaCents - self::impostoCents($vendaCents, $impostoBps);
-    }
+        if ($custoCents === null) {
+            return null;
+        }
 
-    /** Quanto da venda vai embora em comissao do vendedor. */
-    public static function comissaoCents(int $vendaCents, int $comissaoBps, int $impostoBps = 0): int
-    {
-        return (int) round(self::baseComissaoCents($vendaCents, $impostoBps) * self::bps($comissaoBps) / 10_000);
+        return $vendaCents - self::impostoCents($vendaCents, $impostoBps) - $custoCents;
     }
 
     /**
-     * Aliquota de comissao medida sobre a venda cheia.
+     * Quanto do lucro vai para o vendedor.
      *
-     * 10% sobre o liquido de 8,60% de imposto custa 9,14% da venda. E este o
-     * numero que entra na formula do preco alvo, que raciocina em fracao da
-     * venda.
+     * Venda no prejuizo nao gera comissao nenhuma, e nao comissao negativa: o
+     * vendedor nao ganha sobre lucro que nao existiu, mas tambem nao paga para
+     * ter vendido.
      */
-    public static function comissaoEfetivaBps(int $comissaoBps, int $impostoBps): int
+    public static function comissaoCents(int $vendaCents, ?int $custoCents, int $comissaoBps, int $impostoBps): ?int
     {
-        return (int) round(self::bps($comissaoBps) * (10_000 - self::bps($impostoBps)) / 10_000);
+        $lucro = self::baseComissaoCents($vendaCents, $custoCents, $impostoBps);
+
+        if ($lucro === null) {
+            return null;
+        }
+
+        return $lucro <= 0 ? 0 : (int) round($lucro * self::bps($comissaoBps) / 10_000);
     }
 
     /**
@@ -60,14 +72,13 @@ final class Margem
      */
     public static function liquidaCents(int $vendaCents, ?int $custoCents, int $impostoBps, int $comissaoBps = 0): ?int
     {
-        if ($custoCents === null) {
+        $lucro = self::baseComissaoCents($vendaCents, $custoCents, $impostoBps);
+
+        if ($lucro === null) {
             return null;
         }
 
-        return $vendaCents
-            - $custoCents
-            - self::impostoCents($vendaCents, $impostoBps)
-            - self::comissaoCents($vendaCents, $comissaoBps, $impostoBps);
+        return $lucro - self::comissaoCents($vendaCents, $custoCents, $comissaoBps, $impostoBps);
     }
 
     /** Margem em porcentagem do preco de venda, com uma casa decimal. */
@@ -95,7 +106,13 @@ final class Margem
     /**
      * Preco que entrega a margem pedida.
      *
-     *     venda = custo ÷ (1 - imposto - comissao efetiva - margem)
+     * Comissionando sobre lucro, a Avalia fica com (1 - comissao) do lucro:
+     *
+     *     (1 - k) × (venda × (1 - imposto) - custo) = margem × venda
+     *
+     * que resolvido em venda da
+     *
+     *     venda = custo × (1 - k) ÷ [ (1 - k) × (1 - imposto) - margem ]
      *
      * Arredonda para cima: um centavo a menos ja fica abaixo do alvo, e alvo
      * que nao se atinge nao e alvo.
@@ -106,12 +123,18 @@ final class Margem
             return null;
         }
 
-        // A formula raciocina em fracao da venda, entao a comissao entra pela
-        // aliquota efetiva. O bps() sobre a soma garante que sobre pelo menos
-        // um ponto-base e a divisao nao estoure.
-        $comissao = self::comissaoEfetivaBps($comissaoBps, $impostoBps);
-        $restante = 10_000 - self::bps($impostoBps + $comissao + max(0, $margemBps));
-        $alvo = (int) ceil($custoCents * 10_000 / $restante);
+        $sobraDaComissao = 10_000 - self::bps($comissaoBps);          // (1 - k)
+        $sobraDoImposto = 10_000 - self::bps($impostoBps);            // (1 - imposto)
+
+        // Denominador em pontos-base. Se nao sobra nada, nenhum preco atinge o
+        // alvo: devolve null em vez de dividir por zero e mentir um numero.
+        $restante = intdiv($sobraDaComissao * $sobraDoImposto, 10_000) - max(0, $margemBps);
+
+        if ($restante <= 0) {
+            return null;
+        }
+
+        $alvo = (int) ceil($custoCents * $sobraDaComissao / $restante);
 
         // A formula trata as aliquotas como continuas, mas imposto e comissao
         // sao arredondados ao centavo. O candidato pode ficar um ou dois
