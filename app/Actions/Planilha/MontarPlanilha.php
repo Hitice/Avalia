@@ -149,7 +149,10 @@ class MontarPlanilha
     /** @return array{0: list<string>, 1: list<list<string|int|float|null>>} */
     private function servicos(): array
     {
-        $linhas = Servico::withCount('precos')
+        // Sem contagem de precos: todo servico tem uma linha por faixa, entao a
+        // coluna marcava 7 em tudo. Numero igual em toda linha nao mede nada,
+        // so ocupa espaco e faz o leitor procurar sentido onde nao ha.
+        $linhas = Servico::query()
             ->where('ativo', true)
             ->orderBy('categoria')
             ->orderBy('nome')
@@ -159,10 +162,9 @@ class MontarPlanilha
                 $servico->nome,
                 $servico->rotuloCategoria(),
                 self::situacao($servico),
-                $servico->precos_count,
             ])
             ->all();
 
-        return [['Código', 'Serviço', 'Categoria', 'Situação', 'Preços'], $linhas];
+        return [['Código', 'Serviço', 'Categoria', 'Situação'], $linhas];
     }
 }

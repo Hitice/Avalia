@@ -22,7 +22,6 @@ class ServicoController extends Controller
     public function index()
     {
         $servicos = Servico::query()
-            ->withCount('precos')
             ->orderBy('categoria')
             ->orderBy('nome')
             ->get();

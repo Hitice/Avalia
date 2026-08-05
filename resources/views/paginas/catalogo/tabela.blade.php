@@ -88,7 +88,7 @@
                                 @endforeach
                             @endif
 
-                            <th class="px-5 py-3"><span class="sr-only">Ações</span></th>
+                            <th class="px-5 py-3 text-right font-medium">Editar</th>
                         </tr>
                     </thead>
 
@@ -148,8 +148,11 @@
                                 @endif
 
                                 <td class="px-5 py-3 text-right">
-                                    <x-avalia.botao variante="secundario" tamanho="sm"
-                                                    :href="route('catalogo.servicos.editar', $servico)">Editar</x-avalia.botao>
+                                    <x-avalia.botao variante="secundario" tamanho="icone" title="Editar"
+                                                :href="route('catalogo.servicos.editar', $servico)">
+                                    <x-avalia.icone nome="lapis" />
+                                    <span class="sr-only">Editar</span>
+                                </x-avalia.botao>
                                 </td>
                             </tr>
                         @empty

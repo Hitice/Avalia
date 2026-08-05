@@ -25,7 +25,7 @@
                                                 <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
                         <th class="px-5 py-3 text-right font-medium">Consumo mínimo</th>
                         <th class="px-5 py-3 text-right font-medium">Fatura minima</th>
-                        <th class="px-5 py-3"><span class="sr-only">Ações</span></th>
+                        <th class="px-5 py-3 text-right font-medium">Editar</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -52,8 +52,11 @@
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->consumo_minimo }}</td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->fatura_minima }}</td>
                             <td class="px-5 py-4 text-right">
-                                <x-avalia.botao variante="secundario" tamanho="sm"
-                                                :href="route('catalogo.planos.editar', $plano)">Editar</x-avalia.botao>
+                                <x-avalia.botao variante="secundario" tamanho="icone" title="Editar"
+                                                :href="route('catalogo.planos.editar', $plano)">
+                                    <x-avalia.icone nome="lapis" />
+                                    <span class="sr-only">Editar</span>
+                                </x-avalia.botao>
                             </td>
                         </tr>
                     @empty

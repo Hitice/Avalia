@@ -25,7 +25,7 @@
                         <th class="px-5 py-3 text-left font-medium">Serviço</th>
                         <th class="px-5 py-3 text-left font-medium">Categoria</th>
                         <th class="px-5 py-3 text-left font-medium">Situação</th>
-                        <th class="px-5 py-3"><span class="sr-only">Ações</span></th>
+                        <th class="px-5 py-3 text-right font-medium">Editar</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -56,8 +56,11 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <x-avalia.botao variante="secundario" tamanho="sm"
-                                                :href="route('catalogo.servicos.editar', $servico)">Editar</x-avalia.botao>
+                                <x-avalia.botao variante="secundario" tamanho="icone" title="Editar"
+                                                :href="route('catalogo.servicos.editar', $servico)">
+                                    <x-avalia.icone nome="lapis" />
+                                    <span class="sr-only">Editar</span>
+                                </x-avalia.botao>
                             </td>
                         </tr>
                     @empty

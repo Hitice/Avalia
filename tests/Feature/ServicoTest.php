@@ -206,12 +206,17 @@ it('mostra a situacao de cada servico no interruptor', function () {
         ->and(substr_count($html, 'interruptor-desligado'))->toBe(1);
 });
 
-it('conta os precos de cada servico', function () {
-    Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+it('leva ao cadastro pelo botao de lapis, com o verbo no cabecalho', function () {
+    // Icone na linha e verbo na coluna: repetir "Editar" em cada linha so
+    // alarga a tabela, e icone sem rotulo em lugar nenhum nao se entende.
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
 
-    $resposta = admin()->get(route('catalogo.servicos.index'))->assertOk();
+    $html = admin()->get(route('catalogo.servicos.index'))->assertOk()->getContent();
 
-    expect($resposta->viewData('servicos')->first()->precos_count)->toBe(2);
+    expect($html)->toContain('<th class="px-5 py-3 text-right font-medium">Editar</th>')
+        ->toContain('botao-icone')
+        ->toContain(route('catalogo.servicos.editar', $servico));
 });
 
 it('marca no catalogo o servico inativo', function () {

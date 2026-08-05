@@ -17,10 +17,15 @@
         'secundario' => 'botao-secundario',
     ];
 
+    $tamanhos = [
+        'sm' => 'botao-sm',
+        'icone' => 'botao-sm botao-icone',
+    ];
+
     $classe = implode(' ', array_filter([
         'botao',
         $variantes[$variante] ?? 'botao-primario',
-        $tamanho === 'sm' ? 'botao-sm' : null,
+        $tamanhos[$tamanho] ?? null,
     ]));
 @endphp
 
