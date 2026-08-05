@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Catalogo\GravarFranquias;
+use App\Http\Requests\FranquiaRequest;
 use App\Http\Requests\PlanoRequest;
 use App\Models\Catalogo;
 use App\Models\Plano;
 use App\Models\Preco;
-use Illuminate\Http\Request;
 
 /**
  * Cadastro de planos e da franquia de cada servico.
@@ -84,38 +85,13 @@ class PlanoController extends Controller
             ->with('ok', 'Plano atualizado.');
     }
 
-    /**
-     * Grava a quantidade incluida por servico.
-     *
-     * Quantidade zero apaga a linha em vez de gravar zero: ausencia e zero
-     * significam a mesma coisa para o faturamento (nenhuma consulta gratis), e
-     * manter as duas representacoes so criaria duvida na hora de apurar.
-     */
-    public function franquias(Request $request, Plano $plano)
+    public function franquias(FranquiaRequest $request, Plano $plano, GravarFranquias $gravar)
     {
-        $dados = $request->validate([
-            'franquias' => ['array'],
-            'franquias.*' => ['nullable', 'integer', 'min:0', 'max:1000000'],
-        ]);
+        $gravadas = $gravar($plano, $request->quantidades());
 
-        $permitidos = $plano->servicosDisponiveis()->pluck('id');
-
-        foreach ($permitidos as $servicoId) {
-            $quantidade = (int) ($dados['franquias'][$servicoId] ?? 0);
-
-            if ($quantidade === 0) {
-                $plano->franquias()->where('servico_id', $servicoId)->delete();
-
-                continue;
-            }
-
-            $plano->franquias()->updateOrCreate(
-                ['servico_id' => $servicoId],
-                ['quantidade' => $quantidade],
-            );
-        }
-
-        return back()->with('ok', 'Franquia atualizada.');
+        return back()->with('ok', $gravadas === 0
+            ? 'Nenhum servico com franquia neste plano.'
+            : "Franquia gravada em {$gravadas} servico(s).");
     }
 
     /** Faixas do catalogo, prontas para o select do formulario. */
