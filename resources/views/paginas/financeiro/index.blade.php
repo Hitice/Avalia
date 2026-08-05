@@ -60,14 +60,14 @@
             <table class="tabela min-w-[60rem]">
                 <thead class="tabela-cabecalho">
                     <tr>
-                        <th class="px-5 py-3 text-left font-medium">Empresa</th>
-                        <th class="px-5 py-3 text-left font-medium">Competência</th>
-                        <th class="px-5 py-3 text-left font-medium">Pagamento</th>
-                        <th class="px-5 py-3 text-right font-medium">Total</th>
-                        <th class="px-5 py-3 text-right font-medium">Lucro</th>
-                        <th class="px-5 py-3 text-right font-medium">Comissão</th>
-                        <th class="px-5 py-3 text-right font-medium">Vence</th>
-                        <th class="px-5 py-3 text-right font-medium">Confirmação</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Empresa</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Competência</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Pagamento</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Total</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Lucro</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Comissão</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Vence</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Confirmar</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -116,14 +116,17 @@
                                     <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
                                           onsubmit="return confirm('Confirmar que o pagamento desta fatura foi recebido?')">
                                         @csrf
-                                        <x-avalia.botao variante="secundario" tamanho="sm">Confirmar pagamento</x-avalia.botao>
+                                        <x-avalia.botao variante="secundario" tamanho="icone" title="Confirmar pagamento recebido">
+                                            <x-avalia.icone nome="confirmar" />
+                                            <span class="sr-only">Confirmar pagamento recebido</span>
+                                        </x-avalia.botao>
                                     </form>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="tabela-vazia">Nenhuma fatura nesta situação.</td>
+                            <td colspan="8" class="tabela-vazia">Nenhuma fatura corresponde a esta situação. Selecione outro filtro para continuar.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -138,7 +141,8 @@
                 <p class="ajuda-campo mt-1">Valores já devidos, apurados sobre faturas com pagamento confirmado.</p>
             </div>
 
-            <table class="tabela">
+            <div class="overflow-x-auto">
+            <table class="tabela min-w-[28rem]">
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($comissoes as $linha)
                         <tr>
@@ -155,6 +159,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     @endif
 @endsection

@@ -47,10 +47,10 @@
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[36rem]">
                     <thead class="tabela-cabecalho"><tr>
-                        <th class="px-5 py-3 text-left font-medium">Serviço</th>
-                        <th class="px-5 py-3 text-right font-medium">Incluídas</th>
-                        <th class="px-5 py-3 text-right font-medium">Utilizadas</th>
-                        <th class="px-5 py-3 text-right font-medium">Disponíveis</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Serviço</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Incluídas</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Utilizadas</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Disponíveis</th>
                     </tr></thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @forelse ($plano->franquias as $franquia)
@@ -62,7 +62,7 @@
                                 <td class="px-5 py-4 text-right tabular-nums">{{ max(0, $franquia->quantidade - $utilizadas) }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="tabela-vazia">Não há franquias configuradas para este plano.</td></tr>
+                            <tr><td colspan="4" class="tabela-vazia">Solicite à sua equipe comercial a configuração das franquias deste plano.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -77,11 +77,11 @@
         <div class="overflow-x-auto">
             <table class="tabela min-w-[36rem]">
                 <thead class="tabela-cabecalho"><tr>
-                    <th class="px-5 py-3 text-left font-medium">Período</th>
-                    <th class="px-5 py-3 text-left font-medium">Situação</th>
-                    <th class="px-5 py-3 text-right font-medium">Total</th>
-                    <th class="px-5 py-3 text-right font-medium">Vencimento</th>
-                    <th class="px-5 py-3 text-right font-medium">Pagamento</th>
+                    <th scope="col" class="px-5 py-3 text-left font-medium">Período</th>
+                    <th scope="col" class="px-5 py-3 text-left font-medium">Situação</th>
+                    <th scope="col" class="px-5 py-3 text-right font-medium">Total</th>
+                    <th scope="col" class="px-5 py-3 text-right font-medium">Vencimento</th>
+                    <th scope="col" class="px-5 py-3 text-right font-medium">Pagamento</th>
                 </tr></thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($faturas as $fatura)
@@ -94,14 +94,14 @@
                                 @if (! $fatura->estaLiquidada() && $fatura->cobrancaAsaas?->invoice_url)
                                     <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400" href="{{ $fatura->cobrancaAsaas->invoice_url }}" target="_blank" rel="noopener noreferrer">Pagar fatura</a>
                                 @elseif (! $fatura->estaLiquidada() && $fatura->cobrancaAsaas?->situacao === 'aguardando_configuracao')
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">Em preparação</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Solicite a segunda via ao atendimento</span>
                                 @else
                                     <span class="text-sm text-gray-500 dark:text-gray-400">—</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
-                            <tr><td colspan="5" class="tabela-vazia">Nenhuma fatura disponível.</td></tr>
+                            <tr><td colspan="5" class="tabela-vazia">As faturas serão exibidas aqui após o primeiro fechamento mensal.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -140,6 +140,11 @@
                     </li>
                 @endforeach
             </ul>
+        </div>
+    @else
+        <div class="cartao mt-6 p-6">
+            <h2 class="font-medium text-gray-800 dark:text-white/90">Documentos e aceites</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Solicite à sua equipe comercial os documentos aplicáveis à sua empresa.</p>
         </div>
     @endif
 @endsection
