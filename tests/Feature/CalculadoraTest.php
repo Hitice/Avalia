@@ -2,6 +2,7 @@
 
 use App\Models\Catalogo;
 use App\Models\Staff;
+use App\Support\Comissao;
 use App\Support\Simulacao;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -13,7 +14,8 @@ uses(RefreshDatabase::class);
 |--------------------------------------------------------------------------
 |
 | Imposto 13,5% sobre a fatura inteira, custo so sobre o que foi consultado,
-| e comissao de 10% sobre o lucro que sobrar dos dois.
+| e comissao de 10% sobre o lucro que sobrar dos dois. Aliquota unica: nao ha
+| adicional por excedente.
 |
 */
 
@@ -25,7 +27,6 @@ it('soma mensalidade e consumo, e desconta os tres custos', function () {
         mensalidadeCents: 7_990,
         custoSobreVendaBps: 5_130,
         impostoBps: 1_350,
-        comissaoPct: 10,
     );
 
     expect($mes['fatura_cents'])->toBe(97_990)
@@ -46,7 +47,6 @@ it('cobra o minimo mas so custeia o que foi consultado', function () {
         mensalidadeCents: 7_990,
         custoSobreVendaBps: 5_130,
         impostoBps: 1_350,
-        comissaoPct: 10,
     );
 
     expect($mes['consumo_faturado_cents'])->toBe(90_000)
@@ -62,23 +62,24 @@ it('mostra que o cliente que paga sem usar e o mais lucrativo', function () {
         mensalidadeCents: 7_990,
         custoSobreVendaBps: 5_130,
         impostoBps: 1_350,
-        comissaoPct: 10,
     )['lucro_cents'];
 
     expect($conta(0))->toBeGreaterThan($conta(45_000))
         ->and($conta(45_000))->toBeGreaterThan($conta(90_000));
 });
 
-it('sobe a comissao do mes inteiro quando houve excedente', function () {
-    $normal = Simulacao::mensal(90_000, 90_000, 7_990, 5_130, 1_350, 10);
-    $comExcedente = Simulacao::mensal(90_000, 90_000, 7_990, 5_130, 1_350, 20);
+it('nao tem adicional por excedente', function () {
+    // Comissionando sobre lucro, consumo a mais ja rende comissao a mais
+    // sozinho. Dobrar a aliquota em cima pagaria o mesmo ganho duas vezes.
+    $normal = Simulacao::mensal(90_000, 90_000, 7_990, 5_130, 1_350);
+    $dobro = Simulacao::mensal(180_000, 90_000, 7_990, 5_130, 1_350);
 
-    expect($comExcedente['comissao_cents'])->toBe($normal['comissao_cents'] * 2)
-        ->and($comExcedente['lucro_cents'])->toBeLessThan($normal['lucro_cents']);
+    expect(Comissao::pct())->toBe(10)
+        ->and($dobro['comissao_cents'])->toBeGreaterThan($normal['comissao_cents']);
 });
 
 it('acusa prejuizo em vez de esconder', function () {
-    $mes = Simulacao::mensal(90_000, 90_000, 0, 9_500, 1_350, 20);
+    $mes = Simulacao::mensal(90_000, 90_000, 0, 9_500, 1_350);
 
     expect($mes['lucro_cents'])->toBeLessThan(0);
 });

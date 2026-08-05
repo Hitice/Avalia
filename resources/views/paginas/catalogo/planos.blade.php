@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Planos</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Cada plano escolhe uma faixa do catálogo. A comissão é 10% do lucro do mês, 20% se houver excedente. Vale igual para todos.
+                Cada plano escolhe uma faixa do catálogo. A comissão é 10% do lucro do mês. Vale igual para todos.
             </p>
         </div>
 

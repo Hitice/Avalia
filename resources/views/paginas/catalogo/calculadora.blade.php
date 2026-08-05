@@ -64,17 +64,6 @@
                         </div>
                     </div>
 
-                    <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                        <input type="hidden" name="excedente" value="0">
-                        <input type="checkbox" name="excedente" value="1"
-                               class="size-4 rounded border-gray-300 dark:border-gray-700"
-                               @checked($entrada['excedente'])>
-                        Houve excedente no mês
-                    </label>
-                    <span class="ajuda-campo -mt-3">
-                        A comissão do mês inteiro sobe de 10% para 20%.
-                    </span>
-
                     <x-avalia.botao>Calcular</x-avalia.botao>
                 </form>
             </div>
@@ -140,9 +129,7 @@
                             <tr>
                                 <td class="py-3 text-left text-gray-600 dark:text-gray-300">
                                     Comissão do vendedor
-                                    <span class="ajuda-campo block">
-                                        {{ $entrada['excedente'] ? '20' : '10' }}% do lucro
-                                    </span>
+                                    <span class="ajuda-campo block">10% do lucro</span>
                                 </td>
                                 <td class="py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
                                     − {{ Dinheiro::brl($mes['comissao_cents']) }}

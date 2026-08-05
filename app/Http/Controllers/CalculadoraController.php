@@ -47,7 +47,6 @@ class CalculadoraController extends Controller
 
         $adesao = Dinheiro::paraCentavos($request->query('adesao')) ?? 0;
         $parcelas = max(1, (int) $request->query('parcelas', 1));
-        $excedente = $request->boolean('excedente');
 
         $mes = Simulacao::mensal(
             consumoCents: $consumo,
@@ -55,7 +54,6 @@ class CalculadoraController extends Controller
             mensalidadeCents: $mensalidade,
             custoSobreVendaBps: $custoBps ?? 0,
             impostoBps: $catalogo?->imposto_bps ?? 0,
-            comissaoPct: \App\Support\Comissao::pct($excedente),
         );
 
         return view('paginas.catalogo.calculadora', [
@@ -71,7 +69,6 @@ class CalculadoraController extends Controller
                 'custo_bps' => $custoBps,
                 'adesao' => $adesao,
                 'parcelas' => $parcelas,
-                'excedente' => $excedente,
             ],
         ]);
     }

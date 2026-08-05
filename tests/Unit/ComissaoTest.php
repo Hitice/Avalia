@@ -9,11 +9,10 @@ it('paga 10% sobre o lucro do mes', function () {
         ->and(Comissao::cents(38_591))->toBe(3_859);
 });
 
-it('sobe para 20% no mes com excedente, sobre o lucro inteiro', function () {
-    // O adicional vale para o plano todo na competencia, nao so para a parcela
-    // que passou da franquia.
-    expect(Comissao::pct(true))->toBe(20)
-        ->and(Comissao::cents(30_000, true))->toBe(6_000);
+it('tem aliquota unica, sem adicional por excedente', function () {
+    // O adicional existia quando a comissao lia faturamento. Sobre lucro ele
+    // pagaria duas vezes: consumo a mais ja gera lucro a mais, e 10% dele.
+    expect(Comissao::cents(60_000))->toBe(Comissao::cents(30_000) * 2);
 });
 
 it('le lucro, e nao faturamento', function () {

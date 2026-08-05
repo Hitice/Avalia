@@ -20,20 +20,20 @@ namespace App\Support;
  */
 final class Comissao
 {
-    /** Aliquota normal, em pontos percentuais. */
+    /**
+     * Aliquota unica, em pontos percentuais.
+     *
+     * Nao ha adicional por excedente. Ele existia quando a comissao lia
+     * faturamento e servia para o vendedor ganhar quando o cliente consumia
+     * acima da franquia. Comissionando sobre lucro isso ja acontece sozinho:
+     * consumo a mais gera lucro a mais, e 10% dele tambem. Dobrar a aliquota
+     * em cima pagaria o mesmo ganho duas vezes.
+     */
     public const PCT_PADRAO = 10;
 
-    /**
-     * Aliquota do mes em que o cliente estourou a franquia.
-     *
-     * Sao 10 pontos a mais e valem para o plano inteiro naquela competencia,
-     * nao so para a parcela excedente.
-     */
-    public const PCT_COM_EXCEDENTE = 20;
-
-    public static function pct(bool $houveExcedente = false): int
+    public static function pct(): int
     {
-        return $houveExcedente ? self::PCT_COM_EXCEDENTE : self::PCT_PADRAO;
+        return self::PCT_PADRAO;
     }
 
     /**
@@ -43,7 +43,7 @@ final class Comissao
      * nao ganha sobre lucro que nao existiu, mas tambem nao paga para ter
      * vendido.
      */
-    public static function cents(int $lucroCents, bool $houveExcedente = false): int
+    public static function cents(int $lucroCents): int
     {
         if ($lucroCents <= 0) {
             return 0;
@@ -51,7 +51,7 @@ final class Comissao
 
         // round e nao trunca: sempre a favor de ninguem em particular, mas
         // estavel: dois calculos do mesmo mes dao o mesmo centavo.
-        return (int) round($lucroCents * self::pct($houveExcedente) / 100);
+        return (int) round($lucroCents * self::PCT_PADRAO / 100);
     }
 
     /**

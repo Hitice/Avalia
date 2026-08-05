@@ -56,7 +56,6 @@ no catálogo versionado, nunca no código.
 | Taxa de adesão | valor livre, definido pelo vendedor | Cobre licença de uso, liberação de acesso e implantação. Pode ser parcelada e pode ser isentada pelo vendedor. |
 | Rateio da adesão | 50% vendedor, 50% Avalia | Isentar significa nenhum dos dois receber. |
 | Comissão recorrente | 10% sobre o LUCRO do mês | O imposto sai primeiro, o custo do fornecedor em seguida, e o vendedor leva 10% do que sobrar. |
-| Adicional de excedente | +10 pontos, totalizando 20% | Aplica-se ao mês em que houver excedente. |
 | Vencimento da fatura | todo dia 10 | Data fixa de calendário, igual para todos os clientes. |
 | Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
 | Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
@@ -348,16 +347,16 @@ comercial: um cliente com consumo mínimo de R$ 900,00 que consome R$ 300,00 pag
 R$ 979,90 de fatura e gera R$ 30,00 de comissão, não R$ 97,99. O vendedor ganha
 sobre uso, e o piso da fatura protege a Avalia, não a comissão.
 
-No mês em que houver consumo excedente, a alíquota sobe **10 pontos, para 20%**,
-e essa elevação vale para o plano como um todo naquela competência.
+Não há adicional por excedente. Ele existia quando a comissão lia faturamento e
+servia para o vendedor ganhar quando o cliente consumia acima da franquia. Sobre
+lucro isso já acontece sozinho: consumo a mais gera lucro a mais, e 10% dele
+também. Somar um adicional em cima pagaria o mesmo ganho duas vezes.
 
     fatura          = mensalidade + max(consumo do mês, consumo mínimo)
     imposto         = 13,50% × fatura
     custo           = custo do fornecedor sobre o consumo REALIZADO
     lucro           = fatura − imposto − custo
-    houve_excedente = consumo acima da franquia contratada
-    aliquota        = houve_excedente ? 20% : 10%
-    comissao        = lucro > 0 ? aliquota × lucro : 0
+    comissao        = lucro > 0 ? 10% × lucro : 0
 
 A mensalidade entra na base, porque entra no lucro. A taxa de adesão não: ela tem
 rateio próprio de 50%, descrito adiante, e contar duas vezes pagaria o vendedor
@@ -497,15 +496,10 @@ falhas, logs seguros e documentação de operação.
 
 ## 16. Decisões pendentes
 
-- **Confirmar o adicional de excedente.** A regra escrita é: houve excedente no
-  mês, a alíquota do mês inteiro vai a 20%. A leitura alternativa seria aplicar
-  20% só sobre a parcela excedente e 10% sobre o resto. A diferença é grande e
-  muda o incentivo do vendedor.
-- **Confirmar a base da comissão.** Está escrito consumo realizado e líquido de
-  imposto. Cliente que paga o mínimo sem usar gera comissão menor que o valor da
-  fatura. Confirmar se é isso mesmo ou se a base deve ser o valor faturado de
-  consumo. A dedução do imposto foi decidida em 05/08/2026 e precisa constar do
-  contrato do vendedor, senão vira discussão no primeiro repasse.
+- **A base da comissão é o lucro** (05/08/2026), e o adicional por excedente foi
+  removido na mesma data por pagar duas vezes o mesmo ganho. Falta constar do
+  contrato do vendedor: a comissão passou de 10% do consumo para 10% do que
+  sobra depois do imposto e do fornecedor, e isso reduz o valor a receber.
 - **Alíquota de imposto confirmada em 13,50%** (05/08/2026), substituindo a
   estimativa de 8,60%. Falta o fechamento contábil dizer se ela varia com a
   faixa de faturamento, porque o imposto sai antes do lucro e mexe no piso de

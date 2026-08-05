@@ -16,7 +16,7 @@ namespace App\Support;
  *   custo    = so sobre o consumo realizado: consulta que nao aconteceu nao
  *              tem custo de fornecedor, mesmo que o cliente pague o minimo
  *   lucro    = fatura - imposto - custo
- *   comissao = 10% do lucro, e 20% no mes em que houve excedente
+ *   comissao = 10% do lucro
  *
  * Dai vem o efeito que interessa ao comercial: cliente que paga o minimo sem
  * usar e o mais lucrativo, porque o piso da fatura entra inteiro no lucro sem
@@ -39,7 +39,6 @@ final class Simulacao
         int $mensalidadeCents,
         int $custoSobreVendaBps,
         int $impostoBps,
-        int $comissaoPct,
     ): array {
         $consumo = max(0, $consumoCents);
         $minimo = max(0, $consumoMinimoCents);
@@ -56,7 +55,7 @@ final class Simulacao
         $custo = (int) round($consumo * max(0, min($custoSobreVendaBps, 10_000)) / 10_000);
 
         $lucroAntes = $fatura - $imposto - $custo;
-        $comissao = Comissao::cents($lucroAntes, $comissaoPct >= Comissao::PCT_COM_EXCEDENTE);
+        $comissao = Comissao::cents($lucroAntes);
         $lucro = $lucroAntes - $comissao;
 
         return [

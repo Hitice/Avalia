@@ -49,9 +49,8 @@ class Catalogo extends Model
     /**
      * Comissao do vendedor em pontos-base, para entrar no calculo de margem.
      *
-     * Usa a aliquota normal. No mes com excedente ela sobe para 20% e a margem
-     * cai na mesma medida; precificar pelo pior mes encareceria todo o catalogo
-     * por causa da excecao.
+     * Aliquota unica: comissionando sobre lucro, consumo a mais ja rende
+     * comissao a mais sozinho, sem precisar de adicional por excedente.
      */
     public function comissaoBps(): int
     {
