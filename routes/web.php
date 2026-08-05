@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
@@ -54,6 +55,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // A tabela de precos abre direto: e um catalogo so, sem lista de
         // versoes no meio do caminho.
         Route::get('/tabela', [CatalogoController::class, 'tabela'])->name('tabela');
+
+        // Simulador de contrato. GET e sem gravar nada: o endereco carrega o
+        // cenario, entao a simulacao vira link em vez de captura de tela.
+        Route::get('/calculadora', CalculadoraController::class)->name('calculadora');
 
         // Parametros comerciais em pagina propria: mexem no catalogo inteiro e
         // nao tem lugar no meio da matriz que se consulta todo dia.

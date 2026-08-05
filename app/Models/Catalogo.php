@@ -144,6 +144,25 @@ class Catalogo extends Model
             ->all();
     }
 
+    /**
+     * Quanto do preco de venda vai para o fornecedor nesta faixa, em bps.
+     *
+     * Media simples entre os servicos que ja tem custo cadastrado, porque nao
+     * se sabe qual mix o cliente vai consultar. E estimativa, e a tela diz isso:
+     * serve para simular contrato, nao para fechar competencia.
+     */
+    public function custoSobreVendaBps(int $faixaCents): ?int
+    {
+        $razoes = $this->precos()
+            ->where('consumo_minimo_cents', $faixaCents)
+            ->whereNotNull('custo_cents')
+            ->where('preco_cents', '>', 0)
+            ->get()
+            ->map(fn (Preco $preco) => $preco->custo_cents * 10_000 / $preco->preco_cents);
+
+        return $razoes->isEmpty() ? null : (int) round($razoes->avg());
+    }
+
     /** Preco de venda de um servico numa faixa, ou null se nao ha. */
     public function precoDe(string $codigo, int $faixaCents): ?int
     {
