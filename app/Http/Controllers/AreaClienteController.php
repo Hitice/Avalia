@@ -21,7 +21,7 @@ class AreaClienteController extends Controller
             ->selectRaw('servico_id, count(*) as quantidade')
             ->groupBy('servico_id')
             ->pluck('quantidade', 'servico_id');
-        $faturas = $empresa->faturas()->orderByDesc('competencia')->limit(6)->get();
+        $faturas = $empresa->faturas()->with('cobrancaAsaas')->orderByDesc('competencia')->limit(6)->get();
 
         return view('paginas.empresa.painel', compact(
             'empresa', 'documentos', 'aceites', 'competencia', 'plano', 'uso', 'faturas',

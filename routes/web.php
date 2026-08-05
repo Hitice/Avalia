@@ -4,14 +4,18 @@ use App\Http\Controllers\AreaClienteController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalculadoraController;
+use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
+use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ServicoController;
+use App\Http\Controllers\WebhookAsaasController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,6 +48,8 @@ Route::post('/sair', [LoginController::class, 'sair'])
     ->name('sair')
     ->middleware('auth:staff,empresa');
 
+Route::post('/webhooks/asaas', WebhookAsaasController::class)->name('webhooks.asaas');
+
 /*
 |--------------------------------------------------------------------------
 | Area de gestao (staff: admin e vendedor)
@@ -51,7 +57,7 @@ Route::post('/sair', [LoginController::class, 'sair'])
 */
 
 Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
-    Route::view('/', 'paginas.painel')->name('painel');
+    Route::get('/', PainelController::class)->name('painel');
 
     // Empresas contratantes e o consumo delas. Consultas sao registradas pelas
     // integrações com os fornecedores, nunca manualmente pela gestão.
@@ -102,6 +108,18 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
+
+    Route::middleware('admin')->prefix('documentos')->name('documentos.')->group(function () {
+        Route::get('/', [DocumentoController::class, 'index'])->name('index');
+        Route::get('/novo', [DocumentoController::class, 'criar'])->name('criar');
+        Route::post('/', [DocumentoController::class, 'salvar'])->name('salvar');
+    });
+
+    Route::middleware('admin')->prefix('campanhas')->name('campanhas.')->group(function () {
+        Route::get('/', [CampanhaController::class, 'index'])->name('index');
+        Route::get('/nova', [CampanhaController::class, 'criar'])->name('criar');
+        Route::post('/', [CampanhaController::class, 'salvar'])->name('salvar');
+    });
 
     // Catalogo mostra preco de venda, custo do fornecedor e margem. Vendedor
     // nao entra: `admin` fecha a porta alem do `auth:staff` do grupo.

@@ -561,9 +561,9 @@ campanha e situação financeira, sempre respeitando permissões.
 | faturas e itens_fatura | Valores congelados, vencimento, situação de pagamento e composição por serviço. | Existe |
 | auditoria | Rastro de ações administrativas, financeiras e de aceite. | Existe |
 | documentos e aceites_documento | Materiais, versões e aceite do cliente. | Existe, sem trava de ativação |
-| cobrancas_asaas e eventos_asaas | Correlação externa, histórico e idempotência. | Não existe |
-| comissoes, bonus_cadastro e repasses | Apuração após liquidação, descontos, pagamento e documentos fiscais. | Apuração vive na fatura; repasse não existe |
-| campanhas e elegibilidade | Regras promocionais e histórico de aplicação. | Não existe |
+| cobrancas_asaas e eventos_asaas | Correlação externa, histórico e idempotência. | Existe; depende das credenciais Asaas para envio real. |
+| adesoes | Taxa de adesão, parcelas e rateio entre vendedor e Avalia. | Existe; a emissão das parcelas depende da definição da primeira data de vencimento. |
+| campanhas e elegibilidade | Regras promocionais e histórico de aplicação. | Existe; campanhas não alteram valores sem regra comercial homologada. |
 | chamados | Evolução opcional do atendimento. | Não existe |
 
 Dados pessoais e resultados de crédito exigem menor privilégio, controle de
@@ -585,9 +585,9 @@ acesso, retenção e criptografia quando aplicável.
 | --- | --- | --- |
 | Fundação | Usuários, clientes, planos, preços, políticas, auditoria e catálogo. | Entregue, exceto ficha completa da empresa |
 | Consultas | Conectores, serviços, consumo, relatórios, retenção e painel de cliente. | Só o registro de consumo com preço congelado; falta o conector |
-| Financeiro | Faturas, fechamento automático, Asaas, webhooks, boleto, QR Code, inadimplência e reativação. | Fatura, situação de pagamento, confirmação e inadimplência automática; falta cobrança e fechamento automático |
-| Comercial | Carteiras, taxa de adesão, comissões, repasses e campanhas. | Carteira e comissão por vendedor; falta adesão, repasse e campanhas |
-| Operação | Documentos, atendimento, indicadores e BI. | Documentos e aceite; falta atendimento e indicadores |
+| Financeiro | Faturas, fechamento automático, Asaas, webhooks, boleto, QR Code, inadimplência e reativação. | Entregue no código; o envio real começa após configurar e homologar a conta Asaas. |
+| Comercial | Carteiras, taxa de adesão, comissões, repasses e campanhas. | Carteira, comissão, adesão e campanhas entregues; pagamento de repasse continua uma operação financeira externa. |
+| Operação | Documentos, atendimento, indicadores e BI. | Documentos, aceite, atendimento via WhatsApp e indicadores essenciais entregues. |
 
 Cada fase inclui migrations, políticas, testes automatizados, filas, tratamento de
 falhas, logs seguros e documentação de operação.
@@ -662,7 +662,7 @@ A área de gestão é dividida por papel, e a divisão é física.
 aberta e a comissão por competência, separando o que já foi liberada do que
 aguarda o pagamento da empresa. Custo, lucro e margem não aparecem.
 
-**Empresa cliente** entra na área dela, onde hoje há documentos e aceite.
+**Empresa cliente** entra na área dela, onde acompanha plano, franquias por serviço, faturas, segunda via quando disponível, atendimento e documentos.
 
 ### Regras que o código garante
 
@@ -693,10 +693,11 @@ A suíte tem 227 testes.
 
 ### O que não existe
 
-Conector de consulta ao fornecedor, cobrança e webhook, fechamento automático de
-competência, repasse ao vendedor, taxa de adesão cobrada, vigência de contrato,
-campanhas, atendimento e indicadores. O portal da empresa ainda não mostra
-consultas, franquia, segunda via nem pagamento.
+Conector de consulta ao fornecedor e resultado de consulta. As credenciais,
+contratos e homologação dos bureaus são externos e indispensáveis para ativá-lo;
+não há registro manual de consulta como substituto. A emissão real de cobrança
+também requer credenciais Asaas e URL pública para o webhook. O pagamento de
+repasses e a assinatura eletrônica são operações externas ainda sem integração.
 
 ## Anexo A. Preços de referência: crédito
 

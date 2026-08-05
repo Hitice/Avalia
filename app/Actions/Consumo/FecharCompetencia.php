@@ -2,6 +2,7 @@
 
 namespace App\Actions\Consumo;
 
+use App\Actions\Financeiro\CriarCobrancaAsaas;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
@@ -9,6 +10,7 @@ use App\Support\Auditar;
 use App\Support\Comissao;
 use App\Support\Margem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Fecha o mes de uma empresa e emite a fatura.
@@ -125,6 +127,14 @@ class FecharCompetencia
 
             return $fatura;
         });
+
+        try {
+            app(CriarCobrancaAsaas::class)($fatura);
+        } catch (\Throwable $e) {
+            // A fatura interna permanece válida; a cobrança externa pode ser
+            // reprocessada sem fechar a competência de novo.
+            Log::channel('auditoria')->error('cobranca.asaas_falhou', ['fatura_id' => $fatura->id]);
+        }
 
         return ['erro' => null, 'fatura' => $fatura];
     }

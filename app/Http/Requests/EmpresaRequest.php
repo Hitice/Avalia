@@ -51,13 +51,29 @@ class EmpresaRequest extends FormRequest
             'situacao' => ['required', Rule::in(['ativo', 'inadimplente', 'bloqueado', 'inativo'])],
             'plano_id' => ['nullable', 'exists:planos,id'],
             'vendedor_id' => ['nullable', 'exists:staff,id'],
+            'telefone' => ['nullable', 'string', 'max:20'],
+            'responsavel_nome' => ['nullable', 'string', 'max:150'],
+            'responsavel_cpf' => ['nullable', 'string', 'max:14'],
+            'cep' => ['nullable', 'string', 'max:8'],
+            'logradouro' => ['nullable', 'string', 'max:150'],
+            'numero' => ['nullable', 'string', 'max:20'],
+            'complemento' => ['nullable', 'string', 'max:100'],
+            'bairro' => ['nullable', 'string', 'max:100'],
+            'cidade' => ['nullable', 'string', 'max:100'],
+            'uf' => ['nullable', 'string', 'size:2'],
+            'vigencia_tipo' => ['nullable', Rule::in(['sem_vigencia', '12_meses', '24_meses', 'carencia'])],
+            'contrato_inicio' => ['nullable', 'date'],
+            'contrato_fim' => ['nullable', 'date', 'after_or_equal:contrato_inicio'],
+            'carencia_ate' => ['nullable', 'date', 'after_or_equal:contrato_inicio'],
+            'adesao_valor' => ['nullable', 'string', 'max:30'],
+            'adesao_parcelas' => ['nullable', 'integer', 'min:1', 'max:120'],
         ];
     }
 
     /** Dados prontos para gravar, sem a senha em branco da edicao. */
     public function dados(): array
     {
-        $dados = $this->safe()->except('senha');
+        $dados = $this->safe()->except(['senha', 'adesao_valor', 'adesao_parcelas']);
 
         if ($this->filled('senha')) {
             $dados['senha'] = $this->input('senha');

@@ -21,3 +21,11 @@ Schedule::call(function () {
     ->name('financeiro:inadimplencia')
     ->dailyAt('00:05')
     ->withoutOverlapping();
+
+Schedule::call(function () {
+    $fechar = app(App\Actions\Financeiro\FecharCompetenciasVencidas::class);
+    $fechar();
+})
+    ->name('financeiro:fechamento')
+    ->dailyAt('00:15')
+    ->withoutOverlapping();

@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Actions\Consumo\FecharCompetencia;
 use App\Http\Requests\EmpresaRequest;
+use App\Models\Adesao;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Plano;
 use App\Models\Staff;
 use App\Support\Auditar;
+use App\Support\Comissao;
+use App\Support\Dinheiro;
 use Illuminate\Http\Request;
 
 /**
@@ -53,6 +56,7 @@ class EmpresaController extends Controller
     public function salvar(EmpresaRequest $request)
     {
         $empresa = Cliente::create($this->comOsCamposQuePode($request->dados()));
+        $this->gravarAdesao($empresa, $request);
 
         return redirect($this->depoisDeGravar($empresa))
             ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.");
@@ -70,6 +74,7 @@ class EmpresaController extends Controller
         $this->soDaPropriaCarteira($empresa);
 
         $empresa->update($this->comOsCamposQuePode($request->dados(), $empresa));
+        $this->gravarAdesao($empresa, $request);
 
         // Situacao que fecha o acesso derruba a sessao aberta na hora, senao a
         // empresa continua consultando ate o cookie expirar.
@@ -126,7 +131,7 @@ class EmpresaController extends Controller
         $competencia = Consulta::competenciaDe();
 
         return view('paginas.empresas.ficha', [
-            'empresa' => $empresa->load(['plano.catalogo', 'vendedor']),
+            'empresa' => $empresa->load(['plano.catalogo', 'vendedor', 'adesao']),
             'competencia' => $competencia,
             'consumo' => $empresa->consultas()->where('competencia', $competencia)->sum('preco_cents'),
             'quantidade' => $empresa->consultas()->where('competencia', $competencia)->count(),
@@ -199,5 +204,32 @@ class EmpresaController extends Controller
             'planos' => Plano::where('ativo', true)->orderBy('consumo_minimo_cents')->get(),
             'vendedores' => Staff::where('ativo', true)->orderBy('nome')->get(),
         ];
+    }
+
+    private function gravarAdesao(Cliente $empresa, EmpresaRequest $request): void
+    {
+        if (! $this->ehAdmin()) {
+            return;
+        }
+
+        $valor = Dinheiro::paraCentavos($request->input('adesao_valor')) ?? 0;
+        $parcelas = (int) ($request->input('adesao_parcelas') ?: 1);
+        $adesao = $empresa->adesao;
+
+        if ($valor === 0 && ! $adesao) {
+            return;
+        }
+
+        $parcela = intdiv($valor, $parcelas);
+        $vendedor = Comissao::parteAdesaoCents($valor);
+        Adesao::updateOrCreate(['cliente_id' => $empresa->id], [
+            'valor_cents' => $valor,
+            'parcelas' => $parcelas,
+            'valor_parcela_cents' => $parcela,
+            'vendedor_cents' => $vendedor,
+            'avalia_cents' => $valor - $vendedor,
+        ]);
+
+        Auditar::registrar('adesao.atualizada', $empresa, ['valor_cents' => $valor, 'parcelas' => $parcelas]);
     }
 }

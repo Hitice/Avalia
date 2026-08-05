@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * A competencia fechada de uma empresa.
@@ -95,6 +96,11 @@ class Fatura extends Model
     public function itens(): HasMany
     {
         return $this->hasMany(ItemFatura::class);
+    }
+
+    public function cobrancaAsaas(): HasOne
+    {
+        return $this->hasOne(CobrancaAsaas::class);
     }
 
     public function estaLiquidada(): bool

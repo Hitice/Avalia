@@ -26,7 +26,7 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     /** Situacoes que permitem consultar. As demais suspendem o uso. */
     public const SITUACOES_ATIVAS = ['ativo'];
 
-    protected $fillable = ['razao_social', 'cnpj', 'email', 'senha', 'situacao', 'plano_id', 'vendedor_id'];
+    protected $fillable = ['razao_social', 'cnpj', 'email', 'senha', 'situacao', 'plano_id', 'vendedor_id', 'telefone', 'responsavel_nome', 'responsavel_cpf', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'vigencia_tipo', 'contrato_inicio', 'contrato_fim', 'carencia_ate'];
 
     protected $hidden = ['senha', 'sessao_versao'];
 
@@ -36,6 +36,9 @@ class Cliente extends Authenticatable implements ContaAutenticavel
             'senha' => 'hashed',
             'sessao_versao' => 'integer',
             'ultimo_acesso_em' => 'datetime',
+            'contrato_inicio' => 'date',
+            'contrato_fim' => 'date',
+            'carencia_ate' => 'date',
         ];
     }
 
@@ -63,6 +66,11 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     public function aceitesDocumentos(): HasMany
     {
         return $this->hasMany(AceiteDocumento::class);
+    }
+
+    public function adesao(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Adesao::class);
     }
 
     /** Documentos obrigatórios ativos precisam estar aceitos antes da consulta. */

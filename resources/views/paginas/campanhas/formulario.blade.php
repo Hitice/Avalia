@@ -1,0 +1,8 @@
+@extends('layouts.app', ['title' => 'Nova campanha'])
+@section('content')
+<div class="mb-6"><h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Nova campanha</h1><p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Defina o público e comunique a oferta. Preços continuam definidos no catálogo.</p></div>
+<form method="POST" action="{{ route('campanhas.salvar') }}" class="cartao grid gap-5 p-6">@csrf
+<div><label class="rotulo-campo">Nome</label><input class="campo" name="nome" value="{{ old('nome') }}" required></div><div><label class="rotulo-campo">Oferta</label><textarea class="campo" name="oferta" required>{{ old('oferta') }}</textarea></div><div class="grid gap-5 sm:grid-cols-2"><div><label class="rotulo-campo">Início</label><input class="campo" type="date" name="inicio" value="{{ old('inicio') }}" required></div><div><label class="rotulo-campo">Fim</label><input class="campo" type="date" name="fim" value="{{ old('fim') }}"></div></div>
+<div><p class="rotulo-campo">Empresas elegíveis</p><div class="grid gap-2 sm:grid-cols-2">@foreach($clientes as $cliente)<label class="text-sm"><input type="checkbox" name="clientes[]" value="{{ $cliente->id }}"> {{ $cliente->razao_social }}</label>@endforeach</div></div><div><p class="rotulo-campo">Serviços envolvidos</p><div class="grid gap-2 sm:grid-cols-2">@foreach($servicos as $servico)<label class="text-sm"><input type="checkbox" name="servicos[]" value="{{ $servico->id }}"> {{ $servico->nome }}</label>@endforeach</div></div>
+<div class="flex gap-3"><x-avalia.botao>Criar campanha</x-avalia.botao><x-avalia.botao variante="secundario" :href="route('campanhas.index')">Cancelar</x-avalia.botao></div></form>
+@endsection
