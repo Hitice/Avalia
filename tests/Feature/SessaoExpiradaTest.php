@@ -65,3 +65,35 @@ it('devolve quem ja esta dentro para a propria pagina, nao para o login', functi
 
     expect($resposta->getTargetUrl())->toBe($origem);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Cada conta volta para a area dela
+|--------------------------------------------------------------------------
+*/
+
+it('manda a empresa autenticada para a area dela, e nao para a gestao', function () {
+    // O padrao do Laravel manda todo mundo para "/", que aqui e a gestao. Com
+    // duas naturezas de conta isso vira laco: a empresa abre "/", o auth:staff
+    // recusa e manda para /entrar, o guest devolve para "/", sem fim.
+    $empresa = App\Models\Cliente::factory()->create();
+
+    $this->actingAs($empresa, 'empresa')
+        ->withSession(['versao_empresa' => $empresa->sessao_versao])
+        ->get('/')
+        ->assertRedirect(route('entrar'));
+
+    $this->actingAs($empresa, 'empresa')
+        ->withSession(['versao_empresa' => $empresa->sessao_versao])
+        ->get(route('entrar'))
+        ->assertRedirect(route('empresa.painel'));
+});
+
+it('manda o staff autenticado para a gestao ao tentar a tela de entrada', function () {
+    $staff = App\Models\Staff::factory()->admin()->create();
+
+    $this->actingAs($staff, 'staff')
+        ->withSession(['versao_staff' => $staff->sessao_versao])
+        ->get(route('entrar'))
+        ->assertRedirect(route('painel'));
+});

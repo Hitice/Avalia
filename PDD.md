@@ -30,7 +30,21 @@ somente o serviço contratado, o resultado permitido e o seu consumo.
 
 As contas de operação (admin e vendedor) ficam na tabela staff; empresas ficam
 em clientes. As tabelas, guards, políticas e sessões são separados. Um papel
-nunca obtém acesso a rotas, registros ou indicadores de outro papel sem permissão explícita.
+nunca obtém acesso a rotas, registros ou indicadores de outro papel sem permissão
+explícita.
+
+Hoje existem dois papéis de operação, administrador e vendedor. A separação entre
+comercial, financeiro, operação e superadmin ainda não foi feita: confirmar
+pagamento e mexer no catálogo dependem do mesmo administrador genérico.
+
+A separação de telas é física, e não condicional. O vendedor tem uma tela própria,
+a carteira, em vez de ver as telas de administração com campos escondidos. Custo
+do fornecedor, lucro e margem não passam por ela, e a carteira exibida é sempre a
+de quem está autenticado: não há parâmetro de rota que escolha vendedor, então não
+há endereço que peça a de outro.
+
+Trocar o papel de alguém revoga as sessões abertas dessa conta. Sem isso a pessoa
+continuaria com a permissão antiga até o cookie expirar.
 
 ## 4. Jornada de cliente
 
@@ -55,7 +69,7 @@ no catálogo versionado, nunca no código.
 | Faixas de consumo mínimo | sem mínimo, R$ 75,00, R$ 200,00, R$ 500,00, R$ 900,00, R$ 1.500,00, R$ 5.000,00 | A faixa escolhida define o preço unitário de todos os serviços. |
 | Taxa de adesão | valor livre, definido pelo vendedor | Cobre licença de uso, liberação de acesso e implantação. Pode ser parcelada e pode ser isentada pelo vendedor. |
 | Rateio da adesão | 50% vendedor, 50% Avalia | Isentar significa nenhum dos dois receber. |
-| Comissão recorrente | 10% sobre o LUCRO do mês | O imposto sai primeiro, o custo do fornecedor em seguida, e o vendedor leva 10% do que sobrar. |
+| Comissão recorrente | 10% sobre o LUCRO do mês, ajustável por vendedor | O imposto sai primeiro, o custo do fornecedor em seguida, e o vendedor leva a fatia dele do que sobrar. A administração negocia caso a caso, com teto de 50%. |
 | Vencimento da fatura | todo dia 10 | Data fixa de calendário, igual para todos os clientes. |
 | Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
 | Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
@@ -403,8 +417,14 @@ somente após a liquidação da cobrança correspondente no Asaas.
 
 ### Comissão recorrente
 
-A alíquota é **10% sobre o lucro do mês**, uma só para todos os planos e todas as
-faixas.
+A alíquota é **10% sobre o lucro do mês** e vale para todos os planos e todas as
+faixas. É o padrão, não uma trava: a administração define o percentual de cada
+vendedor no cadastro da equipe, com teto de 50%.
+
+A taxa vale a partir do próximo fechamento. Cada fatura guarda o percentual usado
+na emissão, então renegociar hoje não reescreve competência já fechada nem o
+repasse que foi combinado. Percentual fora da faixa aceita cai no padrão, para
+que um erro de digitação não vire pagamento.
 
 A base é lucro, e não faturamento. O imposto de 13,50% sai primeiro, o custo do
 fornecedor sai em seguida, e o vendedor leva 10% do que sobrar. Duas vendas do
@@ -532,18 +552,19 @@ campanha e situação financeira, sempre respeitando permissões.
 
 ## 13. Dados e entidades
 
-| Entidade | Responsabilidade |
-| --- | --- |
-| clientes e dados complementares | Empresa, contatos, vendedor, situação, vínculo comercial e permissões. |
-| planos, precos, servicos e franquias_plano | Catálogo, quantidade incluída, regras de consumo e preço. |
-| consultas | Solicitação, resultado, custo, preço, status, competência e retenção. |
-| faturas e itens_fatura | Valores congelados, vencimento, situação e composição. |
-| cobrancas_asaas e eventos_asaas | Correlação externa, histórico e idempotência. |
-| comissoes, bonus_cadastro e repasses | Apuração após liquidação, descontos, pagamento e documentos fiscais. |
-| campanhas e elegibilidade | Regras promocionais e histórico de aplicação. |
-| documentos e aceites_documento | Materiais, versões, acesso e aceite. |
-| chamados | Evolução opcional do atendimento. |
-| auditoria | Rastro de ações administrativas e sensíveis. |
+| Entidade | Responsabilidade | Situação |
+| --- | --- | --- |
+| staff | Administração e vendedores, com papel e percentual de comissão. | Existe |
+| clientes | Empresa, CNPJ, situação, plano contratado e vendedor da carteira. | Existe, sem endereço, contato, vigência e adesão |
+| catalogos, precos, servicos, planos e franquias_plano | Catálogo, quantidade incluída, regras de consumo e preço. | Existe |
+| consultas | Preço e custo congelados, competência. | Existe, sem resultado, evidência e retenção |
+| faturas e itens_fatura | Valores congelados, vencimento, situação de pagamento e composição por serviço. | Existe |
+| auditoria | Rastro de ações administrativas, financeiras e de aceite. | Existe |
+| documentos e aceites_documento | Materiais, versões e aceite do cliente. | Existe, sem trava de ativação |
+| cobrancas_asaas e eventos_asaas | Correlação externa, histórico e idempotência. | Não existe |
+| comissoes, bonus_cadastro e repasses | Apuração após liquidação, descontos, pagamento e documentos fiscais. | Apuração vive na fatura; repasse não existe |
+| campanhas e elegibilidade | Regras promocionais e histórico de aplicação. | Não existe |
+| chamados | Evolução opcional do atendimento. | Não existe |
 
 Dados pessoais e resultados de crédito exigem menor privilégio, controle de
 acesso, retenção e criptografia quando aplicável.
@@ -560,13 +581,13 @@ acesso, retenção e criptografia quando aplicável.
 
 ## 15. Entrega por fases
 
-| Fase | Escopo |
-| --- | --- |
-| Fundação | Usuários, clientes, planos, preços, políticas, auditoria e catálogo. |
-| Consultas | Conectores, serviços, consumo, relatórios, retenção e painel de cliente. |
-| Financeiro | Faturas, fechamento automático, Asaas, webhooks, boleto, QR Code, inadimplência e reativação. |
-| Comercial | Carteiras, taxa de adesão, comissões, repasses e campanhas. |
-| Operação | Documentos, atendimento, indicadores e BI. |
+| Fase | Escopo | Situação |
+| --- | --- | --- |
+| Fundação | Usuários, clientes, planos, preços, políticas, auditoria e catálogo. | Entregue, exceto ficha completa da empresa |
+| Consultas | Conectores, serviços, consumo, relatórios, retenção e painel de cliente. | Só o registro de consumo com preço congelado; falta o conector |
+| Financeiro | Faturas, fechamento automático, Asaas, webhooks, boleto, QR Code, inadimplência e reativação. | Fatura, situação de pagamento, confirmação e inadimplência automática; falta cobrança e fechamento automático |
+| Comercial | Carteiras, taxa de adesão, comissões, repasses e campanhas. | Carteira e comissão por vendedor; falta adesão, repasse e campanhas |
+| Operação | Documentos, atendimento, indicadores e BI. | Documentos e aceite; falta atendimento e indicadores |
 
 Cada fase inclui migrations, políticas, testes automatizados, filas, tratamento de
 falhas, logs seguros e documentação de operação.
@@ -574,9 +595,19 @@ falhas, logs seguros e documentação de operação.
 ## 16. Decisões pendentes
 
 - **A base da comissão é o lucro** (05/08/2026), e o adicional por excedente foi
-  removido na mesma data por pagar duas vezes o mesmo ganho. Falta constar do
-  contrato do vendedor: a comissão passou de 10% do consumo para 10% do que
-  sobra depois do imposto e do fornecedor, e isso reduz o valor a receber.
+  removido na mesma data por pagar duas vezes o mesmo ganho. O percentual passou
+  a ser por vendedor, com 10% de padrão. Falta constar do contrato do vendedor:
+  a comissão saiu de 10% do consumo para 10% do que sobra depois do imposto e do
+  fornecedor, e isso reduz o valor a receber.
+- **A confirmação manual de pagamento não pede justificativa.** Qualquer
+  administrador confirma na tela, sem motivo registrado e sem permissão
+  financeira separada. Antes de vender, isso precisa de justificativa
+  obrigatória e de um papel próprio.
+- **O aceite de documento não trava a ativação.** A empresa aceita, e o aceite
+  fica registrado, mas consultar não depende dele. Para LGPD e SCR a trava é
+  requisito, não conveniência.
+- **O fechamento de competência é manual, empresa a empresa.** A rotina diária
+  cobre vencimento e bloqueio, mas ninguém fecha o mês sozinho.
 - **Alíquota de imposto confirmada em 13,50%** (05/08/2026), substituindo a
   estimativa de 8,60%. Falta o fechamento contábil dizer se ela varia com a
   faixa de faturamento, porque o imposto sai antes do lucro e mexe no piso de
@@ -594,56 +625,78 @@ falhas, logs seguros e documentação de operação.
 
 ## 17. Estado atual do repositório
 
-Acesso: `staff` (contas de administração e vendedores), `clientes` (empresas
-contratantes com login, situação e controle de sessão), `tentativas_login`
-(bloqueio progressivo por conta e origem) e `sessions`.
+### Tabelas
 
-Catálogo: `catalogos` (a tabela de preços, com alíquota de imposto), `servicos`
-(código, nome comercial, categoria e trava de
-liberação), `precos` (preço de venda e custo interno por serviço e faixa),
-`planos` (catálogo contratado, mensalidade, consumo mínimo) e `franquias_plano`
-(quantidade incluída por serviço).
+Acesso: `staff` (administração e vendedores, com papel e percentual de comissão),
+`clientes` (empresas contratantes com CNPJ, situação, plano e vendedor),
+`tentativas_login` (bloqueio progressivo por conta e origem) e `sessions`.
 
-Não há versionamento nem congelamento do catálogo, e isso é decisão consciente,
-explicada na seção 6: quem protege a cobrança passada é a consulta e a fatura
-gravarem preço e custo na emissão.
+Catálogo: `catalogos` (a tabela de preços, com alíquota de imposto e parâmetros de
+margem), `servicos`, `precos` (preço de venda e custo interno por serviço e
+faixa), `planos` e `franquias_plano`.
 
-Os preços dos anexos A e B entram pelo `CatalogoSeeder`, a partir de
-`database/seeders/dados/`, gerado por `tools/gera_precos_catalogo.py`. Os custos
-de crédito entram pelo `CustosSeeder`.
+Consumo e cobrança: `consultas` (preço e custo congelados na emissão), `faturas`
+(a cascata inteira, mais a alíquota e o percentual de comissão usados) e
+`itens_fatura` (composição por serviço, com quantidade na franquia e excedente).
 
-As telas de catálogo (`/catalogo`, restritas a administração) têm quatro abas:
+Registro: `auditoria`, `documentos` e `aceites_documento`.
 
-- **Planos**: cadastro de plano, faixa contratada e franquia por serviço;
-- **Catálogo**: a matriz de preços por faixa, de leitura, em três visões (venda,
-  custo e margem), com um botão de edição por linha;
-- **Serviços**: cadastro, renomeação, categoria, interruptor de disponibilidade
-  e trava de liberação jurídica; a página de cada serviço edita também custo e
-  preço de cada faixa;
-- **Calculadora**: simulação de lucro de um contrato, por GET e sem gravar nada.
+### Telas
 
-Fora das abas, `/catalogo/parametros` guarda a alíquota de imposto. Os preços
-são editados manualmente na ficha de cada serviço.
+A área de gestão é dividida por papel, e a divisão é física.
 
-Serviço não é excluído, apenas desativado: franquia de plano, consulta e fatura
-apontam para ele, e apagar levaria a franquia junto por cascata e deixaria
-histórico órfão. O código do serviço é imutável depois da criação.
+**Administração** vê Empresa, Catálogo, Financeiro, Equipe e Auditoria.
 
-O cálculo de dinheiro vive em `app/Support`: `Dinheiro` (centavos inteiros,
-leitura e formatação), `Margem` (imposto, lucro, comissão e piso),
-`Comissao` (alíquota e rateio da adesão), `Simulacao` (o mês de um contrato) e
-`Planilha` (xlsx escrito e lido sem dependência externa). Regra de negócio que
-grava vive em `app/Actions`. A suíte tem 181 testes.
+- **Empresa**: cadastro com CNPJ validado por dígito, plano e vendedor; ficha com
+  o consumo da competência aberta, fechamento e as faturas emitidas.
+- **Catálogo**: quatro abas, Planos, Catálogo, Serviços e Calculadora, mais a
+  página de parâmetros comerciais. A matriz é de leitura, com edição por linha na
+  página do serviço.
+- **Financeiro**: faturas de todas as empresas com o que há a receber, o que
+  venceu e o que foi liquidado; confirmação de pagamento e o total de comissão a
+  repassar por vendedor.
+- **Equipe**: quem trabalha na Avalia e o percentual de comissão de cada vendedor.
+- **Auditoria**: a trilha, apenas leitura.
 
-Ainda futuros: conectores de `consultas`, `cobrancas_asaas` e `eventos_asaas`,
-`comissoes`, `bonus_cadastro` e `repasses`, `campanhas` e `elegibilidade` e
-`chamados`. As estruturas de faturas, itens de fatura, auditoria, documentos e
-aceites já estão implementadas.
+**Vendedor** vê apenas a carteira: as empresas dele, o consumo da competência
+aberta e a comissão por competência, separando o que já foi liberada do que
+aguarda o pagamento da empresa. Custo, lucro e margem não aparecem.
 
-A navegação já expõe a Gestão do cliente. Consultas, Histórico, Financeiro e
-Auditoria permanecem como módulos futuros (`emBreve`). Isso reflete o plano
-estrutural, mas permite que a entrega seja feita por fases sem quebrar o fluxo
-de uso.
+**Empresa cliente** entra na área dela, onde hoje há documentos e aceite.
+
+### Regras que o código garante
+
+- Preço e custo são **copiados** para a consulta e para a fatura no momento da
+  emissão. É essa cópia, e não travar o catálogo, que impede um reajuste de hoje
+  de reescrever a cobrança de ontem.
+- A franquia é aplicada **por serviço e em quantidade**, antes de apurar o
+  excedente. Sobre a soma em reais, um serviço barato cobriria um caro.
+- O consumo mínimo é piso de **cobrança**, não de consumo: o cliente paga o maior
+  entre o consumido e o contratado, mas só custa o que consultou.
+- Uma competência fechada não aceita consulta nova, e não fecha duas vezes: o
+  banco tem chave única por empresa e competência.
+- A comissão só é liberada quando o pagamento é confirmado, e a confirmação é
+  idempotente: a mesma confirmação repetida não libera duas vezes.
+- Serviço e membro da equipe não são excluídos, apenas desativados: fatura,
+  franquia e trilha apontam para eles.
+- Revogar acesso derruba a sessão e o cookie de lembrança na hora.
+
+### Cálculo
+
+O dinheiro vive em `app/Support`: `Dinheiro` (centavos inteiros, leitura e
+formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comissao`
+(alíquota e rateio da adesão), `Simulacao` (o mês de um contrato), `Documento`
+(CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
+Regra de negócio que grava vive em `app/Actions`.
+
+A suíte tem 227 testes.
+
+### O que não existe
+
+Conector de consulta ao fornecedor, cobrança e webhook, fechamento automático de
+competência, repasse ao vendedor, taxa de adesão cobrada, vigência de contrato,
+campanhas, atendimento e indicadores. O portal da empresa ainda não mostra
+consultas, franquia, segunda via nem pagamento.
 
 ## Anexo A. Preços de referência: crédito
 

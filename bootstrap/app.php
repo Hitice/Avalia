@@ -23,6 +23,19 @@ return Application::configure(basePath: dirname(__DIR__))
         // Visitante sem sessao vai para /entrar, e nao para a rota 'login'
         // que o Laravel assume por padrao e que aqui nao existe.
         $middleware->redirectGuestsTo(fn () => route('entrar'));
+
+        /*
+         * E quem ja entrou volta para a area DELE.
+         *
+         * O padrao do Laravel manda todo mundo para "/", que aqui e a area de
+         * gestao. Com duas naturezas de conta isso vira laco infinito: a empresa
+         * autenticada abre "/", o auth:staff recusa e manda para /entrar, o
+         * guest ve que ela esta autenticada e devolve para "/", sem fim. O
+         * navegador para sozinho com ERR_TOO_MANY_REDIRECTS.
+         */
+        $middleware->redirectUsersTo(fn () => Auth::guard('empresa')->check()
+            ? route('empresa.painel')
+            : route('painel'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         /*
