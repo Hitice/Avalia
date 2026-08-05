@@ -73,6 +73,22 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'auditoria' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/auditoria.log'),
+            'level' => 'info',
+            'days' => env('AUDIT_LOG_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
+        'seguranca' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/seguranca.log'),
+            'level' => 'info',
+            'days' => env('SECURITY_LOG_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

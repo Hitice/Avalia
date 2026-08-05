@@ -40,12 +40,6 @@ class Catalogo extends Model
         return self::pontosRotulo($this->imposto_bps);
     }
 
-    /** Margem liquida alvo legivel: 3000 -> "30%". */
-    public function margemAlvoRotulo(): string
-    {
-        return self::pontosRotulo($this->margem_alvo_bps);
-    }
-
     /**
      * Comissao do vendedor em pontos-base, para entrar no calculo de margem.
      *
@@ -55,33 +49,6 @@ class Catalogo extends Model
     public function comissaoBps(): int
     {
         return Comissao::PCT_PADRAO * 100;
-    }
-
-    /**
-     * Margem alvo de cada faixa, em pontos-base.
-     *
-     * A margem alvo e o piso e vale para a MAIOR faixa. Cada degrau abaixo
-     * soma degrau_margem_bps, entao o preco unitario cai conforme o cliente
-     * sobe de pacote e o pacote maior fica de fato mais vantajoso.
-     *
-     * @param  list<int>  $faixas  em ordem crescente
-     * @return array<int, int> faixa em centavos => margem em bps
-     */
-    public function margemPorFaixa(array $faixas): array
-    {
-        $degraus = max(0, count($faixas) - 1);
-        $margens = [];
-
-        foreach (array_values($faixas) as $posicao => $faixa) {
-            $margens[$faixa] = $this->margem_alvo_bps + $this->degrau_margem_bps * ($degraus - $posicao);
-        }
-
-        return $margens;
-    }
-
-    public function degrauRotulo(): string
-    {
-        return self::pontosRotulo($this->degrau_margem_bps);
     }
 
     private static function pontosRotulo(int $bps): string

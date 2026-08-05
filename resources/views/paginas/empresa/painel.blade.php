@@ -1,13 +1,11 @@
-@extends('layouts.app', ['title' => 'Minha area'])
-
-@php($empresa = auth('empresa')->user())
+@extends('layouts.app', ['title' => 'Área do cliente'])
 
 @section('content')
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
             {{ $empresa->razao_social }}
         </h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Area da empresa contratante</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Área do cliente</p>
     </div>
 
     {{-- Conta suspensa entra, mas nao consulta. A tela diz o porque em vez de
@@ -26,4 +24,36 @@
             Consultas e faturas aparecem aqui quando os modulos Consulta e Faturamento entrarem.
         </p>
     </div>
+
+    @if ($documentos->isNotEmpty())
+        <div class="cartao mt-6 overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Documentos e aceites</h2>
+            </div>
+            <ul class="divide-y divide-gray-100 dark:divide-gray-800">
+                @foreach ($documentos as $documento)
+                    <li class="flex flex-wrap items-center justify-between gap-4 px-6 py-4">
+                        <div>
+                            <p class="font-medium text-gray-800 dark:text-white/90">{{ $documento->titulo }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Versão {{ $documento->versao }}</p>
+                            <details class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                                <summary class="cursor-pointer text-brand-600 dark:text-brand-400">Ler documento</summary>
+                                <div class="mt-2 whitespace-pre-line">{{ $documento->conteudo }}</div>
+                            </details>
+                        </div>
+                        @if (in_array($documento->id, $aceites, true))
+                            <span class="etiqueta etiqueta-sucesso">Aceito</span>
+                        @elseif ($documento->exige_aceite)
+                            <form method="POST" action="{{ route('empresa.documentos.aceitar', $documento) }}">
+                                @csrf
+                                <x-avalia.botao variante="secundario" tamanho="sm">Li e aceito</x-avalia.botao>
+                            </form>
+                        @else
+                            <span class="etiqueta etiqueta-neutra">Disponível</span>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 @endsection

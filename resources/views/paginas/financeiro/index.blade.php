@@ -1,0 +1,161 @@
+@extends('layouts.app', ['title' => 'Financeiro'])
+
+@php
+    use App\Models\Fatura;
+    use App\Support\Dinheiro;
+
+    $etiqueta = [
+        'liquidado' => 'etiqueta-sucesso',
+        'vencido' => 'etiqueta-alerta',
+        'pendente' => 'etiqueta-neutra',
+        'cancelado' => 'etiqueta-erro',
+        'estornado' => 'etiqueta-erro',
+    ];
+
+    $filtros = collect(['' => 'Todas'] + array_combine(Fatura::SITUACOES_PAGAMENTO, array_map('ucfirst', Fatura::SITUACOES_PAGAMENTO)))
+        ->map(fn ($rotulo, $chave) => [
+            'rotulo' => $rotulo,
+            'url' => route('financeiro.index', array_filter(['situacao' => $chave])),
+        ])
+        ->all();
+@endphp
+
+@section('content')
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Financeiro</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            As competências fechadas de todas as empresas. A comissão do vendedor só é liberada
+            quando a fatura é liquidada.
+        </p>
+    </div>
+
+    @include('paginas.catalogo.avisos')
+
+    <div class="mb-6 grid gap-4 sm:grid-cols-3">
+        <div class="cartao p-5">
+            <span class="rotulo-grupo block">A receber</span>
+            <span class="mt-1 block text-xl font-semibold text-gray-800 dark:text-white/90">
+                {{ Dinheiro::brl($totais['a_receber']) }}
+            </span>
+        </div>
+        <div class="cartao p-5">
+            <span class="rotulo-grupo block">Vencido</span>
+            <span class="mt-1 block text-xl font-semibold {{ $totais['vencido'] > 0 ? 'text-error-600 dark:text-error-400' : 'text-gray-800 dark:text-white/90' }}">
+                {{ Dinheiro::brl($totais['vencido']) }}
+            </span>
+        </div>
+        <div class="cartao p-5">
+            <span class="rotulo-grupo block">Liquidado</span>
+            <span class="mt-1 block text-xl font-semibold text-success-600 dark:text-success-500">
+                {{ Dinheiro::brl($totais['liquidado']) }}
+            </span>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <x-avalia.segmentado rotulo="Mostrar" :atual="$situacao ?? ''" :itens="$filtros" />
+    </div>
+
+    <div class="cartao overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="tabela min-w-[60rem]">
+                <thead class="tabela-cabecalho">
+                    <tr>
+                        <th class="px-5 py-3 text-left font-medium">Empresa</th>
+                        <th class="px-5 py-3 text-left font-medium">Competência</th>
+                        <th class="px-5 py-3 text-left font-medium">Pagamento</th>
+                        <th class="px-5 py-3 text-right font-medium">Total</th>
+                        <th class="px-5 py-3 text-right font-medium">Lucro</th>
+                        <th class="px-5 py-3 text-right font-medium">Comissão</th>
+                        <th class="px-5 py-3 text-right font-medium">Vence</th>
+                        <th class="px-5 py-3 text-right font-medium">Baixa</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @forelse ($faturas as $fatura)
+                        <tr>
+                            <td class="px-5 py-4 text-left">
+                                <a href="{{ route('empresas.ficha', $fatura->cliente) }}"
+                                   class="hover:text-brand-500 dark:hover:text-brand-400 font-medium text-gray-800 dark:text-white/90">
+                                    {{ $fatura->cliente->razao_social }}
+                                </a>
+                                @if ($fatura->vendedor)
+                                    <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $fatura->vendedor->nome }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
+                                {{ $fatura->competenciaRotulo() }}
+                            </td>
+                            <td class="px-5 py-4 text-left">
+                                <span class="etiqueta {{ $etiqueta[$fatura->situacao_pagamento] ?? 'etiqueta-neutra' }}">
+                                    {{ $fatura->situacao_pagamento }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 text-right font-medium tabular-nums whitespace-nowrap text-gray-800 dark:text-white/90">
+                                {{ $fatura->totalRotulo() }}
+                            </td>
+                            <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                {{ Dinheiro::brl($fatura->lucro_cents) }}
+                            </td>
+                            <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                {{ Dinheiro::brl($fatura->comissao_cents) }}
+                                @if ($fatura->comissao_liberada_em)
+                                    <span class="mt-0.5 block text-xs text-success-600 dark:text-success-500">liberada</span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                {{ $fatura->vencimento()->format('d/m/Y') }}
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                @if ($fatura->estaLiquidada())
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $fatura->liquidada_em?->format('d/m/Y') }}
+                                    </span>
+                                @else
+                                    <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
+                                          onsubmit="return confirm('Registrar o pagamento desta fatura?')">
+                                        @csrf
+                                        <x-avalia.botao variante="secundario" tamanho="sm">Dar baixa</x-avalia.botao>
+                                    </form>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="tabela-vazia">Nenhuma fatura nesta situação.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if ($comissoes->isNotEmpty())
+        <div class="cartao mt-6 overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão liberada por vendedor</h2>
+                <p class="ajuda-campo mt-1">Só entra aqui a comissão de fatura já paga.</p>
+            </div>
+
+            <table class="tabela">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @foreach ($comissoes as $linha)
+                        <tr>
+                            <td class="px-6 py-4 text-left text-gray-800 dark:text-white/90">
+                                {{ $linha->vendedor->nome }}
+                                <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                                    {{ $linha->faturas }} fatura(s)
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right font-medium tabular-nums text-gray-800 dark:text-white/90">
+                                {{ Dinheiro::brl($linha->total_cents) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+@endsection

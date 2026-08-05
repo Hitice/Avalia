@@ -2,9 +2,7 @@
 
 use App\Models\Catalogo;
 use App\Models\Cliente;
-use App\Models\Consulta;
 use App\Models\Plano;
-use App\Models\Servico;
 use App\Models\Staff;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -114,7 +112,7 @@ it('derruba a sessao ao encerrar o contrato', function () {
 |--------------------------------------------------------------------------
 */
 
-it('registra consulta e fecha a competencia pela ficha', function () {
+it('fecha a competência exibida na ficha', function () {
     $catalogo = Catalogo::factory()->comServico('scpc-bvs', [90_000 => 324])->create();
     $catalogo->precos()->update(['custo_cents' => 150]);
 
@@ -124,20 +122,11 @@ it('registra consulta e fecha a competencia pela ficha', function () {
     ]);
 
     $empresa = Cliente::factory()->create(['plano_id' => $plano->id, 'cnpj' => '12345678000195']);
-    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
-
-    admin()->post(route('empresas.consultar', $empresa), [
-        'servico_id' => $servico->id,
-        'quantidade' => 10,
-    ])->assertSessionHas('ok');
-
-    expect(Consulta::count())->toBe(10);
-
     admin()->post(route('empresas.fechar', $empresa))->assertSessionHas('ok');
 
     $fatura = $empresa->faturas()->first();
 
-    expect($fatura->consumo_realizado_cents)->toBe(3_240)
+    expect($fatura->consumo_realizado_cents)->toBe(0)
         ->and($fatura->consumo_faturado_cents)->toBe(90_000)   // o piso do plano
         ->and($fatura->total_cents)->toBe(97_990);
 
@@ -145,18 +134,6 @@ it('registra consulta e fecha a competencia pela ficha', function () {
     admin()->get(route('empresas.ficha', $empresa))
         ->assertOk()
         ->assertSee("R$\u{00A0}979,90", false);
-});
-
-it('avisa em vez de registrar consulta de empresa suspensa', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [90_000 => 324])->create();
-    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => $catalogo->id]);
-    $empresa = Cliente::factory()->inadimplente()->create(['plano_id' => $plano->id]);
-
-    admin()->post(route('empresas.consultar', $empresa), [
-        'servico_id' => Servico::firstWhere('codigo', 'scpc-bvs')->id,
-    ])->assertSessionHas('erro');
-
-    expect(Consulta::count())->toBe(0);
 });
 
 it('abre a ficha de empresa sem plano sem quebrar', function () {

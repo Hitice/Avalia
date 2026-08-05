@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Catálogo'])
+@extends('layouts.app', ['title' => 'Tabelas'])
 
 @php
     use App\Http\Controllers\CatalogoController;
@@ -42,7 +42,7 @@
 @endphp
 
 @section('content')
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">Catálogo</h1>
+    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">TABELAS</h1>
 
     @include('paginas.catalogo.abas', ['atual' => 'catalogo'])
 
@@ -56,15 +56,14 @@
     @else
         <div class="mb-6 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <div class="flex flex-wrap items-end gap-x-8 gap-y-4">
-                <x-avalia.segmentado data-abas="visoes" rotulo="Mostrar" :atual="$visao" :itens="$itensVisao" />
+                <x-avalia.segmentado data-abas="visoes" rotulo="TABELAS" :atual="$visao" :itens="$itensVisao" />
                 <x-avalia.segmentado data-abas="categorias" rotulo="Serviços" :atual="$categoria ?? ''" :itens="$itensCategoria" />
             </div>
 
             @if ($visao === 'margem')
                 <a href="{{ route('catalogo.parametros') }}"
                    class="hover:text-brand-500 dark:hover:text-brand-400 text-xs text-gray-500 dark:text-gray-400">
-                    Imposto {{ $catalogo->impostoRotulo() }} · comissão {{ number_format($catalogo->comissaoBps() / 100, 0) }}%
-                    · alvo {{ $catalogo->margemAlvoRotulo() }} · ajustar
+                    Imposto {{ $catalogo->impostoRotulo() }} · ajustar
                 </a>
             @endif
         </div>
@@ -127,8 +126,6 @@
                                                 @php
                                                     $pct = Margem::pct($preco->preco_cents, $preco->custo_cents,
                                                         $catalogo->imposto_bps, $catalogo->comissaoBps());
-                                                    $abaixo = ! Margem::atinge($preco->preco_cents, $preco->custo_cents,
-                                                        $catalogo->imposto_bps, $catalogo->comissaoBps(), $catalogo->margem_alvo_bps);
                                                 @endphp
 
                                                 @if ($pct === null)
@@ -136,7 +133,7 @@
                                                 @else
                                                     <span class="{{ $pct < 0
                                                         ? 'text-error-600 dark:text-error-400 font-medium'
-                                                        : ($abaixo ? 'text-warning-600 dark:text-warning-400' : '') }}">
+                                                        : '' }}">
                                                         {{ number_format($pct, 1, ',', '.') }}%
                                                     </span>
                                                 @endif

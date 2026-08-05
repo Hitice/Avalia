@@ -3,23 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Consumo\FecharCompetencia;
-use App\Actions\Consumo\RegistrarConsulta;
 use App\Http\Requests\EmpresaRequest;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Plano;
-use App\Models\Servico;
 use App\Models\Staff;
-use App\Support\Dinheiro;
-use Illuminate\Http\Request;
 
 /**
  * As empresas contratantes e o consumo delas.
  *
  * A ficha da empresa e o lugar onde o fluxo inteiro se ve de uma vez: plano
- * contratado, consultas do mes em aberto e faturas fechadas. Enquanto nao ha
- * integracao com o fornecedor, a consulta e registrada a mao daqui, e e assim
- * que se valida a cadeia catalogo, consumo e fatura de ponta a ponta.
+ * contratado, consultas do mes em aberto e faturas fechadas. As consultas
+ * chegam exclusivamente pelas integrações dos fornecedores.
  */
 class EmpresaController extends Controller
 {
@@ -73,26 +68,8 @@ class EmpresaController extends Controller
             'competencia' => $competencia,
             'consumo' => $empresa->consultas()->where('competencia', $competencia)->sum('preco_cents'),
             'quantidade' => $empresa->consultas()->where('competencia', $competencia)->count(),
-            'servicos' => $empresa->plano?->servicosDisponiveis() ?? collect(),
             'faturas' => $empresa->faturas()->orderByDesc('competencia')->get(),
         ]);
-    }
-
-    public function consultar(Request $request, Cliente $empresa, RegistrarConsulta $registrar)
-    {
-        $servico = Servico::findOrFail($request->input('servico_id'));
-        $resultado = $registrar($empresa, $servico, (int) $request->input('quantidade', 1));
-
-        if ($resultado['erro']) {
-            return back()->with('erro', $resultado['erro']);
-        }
-
-        return back()->with('ok', sprintf(
-            '%d consulta(s) de %s registradas, %s.',
-            $resultado['consultas'],
-            $servico->nome,
-            Dinheiro::brl($resultado['total_cents']),
-        ));
     }
 
     public function fechar(Cliente $empresa, FecharCompetencia $fechar)

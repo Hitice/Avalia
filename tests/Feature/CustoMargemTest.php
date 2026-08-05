@@ -156,7 +156,6 @@ it('comeca com os parametros comerciais do PDD', function () {
     $catalogo = Catalogo::factory()->create();
 
     expect($catalogo->impostoRotulo())->toBe('13,5%')
-        ->and($catalogo->margemAlvoRotulo())->toBe('30%')
         ->and($catalogo->comissaoBps())->toBe(1_000);
 });
 
@@ -164,33 +163,21 @@ it('ajusta os parametros na pagina propria', function () {
     $catalogo = Catalogo::factory()->create();
 
     admin()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '26.8', 'margem_alvo' => '30', 'degrau_margem' => '3',
+        'imposto' => '26.8',
     ])->assertSessionHas('ok');
 
     expect($catalogo->fresh()->imposto_bps)->toBe(2_680)
-        ->and($catalogo->fresh()->impostoRotulo())->toBe('26,8%')
-        ->and($catalogo->fresh()->margem_alvo_bps)->toBe(3_000);
+        ->and($catalogo->fresh()->impostoRotulo())->toBe('26,8%');
 });
 
 it('recusa aliquota de 100% ou mais', function () {
     $catalogo = Catalogo::factory()->create();
 
     admin()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '100', 'margem_alvo' => '30', 'degrau_margem' => '3',
+        'imposto' => '100',
     ])->assertSessionHasErrors('imposto');
 
     expect($catalogo->fresh()->imposto_bps)->toBe(1_350);
-});
-
-it('recusa escada que estoura 100% na faixa mais baixa', function () {
-    // 60% de piso mais degraus de 15% passaria de 100% com imposto e comissao.
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 500_000 => 370])->create();
-
-    admin()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '13.5', 'margem_alvo' => '60', 'degrau_margem' => '15',
-    ])->assertSessionHasErrors('degrau_margem');
-
-    expect($catalogo->fresh()->margem_alvo_bps)->toBe(3_000);
 });
 
 /*
@@ -257,61 +244,6 @@ it('nao deixa vendedor ver custo nem mexer em parametro', function () {
     $vendedor()->get(route('catalogo.tabela', ['visao' => 'margem']))->assertForbidden();
     $vendedor()->get(route('catalogo.parametros'))->assertForbidden();
     $vendedor()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '10', 'margem_alvo' => '30', 'degrau_margem' => '3',
+        'imposto' => '10',
     ])->assertForbidden();
-});
-
-/*
-|--------------------------------------------------------------------------
-| Escada de margem
-|--------------------------------------------------------------------------
-*/
-
-it('da mais margem a cada degrau abaixo do topo', function () {
-    // A margem alvo e o piso e vale para a MAIOR faixa.
-    $catalogo = Catalogo::factory()->create(['margem_alvo_bps' => 3_000, 'degrau_margem_bps' => 300]);
-
-    $margens = $catalogo->margemPorFaixa([0, 7_500, 90_000, 500_000]);
-
-    expect($margens)->toBe([0 => 3_900, 7_500 => 3_600, 90_000 => 3_300, 500_000 => 3_000]);
-});
-
-it('reprecifica de forma que o pacote maior sai mais barato por consulta', function () {
-    $catalogo = Catalogo::factory()
-        ->comServico('scpc-bvs', [0 => 631, 90_000 => 493, 500_000 => 370])
-        ->create(['margem_alvo_bps' => 3_000, 'degrau_margem_bps' => 300]);
-
-    $catalogo->precos()->update(['custo_cents' => 280]);
-
-    admin()->post(route('catalogo.precificar', $catalogo))->assertSessionHas('ok');
-
-    // Preco unitario cai conforme o cliente sobe de pacote.
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBeGreaterThan($catalogo->precoDe('scpc-bvs', 90_000))
-        ->and($catalogo->precoDe('scpc-bvs', 90_000))->toBeGreaterThan($catalogo->precoDe('scpc-bvs', 500_000));
-});
-
-it('nunca deixa nenhuma faixa abaixo da margem alvo', function () {
-    $catalogo = Catalogo::factory()
-        ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493, 500_000 => 370])
-        ->comServico('vip-car', [0 => 5_530, 7_500 => 5_364, 90_000 => 4_896, 500_000 => 4_468])
-        ->create(['margem_alvo_bps' => 3_000, 'degrau_margem_bps' => 300]);
-
-    $catalogo->precos()->update(['custo_cents' => 280]);
-
-    admin()->post(route('catalogo.precificar', $catalogo));
-
-    foreach ($catalogo->precos()->get() as $preco) {
-        expect(Margem::atinge(
-            $preco->preco_cents, $preco->custo_cents,
-            $catalogo->imposto_bps, $catalogo->comissaoBps(), $catalogo->margem_alvo_bps,
-        ))->toBeTrue();
-    }
-});
-
-it('deixa de fora o servico sem custo', function () {
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
-
-    admin()->post(route('catalogo.precificar', $catalogo));
-
-    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(631);
 });

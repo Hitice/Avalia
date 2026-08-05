@@ -8,7 +8,7 @@
     $modulos = [
         ['nome' => 'Acesso', 'estado' => 'pronto', 'nota' => 'Login, sessão e proteção contra força bruta'],
         ['nome' => 'Catálogo', 'estado' => 'agora', 'nota' => 'Preços, planos e franquia por serviço'],
-        ['nome' => 'Cadastro', 'estado' => 'fila', 'nota' => 'Ficha do cliente e situação contratual'],
+        ['nome' => 'Empresa', 'estado' => 'pronto', 'nota' => 'Gestão cadastral, plano e situação contratual'],
         ['nome' => 'Consulta', 'estado' => 'fila', 'nota' => 'Integração com o fornecedor e relatório'],
         ['nome' => 'Faturamento', 'estado' => 'fila', 'nota' => 'Competência, fechamento e vencimento'],
         ['nome' => 'Comissão', 'estado' => 'fila', 'nota' => 'Apuração e repasse ao vendedor'],

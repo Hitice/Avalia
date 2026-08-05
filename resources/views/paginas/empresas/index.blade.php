@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Empresas'])
+@extends('layouts.app', ['title' => 'Gestão do cliente'])
 
 @php
     use App\Support\Dinheiro;
@@ -14,9 +14,9 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Empresas</h1>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Gestão do cliente</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Quem contrata a Avalia. A situação comanda o acesso e a cobrança: só empresa ativa consulta.
+                Empresas cadastradas.
             </p>
         </div>
 

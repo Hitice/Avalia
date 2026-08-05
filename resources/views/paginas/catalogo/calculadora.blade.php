@@ -9,10 +9,9 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Calculadora de lucro</h1>
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Calculadora</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Quanto um contrato deixa por mês, antes de assinar. Nada é gravado, e o endereço
-            guarda o cenário: copie a barra do navegador para mostrar a simulação a alguém.
+            Simulação de receita.
         </p>
     </div>
 
@@ -96,7 +95,7 @@
                             <tr>
                                 <td class="py-3 text-left text-gray-600 dark:text-gray-300">
                                     Imposto
-                                    <span class="ajuda-campo block">{{ $catalogo->impostoRotulo() }} sobre a fatura inteira</span>
+                                    <span class="ajuda-campo block">{{ $catalogo->impostoRotulo() }} sobre o faturamento</span>
                                 </td>
                                 <td class="py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
                                     − {{ Dinheiro::brl($mes['imposto_cents']) }}
@@ -104,13 +103,12 @@
                             </tr>
                             <tr>
                                 <td class="py-3 text-left text-gray-600 dark:text-gray-300">
-                                    Custo do fornecedor
+                                    Custo Fornecedor
                                     <span class="ajuda-campo block">
                                         @if ($entrada['custo_bps'] === null)
                                             nenhum custo cadastrado nesta faixa
                                         @else
-                                            {{ number_format($entrada['custo_bps'] / 100, 1, ',', '.') }}% do consumo,
-                                            pela tabela; só sobre o que foi consultado de fato
+                                            {{ number_format($entrada['custo_bps'] / 100, 1, ',', '.') }}% do consumo sobre o total.
                                         @endif
                                     </span>
                                 </td>
@@ -197,9 +195,7 @@
                 @endif
 
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    O custo vem da tabela: custo e preço de venda são fixos por serviço, então a proporção
-                    entre eles já está decidida e vale para o consumo total, qualquer que seja o mix.
-                    Cliente que só consulte os serviços de margem mais apertada rende menos que isto.
+                    Informações baseadas no catálogo vigente, apenas para referência média de resultado.
                 </p>
             </div>
         </div>

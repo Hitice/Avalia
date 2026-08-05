@@ -60,8 +60,6 @@ no catálogo versionado, nunca no código.
 | Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
 | Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
 | Imposto sobre a venda | 13,50% | Alíquota apurada da Avalia, confirmada em 05/08/2026. Substitui a estimativa anterior de 8,60%, que era a faixa inicial do Simples. Incide sobre a nota cheia, antes de qualquer outro desconto. |
-| Margem líquida alvo | 30% na maior faixa | Depois de custo do fornecedor, imposto e comissão do vendedor. |
-| Ganho por degrau | 3 pontos por faixa | Cada faixa abaixo da maior ganha 3 pontos de margem, o que produz o desconto por volume sem furar o piso. |
 | Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. |
 
 Todos os valores financeiros são inteiros em centavos, do banco até a tela. Não
@@ -95,7 +93,7 @@ O preço de tabela é o valor final ao cliente da Avalia. O custo efetivo do
 fornecedor é interno, cadastrado separadamente, e nunca é exibido ao cliente ou
 ao vendedor.
 
-### Margem, piso e escada de preço
+### Margem e piso de preço
 
 A administração vê a mesma matriz do catálogo sob três visões: preço de venda,
 custo do fornecedor e margem. As duas últimas são internas e ficam atrás da mesma
@@ -106,7 +104,6 @@ restrição de acesso do catálogo: vendedor não entra.
     comissão = 10% do lucro
     margem   = lucro − comissão
     piso     = custo ÷ (1 − imposto)
-    preço    = custo × 0,9 ÷ [ 0,9 × (1 − imposto) − margem alvo da faixa ]
 
 A ordem importa. O imposto sai primeiro, porque incide sobre a nota cheia. O
 custo do fornecedor sai em seguida, porque é a Avalia que o paga. O que sobra é
@@ -126,15 +123,9 @@ O piso não é cadastrado, é calculado, e **preço abaixo dele é recusado na
 gravação**. Relatar prejuízo depois do fato não impede ninguém de vender no
 negativo.
 
-**A escada de desconto por volume é construída de cima para baixo.** O fornecedor
-cobra o mesmo por consulta independentemente da faixa, então todo desconto que a
-Avalia dá sai da margem dela. Por isso a margem alvo vale para a **maior** faixa,
-que é o piso comercial, e cada faixa abaixo ganha o degrau. O resultado é um
-desconto real para quem contrata o pacote maior, com margem garantida em todas as
-faixas.
-
-A tela marca em vermelho a célula no prejuízo e em amarelo a que está abaixo da
-margem alvo.
+Preço e custo são editados manualmente por serviço e faixa. A tela usa a visão
+de margem apenas para informar o resultado; ela não recalcula nem altera preços
+em lote.
 
 Custo em branco significa **custo ainda não cadastrado**, e é diferente de custo
 zero: sem o dado, a plataforma não exibe margem nem piso em vez de exibir um
@@ -157,10 +148,9 @@ catálogo é de leitura, com um botão de edição por linha. Preço abaixo do p
 recusa o lote inteiro, e não apenas a célula: gravar só o que passou deixaria o
 operador achando que salvou tudo.
 
-Duas ações não passam por formulário. A disponibilidade do serviço é um
-interruptor que grava no próprio clique, e a escada de margem recalcula o
-catálogo inteiro a partir dos parâmetros comerciais, que vivem em página
-separada por mexerem em todas as linhas de uma vez.
+A disponibilidade do serviço é um interruptor que grava no próprio clique. A
+alíquota de imposto fica em página separada porque é um parâmetro financeiro
+global; ela não altera preços automaticamente.
 
 Não há congelamento do catálogo, e isso é decisão consciente. O que impede um
 reajuste de hoje de alterar cobrança de ontem é cada consulta e cada fatura
@@ -246,8 +236,9 @@ captura de tela.
 
 ### Cálculo mensal
 
-    consumo_realizado = valor das consultas concluídas com sucesso
-    valor_de_consumo  = max(consumo_minimo, consumo_realizado)
+    consumo_bruto     = valor das consultas concluídas com sucesso
+    consumo_excedente = consumo_bruto − valor das consultas incluídas na franquia
+    valor_de_consumo  = max(consumo_minimo, consumo_excedente)
     fatura            = mensalidade + valor_de_consumo
 
 A franquia é medida por quantidade de consultas de cada serviço. Cada consulta
@@ -255,7 +246,8 @@ concluída reduz uma unidade disponível e possui preço unitário no catálogo.
 excedente é o consumo que ultrapassa a franquia contratada e entra de forma
 consolidada na fatura mensal; não há cobrança avulsa durante a consulta.
 
-O painel do cliente mostra plano e vigência, franquia contratada, utilizada e
+No fechamento, cada serviço gera item próprio com quantidade utilizada na
+franquia, quantidade excedente, valores e custo congelados. O painel do cliente mostra plano e vigência, franquia contratada, utilizada e
 disponível, valor consumido, excedentes previstos, serviços disponíveis e a
 situação da última fatura. Ele não mostra fornecedor, custo interno, margem ou comissão.
 
@@ -276,6 +268,11 @@ A linha do tempo da inadimplência é fixa:
 | 11 a 19 | Fatura em atraso. Consultas continuam liberadas; o cliente é avisado. |
 | 20 | Bloqueio das consultas. O login permanece aberto para o cliente ver a fatura, obter a segunda via e regularizar. |
 | Liquidação | Consultas liberadas de volta no mesmo ciclo, sem esperar a competência seguinte. |
+
+Cada fatura começa como **pendente**, torna-se **vencida** após o vencimento e
+só se torna **liquidada** por confirmação idempotente do Asaas. A liquidação
+libera a comissão daquela fatura e reativa a empresa inadimplente apenas se não
+houver outra fatura pendente ou vencida.
 
 O bloqueio existe para forçar o pagamento, não para punir: por isso ele fecha a
 consulta e mantém o acesso à fatura. Cliente que não consegue ver o que deve não
@@ -586,7 +583,7 @@ falhas, logs seguros e documentação de operação.
   cada preço.
 - **Levantar o custo do fornecedor dos serviços veiculares.** Os 26 serviços de
   crédito já estão com custo cadastrado; os veiculares não, e por isso ficam de
-  fora da escada de margem e do cálculo de piso.
+  fora da visualização de margem e do cálculo de piso.
 - Homologar comercialmente os preços dos anexos A e B e a margem sobre o custo do fornecedor.
 - Definir a quantidade incluída na franquia de cada serviço, por faixa.
 - Definir quais serviços dos anexos entram no catálogo inicial e quais ficam desativados.
@@ -601,8 +598,8 @@ Acesso: `staff` (contas de administração e vendedores), `clientes` (empresas
 contratantes com login, situação e controle de sessão), `tentativas_login`
 (bloqueio progressivo por conta e origem) e `sessions`.
 
-Catálogo: `catalogos` (a tabela de preços, com alíquota de imposto, margem alvo
-e degrau por faixa), `servicos` (código, nome comercial, categoria e trava de
+Catálogo: `catalogos` (a tabela de preços, com alíquota de imposto), `servicos`
+(código, nome comercial, categoria e trava de
 liberação), `precos` (preço de venda e custo interno por serviço e faixa),
 `planos` (catálogo contratado, mensalidade, consumo mínimo) e `franquias_plano`
 (quantidade incluída por serviço).
@@ -625,26 +622,28 @@ As telas de catálogo (`/catalogo`, restritas a administração) têm quatro aba
   preço de cada faixa;
 - **Calculadora**: simulação de lucro de um contrato, por GET e sem gravar nada.
 
-Fora das abas, `/catalogo/parametros` guarda imposto, margem alvo e degrau, e é
-de lá que sai a reprecificação do catálogo inteiro pela escada de margem.
+Fora das abas, `/catalogo/parametros` guarda a alíquota de imposto. Os preços
+são editados manualmente na ficha de cada serviço.
 
 Serviço não é excluído, apenas desativado: franquia de plano, consulta e fatura
 apontam para ele, e apagar levaria a franquia junto por cascata e deixaria
 histórico órfão. O código do serviço é imutável depois da criação.
 
 O cálculo de dinheiro vive em `app/Support`: `Dinheiro` (centavos inteiros,
-leitura e formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo),
+leitura e formatação), `Margem` (imposto, lucro, comissão e piso),
 `Comissao` (alíquota e rateio da adesão), `Simulacao` (o mês de um contrato) e
 `Planilha` (xlsx escrito e lido sem dependência externa). Regra de negócio que
 grava vive em `app/Actions`. A suíte tem 181 testes.
 
-Ainda futuros: `consultas`, `faturas` e `itens_fatura`, `cobrancas_asaas` e
-`eventos_asaas`, `comissoes`, `bonus_cadastro` e `repasses`, `campanhas` e
-`elegibilidade`, `documentos` e `aceites_documento`, `chamados`.
+Ainda futuros: conectores de `consultas`, `cobrancas_asaas` e `eventos_asaas`,
+`comissoes`, `bonus_cadastro` e `repasses`, `campanhas` e `elegibilidade` e
+`chamados`. As estruturas de faturas, itens de fatura, auditoria, documentos e
+aceites já estão implementadas.
 
-A navegação já expõe Consultas, Histórico, Empresas clientes, Financeiro e
-Auditoria como módulos futuros (`emBreve`). Isso reflete o plano estrutural, mas
-permite que a entrega seja feita por fases sem quebrar o fluxo de uso.
+A navegação já expõe a Gestão do cliente. Consultas, Histórico, Financeiro e
+Auditoria permanecem como módulos futuros (`emBreve`). Isso reflete o plano
+estrutural, mas permite que a entrega seja feita por fases sem quebrar o fluxo
+de uso.
 
 ## Anexo A. Preços de referência: crédito
 

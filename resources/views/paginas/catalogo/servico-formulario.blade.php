@@ -133,7 +133,7 @@
                     @endif
 
                     <div class="max-w-xs">
-                        <label for="custo" class="rotulo-campo">Custo do fornecedor</label>
+                        <label for="custo" class="rotulo-campo">Custo Fornecedor</label>
                         <input id="custo" name="custo" type="text" inputmode="decimal" placeholder="-"
                                value="{{ old('custo', $primeiroCusto === null ? '' : Dinheiro::numero($primeiroCusto)) }}"
                                class="campo">

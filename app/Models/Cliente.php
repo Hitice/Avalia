@@ -60,6 +60,11 @@ class Cliente extends Authenticatable implements ContaAutenticavel
         return $this->hasMany(Fatura::class);
     }
 
+    public function aceitesDocumentos(): HasMany
+    {
+        return $this->hasMany(AceiteDocumento::class);
+    }
+
     public function cnpjRotulo(): string
     {
         return Documento::formatarCnpj($this->cnpj);

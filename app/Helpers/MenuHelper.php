@@ -19,11 +19,11 @@ class MenuHelper
             ['icon' => 'dashboard', 'name' => 'Visão geral', 'path' => '/'],
             ['icon' => 'consulta', 'name' => 'Consultas', 'emBreve' => true],
             ['icon' => 'tables', 'name' => 'Histórico', 'emBreve' => true],
-            ['icon' => 'user-profile', 'name' => 'Empresas', 'path' => '/empresas', 'papeis' => ['admin']],
+            ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
-            ['icon' => 'charts', 'name' => 'Financeiro', 'emBreve' => true],
+            ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'emBreve' => true, 'papeis' => ['admin']],
-            ['icon' => 'authentication', 'name' => 'Auditoria', 'emBreve' => true, 'papeis' => ['admin']],
+            ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
 

@@ -10,10 +10,10 @@
 
                     <div class="mb-8">
                         <h1 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                            Entrar na Avalia
+                            Gestão <span class="text-brand-500 font-bold">360°</span> Avalia
                         </h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Acesso para equipe e empresas contratantes.
+                            Entre com suas credenciais para continuar.
                         </p>
                     </div>
 
@@ -47,7 +47,7 @@
                                 </label>
                                 <input type="email" id="email" name="email" required autofocus
                                     value="{{ old('email') }}" autocomplete="username"
-                                    placeholder="voce@empresa.com.br"
+                                    placeholder="exemplo@empresa.com.br"
                                     class="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                             </div>
 
@@ -88,7 +88,11 @@
                     </form>
 
                     <p class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-                        Não tem acesso? Fale com seu vendedor Avalia.
+                        Novo por aqui?
+                        <a href="https://wa.me/5534991176599" target="_blank" rel="noopener noreferrer"
+                           class="text-brand-600 hover:text-brand-700 font-medium dark:text-brand-400 dark:hover:text-brand-300">
+                            Fale com um de nossos representantes.
+                        </a>
                     </p>
                 </div>
             </div>
@@ -100,7 +104,7 @@
                     <div class="flex max-w-xs flex-col items-center">
                         <x-avalia.logotipo :tamanho="42" class="mb-5 [&>span:last-child]:text-white [&>span:last-child]:text-3xl" />
                         <p class="text-center text-gray-400 dark:text-white/60">
-                            Consulta de credito para quem vende a prazo.
+                            Segurança para suas melhores escolhas.
                         </p>
                     </div>
                 </div>

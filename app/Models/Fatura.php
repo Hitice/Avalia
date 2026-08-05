@@ -6,6 +6,7 @@ use App\Support\Dinheiro;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A competencia fechada de uma empresa.
@@ -22,6 +23,25 @@ class Fatura extends Model
 {
     use HasFactory;
 
+    public const PAGAMENTO_PENDENTE = 'pendente';
+
+    public const PAGAMENTO_VENCIDO = 'vencido';
+
+    public const PAGAMENTO_LIQUIDADO = 'liquidado';
+
+    public const PAGAMENTO_CANCELADO = 'cancelado';
+
+    public const PAGAMENTO_ESTORNADO = 'estornado';
+
+    /** Todas as situacoes, para filtro de tela e validacao. */
+    public const SITUACOES_PAGAMENTO = [
+        self::PAGAMENTO_PENDENTE,
+        self::PAGAMENTO_VENCIDO,
+        self::PAGAMENTO_LIQUIDADO,
+        self::PAGAMENTO_CANCELADO,
+        self::PAGAMENTO_ESTORNADO,
+    ];
+
     protected $table = 'faturas';
 
     /** Dia do vencimento e dias de tolerancia ate o bloqueio das consultas. */
@@ -34,7 +54,9 @@ class Fatura extends Model
         'mensalidade_cents', 'consumo_minimo_cents', 'consumo_realizado_cents',
         'consumo_faturado_cents', 'total_cents',
         'imposto_bps', 'imposto_cents', 'custo_cents', 'lucro_cents',
-        'comissao_pct', 'comissao_cents', 'fechada_em',
+        'comissao_pct', 'comissao_cents', 'fechada_em', 'situacao_pagamento',
+        'liquidada_em', 'comissao_liberada_em', 'consumo_bruto_cents',
+        'franquia_cents', 'consumo_excedente_cents',
     ];
 
     protected function casts(): array
@@ -52,6 +74,11 @@ class Fatura extends Model
             'comissao_pct' => 'integer',
             'comissao_cents' => 'integer',
             'fechada_em' => 'datetime',
+            'liquidada_em' => 'datetime',
+            'comissao_liberada_em' => 'datetime',
+            'consumo_bruto_cents' => 'integer',
+            'franquia_cents' => 'integer',
+            'consumo_excedente_cents' => 'integer',
         ];
     }
 
@@ -63,6 +90,16 @@ class Fatura extends Model
     public function vendedor(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'vendedor_id');
+    }
+
+    public function itens(): HasMany
+    {
+        return $this->hasMany(ItemFatura::class);
+    }
+
+    public function estaLiquidada(): bool
+    {
+        return $this->situacao_pagamento === self::PAGAMENTO_LIQUIDADO;
     }
 
     /** Vence sempre no dia 10 do mes seguinte ao consumo. */
@@ -77,7 +114,7 @@ class Fatura extends Model
     /** Quanto o cliente pagou de consumo que nao usou. */
     public function pagouSemUsarCents(): int
     {
-        return max(0, $this->consumo_faturado_cents - $this->consumo_realizado_cents);
+        return max(0, $this->consumo_faturado_cents - $this->consumo_excedente_cents);
     }
 
     public function competenciaRotulo(): string

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Catalogo\PrecificarPelaMargem;
 use App\Enums\Categoria;
 use App\Http\Requests\ParametrosCatalogoRequest;
 use App\Models\Catalogo;
@@ -75,7 +74,6 @@ class CatalogoController extends Controller
 
         return view('paginas.catalogo.parametros', [
             'catalogo' => $catalogo,
-            'faixas' => $catalogo->faixas(),
         ]);
     }
 
@@ -83,35 +81,11 @@ class CatalogoController extends Controller
     {
         $catalogo->update([
             'imposto_bps' => $request->bps('imposto'),
-            'margem_alvo_bps' => $request->bps('margem_alvo'),
-            'degrau_margem_bps' => $request->bps('degrau_margem'),
         ]);
 
         $catalogo->refresh();
 
-        return back()->with('ok', sprintf(
-            'Imposto %s, margem %s na maior faixa, subindo %s por degrau.',
-            $catalogo->impostoRotulo(),
-            $catalogo->margemAlvoRotulo(),
-            $catalogo->degrauRotulo(),
-        ));
-    }
-
-    public function precificar(Catalogo $catalogo, PrecificarPelaMargem $precificar)
-    {
-        $resultado = $precificar($catalogo);
-
-        if ($resultado['recalculados'] === 0) {
-            return back()->with('ok', 'Todos os preços já estão na escada. Nada a mudar.');
-        }
-
-        return back()->with('ok', sprintf(
-            '%d preço(s) recalculados: %s na maior faixa, subindo %s por degrau.%s',
-            $resultado['recalculados'],
-            $catalogo->margemAlvoRotulo(),
-            $catalogo->degrauRotulo(),
-            $resultado['sem_custo'] > 0 ? " {$resultado['sem_custo']} sem custo ficaram de fora." : '',
-        ));
+        return back()->with('ok', "Imposto {$catalogo->impostoRotulo()} atualizado.");
     }
 
     /**

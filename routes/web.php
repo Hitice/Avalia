@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\AreaClienteController;
+use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ServicoController;
@@ -38,9 +41,8 @@ Route::post('/sair', [LoginController::class, 'sair'])
 Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::view('/', 'paginas.painel')->name('painel');
 
-    // Empresas contratantes e o consumo delas. Enquanto nao ha integracao com
-    // o fornecedor, a consulta e registrada a mao na ficha: e assim que se
-    // valida a cadeia catalogo, consumo e fatura de ponta a ponta.
+    // Empresas contratantes e o consumo delas. Consultas sao registradas pelas
+    // integrações com os fornecedores, nunca manualmente pela gestão.
     Route::middleware('admin')->prefix('empresas')->name('empresas.')->group(function () {
         Route::get('/', [EmpresaController::class, 'index'])->name('index');
         Route::get('/nova', [EmpresaController::class, 'criar'])->name('criar');
@@ -48,9 +50,19 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::get('/{empresa}', [EmpresaController::class, 'ficha'])->name('ficha');
         Route::get('/{empresa}/editar', [EmpresaController::class, 'editar'])->name('editar');
         Route::put('/{empresa}', [EmpresaController::class, 'atualizar'])->name('atualizar');
-        Route::post('/{empresa}/consultar', [EmpresaController::class, 'consultar'])->name('consultar');
         Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])->name('fechar');
     });
+
+    // As faturas de todas as empresas. A baixa registrada aqui e a mesma que o
+    // provedor de cobranca dispara por webhook: uma acao so, para baixa manual
+    // e automatica nao divergirem.
+    Route::middleware('admin')->prefix('financeiro')->name('financeiro.')->group(function () {
+        Route::get('/', [FinanceiroController::class, 'index'])->name('index');
+        Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
+    });
+
+    // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
+    Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
 
     // Catalogo mostra preco de venda, custo do fornecedor e margem. Vendedor
     // nao entra: `admin` fecha a porta alem do `auth:staff` do grupo.
@@ -79,7 +91,6 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // nao tem lugar no meio da matriz que se consulta todo dia.
         Route::get('/parametros', [CatalogoController::class, 'parametros'])->name('parametros');
         Route::put('/parametros/{catalogo}', [CatalogoController::class, 'salvarParametros'])->name('parametros.salvar');
-        Route::post('/parametros/{catalogo}/precificar', [CatalogoController::class, 'precificar'])->name('precificar');
 
         // Modulo inteiro numa planilha de tres abas, e de volta.
         Route::get('/planilha', [PlanilhaController::class, 'exportar'])->name('planilha.exportar');
@@ -98,7 +109,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Area da empresa (cliente contratante)
+| Área do cliente
 |--------------------------------------------------------------------------
 */
 
@@ -106,5 +117,6 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
     ->prefix('empresa')
     ->name('empresa.')
     ->group(function () {
-        Route::view('/', 'paginas.empresa.painel')->name('painel');
+        Route::get('/', [AreaClienteController::class, 'painel'])->name('painel');
+        Route::post('/documentos/{documento}/aceite', [AreaClienteController::class, 'aceitar'])->name('documentos.aceitar');
     });

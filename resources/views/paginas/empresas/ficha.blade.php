@@ -13,7 +13,7 @@
         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        Empresas
+        Empresa
     </a>
 
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -37,11 +37,11 @@
 
     @unless ($plano)
         <div class="aviso aviso-alerta mb-6">
-            Sem plano contratado não há preço para congelar, e nenhuma consulta pode ser registrada.
+            Sem plano contratado não há serviço liberado para consulta.
         </div>
     @endunless
 
-    <div class="grid gap-6 lg:grid-cols-[1fr_22rem]">
+    <div class="grid gap-6">
         <div class="cartao p-6">
             <div class="mb-5 flex flex-wrap items-baseline justify-between gap-2">
                 <h2 class="font-medium text-gray-800 dark:text-white/90">Competência {{ $competencia }}</h2>
@@ -92,41 +92,6 @@
                 </form>
             @endif
         </div>
-
-        <div class="cartao p-6">
-            <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Registrar consulta</h2>
-            <p class="ajuda-campo mb-5">
-                À mão, enquanto não há integração com o fornecedor. O preço e o custo são copiados
-                do catálogo agora e não mudam mais.
-            </p>
-
-            @if ($servicos->isEmpty())
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Nenhum serviço disponível na faixa deste plano.
-                </p>
-            @else
-                <form method="POST" action="{{ route('empresas.consultar', $empresa) }}" class="grid gap-4">
-                    @csrf
-
-                    <div>
-                        <label for="servico_id" class="rotulo-campo">Serviço</label>
-                        <select id="servico_id" name="servico_id" class="campo" required>
-                            @foreach ($servicos as $servico)
-                                <option value="{{ $servico->id }}">{{ $servico->nome }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="quantidade" class="rotulo-campo">Quantidade</label>
-                        <input id="quantidade" name="quantidade" type="number" min="1" max="1000" value="1"
-                               class="campo">
-                    </div>
-
-                    <x-avalia.botao variante="secundario">Registrar</x-avalia.botao>
-                </form>
-            @endif
-        </div>
     </div>
 
     <div class="cartao mt-6 overflow-hidden">
@@ -139,6 +104,7 @@
                 <thead class="tabela-cabecalho">
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Competência</th>
+                        <th class="px-5 py-3 text-left font-medium">Pagamento</th>
                         <th class="px-5 py-3 text-right font-medium">Total</th>
                         <th class="px-5 py-3 text-right font-medium">Imposto</th>
                         <th class="px-5 py-3 text-right font-medium">Custo</th>
@@ -156,6 +122,23 @@
                                     <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
                                         pagou {{ Dinheiro::brl($fatura->pagouSemUsarCents()) }} sem usar
                                     </span>
+                                @endif
+                            </td>
+                            <td class="px-5 py-4 text-left">
+                                @php
+                                    $pagamento = [
+                                        'liquidado' => 'etiqueta-sucesso',
+                                        'vencido' => 'etiqueta-alerta',
+                                        'pendente' => 'etiqueta-neutra',
+                                        'cancelado' => 'etiqueta-erro',
+                                        'estornado' => 'etiqueta-erro',
+                                    ];
+                                @endphp
+                                <span class="etiqueta {{ $pagamento[$fatura->situacao_pagamento] ?? 'etiqueta-neutra' }}">
+                                    {{ $fatura->situacao_pagamento }}
+                                </span>
+                                @if ($fatura->comissao_liberada_em)
+                                    <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">comissão liberada</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-right font-medium tabular-nums text-gray-800 dark:text-white/90">
@@ -179,7 +162,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="tabela-vazia">Nenhuma competência fechada ainda.</td>
+                            <td colspan="8" class="tabela-vazia">Nenhuma competência fechada ainda.</td>
                         </tr>
                     @endforelse
                 </tbody>

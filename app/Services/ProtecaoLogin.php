@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Motor de protecao contra forca bruta.
@@ -89,6 +90,11 @@ class ProtecaoLogin
             ['chave'],
             ['falhas', 'bloqueado_ate', 'ultima_falha_em', 'updated_at'],
         );
+
+        Log::channel('seguranca')->warning('login.falhou', [
+            'conta_hash' => hash('sha256', mb_strtolower(trim($email))),
+            'bloqueado' => collect($linhas)->contains(fn (array $linha) => $linha['bloqueado_ate'] !== null),
+        ]);
     }
 
     /** Login certo limpa o castigo da conta e da origem. */
@@ -97,6 +103,10 @@ class ProtecaoLogin
         DB::table('tentativas_login')
             ->whereIn('chave', $this->chaves($email, $req))
             ->delete();
+
+        Log::channel('seguranca')->info('login.sucesso', [
+            'conta_hash' => hash('sha256', mb_strtolower(trim($email))),
+        ]);
     }
 
     /** Quantas falhas acumuladas na conta. Usado para avisar antes de travar. */

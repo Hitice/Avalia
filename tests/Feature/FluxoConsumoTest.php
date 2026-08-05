@@ -2,6 +2,9 @@
 
 use App\Actions\Consumo\FecharCompetencia;
 use App\Actions\Consumo\RegistrarConsulta;
+use App\Actions\Financeiro\AtualizarInadimplencia;
+use App\Actions\Financeiro\RegistrarLiquidacao;
+use App\Models\Auditoria;
 use App\Models\Catalogo;
 use App\Models\Cliente;
 use App\Models\Consulta;
@@ -189,4 +192,47 @@ it('leva o vendedor da carteira para a fatura', function () {
     $cliente->update(['vendedor_id' => Staff::factory()->create()->id]);
 
     expect($fatura->fresh()->vendedor_id)->toBe($vendedor);
+});
+
+it('aplica a franquia por serviço antes de calcular o excedente', function () {
+    [$cliente, $servico] = contrato();
+    $cliente->plano->franquias()->create(['servico_id' => $servico->id, 'quantidade' => 10]);
+
+    app(RegistrarConsulta::class)($cliente, $servico, 12);
+    $fatura = app(FecharCompetencia::class)($cliente, Consulta::competenciaDe())['fatura'];
+    $item = $fatura->itens()->first();
+
+    expect($fatura->consumo_bruto_cents)->toBe(3_888)
+        ->and($fatura->franquia_cents)->toBe(3_240)
+        ->and($fatura->consumo_excedente_cents)->toBe(648)
+        ->and($fatura->consumo_faturado_cents)->toBe(90_000)
+        ->and($item->quantidade_franquia)->toBe(10)
+        ->and($item->quantidade_excedente)->toBe(2);
+});
+
+it('liquidação libera a comissão uma vez e restaura cliente inadimplente', function () {
+    [$cliente] = contrato();
+    $fatura = app(FecharCompetencia::class)($cliente, Consulta::competenciaDe())['fatura'];
+    $cliente->update(['situacao' => 'inadimplente']);
+
+    app(RegistrarLiquidacao::class)($fatura);
+    app(RegistrarLiquidacao::class)($fatura->fresh());
+
+    expect($fatura->fresh()->estaLiquidada())->toBeTrue()
+        ->and($fatura->fresh()->comissao_liberada_em)->not->toBeNull()
+        ->and($cliente->fresh()->situacao)->toBe('ativo')
+        ->and(Auditoria::where('acao', 'fatura.liquidada')->count())->toBe(1);
+});
+
+it('marca a fatura vencida e bloqueia consultas no vigésimo dia', function () {
+    [$cliente] = contrato();
+    app(FecharCompetencia::class)($cliente, '2026-07');
+
+    app(AtualizarInadimplencia::class)(new DateTimeImmutable('2026-08-11 00:00:00'));
+    expect($cliente->faturas()->first()->fresh()->situacao_pagamento)->toBe('vencido')
+        ->and($cliente->fresh()->situacao)->toBe('ativo');
+
+    app(AtualizarInadimplencia::class)(new DateTimeImmutable('2026-08-20 00:00:00'));
+    expect($cliente->fresh()->situacao)->toBe('inadimplente')
+        ->and(Auditoria::where('acao', 'cliente.inadimplente')->count())->toBe(1);
 });

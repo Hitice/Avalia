@@ -5,6 +5,7 @@ namespace App\Actions\Consumo;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
+use App\Support\Auditar;
 use App\Support\Comissao;
 use App\Support\Margem;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,40 @@ class FecharCompetencia
             ->where('competencia', $competencia)
             ->get();
 
-        $realizado = (int) $consultas->sum('preco_cents');
+        $franquias = $plano->franquias()->pluck('quantidade', 'servico_id');
+        $itens = [];
+        $bruto = 0;
+        $franquia = 0;
+        $excedente = 0;
+
+        // A franquia é aplicada serviço a serviço e em quantidade. Fazê-la
+        // sobre a soma em reais permitiria que um serviço barato cobrisse um
+        // caro, contrariando o que foi contratado.
+        foreach ($consultas->groupBy('servico_id') as $servicoId => $grupo) {
+            $grupo = $grupo->sortBy('id')->values();
+            $quantidade = $grupo->count();
+            $incluidas = min($quantidade, (int) ($franquias[$servicoId] ?? 0));
+            $valorBruto = (int) $grupo->sum('preco_cents');
+            $valorFranquia = (int) $grupo->take($incluidas)->sum('preco_cents');
+            $valorExcedente = (int) $grupo->skip($incluidas)->sum('preco_cents');
+
+            $bruto += $valorBruto;
+            $franquia += $valorFranquia;
+            $excedente += $valorExcedente;
+            $itens[] = [
+                'servico_id' => $servicoId,
+                'servico_nome' => $grupo->first()->servico?->nome ?? 'Serviço',
+                'quantidade' => $quantidade,
+                'quantidade_franquia' => $incluidas,
+                'quantidade_excedente' => $quantidade - $incluidas,
+                'valor_bruto_cents' => $valorBruto,
+                'valor_franquia_cents' => $valorFranquia,
+                'valor_excedente_cents' => $valorExcedente,
+                'custo_cents' => (int) $grupo->sum('custo_cents'),
+            ];
+        }
+
+        $realizado = $excedente;
         $custo = (int) $consultas->sum('custo_cents');
 
         // O minimo e piso de cobranca: o cliente paga o maior entre o que
@@ -54,23 +88,38 @@ class FecharCompetencia
         $lucro = $total - $imposto - $custo;
         $comissao = Comissao::cents($lucro);
 
-        $fatura = DB::transaction(fn () => Fatura::create([
-            'cliente_id' => $cliente->id,
-            'vendedor_id' => $cliente->vendedor_id,
-            'competencia' => $competencia,
-            'mensalidade_cents' => $plano->mensalidade_cents,
-            'consumo_minimo_cents' => $plano->consumo_minimo_cents,
-            'consumo_realizado_cents' => $realizado,
-            'consumo_faturado_cents' => $faturado,
-            'total_cents' => $total,
-            'imposto_bps' => $impostoBps,
-            'imposto_cents' => $imposto,
-            'custo_cents' => $custo,
-            'lucro_cents' => $lucro - $comissao,
-            'comissao_pct' => Comissao::pct(),
-            'comissao_cents' => $comissao,
-            'fechada_em' => now(),
-        ]));
+        $fatura = DB::transaction(function () use ($cliente, $competencia, $plano, $realizado, $faturado, $total, $impostoBps, $imposto, $custo, $lucro, $comissao, $bruto, $franquia, $excedente, $itens) {
+            $fatura = Fatura::create([
+                'cliente_id' => $cliente->id,
+                'vendedor_id' => $cliente->vendedor_id,
+                'competencia' => $competencia,
+                'mensalidade_cents' => $plano->mensalidade_cents,
+                'consumo_minimo_cents' => $plano->consumo_minimo_cents,
+                'consumo_realizado_cents' => $realizado,
+                'consumo_faturado_cents' => $faturado,
+                'total_cents' => $total,
+                'imposto_bps' => $impostoBps,
+                'imposto_cents' => $imposto,
+                'custo_cents' => $custo,
+                'lucro_cents' => $lucro - $comissao,
+                'comissao_pct' => Comissao::pct(),
+                'comissao_cents' => $comissao,
+                'situacao_pagamento' => Fatura::PAGAMENTO_PENDENTE,
+                'consumo_bruto_cents' => $bruto,
+                'franquia_cents' => $franquia,
+                'consumo_excedente_cents' => $excedente,
+                'fechada_em' => now(),
+            ]);
+
+            $fatura->itens()->createMany($itens);
+            Auditar::registrar('fatura.fechada', $fatura, [
+                'competencia' => $competencia,
+                'total_cents' => $total,
+                'franquia_cents' => $franquia,
+            ]);
+
+            return $fatura;
+        });
 
         return ['erro' => null, 'fatura' => $fatura];
     }
