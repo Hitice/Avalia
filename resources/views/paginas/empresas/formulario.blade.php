@@ -3,15 +3,19 @@
 @php
     use App\Support\Dinheiro;
     use App\Support\Documento;
+
+    // Carteira e situacao sao decisoes da administracao. O vendedor nao ve os
+    // campos, e o controller ignora os dois mesmo que venham forjados no POST.
+    $ehAdmin = auth('staff')->user()?->ehAdmin();
 @endphp
 
 @section('content')
-    <a href="{{ $empresa->exists ? route('empresas.ficha', $empresa) : route('empresas.index') }}"
+    <a href="{{ $ehAdmin ? ($empresa->exists ? route('empresas.ficha', $empresa) : route('empresas.index')) : route('carteira') }}"
        class="hover:text-brand-500 dark:hover:text-brand-400 mb-2 inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        {{ $empresa->exists ? $empresa->razao_social : 'Empresas' }}
+        {{ $ehAdmin ? ($empresa->exists ? $empresa->razao_social : 'Empresas') : 'Minha carteira' }}
     </a>
 
     <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -45,7 +49,7 @@
                     @error('cnpj') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
-                <div>
+                <div @class(['hidden' => ! $ehAdmin])>
                     <label for="situacao" class="rotulo-campo">Situação</label>
                     <select id="situacao" name="situacao" class="campo" required>
                         @foreach (['ativo' => 'Ativo', 'inadimplente' => 'Inadimplente', 'bloqueado' => 'Bloqueado', 'inativo' => 'Inativo'] as $valor => $rotulo)
@@ -85,7 +89,7 @@
                     <span class="ajuda-campo">Define a coluna de preços que a consulta vai congelar.</span>
                 </div>
 
-                <div>
+                <div @class(['hidden' => ! $ehAdmin])>
                     <label for="vendedor_id" class="rotulo-campo">Vendedor</label>
                     <select id="vendedor_id" name="vendedor_id" class="campo">
                         <option value="">Sem carteira</option>
@@ -102,7 +106,7 @@
             <div class="mt-8 flex gap-3">
                 <x-avalia.botao>{{ $empresa->exists ? 'Salvar' : 'Cadastrar' }}</x-avalia.botao>
                 <x-avalia.botao variante="secundario"
-                                :href="$empresa->exists ? route('empresas.ficha', $empresa) : route('empresas.index')">
+                                :href="$ehAdmin ? ($empresa->exists ? route('empresas.ficha', $empresa) : route('empresas.index')) : route('carteira')">
                     Cancelar
                 </x-avalia.botao>
             </div>

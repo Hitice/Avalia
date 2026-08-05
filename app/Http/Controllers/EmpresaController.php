@@ -8,6 +8,8 @@ use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Plano;
 use App\Models\Staff;
+use App\Support\Auditar;
+use Illuminate\Http\Request;
 
 /**
  * As empresas contratantes e o consumo delas.
@@ -15,13 +17,31 @@ use App\Models\Staff;
  * A ficha da empresa e o lugar onde o fluxo inteiro se ve de uma vez: plano
  * contratado, consultas do mes em aberto e faturas fechadas. As consultas
  * chegam exclusivamente pelas integrações dos fornecedores.
+ *
+ * O cadastro e aberto ao vendedor, porque quem fecha a venda e quem tem os
+ * dados na mao. Duas coisas ele nao decide:
+ *
+ *   a carteira, que e sempre a dele, senao cadastrar viraria uma forma de
+ *   pegar cliente de outro vendedor;
+ *   a situacao, que responde por acesso e cobranca. Marcar a propria empresa
+ *   como ativa desfaria um bloqueio por inadimplencia.
+ *
+ * Ja a lista e a ficha continuam so da administracao: elas mostram custo,
+ * imposto e lucro de cada fatura.
  */
 class EmpresaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $removidas = $request->boolean('removidas');
+
         return view('paginas.empresas.index', [
-            'empresas' => Cliente::with(['plano', 'vendedor'])->orderBy('razao_social')->get(),
+            'empresas' => Cliente::with(['plano', 'vendedor'])
+                ->when($removidas, fn ($q) => $q->onlyTrashed())
+                ->orderBy('razao_social')
+                ->get(),
+            'removidas' => $removidas,
+            'quantidadeRemovidas' => Cliente::onlyTrashed()->count(),
         ]);
     }
 
@@ -32,21 +52,24 @@ class EmpresaController extends Controller
 
     public function salvar(EmpresaRequest $request)
     {
-        $empresa = Cliente::create($request->dados());
+        $empresa = Cliente::create($this->comOsCamposQuePode($request->dados()));
 
-        return redirect()
-            ->route('empresas.ficha', $empresa)
+        return redirect($this->depoisDeGravar($empresa))
             ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.");
     }
 
     public function editar(Cliente $empresa)
     {
+        $this->soDaPropriaCarteira($empresa);
+
         return view('paginas.empresas.formulario', $this->opcoes($empresa));
     }
 
     public function atualizar(EmpresaRequest $request, Cliente $empresa)
     {
-        $empresa->update($request->dados());
+        $this->soDaPropriaCarteira($empresa);
+
+        $empresa->update($this->comOsCamposQuePode($request->dados(), $empresa));
 
         // Situacao que fecha o acesso derruba a sessao aberta na hora, senao a
         // empresa continua consultando ate o cookie expirar.
@@ -54,9 +77,48 @@ class EmpresaController extends Controller
             $empresa->revogaSessoes();
         }
 
-        return redirect()
-            ->route('empresas.ficha', $empresa)
+        return redirect($this->depoisDeGravar($empresa))
             ->with('ok', 'Cadastro atualizado.');
+    }
+
+    /**
+     * Tira a empresa de circulacao sem apagar nada.
+     *
+     * O vendedor remove da carteira dele; a administracao continua vendo em
+     * "removidas" e pode restaurar. Nao ha exclusao de verdade: consulta,
+     * fatura e trilha apontam para a empresa, e o historico fiscal e dela.
+     *
+     * Empresa com fatura emitida so a administracao remove. A partir da
+     * primeira cobranca ela deixou de ser um cadastro e virou financeiro.
+     */
+    public function remover(Cliente $empresa)
+    {
+        $this->soDaPropriaCarteira($empresa);
+
+        if (! $this->ehAdmin() && $empresa->faturas()->exists()) {
+            return back()->with('erro', 'Esta empresa já tem fatura emitida. Peça a remoção à administração.');
+        }
+
+        $empresa->revogaSessoes();
+        $empresa->delete();
+
+        Auditar::registrar('empresa.removida', $empresa, ['razao_social' => $empresa->razao_social]);
+
+        return redirect($this->ehAdmin() ? route('empresas.index') : route('carteira'))
+            ->with('ok', "Empresa '{$empresa->razao_social}' removida.");
+    }
+
+    /** So a administracao traz de volta. */
+    public function restaurar(int $empresa)
+    {
+        $removida = Cliente::onlyTrashed()->findOrFail($empresa);
+        $removida->restore();
+
+        Auditar::registrar('empresa.restaurada', $removida, ['razao_social' => $removida->razao_social]);
+
+        return redirect()
+            ->route('empresas.index')
+            ->with('ok', "Empresa '{$removida->razao_social}' restaurada.");
     }
 
     public function ficha(Cliente $empresa)
@@ -85,6 +147,48 @@ class EmpresaController extends Controller
             $resultado['fatura']->totalRotulo(),
             $resultado['fatura']->vencimento()->format('d/m/Y'),
         ));
+    }
+
+    /** A ficha e da administracao; o vendedor volta para a carteira. */
+    private function depoisDeGravar(Cliente $empresa): string
+    {
+        return $this->ehAdmin() ? route('empresas.ficha', $empresa) : route('carteira');
+    }
+
+    private function ehAdmin(): bool
+    {
+        return (bool) auth('staff')->user()?->ehAdmin();
+    }
+
+    /** Vendedor so abre empresa da carteira dele. */
+    private function soDaPropriaCarteira(Cliente $empresa): void
+    {
+        abort_if(
+            ! $this->ehAdmin() && $empresa->vendedor_id !== auth('staff')->id(),
+            403,
+        );
+    }
+
+    /**
+     * Tira do que veio da tela o que o vendedor nao decide.
+     *
+     * A validacao ja passou; isto nao e sobre formato e sim sobre autoridade.
+     * Vendedor que forje vendedor_id ou situacao no POST tem os dois campos
+     * ignorados aqui, e nao recusados: o cadastro dele continua valido.
+     *
+     * @param  array<string, mixed>  $dados
+     * @return array<string, mixed>
+     */
+    private function comOsCamposQuePode(array $dados, ?Cliente $empresa = null): array
+    {
+        if ($this->ehAdmin()) {
+            return $dados;
+        }
+
+        $dados['vendedor_id'] = auth('staff')->id();
+        $dados['situacao'] = $empresa?->situacao ?? 'ativo';
+
+        return $dados;
     }
 
     /** @return array<string, mixed> */

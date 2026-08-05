@@ -132,3 +132,110 @@ it('poe a carteira no menu do vendedor e esconde do admin', function () {
 
     admin()->get('/')->assertOk()->assertDontSee('href="/carteira"', false);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Cadastro pelo vendedor
+|--------------------------------------------------------------------------
+*/
+
+it('deixa o vendedor cadastrar empresa, sempre na carteira dele', function () {
+    // Cadastrar nao pode virar uma forma de pegar cliente de outro vendedor.
+    [$vendedor] = carteira();
+    $outro = Staff::factory()->create(['papel' => 'vendedor']);
+
+    comoVendedor($vendedor)->post(route('empresas.salvar'), [
+        'razao_social' => 'Cliente do Vendedor LTDA',
+        'cnpj' => '12.345.678/0001-95',
+        'email' => 'cliente@vendedor.com.br',
+        'senha' => 'senha-valida-123',
+        'situacao' => 'ativo',
+        'vendedor_id' => $outro->id,   // forjado no POST
+    ])->assertRedirect(route('carteira'));
+
+    expect(Cliente::firstWhere('cnpj', '12345678000195')->vendedor_id)->toBe($vendedor->id);
+});
+
+it('nao deixa o vendedor mexer na situacao da empresa', function () {
+    // Situacao responde por acesso e cobranca: marcar como ativa desfaria um
+    // bloqueio por inadimplencia.
+    [$vendedor, $empresa] = carteira();
+    $empresa->update(['situacao' => 'inadimplente', 'cnpj' => '12345678000195']);
+
+    comoVendedor($vendedor)->put(route('empresas.atualizar', $empresa), [
+        'razao_social' => $empresa->razao_social,
+        'cnpj' => $empresa->cnpj,
+        'email' => $empresa->email,
+        'situacao' => 'ativo',
+    ])->assertRedirect(route('carteira'));
+
+    expect($empresa->fresh()->situacao)->toBe('inadimplente');
+});
+
+it('nao deixa o vendedor editar empresa de outra carteira', function () {
+    [$vendedor] = carteira();
+    $alheia = Cliente::factory()->create([
+        'vendedor_id' => Staff::factory()->create(['papel' => 'vendedor'])->id,
+    ]);
+
+    comoVendedor($vendedor)->get(route('empresas.editar', $alheia))->assertForbidden();
+    comoVendedor($vendedor)->delete(route('empresas.remover', $alheia))->assertForbidden();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Remocao
+|--------------------------------------------------------------------------
+*/
+
+it('remove da carteira sem apagar, e a administracao continua vendo', function () {
+    [$vendedor, $empresa] = carteira();
+
+    comoVendedor($vendedor)->delete(route('empresas.remover', $empresa))
+        ->assertRedirect(route('carteira'));
+
+    // Sumiu da carteira dele. A assercao e sobre os dados da lista, e nao
+    // sobre a pagina: o nome ainda aparece na mensagem de sucesso.
+    expect(comoVendedor($vendedor)->get(route('carteira'))->assertOk()->viewData('empresas'))
+        ->toBeEmpty();
+
+    // E continua la para a administracao.
+    expect(Cliente::withTrashed()->find($empresa->id))->not->toBeNull();
+
+    admin()->get(route('empresas.index', ['removidas' => 1]))
+        ->assertOk()
+        ->assertSee($empresa->razao_social);
+});
+
+it('derruba a sessao da empresa removida', function () {
+    // Sem isso ela continuaria consultando ate o cookie expirar.
+    [$vendedor, $empresa] = carteira();
+    $versao = $empresa->sessao_versao;
+
+    comoVendedor($vendedor)->delete(route('empresas.remover', $empresa));
+
+    expect(Cliente::withTrashed()->find($empresa->id)->sessao_versao)->toBeGreaterThan($versao);
+});
+
+it('nao deixa o vendedor remover empresa que ja tem fatura', function () {
+    // A partir da primeira cobranca ela deixou de ser cadastro e virou
+    // financeiro: sumir com ela mudaria numero de fechamento.
+    [$vendedor, $empresa] = carteira();
+    app(FecharCompetencia::class)($empresa, '2026-07');
+
+    comoVendedor($vendedor)->delete(route('empresas.remover', $empresa))
+        ->assertSessionHas('erro');
+
+    expect(Cliente::find($empresa->id))->not->toBeNull();
+});
+
+it('deixa a administracao remover e restaurar', function () {
+    [, $empresa] = carteira();
+    app(FecharCompetencia::class)($empresa, '2026-07');
+
+    admin()->delete(route('empresas.remover', $empresa))->assertRedirect(route('empresas.index'));
+    expect(Cliente::find($empresa->id))->toBeNull();
+
+    admin()->post(route('empresas.restaurar', $empresa->id))->assertRedirect(route('empresas.index'));
+    expect(Cliente::find($empresa->id))->not->toBeNull();
+});

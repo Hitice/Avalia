@@ -20,12 +20,18 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha carteira</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Suas empresas e a sua comissão. A comissão é liberada quando a empresa paga a fatura.
-        </p>
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha carteira</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Suas empresas e a sua comissão. A comissão é liberada quando a empresa paga a fatura.
+            </p>
+        </div>
+
+        <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
     </div>
+
+    @include('paginas.catalogo.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-3">
         <div class="cartao p-5">
@@ -62,6 +68,8 @@
                         <th class="px-5 py-3 text-left font-medium">Plano</th>
                         <th class="px-5 py-3 text-left font-medium">Situação</th>
                         <th class="px-5 py-3 text-right font-medium">Consumo do mês</th>
+                        <th class="px-5 py-3 text-right font-medium">Editar</th>
+                        <th class="px-5 py-3 text-right font-medium">Remover</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -84,10 +92,28 @@
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-800 dark:text-white/90">
                                 {{ Dinheiro::brl((int) ($consumo[$empresa->id] ?? 0)) }}
                             </td>
+                            <td class="px-5 py-4 text-right">
+                                <x-avalia.botao variante="secundario" tamanho="icone" title="Editar"
+                                                :href="route('empresas.editar', $empresa)">
+                                    <x-avalia.icone nome="lapis" />
+                                    <span class="sr-only">Editar</span>
+                                </x-avalia.botao>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <form method="POST" action="{{ route('empresas.remover', $empresa) }}"
+                                      onsubmit="return confirm('Remover {{ $empresa->razao_social }} da sua carteira?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <x-avalia.botao variante="secundario" tamanho="icone" title="Remover">
+                                        <x-avalia.icone nome="lixeira" />
+                                        <span class="sr-only">Remover</span>
+                                    </x-avalia.botao>
+                                </form>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="tabela-vazia">Nenhuma empresa na sua carteira.</td>
+                            <td colspan="6" class="tabela-vazia">Nenhuma empresa na sua carteira.</td>
                         </tr>
                     @endforelse
                 </tbody>

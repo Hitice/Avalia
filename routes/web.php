@@ -45,14 +45,26 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
 
     // Empresas contratantes e o consumo delas. Consultas sao registradas pelas
     // integrações com os fornecedores, nunca manualmente pela gestão.
-    Route::middleware('admin')->prefix('empresas')->name('empresas.')->group(function () {
-        Route::get('/', [EmpresaController::class, 'index'])->name('index');
+    Route::prefix('empresas')->name('empresas.')->group(function () {
+        // Cadastro aberto ao vendedor: quem fecha a venda tem os dados na mao.
+        // O controller forca a carteira e preserva a situacao, entao ele nao
+        // pega cliente de outro nem desfaz bloqueio por inadimplencia.
         Route::get('/nova', [EmpresaController::class, 'criar'])->name('criar');
         Route::post('/', [EmpresaController::class, 'salvar'])->name('salvar');
-        Route::get('/{empresa}', [EmpresaController::class, 'ficha'])->name('ficha');
         Route::get('/{empresa}/editar', [EmpresaController::class, 'editar'])->name('editar');
         Route::put('/{empresa}', [EmpresaController::class, 'atualizar'])->name('atualizar');
-        Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])->name('fechar');
+
+        // Remover e tirar de circulacao, nao apagar: consulta, fatura e trilha
+        // apontam para a empresa. A administracao continua vendo e restaura.
+        Route::delete('/{empresa}', [EmpresaController::class, 'remover'])->name('remover');
+
+        // Lista e ficha mostram custo, imposto e lucro por fatura.
+        Route::middleware('admin')->group(function () {
+            Route::get('/', [EmpresaController::class, 'index'])->name('index');
+            Route::get('/{empresa}', [EmpresaController::class, 'ficha'])->name('ficha');
+            Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])->name('fechar');
+            Route::post('/{empresa}/restaurar', [EmpresaController::class, 'restaurar'])->name('restaurar');
+        });
     });
 
     // A carteira do vendedor. Sem `admin` no meio: e a unica tela de gestao

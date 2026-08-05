@@ -23,6 +23,17 @@
         <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
     </div>
 
+    @if ($quantidadeRemovidas > 0 || $removidas)
+        <div class="mb-6">
+            <x-avalia.segmentado
+                :atual="$removidas ? 'removidas' : 'ativas'"
+                :itens="[
+                    'ativas' => ['rotulo' => 'Em uso', 'url' => route('empresas.index')],
+                    'removidas' => ['rotulo' => 'Removidas ('.$quantidadeRemovidas.')', 'url' => route('empresas.index', ['removidas' => 1])],
+                ]" />
+        </div>
+    @endif
+
     @include('paginas.catalogo.avisos')
 
     <div class="cartao overflow-hidden">
@@ -34,7 +45,7 @@
                         <th class="px-5 py-3 text-left font-medium">Plano</th>
                         <th class="px-5 py-3 text-left font-medium">Vendedor</th>
                         <th class="px-5 py-3 text-left font-medium">Situação</th>
-                        <th class="px-5 py-3 text-right font-medium">Abrir</th>
+                        <th class="px-5 py-3 text-right font-medium">{{ $removidas ? 'Restaurar' : 'Abrir' }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -65,8 +76,15 @@
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <x-avalia.botao variante="secundario" tamanho="sm"
-                                                :href="route('empresas.ficha', $empresa)">Ficha</x-avalia.botao>
+                                @if ($removidas)
+                                    <form method="POST" action="{{ route('empresas.restaurar', $empresa->id) }}">
+                                        @csrf
+                                        <x-avalia.botao variante="secundario" tamanho="sm">Restaurar</x-avalia.botao>
+                                    </form>
+                                @else
+                                    <x-avalia.botao variante="secundario" tamanho="sm"
+                                                    :href="route('empresas.ficha', $empresa)">Ficha</x-avalia.botao>
+                                @endif
                             </td>
                         </tr>
                     @empty
