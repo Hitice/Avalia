@@ -8,8 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// O webhook liquida na hora; esta rotina cobre vencimentos e bloqueios mesmo
-// quando o provedor não envia nenhum novo evento depois do vencimento.
+// Vencer e bloquear dependem da passagem do tempo, e não de alguém agir: sem
+// esta rotina diária, uma fatura só mudaria de situação no dia em que alguém
+// abrisse a tela.
 Schedule::call(function () {
     $atualizar = app(App\Actions\Financeiro\AtualizarInadimplencia::class);
     $atualizar();

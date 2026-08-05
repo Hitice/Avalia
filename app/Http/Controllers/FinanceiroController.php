@@ -14,8 +14,9 @@ use Illuminate\Http\Request;
  * "quanto a Avalia tem a receber e quanto ja deve de comissao", que e a
  * pergunta do fechamento do mes.
  *
- * A liquidacao registrada aqui e a mesma que o provedor de cobranca dispara por
- * webhook: uma acao so, para baixa manual e baixa automatica nao divergirem.
+ * A baixa passa por RegistrarLiquidacao, e nao grava a fatura direto: liberar
+ * comissao e regra de negocio, e ela precisa valer igual venha o pagamento de
+ * onde vier.
  */
 class FinanceiroController extends Controller
 {

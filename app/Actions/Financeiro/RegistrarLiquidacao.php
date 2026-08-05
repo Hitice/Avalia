@@ -8,10 +8,16 @@ use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Ponto único para o webhook do Asaas confirmar pagamento.
+ * Ponto único de confirmação de pagamento de uma fatura.
  *
- * É idempotente: o mesmo evento pode ser entregue mais de uma vez sem liberar
- * comissão em duplicidade nem alterar o histórico financeiro.
+ * Liquidar libera a comissão do vendedor, e é aqui que essa regra vive: cliente
+ * que não pagou não gera comissão (PDD.md, seção 9).
+ *
+ * É idempotente. A mesma confirmação pode chegar mais de uma vez, por repetição
+ * de clique ou por reentrega de uma origem automática, e o segundo pedido não
+ * pode liberar comissão em duplicidade nem reescrever o histórico financeiro.
+ * Por isso a fatura é relida sob trava e a liquidação já registrada devolve o
+ * estado atual em vez de gravar de novo.
  */
 class RegistrarLiquidacao
 {
