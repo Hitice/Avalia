@@ -271,3 +271,29 @@ it('devolve a empresa a ativo quando a ultima fatura aberta e paga', function ()
 
     expect($empresa->fresh()->situacao)->toBe('ativo');
 });
+
+it('reprocessa o evento que ficou pela metade', function () {
+    // Se a primeira entrega quebrar depois de gravar o evento, a reentrega do
+    // provedor via o evento ja existente e desistia. O pagamento ficava
+    // confirmado no provedor e em aberto aqui, e ninguem era avisado.
+    [$fatura, $cobranca] = faturaComCobranca();
+
+    // Simula a entrega interrompida: evento gravado, nada processado.
+    EventoAsaas::create([
+        'evento_externo' => 'evt_pela_metade',
+        'tipo' => 'PAYMENT_RECEIVED',
+        'payload' => [],
+        'recebido_em' => now(),
+        'cobranca_asaas_id' => $cobranca->id,
+    ]);
+
+    $this->withHeaders(comToken())->postJson(route('webhooks.asaas'), [
+        'id' => 'evt_pela_metade',
+        'event' => 'PAYMENT_RECEIVED',
+        'payment' => ['id' => 'pay_123', 'status' => 'RECEIVED'],
+    ])->assertOk();
+
+    expect($fatura->fresh()->estaLiquidada())->toBeTrue()
+        ->and(EventoAsaas::where('evento_externo', 'evt_pela_metade')->first()->processado_em)
+        ->not->toBeNull();
+});

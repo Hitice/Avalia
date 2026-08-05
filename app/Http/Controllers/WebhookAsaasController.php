@@ -22,7 +22,11 @@ class WebhookAsaasController extends Controller
             ['tipo' => (string) ($payload['event'] ?? 'desconhecido'), 'payload' => $payload, 'recebido_em' => now()],
         );
 
-        if ($evento->wasRecentlyCreated) {
+        // Reentrega so e ignorada se a primeira ja tiver terminado. Antes bastava
+        // o evento existir, e uma entrega interrompida no meio ficava assim para
+        // sempre: o provedor reentregava, encontrava o registro e desistia, e o
+        // pagamento ficava confirmado la e em aberto aqui, sem ninguem saber.
+        if ($evento->wasRecentlyCreated || $evento->processado_em === null) {
             $cobranca = CobrancaAsaas::where('asaas_charge_id', $pagamento['id'] ?? null)->first();
             $evento->update(['cobranca_asaas_id' => $cobranca?->id]);
 
