@@ -12,6 +12,11 @@ namespace App\Support;
  * A base e o consumo REALIZADO, nao o valor faturado. Cliente com minimo de
  * R$ 900 que consome R$ 300 paga R$ 979,90 e gera R$ 30,00 de comissao: o piso
  * da fatura protege a Avalia, nao a comissao do vendedor.
+ *
+ * E o consumo LIQUIDO DE IMPOSTO. O vendedor comissiona sobre o que a Avalia
+ * recebe de fato, entao a parte proporcional do imposto sai da comissao e nao
+ * da margem da operacao. A aliquota vem do catalogo, porque muda com a faixa de
+ * faturamento da empresa.
  */
 final class Comissao
 {
@@ -32,15 +37,17 @@ final class Comissao
     }
 
     /** Comissao em centavos sobre o consumo realizado na competencia. */
-    public static function cents(int $consumoRealizadoCents, bool $houveExcedente = false): int
+    public static function cents(int $consumoRealizadoCents, bool $houveExcedente = false, int $impostoBps = 0): int
     {
         if ($consumoRealizadoCents <= 0) {
             return 0;
         }
 
+        $base = Margem::baseComissaoCents($consumoRealizadoCents, $impostoBps);
+
         // round e nao trunca: sempre a favor de ninguem em particular, mas
         // estavel: dois calculos do mesmo mes dao o mesmo centavo.
-        return (int) round($consumoRealizadoCents * self::pct($houveExcedente) / 100);
+        return (int) round($base * self::pct($houveExcedente) / 100);
     }
 
     /**

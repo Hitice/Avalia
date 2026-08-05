@@ -8,11 +8,19 @@ const COMISSAO = 1_000;
 const ALVO = 3_000;
 
 it('desconta fornecedor, fisco e vendedor da venda', function () {
-    // Venda R$ 5,45, custo R$ 2,80, imposto R$ 0,47, comissao R$ 0,55.
+    // Venda R$ 5,45, custo R$ 2,80, imposto R$ 0,47. A comissao e 10% do que
+    // sobra depois do imposto, R$ 4,98, e nao dos R$ 5,45 cheios: R$ 0,50.
     expect(Margem::impostoCents(545, IMPOSTO))->toBe(47)
-        ->and(Margem::comissaoCents(545, COMISSAO))->toBe(55)
-        ->and(Margem::liquidaCents(545, 280, IMPOSTO, COMISSAO))->toBe(163)
-        ->and(Margem::pct(545, 280, IMPOSTO, COMISSAO))->toBe(29.9);
+        ->and(Margem::baseComissaoCents(545, IMPOSTO))->toBe(498)
+        ->and(Margem::comissaoCents(545, COMISSAO, IMPOSTO))->toBe(50)
+        ->and(Margem::liquidaCents(545, 280, IMPOSTO, COMISSAO))->toBe(168)
+        ->and(Margem::pct(545, 280, IMPOSTO, COMISSAO))->toBe(30.8);
+});
+
+it('mede a comissao sobre a venda cheia para a formula do preco', function () {
+    // 10% sobre o liquido de 8,60% custa 9,14% da venda.
+    expect(Margem::comissaoEfetivaBps(COMISSAO, IMPOSTO))->toBe(914)
+        ->and(Margem::comissaoEfetivaBps(COMISSAO, 0))->toBe(COMISSAO);
 });
 
 it('conta a comissao como custo, e nao como sobra', function () {
@@ -20,13 +28,14 @@ it('conta a comissao como custo, e nao como sobra', function () {
     $comComissao = Margem::pct(545, 280, IMPOSTO, COMISSAO);
     $semComissao = Margem::pct(545, 280, IMPOSTO, 0);
 
-    expect(round($semComissao - $comComissao, 1))->toBe(10.1);
+    expect(round($semComissao - $comComissao, 1))->toBe(9.2);
 });
 
 it('calcula o preco que entrega a margem pedida', function () {
     $alvo = Margem::precoAlvoCents(280, IMPOSTO, COMISSAO, ALVO);
 
-    expect($alvo)->toBe(546)
+    // Sem o imposto na base da comissao o piso seria R$ 5,46.
+    expect($alvo)->toBe(536)
         ->and(Margem::atinge($alvo, 280, IMPOSTO, COMISSAO, ALVO))->toBeTrue()
         // Um centavo abaixo ja nao serve, senao o alvo estaria alto demais.
         ->and(Margem::atinge($alvo - 1, 280, IMPOSTO, COMISSAO, ALVO))->toBeFalse();

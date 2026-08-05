@@ -203,10 +203,10 @@ it('mostra a margem quando o custo esta cadastrado', function () {
     $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_690])->create();
     $catalogo->precos()->first()->update(['custo_cents' => 1_090]);
 
-    // 16,90 − 10,90 − 8,6% de imposto − 10% de comissao = 2,86, ou 16,9%.
+    // 16,90 − 10,90 − 8,6% de imposto − 10% do liquido = 3,01, ou 17,8%.
     admin()->get(route('catalogo.tabela', ['visao' => 'margem']))
         ->assertOk()
-        ->assertSee('16,9%');
+        ->assertSee('17,8%');
 });
 
 it('acusa venda no prejuizo', function () {
@@ -215,7 +215,7 @@ it('acusa venda no prejuizo', function () {
 
     admin()->get(route('catalogo.tabela', ['visao' => 'margem']))
         ->assertOk()
-        ->assertSee('-9,4%')
+        ->assertSee('-8,6%')
         ->assertSee('text-error-600', false);
 });
 

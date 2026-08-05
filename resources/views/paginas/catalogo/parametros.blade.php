@@ -58,7 +58,7 @@
         <div class="cartao mt-6 p-6">
             <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Escada de margem</h2>
             <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
-                A comissão do vendedor entra como custo, em {{ number_format($comissao / 100, 0) }}%.
+                A comissão do vendedor entra como custo, em {{ number_format($comissao / 100, 0) }}% sobre a venda líquida de imposto.
                 O alvo vale para a maior faixa; cada faixa abaixo ganha o degrau, e e isso que faz o
                 pacote maior sair mais barato por consulta sem render menos que o piso.
             </p>
