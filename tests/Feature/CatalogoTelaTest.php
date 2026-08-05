@@ -100,7 +100,10 @@ it('mostra uma coluna de custo so, e nao uma por faixa', function () {
 });
 
 it('avisa quando nao ha catalogo nenhum', function () {
-    admin()->get('/catalogo/tabela')->assertOk()->assertSee('Catálogo vazio');
+    // Sem tabela de precos a tela orienta em vez de mostrar uma matriz vazia.
+    admin()->get('/catalogo/tabela')
+        ->assertOk()
+        ->assertSee('Não há tabela de preços cadastrada');
 });
 
 it('da a cada faixa o seu proprio rotulo no cabecalho', function () {

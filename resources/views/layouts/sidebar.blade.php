@@ -233,7 +233,16 @@
             </div>
         </nav>
 
-</div>
+    </div>
+
+    <footer class="-mx-5 mt-auto border-t border-gray-200 px-5 py-4 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400"
+            :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'text-center' : ''">
+        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
+            Versão {{ config('app.version') }}<br>
+            © {{ now()->year }} Avalia. Todos os direitos reservados.
+        </span>
+        <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-cloak>©</span>
+    </footer>
 </aside>
 
 <!-- Mobile Overlay -->

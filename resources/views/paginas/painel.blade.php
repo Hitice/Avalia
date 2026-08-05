@@ -32,7 +32,7 @@
             <div>
                 <h2 class="font-medium text-gray-800 dark:text-white/90">Construção da plataforma</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Cada modulo entra completo, com teste, antes do proximo comecar.
+            Acompanhe os recursos disponíveis na plataforma.
                 </p>
             </div>
             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">

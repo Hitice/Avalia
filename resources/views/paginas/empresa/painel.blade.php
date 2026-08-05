@@ -21,7 +21,7 @@
 
     <div class="cartao p-6">
         <p class="text-sm text-gray-500 dark:text-gray-400">
-            Consultas e faturas aparecem aqui quando os modulos Consulta e Faturamento entrarem.
+            Em breve, você poderá acompanhar suas consultas, faturas e pagamentos nesta área.
         </p>
     </div>
 

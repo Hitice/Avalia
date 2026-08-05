@@ -4,6 +4,7 @@ use App\Http\Controllers\AreaClienteController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalculadoraController;
+use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FinanceiroController;
@@ -52,6 +53,11 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::put('/{empresa}', [EmpresaController::class, 'atualizar'])->name('atualizar');
         Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])->name('fechar');
     });
+
+    // A carteira do vendedor. Sem `admin` no meio: e a unica tela de gestao
+    // que ele abre, e ela nao mostra custo, lucro nem margem. A carteira e
+    // sempre a de quem esta logado, entao nao ha URL que peca a de outro.
+    Route::get('/carteira', CarteiraController::class)->name('carteira');
 
     // As faturas de todas as empresas. A baixa registrada aqui e a mesma que o
     // provedor de cobranca dispara por webhook: uma acao so, para baixa manual

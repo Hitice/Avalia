@@ -1,10 +1,36 @@
 @extends('layouts.app', ['title' => 'Auditoria'])
 
+@php
+    use App\Support\Dinheiro;
+
+    $rotulosAcao = [
+        'fatura.fechada' => 'Fatura fechada',
+        'fatura.liquidada' => 'Pagamento confirmado',
+        'cliente.inadimplente' => 'Empresa marcada como inadimplente',
+        'documento.aceito' => 'Documento aceito',
+    ];
+    $rotulosEntidade = [
+        App\Models\Fatura::class => 'Fatura',
+        App\Models\Cliente::class => 'Empresa',
+        App\Models\DocumentoLegal::class => 'Documento',
+    ];
+    $rotulosDetalhe = [
+        'competencia' => 'Período',
+        'total_cents' => 'Valor da fatura',
+        'franquia_cents' => 'Valor incluído na franquia',
+        'comissao_liberada_cents' => 'Comissão liberada',
+        'fatura_id' => 'Fatura',
+        'cliente_id' => 'Empresa',
+        'versao' => 'Versão',
+        'hash_conteudo' => 'Comprovante do conteúdo',
+    ];
+@endphp
+
 @section('content')
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Auditoria</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Quem fez o quê, quando e de onde. Registro apenas de leitura.
+            Acompanhe as ações registradas na plataforma.
         </p>
     </div>
 
@@ -15,7 +41,7 @@
 
             @foreach ($acoes as $opcao)
                 <a href="{{ route('auditoria', ['acao' => $opcao]) }}"
-                   class="segmento {{ $acao === $opcao ? 'segmento-ativo' : 'segmento-inativo' }}">{{ $opcao }}</a>
+                   class="segmento {{ $acao === $opcao ? 'segmento-ativo' : 'segmento-inativo' }}">{{ $rotulosAcao[$opcao] ?? 'Outras ações' }}</a>
             @endforeach
         </div>
     @endif
@@ -25,11 +51,11 @@
             <table class="tabela min-w-[52rem]">
                 <thead class="tabela-cabecalho">
                     <tr>
-                        <th class="px-5 py-3 text-left font-medium">Quando</th>
-                        <th class="px-5 py-3 text-left font-medium">Quem</th>
-                        <th class="px-5 py-3 text-left font-medium">Ação</th>
-                        <th class="px-5 py-3 text-left font-medium">Sobre</th>
-                        <th class="px-5 py-3 text-left font-medium">Detalhes</th>
+                        <th class="px-5 py-3 text-left font-medium">Data e hora</th>
+                        <th class="px-5 py-3 text-left font-medium">Responsável</th>
+                        <th class="px-5 py-3 text-left font-medium">Atividade</th>
+                        <th class="px-5 py-3 text-left font-medium">Registro</th>
+                        <th class="px-5 py-3 text-left font-medium">Informações</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -42,21 +68,30 @@
                                 {{ $registro->staff?->nome ?? 'sistema' }}
                                 @if ($registro->ip_address)
                                     <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $registro->ip_address }}
+                                        Origem: {{ $registro->ip_address }}
                                     </span>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <code class="text-xs text-gray-600 dark:text-gray-300">{{ $registro->acao }}</code>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $rotulosAcao[$registro->acao] ?? 'Ação registrada' }}</span>
                             </td>
                             <td class="px-5 py-4 text-left text-xs text-gray-500 dark:text-gray-400">
-                                {{ class_basename($registro->entidade_tipo ?? '') }}
+                                {{ $rotulosEntidade[$registro->entidade_tipo] ?? 'Registro' }}
                                 @if ($registro->entidade_id) #{{ $registro->entidade_id }} @endif
                             </td>
                             <td class="px-5 py-4 text-left text-xs text-gray-500 dark:text-gray-400">
                                 @foreach ((array) $registro->dados as $chave => $valor)
                                     <span class="mr-3 whitespace-nowrap">
-                                        {{ $chave }}: <span class="text-gray-700 dark:text-gray-300">{{ is_scalar($valor) ? $valor : json_encode($valor) }}</span>
+                                        {{ $rotulosDetalhe[$chave] ?? 'Informação' }}:
+                                        <span class="text-gray-700 dark:text-gray-300">
+                                            @if ($chave === 'hash_conteudo')
+                                                Registrado
+                                            @elseif (str_ends_with($chave, '_cents'))
+                                                {{ Dinheiro::brl((int) $valor) }}
+                                            @else
+                                                {{ is_scalar($valor) ? $valor : json_encode($valor) }}
+                                            @endif
+                                        </span>
                                     </span>
                                 @endforeach
                             </td>

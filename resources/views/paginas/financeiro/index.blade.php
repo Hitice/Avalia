@@ -24,8 +24,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Financeiro</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            As competências fechadas de todas as empresas. A comissão do vendedor só é liberada
-            quando a fatura é liquidada.
+            Acompanhe as faturas de todas as empresas e confirme os pagamentos recebidos.
         </p>
     </div>
 
@@ -53,7 +52,7 @@
     </div>
 
     <div class="mb-6">
-        <x-avalia.segmentado rotulo="Mostrar" :atual="$situacao ?? ''" :itens="$filtros" />
+        <x-avalia.segmentado rotulo="Faturas" :atual="$situacao ?? ''" :itens="$filtros" />
     </div>
 
     <div class="cartao overflow-hidden">
@@ -68,7 +67,7 @@
                         <th class="px-5 py-3 text-right font-medium">Lucro</th>
                         <th class="px-5 py-3 text-right font-medium">Comissão</th>
                         <th class="px-5 py-3 text-right font-medium">Vence</th>
-                        <th class="px-5 py-3 text-right font-medium">Baixa</th>
+                        <th class="px-5 py-3 text-right font-medium">Confirmação</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -115,9 +114,9 @@
                                     </span>
                                 @else
                                     <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
-                                          onsubmit="return confirm('Registrar o pagamento desta fatura?')">
+                                          onsubmit="return confirm('Confirmar que o pagamento desta fatura foi recebido?')">
                                         @csrf
-                                        <x-avalia.botao variante="secundario" tamanho="sm">Dar baixa</x-avalia.botao>
+                                        <x-avalia.botao variante="secundario" tamanho="sm">Confirmar pagamento</x-avalia.botao>
                                     </form>
                                 @endif
                             </td>
@@ -135,8 +134,8 @@
     @if ($comissoes->isNotEmpty())
         <div class="cartao mt-6 overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão liberada por vendedor</h2>
-                <p class="ajuda-campo mt-1">Só entra aqui a comissão de fatura já paga.</p>
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão a repassar</h2>
+                <p class="ajuda-campo mt-1">Valores já devidos, apurados sobre faturas com pagamento confirmado.</p>
             </div>
 
             <table class="tabela">

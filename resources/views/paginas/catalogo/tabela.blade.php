@@ -50,8 +50,7 @@
 
     @if (! $catalogo)
         <div class="aviso aviso-alerta">
-            Catálogo vazio. Rode <code>php artisan db:seed --class=CatalogoSeeder</code> para importar
-            a tabela de referência.
+            Não há tabela de preços cadastrada. Faça a importação inicial antes de continuar.
         </div>
     @else
         <div class="mb-6 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
