@@ -56,6 +56,12 @@ class Servico extends Model
         return $query->where('ativo', true)->where('exige_liberacao', false);
     }
 
+    /** Numero comercial deste servico nao vai para tela nenhuma ainda. */
+    public function suprimido(): bool
+    {
+        return $this->categoria->suprimida();
+    }
+
     public function rotuloCategoria(): string
     {
         return $this->categoria->rotulo();

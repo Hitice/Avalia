@@ -260,6 +260,16 @@
   @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition;
 }
 
+/* Linha com valor comercial suprimido: cadeado apagado e numero substituido
+   por tracejado, para a coluna nao parecer vazia por engano. */
+@utility cadeado {
+  @apply inline-flex items-center text-gray-400 opacity-40 dark:text-gray-500;
+}
+
+@utility valor-suprimido {
+  @apply text-gray-300 select-none dark:text-gray-700;
+}
+
 @utility interruptor-ligado {
   @apply bg-success-500;
 }

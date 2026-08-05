@@ -32,7 +32,12 @@
                     @forelse ($servicos as $servico)
                         <tr>
                             <td class="px-5 py-4 text-left">
-                                <span class="font-medium text-gray-800 dark:text-white/90">{{ $servico->nome }}</span>
+                                <span class="flex items-center gap-1.5 font-medium text-gray-800 dark:text-white/90">
+                                    {{ $servico->nome }}
+                                    @if ($servico->suprimido())
+                                        <x-avalia.cadeado titulo="Veicular: numeros suprimidos ate o contrato com o fornecedor" />
+                                    @endif
+                                </span>
                                 <code class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{{ $servico->codigo }}</code>
                             </td>
                             <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">

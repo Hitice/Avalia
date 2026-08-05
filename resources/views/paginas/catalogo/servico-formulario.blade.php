@@ -123,6 +123,15 @@
                         pacote do cliente. Campo em branco significa custo ainda nao cadastrado.
                     </p>
 
+                    @if ($servico->suprimido())
+                        {{-- Os campos continuam editaveis: e aqui que a estimativa se mantem.
+                             O que nao sai daqui e o numero para o resto do sistema. --}}
+                        <div class="aviso aviso-alerta mb-5">
+                            Servico veicular. Preco, custo e margem sao estimativa ate o contrato com o
+                            fornecedor: eles aparecem nesta pagina, mas nao no catalogo nem em proposta.
+                        </div>
+                    @endif
+
                     <div class="max-w-xs">
                         <label for="custo" class="rotulo-campo">Custo do fornecedor</label>
                         <input id="custo" name="custo" type="text" inputmode="decimal" placeholder="-"

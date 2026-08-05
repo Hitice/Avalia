@@ -60,7 +60,7 @@ class MontarPlanilha
         $cabecalho = array_merge(
             ['codigo', 'servico', 'categoria', 'situacao', 'custo'],
             array_map(self::tituloDaFaixa(...), $faixas),
-            ['margem menor faixa', 'margem maior faixa'],
+            ['margem menor faixa (%)', 'margem maior faixa (%)'],
         );
 
         $linhas = $catalogo->precos()

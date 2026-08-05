@@ -18,6 +18,15 @@ use ZipArchive;
  */
 final class Planilha
 {
+    /** Indices de cellXfs em styles.xml. Mudou a ordem la, muda aqui. */
+    private const ESTILO_PADRAO = 0;
+
+    private const ESTILO_CABECALHO = 1;
+
+    private const ESTILO_DECIMAL = 2;
+
+    private const ESTILO_INTEIRO = 3;
+
     /**
      * @param  array<string, array{0: list<string>, 1: list<list<string|int|float|null>>}>  $abas
      *                                                                                             nome da aba => [cabecalho, linhas]
@@ -37,6 +46,7 @@ final class Planilha
         $zip->addFromString('_rels/.rels', self::relacaoRaiz());
         $zip->addFromString('xl/workbook.xml', self::pasta($nomes));
         $zip->addFromString('xl/_rels/workbook.xml.rels', self::relacaoPasta(count($nomes)));
+        $zip->addFromString('xl/styles.xml', self::estilos());
 
         foreach (array_values($abas) as $indice => [$cabecalho, $linhas]) {
             $zip->addFromString('xl/worksheets/sheet'.($indice + 1).'.xml', self::aba($cabecalho, $linhas));
@@ -170,11 +180,29 @@ final class Planilha
     /** @param list<list<string|int|float|null>> $linhas */
     private static function aba(array $cabecalho, array $linhas): string
     {
+        $ultimaColuna = self::letraDaColuna(max(0, count($cabecalho) - 1));
+        $ultimaLinha = count($linhas) + 1;
+        $faixa = 'A1:'.$ultimaColuna.$ultimaLinha;
+
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            .'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+            .'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            .'<dimension ref="'.$faixa.'"/>'
+            // Cabecalho congelado: rolar 43 servicos sem perder de vista qual
+            // coluna e qual faixa.
+            .'<sheetViews><sheetView workbookViewId="0">'
+            .'<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>'
+            .'<selection pane="bottomLeft" activeCell="A2" sqref="A2"/>'
+            .'</sheetView></sheetViews>'
+            .'<sheetFormatPr defaultRowHeight="15"/>'
+            .self::colunas($cabecalho, $linhas)
+            .'<sheetData>';
 
         foreach (array_merge([$cabecalho], $linhas) as $numero => $linha) {
-            $xml .= '<row r="'.($numero + 1).'">';
+            $ehCabecalho = $numero === 0;
+
+            $xml .= $ehCabecalho
+                ? '<row r="1" ht="24" customHeight="1">'
+                : '<row r="'.($numero + 1).'">';
 
             foreach (array_values($linha) as $coluna => $valor) {
                 $ref = self::letraDaColuna($coluna).($numero + 1);
@@ -183,16 +211,103 @@ final class Planilha
                     continue;
                 }
 
-                $xml .= is_int($valor) || is_float($valor)
-                    ? '<c r="'.$ref.'"><v>'.$valor.'</v></c>'
-                    : '<c r="'.$ref.'" t="inlineStr"><is><t xml:space="preserve">'
-                        .htmlspecialchars((string) $valor, ENT_QUOTES | ENT_XML1, 'UTF-8').'</t></is></c>';
+                if (is_int($valor) || is_float($valor)) {
+                    // Dinheiro e margem chegam como float e ganham duas casas;
+                    // contagem e inteiro e nao ganha casa decimal nenhuma.
+                    $estilo = is_float($valor) ? self::ESTILO_DECIMAL : self::ESTILO_INTEIRO;
+                    $xml .= '<c r="'.$ref.'" s="'.$estilo.'"><v>'.$valor.'</v></c>';
+
+                    continue;
+                }
+
+                $xml .= '<c r="'.$ref.'" s="'.($ehCabecalho ? self::ESTILO_CABECALHO : self::ESTILO_PADRAO).'" t="inlineStr">'
+                    .'<is><t xml:space="preserve">'
+                    .htmlspecialchars((string) $valor, ENT_QUOTES | ENT_XML1, 'UTF-8')
+                    .'</t></is></c>';
             }
 
             $xml .= '</row>';
         }
 
-        return $xml.'</sheetData></worksheet>';
+        // O autoFilter vai depois do sheetData: e a ordem que o formato exige.
+        return $xml.'</sheetData><autoFilter ref="'.$faixa.'"/></worksheet>';
+    }
+
+    /**
+     * Largura de cada coluna, medida pelo conteudo mais longo dela.
+     *
+     * Sem isso o Excel abre tudo com 8,43 de largura e "margem maior faixa"
+     * aparece cortado, ou pior, o numero vira "#####". A unidade e largura de
+     * caractere, entao contar caractere e a medida certa.
+     *
+     * @param  list<string>  $cabecalho
+     * @param  list<list<string|int|float|null>>  $linhas
+     */
+    private static function colunas(array $cabecalho, array $linhas): string
+    {
+        if ($cabecalho === []) {
+            return '';
+        }
+
+        $xml = '<cols>';
+
+        foreach (array_keys($cabecalho) as $coluna) {
+            $maior = mb_strlen((string) $cabecalho[$coluna]);
+
+            foreach ($linhas as $linha) {
+                $valor = array_values($linha)[$coluna] ?? null;
+
+                $texto = is_float($valor)
+                    ? number_format($valor, 2, ',', '.')
+                    : (string) $valor;
+
+                $maior = max($maior, mb_strlen($texto));
+            }
+
+            // Duas de folga para o texto nao encostar na borda, e um teto para
+            // que uma observacao longa nao empurre as outras colunas para fora
+            // da tela.
+            $largura = min(48, max(11, $maior + 2));
+
+            $xml .= '<col min="'.($coluna + 1).'" max="'.($coluna + 1).'" width="'.$largura.'" customWidth="1"/>';
+        }
+
+        return $xml.'</cols>';
+    }
+
+    /**
+     * Estilos do arquivo, na ordem em que cellXfs os referencia.
+     *
+     * Os dois primeiros fills sao obrigatorios pelo formato ("none" e
+     * "gray125") mesmo sem uso: o Excel recusa a planilha se faltarem.
+     */
+    private static function estilos(): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            .'<numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00"/></numFmts>'
+            .'<fonts count="2">'
+            .'<font><sz val="11"/><color theme="1"/><name val="Calibri"/><family val="2"/></font>'
+            .'<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font>'
+            .'</fonts>'
+            .'<fills count="3">'
+            .'<fill><patternFill patternType="none"/></fill>'
+            .'<fill><patternFill patternType="gray125"/></fill>'
+            // Mesmo azul da marca na tela (brand-500), para a planilha e o
+            // sistema nao parecerem dois produtos.
+            .'<fill><patternFill patternType="solid"><fgColor rgb="FF465FFF"/><bgColor indexed="64"/></patternFill></fill>'
+            .'</fills>'
+            .'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+            .'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+            .'<cellXfs count="4">'
+            .'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+            .'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" '
+            .'applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>'
+            .'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+            .'<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+            .'</cellXfs>'
+            .'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'
+            .'</styleSheet>';
     }
 
     private static function tipos(int $abas): string
@@ -207,6 +322,9 @@ final class Planilha
             $xml .= '<Override PartName="/xl/worksheets/sheet'.$i.'.xml" '
                 .'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
         }
+
+        $xml .= '<Override PartName="/xl/styles.xml" '
+            .'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
 
         return $xml.'</Types>';
     }
@@ -244,6 +362,10 @@ final class Planilha
             $xml .= '<Relationship Id="rId'.$i.'" Target="worksheets/sheet'.$i.'.xml" '
                 .'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>';
         }
+
+        // Vem depois das abas para nao disputar rId com elas.
+        $xml .= '<Relationship Id="rId'.($abas + 1).'" Target="styles.xml" '
+            .'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>';
 
         return $xml.'</Relationships>';
     }

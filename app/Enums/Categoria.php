@@ -22,6 +22,21 @@ enum Categoria: string
         };
     }
 
+    /**
+     * Familia cujos numeros comerciais nao aparecem ainda.
+     *
+     * Veicular esta no catalogo porque ja foi precificado, mas o contrato com o
+     * fornecedor nao foi fechado: preco, custo e margem sao estimativa, e
+     * estimativa exibida sem aviso vira proposta. A linha continua visivel, com
+     * cadeado, para a administracao saber que existe e o que falta liberar.
+     *
+     * Fechado o contrato, esta regra cai em um lugar so.
+     */
+    public function suprimida(): bool
+    {
+        return $this === self::Veicular;
+    }
+
     /** @return array<string, string> valor => rotulo, para select e aba */
     public static function rotulos(): array
     {

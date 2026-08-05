@@ -50,6 +50,83 @@ it('preserva acento e caractere que quebraria o XML', function () {
     unlink($caminho);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Como o arquivo abre
+|--------------------------------------------------------------------------
+|
+| Planilha que abre com coluna estreita, sem filtro e sem cabecalho fixo e
+| planilha que o operador reformata na mao toda vez que exporta.
+|
+*/
+
+/** Devolve o XML de uma parte do xlsx gerado. */
+function parteDoXlsx(string $caminho, string $parte): string
+{
+    $zip = new ZipArchive;
+    $zip->open($caminho);
+    $xml = $zip->getFromName($parte);
+    $zip->close();
+
+    return (string) $xml;
+}
+
+it('gera um xlsx cujas partes sao todas XML valido', function () {
+    // O Excel recusa o arquivo inteiro por uma parte malformada, sem dizer qual.
+    $caminho = planilhaTemporaria([
+        'Catalogo' => [['codigo', 'custo'], [['scpc-bvs', 2.80]]],
+        'Planos' => [['plano'], [['Plano 5.000']]],
+    ]);
+
+    $zip = new ZipArchive;
+    $zip->open($caminho);
+
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        expect(simplexml_load_string($zip->getFromIndex($i)))
+            ->not->toBeFalse($zip->getNameIndex($i).' saiu malformado');
+    }
+
+    $zip->close();
+    unlink($caminho);
+});
+
+it('abre com filtro, cabecalho congelado e coluna larga o bastante', function () {
+    $caminho = planilhaTemporaria([
+        'Catalogo' => [
+            ['codigo', 'margem maior faixa (%)'],
+            [['relatorio-completo-de-credito-pj', 30.1]],
+        ],
+    ]);
+
+    $folha = parteDoXlsx($caminho, 'xl/worksheets/sheet1.xml');
+
+    expect($folha)->toContain('<autoFilter ref="A1:B2"/>')
+        ->toContain('state="frozen"');
+
+    // A primeira coluna acompanha o codigo mais longo, nao o titulo curto.
+    preg_match('/<col min="1"[^>]*width="(\d+)"/', $folha, $largura);
+    expect((int) $largura[1])->toBeGreaterThanOrEqual(mb_strlen('relatorio-completo-de-credito-pj'));
+
+    unlink($caminho);
+});
+
+it('pinta o cabecalho e formata numero como numero', function () {
+    $caminho = planilhaTemporaria([
+        'Catalogo' => [['codigo', 'custo', 'precos'], [['scpc-bvs', 2.80, 7]]],
+    ]);
+
+    $folha = parteDoXlsx($caminho, 'xl/worksheets/sheet1.xml');
+    $estilos = parteDoXlsx($caminho, 'xl/styles.xml');
+
+    // Azul da marca, o mesmo da tela.
+    expect($estilos)->toContain('FF465FFF')
+        ->and($folha)->toContain('s="1" t="inlineStr"')   // cabecalho
+        ->toContain('s="2"><v>2.8')                       // dinheiro, duas casas
+        ->toContain('s="3"><v>7');                        // contagem, sem casa
+
+    unlink($caminho);
+});
+
 it('le csv de ponto e virgula, que e o que o Excel salva em portugues', function () {
     $caminho = tempnam(sys_get_temp_dir(), 'teste').'.csv';
     file_put_contents($caminho, "codigo;custo\nscpc-bvs;2,80\n");

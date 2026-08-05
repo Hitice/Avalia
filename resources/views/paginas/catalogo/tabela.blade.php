@@ -82,7 +82,12 @@
 
                             <tr>
                                 <td class="tabela-td text-left">
-                                    <span class="block font-medium text-gray-800 dark:text-white/90">{{ $servico->nome }}</span>
+                                    <span class="flex items-center gap-1.5 font-medium text-gray-800 dark:text-white/90">
+                                        {{ $servico->nome }}
+                                        @if ($servico->suprimido())
+                                            <x-avalia.cadeado titulo="Veicular: numeros suprimidos ate o contrato com o fornecedor" />
+                                        @endif
+                                    </span>
                                     <span class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         <code>{{ $servico->codigo }}</code>
                                         @unless ($servico->ativo)
@@ -94,7 +99,15 @@
                                     </span>
                                 </td>
 
-                                @if ($visao === 'custo')
+                                @if ($servico->suprimido())
+                                    {{-- Preco, custo e margem de veicular sao estimativa enquanto o
+                                         contrato com o fornecedor nao fecha. Numero exibido sem aviso
+                                         vira proposta, entao a linha aparece sem os valores. --}}
+                                    <td colspan="{{ $visao === 'custo' ? 1 : count($faixas) }}"
+                                        class="px-4 py-3 text-right text-xs valor-suprimido">
+                                        suprimido
+                                    </td>
+                                @elseif ($visao === 'custo')
                                     <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
                                         {{ $linha['precos']->first()?->custo_cents === null
                                             ? '-'
