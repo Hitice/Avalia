@@ -20,11 +20,11 @@ it('poe o mesmo custo em todas as faixas do servico', function () {
         ->and($scpc->precos()->count())->toBe(7);
 });
 
-it('deixa sem custo o servico que nao esta na tabela do fornecedor', function () {
+it('deixa sem custo o veicular, que nao veio na tabela', function () {
     $this->seed(CatalogoSeeder::class);
     $this->seed(CustosSeeder::class);
 
-    foreach (['scr-score', 'cadastro-especial-pf', 'infobusca-por-documento', 'vip-car'] as $codigo) {
+    foreach (['vip-car', 'renajud', 'gravame'] as $codigo) {
         $servico = Servico::firstWhere('codigo', $codigo);
 
         expect($servico->precos()->whereNotNull('custo_cents')->count())
@@ -65,16 +65,16 @@ it('nao quebra sem catalogo', function () {
     expect(Preco::count())->toBe(0);
 });
 
-it('cobre 20 dos 43 servicos', function () {
+it('cobre os 26 servicos de credito', function () {
     $this->seed(CatalogoSeeder::class);
     $this->seed(CustosSeeder::class);
 
     $comCusto = Servico::whereHas('precos', fn ($q) => $q->whereNotNull('custo_cents'))->count();
 
-    expect($comCusto)->toBe(20)
+    expect($comCusto)->toBe(26)
         ->and(Servico::count())->toBe(43)
-        // 20 servicos × 7 faixas.
-        ->and(Preco::whereNotNull('custo_cents')->count())->toBe(140);
+        // 26 servicos × 7 faixas.
+        ->and(Preco::whereNotNull('custo_cents')->count())->toBe(182);
 });
 
 it('nao mexe no preco de venda', function () {

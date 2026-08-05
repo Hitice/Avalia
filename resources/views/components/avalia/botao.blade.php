@@ -4,14 +4,24 @@
     'href' => null,
 ])
 
-{{-- Botao unico do sistema. Estilo vive em app.css, como o do tema. --}}
+{{-- Botao unico do sistema. Estilo vive em app.css, como o do tema.
+
+     Os nomes de classe aparecem inteiros de proposito. Montar com sprintf
+     esconde a string do scanner do Tailwind, que so gera o que consegue ler no
+     codigo: "botao-primario" nunca chegou ao CSS e o botao saiu sem cor, preto
+     sobre o fundo escuro. --}}
 
 @php
-    $classe = trim(sprintf(
-        'botao botao-%s %s',
-        in_array($variante, ['primario', 'secundario'], true) ? $variante : 'primario',
-        $tamanho === 'sm' ? 'botao-sm' : '',
-    ));
+    $variantes = [
+        'primario' => 'botao-primario',
+        'secundario' => 'botao-secundario',
+    ];
+
+    $classe = implode(' ', array_filter([
+        'botao',
+        $variantes[$variante] ?? 'botao-primario',
+        $tamanho === 'sm' ? 'botao-sm' : null,
+    ]));
 @endphp
 
 @if ($href)

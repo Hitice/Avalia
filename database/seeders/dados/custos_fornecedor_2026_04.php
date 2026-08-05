@@ -10,13 +10,10 @@
  * varia com a faixa e o preco de venda, e e por isso que a margem muda tanto
  * de coluna para coluna.
  *
- * Servicos ausentes desta lista continuam sem custo cadastrado, o que a tela
- * deixa em branco. Sao eles, na tabela recebida:
+ * Os 26 servicos de credito estao cobertos. Continuam sem custo, e a tela
+ * deixa em branco:
  *
- *   - os tres de SCR (relatorio-top-scr, prime-completa-scr, scr-score);
- *   - cadastro-especial-pf e cadastro-especial-pj;
- *   - infobusca-por-documento;
- *   - todos os 17 servicos veiculares.
+ *   - os 17 servicos veiculares, que nao vieram na tabela de custo.
  *
  * A tabela recebida traz ainda "CARTORIOS DIRETO (CENPROT) PF / PJ" a R$ 1,35,
  * que nao existe no catalogo da Avalia. Criar servico e decisao comercial e
@@ -35,11 +32,17 @@ return [
     'score-positivo' => 597,
     'risco-credito-top' => 1_250,
     'relatorio-top' => 1_450,
+    'relatorio-top-scr' => 1_997,
     'maxi-top' => 1_275,
     'prime-basica' => 1_495,
     'prime-completa' => 1_775,
+    'prime-completa-scr' => 2_297,
+    'scr-score' => 857,
+    'cadastro-especial-pf' => 150,
+    'cadastro-especial-pj' => 150,
     'telefones-por-documento' => 85,
     'enderecos-por-documento' => 85,
+    'infobusca-por-documento' => 150,
     'infobusca-por-nome' => 150,
     'localizador-por-telefone' => 150,
     'localizador-por-cep' => 150,
