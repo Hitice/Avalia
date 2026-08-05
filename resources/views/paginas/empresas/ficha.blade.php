@@ -45,7 +45,7 @@
         <h2 class="mb-4 font-medium text-gray-800 dark:text-white/90">Condições comerciais</h2>
         <div class="grid gap-4 text-sm sm:grid-cols-3">
             <div><span class="rotulo-grupo block">Vigência</span><span class="mt-1 block text-gray-800 dark:text-white/90">{{ match($empresa->vigencia_tipo) { 'sem_vigencia' => 'Sem vigência', '12_meses' => '12 meses', '24_meses' => '24 meses', 'carencia' => 'Carência especial', default => 'Não definida' } }}</span></div>
-            <div><span class="rotulo-grupo block">Período do contrato</span><span class="mt-1 block text-gray-800 dark:text-white/90">{{ $empresa->contrato_inicio?->format('d/m/Y') ?? '—' }} até {{ $empresa->contrato_fim?->format('d/m/Y') ?? '—' }}</span></div>
+            <div><span class="rotulo-grupo block">Período do contrato</span><span class="mt-1 block text-gray-800 dark:text-white/90">{{ $empresa->contrato_inicio?->format('d/m/Y') ?? 'Não informado' }} até {{ $empresa->contrato_fim?->format('d/m/Y') ?? 'Não informado' }}</span></div>
             <div><span class="rotulo-grupo block">Taxa de adesão</span><span class="mt-1 block text-gray-800 dark:text-white/90">{{ $empresa->adesao ? Dinheiro::brl($empresa->adesao->valor_cents).' em '.$empresa->adesao->parcelas.'x' : 'Não cadastrada' }}</span></div>
         </div>
     </div>

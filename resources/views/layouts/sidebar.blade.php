@@ -176,23 +176,6 @@
                                                 @endforeach
                                             </ul>
                                         </div>
-                                    @elseif (!empty($item['emBreve']))
-                                        {{-- Modulo ainda nao construido: mostra, mas nao navega.
-                                             Linkar para rota inexistente devolveria 404. --}}
-                                        <span class="menu-item group menu-item-inactive cursor-not-allowed opacity-45"
-                                            title="Módulo ainda não construído"
-                                            :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'xl:justify-center' : 'justify-start'">
-                                            <span class="menu-item-icon-inactive">
-                                                {!! MenuHelper::getIconSvg($item['icon']) !!}
-                                            </span>
-                                            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                                                class="menu-item-text flex flex-1 items-center gap-2">
-                                                {{ $item['name'] }}
-                                                <span class="menu-badge-embreve ml-auto">
-                                                    em breve
-                                                </span>
-                                            </span>
-                                        </span>
                                     @else
                                         <!-- Simple Menu Item -->
                                         <a href="{{ $item['path'] }}" class="menu-item group"

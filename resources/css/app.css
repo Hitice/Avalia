@@ -415,10 +415,6 @@
   @apply text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500;
 }
 
-@utility menu-badge-embreve {
-  @apply block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium whitespace-nowrap text-gray-500 uppercase dark:bg-white/5 dark:text-gray-400;
-}
-
 @utility menu-dropdown-badge-pro {
   @apply text-brand-600 dark:text-brand-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
 }

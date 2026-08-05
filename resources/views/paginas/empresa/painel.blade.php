@@ -96,7 +96,7 @@
                                 @elseif (! $fatura->estaLiquidada() && $fatura->cobrancaAsaas?->situacao === 'aguardando_configuracao')
                                     <span class="text-sm text-gray-500 dark:text-gray-400">Solicite a segunda via ao atendimento</span>
                                 @else
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">—</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Não disponível</span>
                                 @endif
                             </td>
                         </tr>
