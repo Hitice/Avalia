@@ -2,54 +2,79 @@
 
 use App\Support\Margem;
 
-it('desconta custo do fornecedor e imposto da venda', function () {
-    // Venda R$ 16,90, custo R$ 10,90, imposto 27% = R$ 4,56.
-    expect(Margem::impostoCents(1_690, 2_700))->toBe(456)
-        ->and(Margem::liquidaCents(1_690, 1_090, 2_700))->toBe(144)
-        ->and(Margem::pct(1_690, 1_090, 2_700))->toBe(8.5);
+// Cenario da Avalia: imposto 8,6%, comissao 10%, margem alvo 30%.
+const IMPOSTO = 860;
+const COMISSAO = 1_000;
+const ALVO = 3_000;
+
+it('desconta fornecedor, fisco e vendedor da venda', function () {
+    // Venda R$ 5,45, custo R$ 2,80, imposto R$ 0,47, comissao R$ 0,55.
+    expect(Margem::impostoCents(545, IMPOSTO))->toBe(47)
+        ->and(Margem::comissaoCents(545, COMISSAO))->toBe(55)
+        ->and(Margem::liquidaCents(545, 280, IMPOSTO, COMISSAO))->toBe(163)
+        ->and(Margem::pct(545, 280, IMPOSTO, COMISSAO))->toBe(29.9);
 });
 
-it('mostra margem negativa em vez de esconder', function () {
-    // Vender a R$ 12,00 o que custa R$ 10,90 nao paga o imposto.
-    expect(Margem::liquidaCents(1_200, 1_090, 2_700))->toBe(-214)
-        ->and(Margem::daPrejuizo(1_200, 1_090, 2_700))->toBeTrue()
-        ->and(Margem::daPrejuizo(1_690, 1_090, 2_700))->toBeFalse();
+it('conta a comissao como custo, e nao como sobra', function () {
+    // Sem a comissao a margem parece 10 pontos maior do que e.
+    $comComissao = Margem::pct(545, 280, IMPOSTO, COMISSAO);
+    $semComissao = Margem::pct(545, 280, IMPOSTO, 0);
+
+    expect(round($semComissao - $comComissao, 1))->toBe(10.1);
 });
 
-it('nao inventa margem enquanto o custo nao esta cadastrado', function () {
-    expect(Margem::liquidaCents(1_690, null, 2_700))->toBeNull()
-        ->and(Margem::pct(1_690, null, 2_700))->toBeNull()
-        ->and(Margem::pisoCents(null, 2_700))->toBeNull()
-        ->and(Margem::daPrejuizo(1_690, null, 2_700))->toBeFalse();
+it('calcula o preco que entrega a margem pedida', function () {
+    $alvo = Margem::precoAlvoCents(280, IMPOSTO, COMISSAO, ALVO);
+
+    expect($alvo)->toBe(546)
+        ->and(Margem::atinge($alvo, 280, IMPOSTO, COMISSAO, ALVO))->toBeTrue()
+        // Um centavo abaixo ja nao serve, senao o alvo estaria alto demais.
+        ->and(Margem::atinge($alvo - 1, 280, IMPOSTO, COMISSAO, ALVO))->toBeFalse();
 });
 
-it('calcula o piso onde a margem zera', function () {
-    // custo 10,90 ÷ (1 − 0,27) = 14,93.
-    $piso = Margem::pisoCents(1_090, 2_700);
+it('acha o alvo para qualquer custo, sempre pelo menor preco que serve', function () {
+    foreach ([49, 85, 150, 895, 1_997, 2_297, 5_500] as $custo) {
+        $alvo = Margem::precoAlvoCents($custo, IMPOSTO, COMISSAO, ALVO);
 
-    expect($piso)->toBe(1_493)
-        ->and(Margem::liquidaCents($piso, 1_090, 2_700))->toBe(0)
-        ->and(Margem::daPrejuizo($piso, 1_090, 2_700))->toBeFalse();
-});
-
-it('arredonda o piso para cima, nunca para dentro do prejuizo', function () {
-    // Um centavo abaixo do piso ja tem que acusar prejuizo.
-    foreach ([100, 631, 5_530, 55_000] as $custo) {
-        $piso = Margem::pisoCents($custo, 2_700);
-
-        expect(Margem::daPrejuizo($piso, $custo, 2_700))->toBeFalse()
-            ->and(Margem::daPrejuizo($piso - 1, $custo, 2_700))->toBeTrue();
+        expect(Margem::atinge($alvo, $custo, IMPOSTO, COMISSAO, ALVO))->toBeTrue("custo {$custo}")
+            ->and(Margem::atinge($alvo - 1, $custo, IMPOSTO, COMISSAO, ALVO))->toBeFalse("custo {$custo}");
     }
 });
 
-it('trata imposto zero sem quebrar', function () {
-    expect(Margem::impostoCents(1_690, 0))->toBe(0)
-        ->and(Margem::liquidaCents(1_690, 1_090, 0))->toBe(600)
-        ->and(Margem::pisoCents(1_090, 0))->toBe(1_090);
+it('trata o piso como o alvo de margem zero', function () {
+    $piso = Margem::pisoCents(280, IMPOSTO, COMISSAO);
+
+    expect($piso)->toBe(Margem::precoAlvoCents(280, IMPOSTO, COMISSAO, 0))
+        ->and(Margem::daPrejuizo($piso, 280, IMPOSTO, COMISSAO))->toBeFalse()
+        ->and(Margem::daPrejuizo($piso - 1, 280, IMPOSTO, COMISSAO))->toBeTrue();
 });
 
-it('nao aceita aliquota de 100% ou mais', function () {
-    // Sem o teto, o piso dividiria por zero ou viraria negativo.
-    expect(Margem::pisoCents(1_090, 10_000))->toBeGreaterThan(0)
-        ->and(Margem::pisoCents(1_090, 50_000))->toBeGreaterThan(0);
+it('o piso sobe quando a comissao entra na conta', function () {
+    // Ignorar a comissao faz o piso parecer menor do que e, e o preco que
+    // parecia empatar na verdade perde dinheiro.
+    $semComissao = Margem::pisoCents(280, IMPOSTO, 0);
+    $comComissao = Margem::pisoCents(280, IMPOSTO, COMISSAO);
+
+    expect($comComissao)->toBeGreaterThan($semComissao)
+        ->and(Margem::daPrejuizo($semComissao, 280, IMPOSTO, COMISSAO))->toBeTrue();
+});
+
+it('mostra margem negativa em vez de esconder', function () {
+    expect(Margem::liquidaCents(300, 280, IMPOSTO, COMISSAO))->toBeLessThan(0)
+        ->and(Margem::daPrejuizo(300, 280, IMPOSTO, COMISSAO))->toBeTrue();
+});
+
+it('nao inventa nada enquanto o custo nao esta cadastrado', function () {
+    expect(Margem::liquidaCents(545, null, IMPOSTO, COMISSAO))->toBeNull()
+        ->and(Margem::pct(545, null, IMPOSTO, COMISSAO))->toBeNull()
+        ->and(Margem::pisoCents(null, IMPOSTO, COMISSAO))->toBeNull()
+        ->and(Margem::precoAlvoCents(null, IMPOSTO, COMISSAO, ALVO))->toBeNull()
+        ->and(Margem::daPrejuizo(545, null, IMPOSTO, COMISSAO))->toBeFalse()
+        ->and(Margem::atinge(545, null, IMPOSTO, COMISSAO, ALVO))->toBeFalse();
+});
+
+it('nao estoura quando as aliquotas somam 100%', function () {
+    // Sem teto, o divisor zeraria e o alvo viraria divisao por zero.
+    expect(Margem::precoAlvoCents(280, 5_000, 3_000, 2_000))->toBeGreaterThan(0)
+        ->and(Margem::precoAlvoCents(280, 9_000, 9_000, 9_000))->toBeGreaterThan(0);
 });

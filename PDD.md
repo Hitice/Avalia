@@ -60,7 +60,9 @@ no catálogo versionado, nunca no código.
 | Vencimento da fatura | todo dia 10 | Data fixa de calendário, igual para todos os clientes. |
 | Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
 | Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
-| Imposto sobre a venda | 27% (provisório) | Média estimada. Depende do regime tributário e precisa de confirmação contábil. |
+| Imposto sobre a venda | 8,60% | Alíquota efetiva do Simples Nacional, Anexo III, faixa de até R$ 360 mil ao ano. Sobe com o faturamento: 11,05% até R$ 720 mil, 14,02% até R$ 1,8 milhão. |
+| Margem líquida alvo | 30% na maior faixa | Depois de custo do fornecedor, imposto e comissão do vendedor. |
+| Ganho por degrau | 3 pontos por faixa | Cada faixa abaixo da maior ganha 3 pontos de margem, o que produz o desconto por volume sem furar o piso. |
 | Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. |
 
 Todos os valores financeiros são inteiros em centavos, do banco até a tela. Não
@@ -94,18 +96,33 @@ O preço de tabela é o valor final ao cliente da Avalia. O custo efetivo do
 fornecedor é interno, cadastrado separadamente, e nunca é exibido ao cliente ou
 ao vendedor.
 
-### Margem e piso de preço
+### Margem, piso e escada de preço
 
 A administração vê a mesma matriz do catálogo sob três visões: preço de venda,
 custo do fornecedor e margem. As duas últimas são internas e ficam atrás da mesma
 restrição de acesso do catálogo: vendedor não entra.
 
     imposto = preço de venda × alíquota
-    margem  = preço de venda − custo do fornecedor − imposto
-    piso    = menor preço de venda cuja margem ainda não é negativa
+    margem  = preço de venda − custo do fornecedor − imposto − comissão
+    piso    = custo ÷ (1 − imposto − comissão)
+    preço   = custo ÷ (1 − imposto − comissão − margem alvo da faixa)
 
-O piso não é cadastrado, é calculado: abaixo dele a venda não paga fornecedor e
-imposto. A tela marca em vermelho toda célula vendida abaixo do piso.
+A comissão do vendedor entra como custo porque é o que ela é: sai do mesmo preço.
+Margem calculada sem ela superestima o resultado em dez pontos.
+
+O piso não é cadastrado, é calculado, e **preço abaixo dele é recusado na
+gravação**. Relatar prejuízo depois do fato não impede ninguém de vender no
+negativo.
+
+**A escada de desconto por volume é construída de cima para baixo.** O fornecedor
+cobra o mesmo por consulta independentemente da faixa, então todo desconto que a
+Avalia dá sai da margem dela. Por isso a margem alvo vale para a **maior** faixa,
+que é o piso comercial, e cada faixa abaixo ganha o degrau. O resultado é um
+desconto real para quem contrata o pacote maior, com margem garantida em todas as
+faixas.
+
+A tela marca em vermelho a célula no prejuízo e em amarelo a que está abaixo da
+margem alvo.
 
 Custo em branco significa **custo ainda não cadastrado**, e é diferente de custo
 zero: sem o dado, a plataforma não exibe margem nem piso em vez de exibir um

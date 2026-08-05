@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Comissao;
 use Illuminate\Database\Eloquent\Collection as ColecaoEloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,20 +22,72 @@ class VersaoCatalogo extends Model
 
     protected $table = 'versoes_catalogo';
 
-    protected $fillable = ['rotulo', 'observacao', 'vigencia_inicio', 'imposto_bps'];
+    protected $fillable = ['rotulo', 'observacao', 'vigencia_inicio', 'imposto_bps', 'margem_alvo_bps', 'degrau_margem_bps'];
 
     protected function casts(): array
     {
         return [
             'vigencia_inicio' => 'date',
             'imposto_bps' => 'integer',
+            'margem_alvo_bps' => 'integer',
+            'degrau_margem_bps' => 'integer',
         ];
     }
 
-    /** Aliquota de imposto legivel: 2700 -> "27%". */
+    /** Aliquota de imposto legivel: 860 -> "8,6%". */
     public function impostoRotulo(): string
     {
-        return rtrim(rtrim(number_format($this->imposto_bps / 100, 2, ',', '.'), '0'), ',').'%';
+        return self::pontosRotulo($this->imposto_bps);
+    }
+
+    /** Margem liquida alvo legivel: 3000 -> "30%". */
+    public function margemAlvoRotulo(): string
+    {
+        return self::pontosRotulo($this->margem_alvo_bps);
+    }
+
+    /**
+     * Comissao do vendedor em pontos-base, para entrar no calculo de margem.
+     *
+     * Usa a aliquota normal. No mes com excedente ela sobe para 20% e a margem
+     * cai na mesma medida; precificar pelo pior mes encareceria todo o catalogo
+     * por causa da excecao.
+     */
+    public function comissaoBps(): int
+    {
+        return Comissao::PCT_PADRAO * 100;
+    }
+
+    /**
+     * Margem alvo de cada faixa, em pontos-base.
+     *
+     * A margem alvo e o piso e vale para a MAIOR faixa. Cada degrau abaixo
+     * soma degrau_margem_bps, entao o preco unitario cai conforme o cliente
+     * sobe de pacote e o pacote maior fica de fato mais vantajoso.
+     *
+     * @param  list<int>  $faixas  em ordem crescente
+     * @return array<int, int> faixa em centavos => margem em bps
+     */
+    public function margemPorFaixa(array $faixas): array
+    {
+        $degraus = max(0, count($faixas) - 1);
+        $margens = [];
+
+        foreach (array_values($faixas) as $posicao => $faixa) {
+            $margens[$faixa] = $this->margem_alvo_bps + $this->degrau_margem_bps * ($degraus - $posicao);
+        }
+
+        return $margens;
+    }
+
+    public function degrauRotulo(): string
+    {
+        return self::pontosRotulo($this->degrau_margem_bps);
+    }
+
+    private static function pontosRotulo(int $bps): string
+    {
+        return rtrim(rtrim(number_format($bps / 100, 2, ',', '.'), '0'), ',').'%';
     }
 
     public function precos(): HasMany

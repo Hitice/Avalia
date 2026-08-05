@@ -15,9 +15,10 @@ class VersaoCatalogoFactory extends Factory
     {
         return [
             'rotulo' => 'Catálogo '.fake()->unique()->numerify('##/20##'),
-            // Espelha o default do banco: sem isto o model recem-criado fica
-            // com a coluna nula em memoria ate um fresh().
-            'imposto_bps' => 2_700,
+            // Espelha o que o CatalogoSeeder grava: sem isto o model
+            // recem-criado fica com a coluna nula em memoria ate um fresh().
+            'imposto_bps' => 860,
+            'margem_alvo_bps' => 3_000,
         ];
     }
 

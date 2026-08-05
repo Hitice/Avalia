@@ -3,16 +3,20 @@
 namespace App\Support;
 
 /**
- * Margem da Avalia sobre um preco de venda.
+ * Margem liquida da Avalia sobre um preco de venda.
  *
- *     margem = venda - custo do fornecedor - imposto sobre a venda
+ *     margem = venda - custo do fornecedor - imposto - comissao do vendedor
  *
- * Tudo em centavos inteiros, aliquota em pontos-base. Nunca vai para tela de
+ * A comissao entra como custo porque e isso que ela e: sai do mesmo preco.
+ * Margem calculada sem ela mente em 10 pontos, e a decisao comercial e ganhar
+ * 30% liquidos DEPOIS de pagar o vendedor.
+ *
+ * Tudo em centavos inteiros, aliquotas em pontos-base. Nunca vai para tela de
  * cliente nem de vendedor: margem e custo sao internos (PDD.md, secao 6).
  */
 final class Margem
 {
-    /** Teto de sanidade: aliquota igual ou maior que 100% nao e imposto, e erro. */
+    /** Teto de sanidade: soma de aliquotas em 100% nao deixa sobra nenhuma. */
     public const BPS_MAXIMO = 9_999;
 
     /** Quanto da venda vai embora em imposto. */
@@ -21,24 +25,33 @@ final class Margem
         return (int) round($vendaCents * self::bps($impostoBps) / 10_000);
     }
 
+    /** Quanto da venda vai embora em comissao do vendedor. */
+    public static function comissaoCents(int $vendaCents, int $comissaoBps): int
+    {
+        return (int) round($vendaCents * self::bps($comissaoBps) / 10_000);
+    }
+
     /**
-     * Sobra depois do fornecedor e do fisco, ou null enquanto o custo nao
-     * estiver cadastrado. Pode ser negativa, e e justamente isso que a tela
-     * precisa mostrar.
+     * Sobra depois do fornecedor, do fisco e do vendedor, ou null enquanto o
+     * custo nao estiver cadastrado. Pode ser negativa, e e justamente isso que
+     * a tela precisa mostrar.
      */
-    public static function liquidaCents(int $vendaCents, ?int $custoCents, int $impostoBps): ?int
+    public static function liquidaCents(int $vendaCents, ?int $custoCents, int $impostoBps, int $comissaoBps = 0): ?int
     {
         if ($custoCents === null) {
             return null;
         }
 
-        return $vendaCents - $custoCents - self::impostoCents($vendaCents, $impostoBps);
+        return $vendaCents
+            - $custoCents
+            - self::impostoCents($vendaCents, $impostoBps)
+            - self::comissaoCents($vendaCents, $comissaoBps);
     }
 
     /** Margem em porcentagem do preco de venda, com uma casa decimal. */
-    public static function pct(int $vendaCents, ?int $custoCents, int $impostoBps): ?float
+    public static function pct(int $vendaCents, ?int $custoCents, int $impostoBps, int $comissaoBps = 0): ?float
     {
-        $liquida = self::liquidaCents($vendaCents, $custoCents, $impostoBps);
+        $liquida = self::liquidaCents($vendaCents, $custoCents, $impostoBps, $comissaoBps);
 
         if ($liquida === null || $vendaCents === 0) {
             return null;
@@ -50,42 +63,69 @@ final class Margem
     /**
      * Menor preco que ainda nao da prejuizo.
      *
-     *     venda - custo - venda × aliquota = 0
-     *     venda = custo ÷ (1 - aliquota)
-     *
-     * Arredonda para cima de proposito: um centavo a menos ja e venda no
-     * negativo, e piso que permite prejuizo nao e piso.
+     *     venda - custo - venda × (imposto + comissao) = 0
+     *     venda = custo ÷ (1 - imposto - comissao)
      */
-    public static function pisoCents(?int $custoCents, int $impostoBps): ?int
+    public static function pisoCents(?int $custoCents, int $impostoBps, int $comissaoBps = 0): ?int
+    {
+        return self::precoAlvoCents($custoCents, $impostoBps, $comissaoBps, 0);
+    }
+
+    /**
+     * Preco que entrega a margem pedida.
+     *
+     *     venda = custo ÷ (1 - imposto - comissao - margem)
+     *
+     * Arredonda para cima: um centavo a menos ja fica abaixo do alvo, e alvo
+     * que nao se atinge nao e alvo.
+     */
+    public static function precoAlvoCents(?int $custoCents, int $impostoBps, int $comissaoBps, int $margemBps): ?int
     {
         if ($custoCents === null) {
             return null;
         }
 
-        $restante = 10_000 - self::bps($impostoBps);
-        $piso = (int) ceil($custoCents * 10_000 / $restante);
+        $restante = 10_000 - self::bps($impostoBps + $comissaoBps + max(0, $margemBps));
+        $alvo = (int) ceil($custoCents * 10_000 / $restante);
 
-        // A formula trata o imposto como continuo, mas ele e arredondado ao
-        // centavo, o que pode deixar o piso um centavo acima do necessario.
-        // Desce enquanto o centavo anterior ainda nao der prejuizo, para o piso
-        // ser exatamente o menor preco que se paga.
-        while ($piso > 0 && ! self::daPrejuizo($piso - 1, $custoCents, $impostoBps)) {
-            $piso--;
+        // A formula trata as aliquotas como continuas, mas imposto e comissao
+        // sao arredondados ao centavo. O candidato pode ficar um ou dois
+        // centavos de fora nos dois sentidos, entao sobe ate servir e depois
+        // desce ate o menor que ainda serve. A folga de 8 centavos e teto de
+        // seguranca: na pratica a correcao nunca passa de dois.
+        for ($i = 0; $i < 8 && ! self::atinge($alvo, $custoCents, $impostoBps, $comissaoBps, $margemBps); $i++) {
+            $alvo++;
         }
 
-        return $piso;
+        while ($alvo > 0 && self::atinge($alvo - 1, $custoCents, $impostoBps, $comissaoBps, $margemBps)) {
+            $alvo--;
+        }
+
+        return $alvo;
     }
 
-    /** A venda cobre custo e imposto? Sem custo cadastrado, nao da para saber. */
-    public static function daPrejuizo(int $vendaCents, ?int $custoCents, int $impostoBps): bool
+    /** A venda cobre custo, imposto e comissao? Sem custo, nao da para saber. */
+    public static function daPrejuizo(int $vendaCents, ?int $custoCents, int $impostoBps, int $comissaoBps = 0): bool
     {
-        $liquida = self::liquidaCents($vendaCents, $custoCents, $impostoBps);
+        $liquida = self::liquidaCents($vendaCents, $custoCents, $impostoBps, $comissaoBps);
 
         return $liquida !== null && $liquida < 0;
     }
 
-    private static function bps(int $impostoBps): int
+    /** A venda entrega pelo menos a margem pedida? */
+    public static function atinge(int $vendaCents, ?int $custoCents, int $impostoBps, int $comissaoBps, int $margemBps): bool
     {
-        return max(0, min($impostoBps, self::BPS_MAXIMO));
+        $liquida = self::liquidaCents($vendaCents, $custoCents, $impostoBps, $comissaoBps);
+
+        if ($liquida === null) {
+            return false;
+        }
+
+        return $liquida * 10_000 >= $vendaCents * max(0, $margemBps);
+    }
+
+    private static function bps(int $bps): int
+    {
+        return max(0, min($bps, self::BPS_MAXIMO));
     }
 }

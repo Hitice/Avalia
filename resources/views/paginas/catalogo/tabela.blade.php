@@ -112,7 +112,7 @@
                                         @php
                                             $preco = $linha['precos']->get($faixa);
                                             $prejuizo = $preco && $visao === 'margem'
-                                                && Margem::daPrejuizo($preco->preco_cents, $preco->custo_cents, $catalogo->imposto_bps);
+                                                && Margem::daPrejuizo($preco->preco_cents, $preco->custo_cents, $catalogo->imposto_bps, $catalogo->comissaoBps());
                                         @endphp
 
                                         <td class="{{ $prejuizo ? 'bg-error-50 dark:bg-error-500/10' : '' }} px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
@@ -160,8 +160,8 @@
                 Custo cobrado pelo fornecedor. Campo em branco significa custo ainda nao cadastrado,
                 nao e o mesmo que custo zero.
             @else
-                Margem = venda − custo − imposto de {{ $catalogo->impostoRotulo() }}. Celula em vermelho
-                e venda abaixo do piso: o servico esta sendo vendido no prejuizo.
+                Margem = venda − custo − imposto de {{ $catalogo->impostoRotulo() }} − comissao do vendedor. Amarelo e abaixo da margem alvo; vermelho
+                e prejuizo: o servico nao paga nem fornecedor, imposto e comissao.
             @endif
         </p>
     @endif

@@ -30,6 +30,10 @@ class CatalogoSeeder extends Seeder
             [
                 'observacao' => 'Transcrita dos PDFs de referencia por '
                     .'tools/gera_precos_catalogo.py. Homologar preco, custo e franquia.',
+                // PDD.md, secao 5: Simples Nacional Anexo III na faixa de ate
+                // R$ 360 mil ao ano, e 30% liquidos depois do vendedor.
+                'imposto_bps' => 860,
+                'margem_alvo_bps' => 3_000,
             ],
         );
 
@@ -49,6 +53,7 @@ class CatalogoSeeder extends Seeder
                     'nome' => $linha['nome'],
                     'categoria' => $linha['categoria'],
                     'exige_liberacao' => $linha['exige_liberacao'],
+                    'ativo' => $linha['ativo'],
                 ], $dados['servicos']),
                 ['codigo'],
                 ['nome', 'categoria'],

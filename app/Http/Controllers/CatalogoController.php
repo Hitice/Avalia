@@ -6,7 +6,9 @@ use App\Models\Preco;
 use App\Models\Servico;
 use App\Models\VersaoCatalogo;
 use App\Support\Dinheiro;
+use App\Support\Margem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -101,16 +103,98 @@ class CatalogoController extends Controller
         return $this->gravarColuna($request, $catalogo, 'custos', 'custo_cents', 'custo', true);
     }
 
-    /** Aliquota de imposto usada no calculo de margem e de piso. */
-    public function imposto(Request $request, VersaoCatalogo $catalogo)
+    /** Aliquotas que governam margem, piso e preco alvo. */
+    public function parametros(Request $request, VersaoCatalogo $catalogo)
     {
         $dados = $request->validate([
             'imposto' => ['required', 'numeric', 'min:0', 'max:99.99'],
+            'margem_alvo' => ['required', 'numeric', 'min:0', 'max:99.99'],
+            'degrau_margem' => ['required', 'numeric', 'min:0', 'max:20'],
         ]);
 
-        $catalogo->update(['imposto_bps' => (int) round((float) $dados['imposto'] * 100)]);
+        $imposto = (int) round((float) $dados['imposto'] * 100);
+        $margem = (int) round((float) $dados['margem_alvo'] * 100);
+        $degrau = (int) round((float) $dados['degrau_margem'] * 100);
 
-        return back()->with('ok', "Imposto ajustado para {$catalogo->fresh()->impostoRotulo()}.");
+        // A faixa mais baixa acumula todos os degraus, entao e ela que precisa
+        // caber em 100% junto com imposto e comissao. Testar so a margem alvo
+        // deixaria passar uma escada impossivel.
+        $degraus = max(0, count($catalogo->faixas()) - 1);
+        $maiorMargem = $margem + $degrau * $degraus;
+
+        if ($imposto + $catalogo->comissaoBps() + $maiorMargem >= 10_000) {
+            return back()->with('erro', sprintf(
+                'Na faixa mais baixa a margem chegaria a %s, e com imposto e comissao passa de 100%%. Reduza o degrau.',
+                number_format($maiorMargem / 100, 1, ',', '.').'%',
+            ));
+        }
+
+        $catalogo->update([
+            'imposto_bps' => $imposto,
+            'margem_alvo_bps' => $margem,
+            'degrau_margem_bps' => $degrau,
+        ]);
+        $catalogo->refresh();
+
+        return back()->with('ok', sprintf(
+            'Imposto %s, margem %s na maior faixa, subindo %s por degrau.',
+            $catalogo->impostoRotulo(),
+            $catalogo->margemAlvoRotulo(),
+            $catalogo->degrauRotulo(),
+        ));
+    }
+
+    /**
+     * Reprecifica a tabela inteira pela escada de margem.
+     *
+     * Cada faixa recebe o preco que entrega a margem dela: a maior faixa fica
+     * no piso comercial e as de baixo rendem mais. E isso que faz o pacote
+     * maior valer a pena para o cliente sem tirar dinheiro da Avalia.
+     */
+    public function precificar(VersaoCatalogo $catalogo)
+    {
+        $comissao = $catalogo->comissaoBps();
+        $precos = $catalogo->precos()
+            ->whereNotNull('custo_cents')
+            ->get(['id', 'versao_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents']);
+
+        $margemDaFaixa = $catalogo->margemPorFaixa(VersaoCatalogo::faixasDe($precos));
+
+        $linhas = $precos
+            ->map(fn (Preco $preco) => [
+                'id' => $preco->id,
+                'versao_id' => $preco->versao_id,
+                'servico_id' => $preco->servico_id,
+                'consumo_minimo_cents' => $preco->consumo_minimo_cents,
+                'custo_cents' => $preco->custo_cents,
+                'antes' => $preco->preco_cents,
+                'preco_cents' => Margem::precoAlvoCents(
+                    $preco->custo_cents,
+                    $catalogo->imposto_bps,
+                    $comissao,
+                    $margemDaFaixa[$preco->consumo_minimo_cents] ?? $catalogo->margem_alvo_bps,
+                ),
+            ])
+            ->reject(fn (array $l) => $l['antes'] === $l['preco_cents'])
+            ->map(fn (array $l) => Arr::except($l, 'antes'))
+            ->values()
+            ->all();
+
+        $semCusto = $catalogo->precos()->whereNull('custo_cents')->count();
+
+        if ($linhas === []) {
+            return back()->with('ok', 'Todos os precos ja estao na escada. Nada a mudar.');
+        }
+
+        Preco::upsert($linhas, ['id'], ['preco_cents']);
+
+        return back()->with('ok', sprintf(
+            '%d preco(s) recalculados: %s na maior faixa, subindo %s por degrau.%s',
+            count($linhas),
+            $catalogo->margemAlvoRotulo(),
+            $catalogo->degrauRotulo(),
+            $semCusto > 0 ? " {$semCusto} sem custo ficaram de fora." : '',
+        ));
     }
 
     /**
@@ -153,6 +237,25 @@ class CatalogoController extends Controller
             ])
             ->values()
             ->all();
+
+        // Preco abaixo do piso e recusado na entrada. Relatar prejuizo depois
+        // do fato nao impede ninguem de vender no negativo.
+        if ($coluna === 'preco_cents') {
+            $furam = collect($linhas)->filter(fn (array $l) => Margem::daPrejuizo(
+                $l['preco_cents'], $l['custo_cents'], $catalogo->imposto_bps, $catalogo->comissaoBps(),
+            ));
+
+            if ($furam->isNotEmpty()) {
+                $exemplo = $furam->first();
+                $piso = Margem::pisoCents($exemplo['custo_cents'], $catalogo->imposto_bps, $catalogo->comissaoBps());
+
+                return back()->with('erro', sprintf(
+                    '%d preco(s) abaixo do piso e nenhum foi gravado. O menor valor que paga fornecedor, imposto e comissao neste caso e %s.',
+                    $furam->count(),
+                    Dinheiro::brl($piso),
+                ));
+            }
+        }
 
         if ($linhas === []) {
             return back()->with('ok', "Nenhum {$rotulo} mudou.");

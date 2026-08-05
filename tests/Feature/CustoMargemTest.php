@@ -70,30 +70,32 @@ it('ignora custo de preco que nao pertence a este catalogo', function () {
 |--------------------------------------------------------------------------
 */
 
-it('comeca com os 27% registrados no PDD', function () {
+it('comeca com os parametros comerciais do PDD', function () {
     $catalogo = VersaoCatalogo::factory()->create();
 
-    expect($catalogo->imposto_bps)->toBe(2_700)
-        ->and($catalogo->impostoRotulo())->toBe('27%');
+    expect($catalogo->impostoRotulo())->toBe('8,6%')
+        ->and($catalogo->margemAlvoRotulo())->toBe('30%')
+        ->and($catalogo->comissaoBps())->toBe(1_000);
 });
 
 it('ajusta a aliquota de imposto', function () {
     $catalogo = VersaoCatalogo::factory()->create();
 
-    admin()->put(route('catalogo.imposto', $catalogo), ['imposto' => '26.8'])
+    admin()->put(route('catalogo.parametros', $catalogo), ['imposto' => '26.8', 'margem_alvo' => '30', 'degrau_margem' => '3'])
         ->assertSessionHas('ok');
 
     expect($catalogo->fresh()->imposto_bps)->toBe(2_680)
-        ->and($catalogo->fresh()->impostoRotulo())->toBe('26,8%');
+        ->and($catalogo->fresh()->impostoRotulo())->toBe('26,8%')
+        ->and($catalogo->fresh()->margem_alvo_bps)->toBe(3_000);
 });
 
 it('recusa aliquota de 100% ou mais', function () {
     $catalogo = VersaoCatalogo::factory()->create();
 
-    admin()->put(route('catalogo.imposto', $catalogo), ['imposto' => '100'])
+    admin()->put(route('catalogo.parametros', $catalogo), ['imposto' => '100', 'margem_alvo' => '30', 'degrau_margem' => '3'])
         ->assertSessionHasErrors('imposto');
 
-    expect($catalogo->fresh()->imposto_bps)->toBe(2_700);
+    expect($catalogo->fresh()->imposto_bps)->toBe(860);
 });
 
 /*
@@ -106,10 +108,10 @@ it('mostra a margem quando o custo esta cadastrado', function () {
     $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 1_690])->create();
     $catalogo->precos()->first()->update(['custo_cents' => 1_090]);
 
-    // 16,90 − 10,90 − 27% de 16,90 = 1,44, ou 8,5% da venda.
+    // 16,90 − 10,90 − 8,6% de imposto − 10% de comissao = 2,86, ou 16,9%.
     admin()->get(route('catalogo.tabela', ['visao' => 'margem']))
         ->assertOk()
-        ->assertSee('8,5%');
+        ->assertSee('16,9%');
 });
 
 it('acusa venda no prejuizo', function () {
@@ -118,7 +120,7 @@ it('acusa venda no prejuizo', function () {
 
     admin()->get(route('catalogo.tabela', ['visao' => 'margem']))
         ->assertOk()
-        ->assertSee('-17,8%')
+        ->assertSee('-9,4%')
         ->assertSee('bg-error-50', false);
 });
 
@@ -178,5 +180,87 @@ it('nao deixa vendedor ver custo nem margem', function () {
 
     $vendedor()->get(route('catalogo.tabela', ['visao' => 'margem']))->assertForbidden();
     $vendedor()->put(route('catalogo.custos', $catalogo), [])->assertForbidden();
-    $vendedor()->put(route('catalogo.imposto', $catalogo), ['imposto' => '10'])->assertForbidden();
+    $vendedor()->put(route('catalogo.parametros', $catalogo), ['imposto' => '10', 'margem_alvo' => '30', 'degrau_margem' => '3'])->assertForbidden();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Escada de margem
+|--------------------------------------------------------------------------
+*/
+
+it('da mais margem a cada degrau abaixo do topo', function () {
+    // A margem alvo e o piso e vale para a MAIOR faixa.
+    $catalogo = VersaoCatalogo::factory()->create(['margem_alvo_bps' => 3_000, 'degrau_margem_bps' => 300]);
+
+    $margens = $catalogo->margemPorFaixa([0, 7_500, 90_000, 500_000]);
+
+    expect($margens)->toBe([0 => 3_900, 7_500 => 3_600, 90_000 => 3_300, 500_000 => 3_000]);
+});
+
+it('reprecifica de forma que o pacote maior sai mais barato por consulta', function () {
+    $catalogo = VersaoCatalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 90_000 => 493, 500_000 => 370])
+        ->create(['margem_alvo_bps' => 3_000, 'degrau_margem_bps' => 300]);
+
+    $catalogo->precos()->update(['custo_cents' => 280]);
+
+    admin()->post(route('catalogo.precificar', $catalogo))->assertSessionHas('ok');
+
+    $semMinimo = $catalogo->precoDe('scpc-bvs', 0);
+    $meio = $catalogo->precoDe('scpc-bvs', 90_000);
+    $topo = $catalogo->precoDe('scpc-bvs', 500_000);
+
+    // Preco unitario cai conforme o cliente sobe de pacote.
+    expect($semMinimo)->toBeGreaterThan($meio)
+        ->and($meio)->toBeGreaterThan($topo);
+});
+
+it('nunca deixa nenhuma faixa abaixo da margem alvo', function () {
+    $catalogo = VersaoCatalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493, 500_000 => 370])
+        ->comServico('vip-car', [0 => 5_530, 7_500 => 5_364, 90_000 => 4_896, 500_000 => 4_468])
+        ->create(['margem_alvo_bps' => 3_000, 'degrau_margem_bps' => 300]);
+
+    $catalogo->precos()->update(['custo_cents' => 280]);
+
+    admin()->post(route('catalogo.precificar', $catalogo));
+
+    foreach ($catalogo->precos()->get() as $preco) {
+        expect(App\Support\Margem::atinge(
+            $preco->preco_cents, $preco->custo_cents,
+            $catalogo->imposto_bps, $catalogo->comissaoBps(), $catalogo->margem_alvo_bps,
+        ))->toBeTrue();
+    }
+});
+
+it('deixa de fora o servico sem custo', function () {
+    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+
+    admin()->post(route('catalogo.precificar', $catalogo));
+
+    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(631);
+});
+
+it('recusa escada que estoura 100% na faixa mais baixa', function () {
+    // 30% de piso mais 6 degraus de 15% passaria de 100% com imposto e comissao.
+    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 500_000 => 370])->create();
+
+    admin()->put(route('catalogo.parametros', $catalogo), [
+        'imposto' => '8.6', 'margem_alvo' => '60', 'degrau_margem' => '15',
+    ])->assertSessionHas('erro');
+
+    expect($catalogo->fresh()->margem_alvo_bps)->toBe(3_000);
+});
+
+it('bloqueia preco abaixo do piso na gravacao manual', function () {
+    // Relatar prejuizo depois do fato nao impede ninguem de vender no negativo.
+    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $preco = $catalogo->precos()->first();
+    $preco->update(['custo_cents' => 280]);
+
+    admin()->put(route('catalogo.precos', $catalogo), ['precos' => [$preco->id => '3,00']])
+        ->assertSessionHas('erro');
+
+    expect($preco->fresh()->preco_cents)->toBe(631);
 });

@@ -20,6 +20,7 @@ return [
             'nome' => 'Cheques sem fundos - Banco Central PF/PJ',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [209, 188, 170, 153, 137, 124, 98],
         ],
         [
@@ -27,6 +28,7 @@ return [
             'nome' => 'Ações judiciais - nacional PF/PJ',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [594, 522, 460, 405, 356, 313, 234],
         ],
         [
@@ -34,6 +36,7 @@ return [
             'nome' => 'SCPC BVS PF/PJ - Base III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [631, 594, 558, 524, 493, 463, 370],
         ],
         [
@@ -41,6 +44,7 @@ return [
             'nome' => 'Relatório Plus PF/PJ + cartórios e CCF Bacen - Base III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [781, 742, 705, 670, 636, 604, 540],
         ],
         [
@@ -48,6 +52,7 @@ return [
             'nome' => 'Crédito Net Básica PF/PJ - Base I',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [1_593, 1_513, 1_437, 1_366, 1_297, 1_232, 1_097],
         ],
         [
@@ -55,6 +60,7 @@ return [
             'nome' => 'Mix PF/PJ - Base I e II',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [1_852, 1_741, 1_637, 1_539, 1_446, 1_360, 1_201],
         ],
         [
@@ -62,6 +68,7 @@ return [
             'nome' => 'Crédito Net PF/PJ - Base I e III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [1_897, 1_783, 1_676, 1_575, 1_481, 1_392, 1_226],
         ],
         [
@@ -69,6 +76,7 @@ return [
             'nome' => 'Crédito Net Top + cartórios e CCF Bacen - Base I e III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [2_191, 2_059, 1_936, 1_820, 1_710, 1_608, 1_421],
         ],
         [
@@ -76,6 +84,7 @@ return [
             'nome' => 'Relatório Score Positivo + filtros - Base III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [993, 944, 897, 852, 809, 769, 694],
         ],
         [
@@ -83,6 +92,7 @@ return [
             'nome' => 'Risco de Crédito Top PF/PJ + filtros - Base I',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [2_095, 1_969, 1_851, 1_740, 1_636, 1_538, 1_359],
         ],
         [
@@ -90,6 +100,7 @@ return [
             'nome' => 'Relatório Top PF/PJ + filtros - Base I e III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [2_857, 2_743, 2_633, 2_528, 2_427, 2_330, 2_125],
         ],
         [
@@ -97,6 +108,7 @@ return [
             'nome' => 'Relatório Top + SCR - Base I e III',
             'categoria' => 'credito',
             'exige_liberacao' => true,
+            'ativo' => true,
             'precos' => [4_450, 4_094, 3_767, 3_465, 3_188, 2_933, 2_699],
         ],
         [
@@ -104,6 +116,7 @@ return [
             'nome' => 'Maxi Top PF/PJ + score e filtros - Base I e II',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [2_815, 2_703, 2_595, 2_491, 2_391, 2_296, 2_094],
         ],
         [
@@ -111,6 +124,7 @@ return [
             'nome' => 'Relatório Prime Básica + cartórios e CCF Bacen - Base I, II e III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [2_670, 2_510, 2_359, 2_218, 2_085, 1_960, 1_709],
         ],
         [
@@ -118,6 +132,7 @@ return [
             'nome' => 'Relatório Prime Completa + filtros - Base I, II e III',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [3_705, 3_520, 3_344, 3_177, 3_018, 2_867, 2_560],
         ],
         [
@@ -125,6 +140,7 @@ return [
             'nome' => 'Relatório Prime Completa + SCR - Base I, II e III',
             'categoria' => 'credito',
             'exige_liberacao' => true,
+            'ativo' => true,
             'precos' => [5_289, 4_866, 4_477, 4_118, 3_789, 3_486, 3_242],
         ],
         [
@@ -132,6 +148,7 @@ return [
             'nome' => 'SCR + score PF/PJ',
             'categoria' => 'credito',
             'exige_liberacao' => true,
+            'ativo' => true,
             'precos' => [2_003, 1_883, 1_770, 1_664, 1_564, 1_470, 1_299],
         ],
         [
@@ -139,6 +156,7 @@ return [
             'nome' => 'Cadastro especial PF - endereço, telefone, e-mail, trabalho, renda',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [303, 273, 246, 221, 199, 179, 145],
         ],
         [
@@ -146,6 +164,7 @@ return [
             'nome' => 'Cadastro especial PJ - dados da empresa, sócios, regime fiscal, faturamento',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [303, 273, 246, 221, 199, 179, 145],
         ],
         [
@@ -153,6 +172,7 @@ return [
             'nome' => 'Telefones por CPF/CNPJ',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [111, 100, 90, 81, 73, 66, 53],
         ],
         [
@@ -160,6 +180,7 @@ return [
             'nome' => 'Endereços por CPF/CNPJ',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [111, 100, 90, 81, 73, 66, 53],
         ],
         [
@@ -167,6 +188,7 @@ return [
             'nome' => 'InfoBusca por CPF/CNPJ - telefone, endereço e e-mails',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [207, 186, 167, 151, 136, 122, 99],
         ],
         [
@@ -174,6 +196,7 @@ return [
             'nome' => 'InfoBusca por nome (mostra CPF)',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [207, 186, 167, 151, 136, 122, 99],
         ],
         [
@@ -181,6 +204,7 @@ return [
             'nome' => 'Localizador por telefone (mostra nome e CPF/CNPJ)',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [207, 186, 167, 151, 136, 122, 99],
         ],
         [
@@ -188,6 +212,7 @@ return [
             'nome' => 'Localizador por CEP (mostra nomes e CPF/CNPJ)',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [207, 186, 167, 151, 136, 122, 99],
         ],
         [
@@ -195,6 +220,7 @@ return [
             'nome' => 'Negativação',
             'categoria' => 'credito',
             'exige_liberacao' => false,
+            'ativo' => true,
             'precos' => [1_790, 1_790, 1_790, 1_790, 1_790, 1_790, 1_790],
         ],
         [
@@ -202,6 +228,7 @@ return [
             'nome' => 'Localiza veículos por CPF/CNPJ',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [2_156, 2_048, 1_946, 1_849, 1_756, 1_668, 1_426],
         ],
         [
@@ -209,6 +236,7 @@ return [
             'nome' => 'Histórico de proprietário (somente São Paulo)',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [1_430, 1_387, 1_345, 1_305, 1_266, 1_228, 1_155],
         ],
         [
@@ -216,6 +244,7 @@ return [
             'nome' => 'Proprietário atual',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [594, 576, 559, 542, 526, 510, 480],
         ],
         [
@@ -223,6 +252,7 @@ return [
             'nome' => 'Agregados',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [363, 352, 342, 331, 321, 312, 293],
         ],
         [
@@ -230,6 +260,7 @@ return [
             'nome' => 'RenaJud',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [1_055, 1_013, 973, 934, 896, 861, 793],
         ],
         [
@@ -237,6 +268,7 @@ return [
             'nome' => 'RenaInf - infrações completa',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [897, 861, 827, 794, 762, 731, 674],
         ],
         [
@@ -244,6 +276,7 @@ return [
             'nome' => 'CRLV - documento de licenciamento',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [2_378, 2_307, 2_237, 2_170, 2_105, 2_042, 1_921],
         ],
         [
@@ -251,6 +284,7 @@ return [
             'nome' => 'BIN - base estadual e nacional',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [596, 572, 549, 527, 506, 486, 448],
         ],
         [
@@ -258,6 +292,7 @@ return [
             'nome' => 'Leilão - Base I',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [1_194, 1_158, 1_123, 1_089, 1_057, 1_025, 954],
         ],
         [
@@ -265,6 +300,7 @@ return [
             'nome' => 'Leilão conjugado completo + score do veículo - Base II',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [2_195, 2_129, 2_065, 2_003, 1_943, 1_884, 1_755],
         ],
         [
@@ -272,6 +308,7 @@ return [
             'nome' => 'CSV - certificado de segurança veicular',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [795, 771, 748, 725, 703, 682, 635],
         ],
         [
@@ -279,6 +316,7 @@ return [
             'nome' => 'Histórico de roubo e furto',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [799, 767, 737, 707, 679, 652, 594],
         ],
         [
@@ -286,6 +324,7 @@ return [
             'nome' => 'Gravame indicativo',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [795, 763, 732, 703, 675, 648, 597],
         ],
         [
@@ -293,6 +332,7 @@ return [
             'nome' => 'Gravame indicativo + agregados',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [1_100, 1_056, 1_014, 973, 934, 897, 827],
         ],
         [
@@ -300,6 +340,7 @@ return [
             'nome' => 'Confere RG/CNH',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [588, 570, 553, 537, 521, 505, 475],
         ],
         [
@@ -307,6 +348,7 @@ return [
             'nome' => 'Precificador / decodificador',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [595, 577, 560, 543, 527, 511, 481],
         ],
         [
@@ -314,6 +356,7 @@ return [
             'nome' => 'VIP Car - informação completa do veículo',
             'categoria' => 'veicular',
             'exige_liberacao' => false,
+            'ativo' => false,
             'precos' => [5_530, 5_364, 5_203, 5_047, 4_896, 4_749, 4_468],
         ],
     ],

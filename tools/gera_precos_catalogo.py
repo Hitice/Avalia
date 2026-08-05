@@ -145,6 +145,10 @@ def le(pdf: Path, categoria: str) -> list[dict]:
                 'nome': nome,
                 'categoria': categoria,
                 'exige_liberacao': liberacao,
+                # Veicular nasce pausado: nao ha custo do fornecedor nem
+                # conector, entao nao ha o que vender. Vale so na criacao; a
+                # administracao liga e desliga pela tela.
+                'ativo': categoria != 'veicular',
                 'precos': [centavos(preco) for preco in precos],
             })
 
@@ -183,6 +187,7 @@ def php(servicos: list[dict]) -> str:
             f"            'nome' => '{servico['nome']}',",
             f"            'categoria' => '{servico['categoria']}',",
             f"            'exige_liberacao' => {'true' if servico['exige_liberacao'] else 'false'},",
+            f"            'ativo' => {'true' if servico['ativo'] else 'false'},",
             f"            'precos' => [{precos}],",
             '        ],',
         ]
