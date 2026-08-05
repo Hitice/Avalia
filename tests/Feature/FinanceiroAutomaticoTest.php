@@ -297,3 +297,25 @@ it('reprocessa o evento que ficou pela metade', function () {
         ->and(EventoAsaas::where('evento_externo', 'evt_pela_metade')->first()->processado_em)
         ->not->toBeNull();
 });
+
+it('conta as faturas que realmente saiu, e nao os candidatos', function () {
+    // O numero vai para o log de operacao. Contar candidato faria a rotina
+    // reportar sucesso num mes em que nada foi cobrado.
+    $empresa = empresaComPlano();
+    app(FecharCompetencia::class)($empresa, '2026-07');
+
+    expect(app(FecharCompetenciasVencidas::class)(new DateTimeImmutable('2026-08-15')))->toBe(0);
+});
+
+it('fatura a base inteira numa passada so', function () {
+    // A rotina roda para todos os contratos. Se ela parasse no primeiro
+    // problema, os seguintes ficariam sem cobranca no mes e ninguem
+    // perceberia ate o cliente reclamar que nao recebeu.
+    $empresas = collect(range(1, 3))->map(fn () => empresaComPlano());
+
+    $fechados = app(FecharCompetenciasVencidas::class)(new DateTimeImmutable('2026-08-15'));
+
+    expect($fechados)->toBe(3);
+
+    $empresas->each(fn ($empresa) => expect($empresa->faturas()->count())->toBe(1));
+});
