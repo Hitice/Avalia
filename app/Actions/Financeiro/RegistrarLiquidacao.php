@@ -21,9 +21,22 @@ use Illuminate\Support\Facades\DB;
  */
 class RegistrarLiquidacao
 {
-    public function __invoke(Fatura $fatura, ?\DateTimeInterface $liquidadaEm = null): Fatura
-    {
-        return DB::transaction(function () use ($fatura, $liquidadaEm) {
+    /** Confirmacao vinda de gente, digitada na tela. */
+    public const ORIGEM_MANUAL = 'manual';
+
+    /** Confirmacao vinda do provedor de cobranca. */
+    public const ORIGEM_AUTOMATICA = 'automatica';
+
+    /**
+     * @param  string  $origem  quem confirmou, que e o que diferencia uma baixa
+     *                          conferida no extrato de uma digitada a mao
+     */
+    public function __invoke(
+        Fatura $fatura,
+        ?\DateTimeInterface $liquidadaEm = null,
+        string $origem = self::ORIGEM_AUTOMATICA,
+    ): Fatura {
+        return DB::transaction(function () use ($fatura, $liquidadaEm, $origem) {
             $fatura = Fatura::lockForUpdate()->findOrFail($fatura->id);
 
             if ($fatura->estaLiquidada()) {
@@ -48,10 +61,14 @@ class RegistrarLiquidacao
                 $cliente->update(['situacao' => 'ativo']);
             }
 
+            // A origem entra na trilha porque separa a baixa conferida no
+            // extrato da digitada a mao. Baixa manual libera comissao sem que
+            // dinheiro nenhum tenha entrado, e quem audita precisa distinguir.
             Auditar::registrar('fatura.liquidada', $fatura, [
                 'competencia' => $fatura->competencia,
                 'total_cents' => $fatura->total_cents,
                 'comissao_liberada_cents' => $fatura->comissao_cents,
+                'origem' => $origem,
             ]);
 
             return $fatura->fresh();

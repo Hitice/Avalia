@@ -132,3 +132,16 @@ it('filtra a trilha por acao', function () {
 
     expect($vazia->viewData('registros'))->toBeEmpty();
 });
+
+it('separa na trilha a baixa manual da confirmada pelo provedor', function () {
+    // Baixa manual libera comissao sem que dinheiro nenhum tenha entrado.
+    // Quem audita precisa distinguir uma da outra sem adivinhar.
+    $fatura = faturaFechada();
+
+    admin()->post(route('financeiro.liquidar', $fatura));
+
+    $registro = Auditoria::where('acao', 'fatura.liquidada')->latest('id')->first();
+
+    expect($registro->dados['origem'])->toBe('manual')
+        ->and($registro->staff_id)->not->toBeNull();
+});

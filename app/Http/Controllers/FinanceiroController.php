@@ -47,7 +47,7 @@ class FinanceiroController extends Controller
             return back()->with('erro', 'Esta fatura já estava liquidada.');
         }
 
-        $liquidar($fatura);
+        $liquidar($fatura, null, RegistrarLiquidacao::ORIGEM_MANUAL);
 
         return back()->with('ok', sprintf(
             'Fatura de %s liquidada. %s',
