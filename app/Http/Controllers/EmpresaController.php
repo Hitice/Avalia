@@ -220,7 +220,10 @@ class EmpresaController extends Controller
             return;
         }
 
-        $parcela = intdiv($valor, $parcelas);
+        // A parcela gravada e a primeira, que carrega a sobra da divisao: e ela
+        // que o cliente confere na assinatura. Adesao::parcelasDe garante que a
+        // soma das cobrancas bata com o total combinado.
+        $parcela = Adesao::parcelasDe($valor, $parcelas)[0] ?? 0;
         $vendedor = Comissao::parteAdesaoCents($valor);
         Adesao::updateOrCreate(['cliente_id' => $empresa->id], [
             'valor_cents' => $valor,
