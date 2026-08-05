@@ -97,3 +97,21 @@ it('manda o staff autenticado para a gestao ao tentar a tela de entrada', functi
         ->get(route('entrar'))
         ->assertRedirect(route('painel'));
 });
+
+it('renova o token da tela de entrada sem exigir recarregar', function () {
+    // A tela de entrada e a que mais fica esquecida em aba. Sem renovacao, o
+    // token morre com a sessao e quem volta depois toma "formulario expirou"
+    // antes de digitar qualquer coisa.
+    $this->get(route('entrar'))
+        ->assertOk()
+        ->assertSee(route('token'), false);
+
+    $resposta = $this->getJson(route('token'))->assertOk();
+
+    expect($resposta->json('token'))->toBe(csrf_token());
+});
+
+it('nao deixa o token virar porta de entrada para outra coisa', function () {
+    // A rota devolve o token e mais nada: nem sessao, nem conta, nem dado.
+    expect(array_keys($this->getJson(route('token'))->json()))->toBe(['token']);
+});

@@ -34,6 +34,10 @@ class RegistrarConsulta
             return $this->falha('Empresa sem plano contratado.');
         }
 
+        if (! $cliente->documentosObrigatoriosAceitos()) {
+            return $this->falha('Existem documentos obrigatórios pendentes de aceite.');
+        }
+
         if (! $servico->disponivel()) {
             return $this->falha("Servico '{$servico->nome}' nao esta liberado para consulta.");
         }

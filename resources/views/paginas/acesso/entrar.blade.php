@@ -36,9 +36,27 @@
                     @enderror
 
                     {{-- action e autocomplete explicitos: sem eles o Chrome nao
-                         oferece salvar a senha. --}}
-                    <form method="POST" action="{{ route('entrar.enviar') }}" autocomplete="on">
-                        @csrf
+                         oferece salvar a senha.
+
+                         O formulario renova o proprio token enquanto a tela fica
+                         aberta. A tela de entrada e a que mais fica esquecida em
+                         aba, e era a que mais expirava: o token nasce com a
+                         sessao e morre com ela, entao quem voltava depois do
+                         almoco tomava "formulario expirou" antes de digitar
+                         qualquer coisa. Cada renovacao tambem toca a sessao, o
+                         que impede que ela expire com a aba aberta. --}}
+                    <form method="POST" action="{{ route('entrar.enviar') }}" autocomplete="on"
+                          x-data="{
+                              renovar() {
+                                  fetch('{{ route('token') }}', { headers: { 'Accept': 'application/json' } })
+                                      .then(r => r.ok ? r.json() : null)
+                                      .then(d => { if (d?.token) this.$refs.token.value = d.token })
+                                      .catch(() => {})
+                              },
+                          }"
+                          x-init="setInterval(() => renovar(), {{ (int) (config('session.lifetime') * 60 * 1000 / 3) }})">
+                        {{-- No lugar de @csrf, para o campo ter referencia. --}}
+                        <input type="hidden" name="_token" x-ref="token" value="{{ csrf_token() }}">
 
                         <div class="space-y-5">
                             <div>

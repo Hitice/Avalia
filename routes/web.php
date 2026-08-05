@@ -30,6 +30,16 @@ Route::middleware('guest:staff,empresa')->group(function () {
     Route::post('/entrar', [LoginController::class, 'entrar'])->name('entrar.enviar');
 });
 
+/*
+ * Token atual da sessao, para o formulario de entrada se renovar sozinho.
+ *
+ * Nao vaza nada: o token ja esta no HTML da propria pagina que chama isto, e o
+ * navegador impede que outra origem leia a resposta. O ganho e que a aba
+ * esquecida aberta para de expirar antes de ser usada, porque cada chamada
+ * renova o token E toca a sessao.
+ */
+Route::get('/token', fn () => response()->json(['token' => csrf_token()]))->name('token');
+
 Route::post('/sair', [LoginController::class, 'sair'])
     ->name('sair')
     ->middleware('auth:staff,empresa');

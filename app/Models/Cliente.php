@@ -65,6 +65,15 @@ class Cliente extends Authenticatable implements ContaAutenticavel
         return $this->hasMany(AceiteDocumento::class);
     }
 
+    /** Documentos obrigatórios ativos precisam estar aceitos antes da consulta. */
+    public function documentosObrigatoriosAceitos(): bool
+    {
+        $obrigatorios = DocumentoLegal::query()->where('ativo', true)->where('exige_aceite', true)->pluck('id');
+
+        return $obrigatorios->isEmpty()
+            || $this->aceitesDocumentos()->whereIn('documento_id', $obrigatorios)->count() === $obrigatorios->count();
+    }
+
     public function cnpjRotulo(): string
     {
         return Documento::formatarCnpj($this->cnpj);
