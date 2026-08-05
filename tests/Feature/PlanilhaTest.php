@@ -184,6 +184,63 @@ it('leva codigo, custo e preco de cada faixa para a aba de catalogo', function (
     unlink($caminho);
 });
 
+it('deixa o servico pausado fora da planilha', function () {
+    // A planilha e para negociar e reprecificar o que a Avalia vende hoje.
+    $catalogo = Catalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631])
+        ->comServico('renajud', [0 => 1_055])
+        ->create();
+
+    Servico::where('codigo', 'renajud')->update(['ativo' => false]);
+
+    $caminho = tempnam(sys_get_temp_dir(), 'baixado').'.xlsx';
+    file_put_contents($caminho, admin()->get(route('catalogo.planilha.exportar'))->streamedContent());
+
+    $zip = new ZipArchive;
+    $zip->open($caminho);
+    $catalogoXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+    $servicosXml = $zip->getFromName('xl/worksheets/sheet3.xml');
+    $zip->close();
+
+    // Sai das duas abas onde ele apareceria, nao so de uma.
+    expect($catalogoXml)->toContain('scpc-bvs')->not->toContain('renajud')
+        ->and($servicosXml)->toContain('scpc-bvs')->not->toContain('renajud');
+
+    unlink($caminho);
+});
+
+it('mantem na planilha o servico que aguarda liberacao', function () {
+    // Ele esta em negociacao, e e sobre ele que se discute preco.
+    Catalogo::factory()->comServico('scr-score', [0 => 1_200])->create();
+    Servico::where('codigo', 'scr-score')->update(['exige_liberacao' => true]);
+
+    $caminho = tempnam(sys_get_temp_dir(), 'baixado').'.xlsx';
+    file_put_contents($caminho, admin()->get(route('catalogo.planilha.exportar'))->streamedContent());
+
+    expect(Planilha::ler($caminho)[1][0])->toBe('scr-score');
+
+    unlink($caminho);
+});
+
+it('nao apaga o preco do pausado ao reimportar a planilha sem ele', function () {
+    // Nao exportar nao pode virar apagar: a importacao so mexe no que recebe.
+    $catalogo = Catalogo::factory()
+        ->comServico('scpc-bvs', [0 => 631])
+        ->comServico('renajud', [0 => 1_055])
+        ->create();
+
+    Servico::where('codigo', 'renajud')->update(['ativo' => false]);
+
+    $caminho = tempnam(sys_get_temp_dir(), 'ciclo').'.xlsx';
+    file_put_contents($caminho, admin()->get(route('catalogo.planilha.exportar'))->streamedContent());
+
+    admin()->post(route('catalogo.planilha.importar'), [
+        'planilha' => new UploadedFile($caminho, 'catalogo.xlsx', null, null, true),
+    ])->assertSessionHas('ok');
+
+    expect($catalogo->precoDe('renajud', 0))->toBe(1_055);
+});
+
 it('nao deixa vendedor exportar', function () {
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])

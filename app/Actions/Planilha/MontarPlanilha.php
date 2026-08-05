@@ -14,6 +14,14 @@ use Illuminate\Support\Collection;
  *
  * Uma planilha so, e nao um arquivo por tela: quem negocia preco com o
  * fornecedor precisa ver custo, catalogo e plano lado a lado.
+ *
+ * Servico pausado fica de fora. A planilha existe para negociar e reprecificar
+ * o que a Avalia vende hoje, e linha de servico fora de venda so atrapalha a
+ * leitura. Servico que aguarda liberacao continua aparecendo: ele esta em
+ * negociacao, e e justamente sobre ele que se discute preco.
+ *
+ * Deixar de exportar nao apaga nada: a importacao so mexe nas linhas que
+ * recebe, entao o preco do pausado continua guardado esperando ele voltar.
  */
 class MontarPlanilha
 {
@@ -87,6 +95,7 @@ class MontarPlanilha
 
         $linhas = $catalogo->precos()
             ->with('servico')
+            ->whereHas('servico', fn ($q) => $q->where('ativo', true))
             ->get()
             ->groupBy('servico_id')
             ->map(function (Collection $precos) use ($faixas, $catalogo, $comissao) {
@@ -141,6 +150,7 @@ class MontarPlanilha
     private function servicos(): array
     {
         $linhas = Servico::withCount('precos')
+            ->where('ativo', true)
             ->orderBy('categoria')
             ->orderBy('nome')
             ->get()

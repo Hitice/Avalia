@@ -18,7 +18,8 @@
           x-data="{ enviando: false }">
         @csrf
 
-        <x-avalia.botao variante="secundario" tamanho="sm" :href="route('catalogo.planilha.exportar')">
+        <x-avalia.botao variante="secundario" tamanho="sm" :href="route('catalogo.planilha.exportar')"
+                        title="Serviço pausado não vai na planilha">
             Exportar
         </x-avalia.botao>
 
