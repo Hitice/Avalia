@@ -1,14 +1,14 @@
 <?php
 
+use App\Models\Catalogo;
 use App\Models\Plano;
-use App\Models\VersaoCatalogo;
 use Database\Seeders\PlanosSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 it('cria um plano por faixa do catalogo', function () {
-    VersaoCatalogo::factory()
+    Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])
         ->create();
 
@@ -20,7 +20,7 @@ it('cria um plano por faixa do catalogo', function () {
 });
 
 it('deixa todo plano criado com faixa valida e vendavel', function () {
-    VersaoCatalogo::factory()
+    Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 90_000 => 493])
         ->create();
 
@@ -34,7 +34,7 @@ it('deixa todo plano criado com faixa valida e vendavel', function () {
 });
 
 it('roda duas vezes sem duplicar e sem desfazer ajuste manual', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [90_000 => 493])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [90_000 => 493])->create();
 
     $this->seed(PlanosSeeder::class);
 
@@ -48,7 +48,7 @@ it('roda duas vezes sem duplicar e sem desfazer ajuste manual', function () {
 });
 
 it('nao cria plano quando a versao nao tem preco', function () {
-    VersaoCatalogo::factory()->create();
+    Catalogo::factory()->create();
 
     $this->seed(PlanosSeeder::class);
 

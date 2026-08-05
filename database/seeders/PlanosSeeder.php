@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Catalogo;
 use App\Models\Plano;
-use App\Models\VersaoCatalogo;
 use App\Support\Dinheiro;
 use Illuminate\Database\Seeder;
 
@@ -29,7 +29,7 @@ class PlanosSeeder extends Seeder
 
     public function run(): void
     {
-        $versao = VersaoCatalogo::vigente() ?? VersaoCatalogo::latest('id')->first();
+        $versao = Catalogo::vigente() ?? Catalogo::latest('id')->first();
 
         if (! $versao) {
             $this->command->warn('Nenhuma versao de catalogo: rode o CatalogoSeeder antes.');
@@ -51,7 +51,7 @@ class PlanosSeeder extends Seeder
             $plano = Plano::firstOrCreate(
                 ['nome' => $this->nome($faixaCents)],
                 [
-                    'versao_id' => $versao->id,
+                    'catalogo_id' => $versao->id,
                     'descricao' => 'Mensalidade fixa mais o consumo minimo da faixa. '
                         .'O preco de cada consulta segue a coluna correspondente do catalogo.',
                     'mensalidade_cents' => self::MENSALIDADE_CENTS,

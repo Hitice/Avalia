@@ -64,7 +64,7 @@
                 <div>
                     <label for="categoria" class="{{ $rotulo }}">Categoria</label>
                     <select id="categoria" name="categoria" class="{{ $campo }}" required>
-                        @foreach (\App\Models\Servico::CATEGORIAS as $chave => $nome)
+                        @foreach (\App\Enums\Categoria::rotulos() as $chave => $nome)
                             <option value="{{ $chave }}" @selected(old('categoria', $servico->categoria) === $chave)>
                                 {{ $nome }}
                             </option>

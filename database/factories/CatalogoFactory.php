@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Catalogo;
 use App\Models\Servico;
-use App\Models\VersaoCatalogo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/** @extends Factory<VersaoCatalogo> */
-class VersaoCatalogoFactory extends Factory
+/** @extends Factory<Catalogo> */
+class CatalogoFactory extends Factory
 {
-    protected $model = VersaoCatalogo::class;
+    protected $model = Catalogo::class;
 
     public function definition(): array
     {
@@ -33,7 +33,7 @@ class VersaoCatalogoFactory extends Factory
      */
     public function comServico(string $codigo = 'consulta-teste', array $precosPorFaixa = [0 => 500]): static
     {
-        return $this->afterCreating(function (VersaoCatalogo $catalogo) use ($codigo, $precosPorFaixa) {
+        return $this->afterCreating(function (Catalogo $catalogo) use ($codigo, $precosPorFaixa) {
             $servico = Servico::firstOrCreate(
                 ['codigo' => $codigo],
                 ['nome' => ucfirst(str_replace('-', ' ', $codigo)), 'categoria' => 'credito'],

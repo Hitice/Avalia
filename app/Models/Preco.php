@@ -21,13 +21,13 @@ class Preco extends Model
     protected $table = 'precos';
 
     protected $fillable = [
-        'versao_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents',
+        'catalogo_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents',
     ];
 
     protected function casts(): array
     {
         return [
-            'versao_id' => 'integer',
+            'catalogo_id' => 'integer',
             'servico_id' => 'integer',
             'consumo_minimo_cents' => 'integer',
             'preco_cents' => 'integer',
@@ -35,9 +35,9 @@ class Preco extends Model
         ];
     }
 
-    public function versao(): BelongsTo
+    public function catalogo(): BelongsTo
     {
-        return $this->belongsTo(VersaoCatalogo::class, 'versao_id');
+        return $this->belongsTo(Catalogo::class, 'catalogo_id');
     }
 
     public function servico(): BelongsTo

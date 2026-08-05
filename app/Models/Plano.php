@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * O que o cliente contrata.
  *
  * Tres decisoes comerciais num registro so:
- *   versao_id            -> a tabela de precos que o plano le
+ *   catalogo_id            -> a tabela de precos que o plano le
  *   mensalidade_cents    -> cobrada sempre, consumindo ou nao
  *   consumo_minimo_cents -> piso do consumo do mes E a coluna de precos
  *
@@ -27,22 +27,22 @@ class Plano extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'versao_id', 'nome', 'descricao', 'mensalidade_cents', 'consumo_minimo_cents', 'ativo',
+        'catalogo_id', 'nome', 'descricao', 'mensalidade_cents', 'consumo_minimo_cents', 'ativo',
     ];
 
     protected function casts(): array
     {
         return [
-            'versao_id' => 'integer',
+            'catalogo_id' => 'integer',
             'mensalidade_cents' => 'integer',
             'consumo_minimo_cents' => 'integer',
             'ativo' => 'boolean',
         ];
     }
 
-    public function versao(): BelongsTo
+    public function catalogo(): BelongsTo
     {
-        return $this->belongsTo(VersaoCatalogo::class, 'versao_id');
+        return $this->belongsTo(Catalogo::class, 'catalogo_id');
     }
 
     public function franquias(): HasMany
@@ -64,7 +64,7 @@ class Plano extends Model
      */
     public function faixaValida(): bool
     {
-        return in_array($this->consumo_minimo_cents, $this->versao->faixas(), true);
+        return in_array($this->consumo_minimo_cents, $this->catalogo->faixas(), true);
     }
 
     public function podeVender(): bool
@@ -75,7 +75,7 @@ class Plano extends Model
     /** Preco de um servico na faixa deste plano, ou null se nao ha. */
     public function precoDe(string $codigo): ?int
     {
-        return $this->versao->precoDe($codigo, $this->consumo_minimo_cents);
+        return $this->catalogo->precoDe($codigo, $this->consumo_minimo_cents);
     }
 
     /** Consultas incluidas na mensalidade para um servico. Sem franquia = 0. */
@@ -97,7 +97,7 @@ class Plano extends Model
         return Servico::query()
             ->disponiveis()
             ->whereHas('precos', fn ($q) => $q
-                ->where('versao_id', $this->versao_id)
+                ->where('catalogo_id', $this->catalogo_id)
                 ->where('consumo_minimo_cents', $this->consumo_minimo_cents))
             ->orderBy('nome')
             ->get();

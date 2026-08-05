@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PlanoRequest;
+use App\Models\Catalogo;
 use App\Models\Plano;
 use App\Models\Preco;
-use App\Models\VersaoCatalogo;
 use Illuminate\Http\Request;
 
 /**
@@ -28,7 +28,7 @@ class PlanoController extends Controller
         // Faixas que o catalogo oferece, numa consulta so. Perguntar
         // faixaValida() linha a linha custaria uma ida ao banco por plano.
         $faixas = Preco::query()
-            ->whereIn('versao_id', $planos->pluck('versao_id')->unique())
+            ->whereIn('catalogo_id', $planos->pluck('catalogo_id')->unique())
             ->distinct()
             ->pluck('consumo_minimo_cents')
             ->map(fn ($faixa) => (int) $faixa)
@@ -53,7 +53,7 @@ class PlanoController extends Controller
     public function salvar(PlanoRequest $request)
     {
         $plano = Plano::create($request->validated() + [
-            'versao_id' => VersaoCatalogo::vigente()?->id,
+            'catalogo_id' => Catalogo::vigente()?->id,
         ]);
 
         return redirect()
@@ -69,7 +69,7 @@ class PlanoController extends Controller
             'servicos' => $plano->servicosDisponiveis(),
             'franquias' => $plano->franquias()->pluck('quantidade', 'servico_id'),
             // Preco da faixa do plano, numa consulta so em vez de uma por linha.
-            'precos' => $plano->versao->precos()
+            'precos' => $plano->catalogo->precos()
                 ->where('consumo_minimo_cents', $plano->consumo_minimo_cents)
                 ->pluck('preco_cents', 'servico_id'),
         ]);
@@ -121,6 +121,6 @@ class PlanoController extends Controller
     /** Faixas do catalogo, prontas para o select do formulario. */
     private function faixas(): array
     {
-        return VersaoCatalogo::vigente()?->faixas() ?? [];
+        return Catalogo::vigente()?->faixas() ?? [];
     }
 }

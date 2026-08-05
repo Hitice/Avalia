@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\VersaoCatalogo;
+use App\Models\Catalogo;
 use App\Support\Dinheiro;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -56,7 +56,7 @@ class PlanoRequest extends FormRequest
     public function withValidator(Validator $validador): void
     {
         $validador->after(function (Validator $validador) {
-            $catalogo = VersaoCatalogo::vigente();
+            $catalogo = Catalogo::vigente();
 
             if (! $catalogo) {
                 $validador->errors()->add('consumo_minimo', 'Nao ha catalogo cadastrado.');

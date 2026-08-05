@@ -29,7 +29,7 @@
                 Aplicar em
             </label>
             <select id="categoria-reajuste" name="categoria" class="{{ $campo }}">
-                @foreach (\App\Models\Servico::CATEGORIAS as $chave => $rotulo)
+                @foreach (\App\Enums\Categoria::rotulos() as $chave => $rotulo)
                     <option value="{{ $chave }}">{{ $rotulo }}</option>
                 @endforeach
                 <option value="">Todos os servicos</option>

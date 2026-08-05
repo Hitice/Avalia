@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Catalogo;
 use App\Models\Preco;
 use App\Models\Servico;
-use App\Models\VersaoCatalogo;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +25,7 @@ class CatalogoSeeder extends Seeder
     {
         $dados = require database_path('seeders/dados/precos_referencia_2026_04.php');
 
-        $versao = VersaoCatalogo::firstOrCreate(
+        $versao = Catalogo::firstOrCreate(
             ['rotulo' => self::ROTULO],
             [
                 'observacao' => 'Transcrita dos PDFs de referencia por '
@@ -69,7 +69,7 @@ class CatalogoSeeder extends Seeder
                     // Custo do fornecedor fica nulo: a tabela transcrita traz
                     // preco de venda, e o custo vem do contrato, em separado.
                     $precos[] = [
-                        'versao_id' => $versao->id,
+                        'catalogo_id' => $versao->id,
                         'servico_id' => $idPorCodigo[$linha['codigo']],
                         'consumo_minimo_cents' => $faixaCents,
                         'preco_cents' => $linha['precos'][$indice],
@@ -79,7 +79,7 @@ class CatalogoSeeder extends Seeder
 
             Preco::upsert(
                 $precos,
-                ['versao_id', 'servico_id', 'consumo_minimo_cents'],
+                ['catalogo_id', 'servico_id', 'consumo_minimo_cents'],
                 ['preco_cents'],
             );
         });

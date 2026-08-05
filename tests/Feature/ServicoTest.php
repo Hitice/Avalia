@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\Catalogo;
 use App\Models\Plano;
 use App\Models\Preco;
 use App\Models\Servico;
 use App\Models\Staff;
-use App\Models\VersaoCatalogo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -36,7 +36,7 @@ it('nao deixa vendedor mexer em servico', function () {
 it('cria o servico ja precificado em todas as faixas', function () {
     // Servico sem preco nao apareceria na matriz, que e o unico lugar onde se
     // edita preco: nasceria invisivel e inalcancavel.
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])->create();
 
     admin()->post(route('catalogo.servicos.salvar'), [
         'codigo' => 'score-positivo',
@@ -56,7 +56,7 @@ it('cria o servico ja precificado em todas as faixas', function () {
 });
 
 it('normaliza o codigo digitado', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     admin()->post(route('catalogo.servicos.salvar'), [
         'codigo' => 'Consulta Veicular Completa',
@@ -69,7 +69,7 @@ it('normaliza o codigo digitado', function () {
 });
 
 it('recusa codigo repetido', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     admin()->post(route('catalogo.servicos.salvar'), [
         'codigo' => 'scpc-bvs',
@@ -82,7 +82,7 @@ it('recusa codigo repetido', function () {
 });
 
 it('recusa criar servico sem preco inicial', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     admin()->post(route('catalogo.servicos.salvar'), [
         'codigo' => 'sem-preco',
@@ -94,7 +94,7 @@ it('recusa criar servico sem preco inicial', function () {
 });
 
 it('nao cria servico quando o catalogo nao tem faixa nenhuma', function () {
-    VersaoCatalogo::factory()->create();
+    Catalogo::factory()->create();
 
     admin()->post(route('catalogo.servicos.salvar'), [
         'codigo' => 'orfao',
@@ -123,7 +123,7 @@ it('renomeia e troca a categoria', function () {
     ])->assertRedirect();
 
     expect($servico->fresh()->nome)->toBe('RenaJud')
-        ->and($servico->fresh()->categoria)->toBe('veicular');
+        ->and($servico->fresh()->categoria)->toBe(App\Enums\Categoria::Veicular);
 });
 
 it('nao deixa trocar o codigo depois de criado', function () {
@@ -141,9 +141,9 @@ it('nao deixa trocar o codigo depois de criado', function () {
 });
 
 it('desativa o servico sem apagar nada', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [90_000 => 493])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [90_000 => 493])->create();
     $servico = Servico::firstWhere('codigo', 'scpc-bvs');
-    $plano = Plano::factory()->consumoMinimo(900)->create(['versao_id' => $catalogo->id]);
+    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => $catalogo->id]);
     $plano->franquias()->create(['servico_id' => $servico->id, 'quantidade' => 50]);
 
     admin()->put(route('catalogo.servicos.atualizar', $servico), [
@@ -203,7 +203,7 @@ it('mostra a situacao de cada servico', function () {
 });
 
 it('conta os precos de cada servico', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
 
     $resposta = admin()->get(route('catalogo.servicos.index'))->assertOk();
 
@@ -211,7 +211,7 @@ it('conta os precos de cada servico', function () {
 });
 
 it('marca no catalogo o servico inativo', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
     Servico::where('codigo', 'scpc-bvs')->update(['ativo' => false]);
 
     admin()->get(route('catalogo.tabela'))->assertOk()->assertSee('inativo');

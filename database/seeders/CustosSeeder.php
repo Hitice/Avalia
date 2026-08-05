@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Catalogo;
 use App\Models\Preco;
 use App\Models\Servico;
-use App\Models\VersaoCatalogo;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +22,7 @@ class CustosSeeder extends Seeder
 {
     public function run(): void
     {
-        $catalogo = VersaoCatalogo::vigente();
+        $catalogo = Catalogo::vigente();
 
         if (! $catalogo) {
             $this->command->warn('Nenhum catalogo: rode o CatalogoSeeder antes.');
@@ -50,7 +50,7 @@ class CustosSeeder extends Seeder
 
                 $linhas = $catalogo->precos()
                     ->where('servico_id', $idPorCodigo[$codigo])
-                    ->get(['id', 'versao_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents']);
+                    ->get(['id', 'catalogo_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents']);
 
                 $jaTinham += $linhas->whereNotNull('custo_cents')->count();
 
@@ -58,7 +58,7 @@ class CustosSeeder extends Seeder
                     ->whereNull('custo_cents')
                     ->map(fn (Preco $preco) => [
                         'id' => $preco->id,
-                        'versao_id' => $preco->versao_id,
+                        'catalogo_id' => $preco->catalogo_id,
                         'servico_id' => $preco->servico_id,
                         'consumo_minimo_cents' => $preco->consumo_minimo_cents,
                         'preco_cents' => $preco->preco_cents,

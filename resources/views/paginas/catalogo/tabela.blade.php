@@ -24,7 +24,7 @@
         ])
         ->all();
 
-    $itensCategoria = collect(\App\Models\Servico::CATEGORIAS + ['' => 'Todos'])
+    $itensCategoria = collect(\App\Enums\Categoria::rotulos() + ['' => 'Todos'])
         ->map(fn ($rotulo, $chave) => [
             'rotulo' => $rotulo,
             'url' => $comFiltro(['categoria' => $chave ?: null]),
@@ -100,7 +100,10 @@
                                             {{ $linha['servico']->nome }}
                                         </span>
                                         <span class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                            <code>{{ $linha['servico']->codigo }}</code>
+                                            <a href="{{ route('catalogo.servicos.editar', $linha['servico']) }}"
+                                               class="hover:text-brand-500 dark:hover:text-brand-400 underline decoration-dotted">
+                                                <code>{{ $linha['servico']->codigo }}</code>
+                                            </a>
                                             @unless ($linha['servico']->ativo)
                                                 <span class="etiqueta etiqueta-neutra">
                                                     inativo

@@ -1,19 +1,19 @@
 <?php
 
+use App\Models\Catalogo;
 use App\Models\FranquiaPlano;
 use App\Models\Plano;
 use App\Models\Servico;
 use App\Models\Staff;
-use App\Models\VersaoCatalogo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
 /** Versao com dois servicos precificados em duas faixas. */
-function catalogo(): VersaoCatalogo
+function catalogo(): Catalogo
 {
-    return VersaoCatalogo::factory()
+    return Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 90_000 => 493])
         ->comServico('renajud', [0 => 1_055, 90_000 => 896])
         ->create();
@@ -45,7 +45,7 @@ it('nao deixa vendedor mexer em plano', function () {
 */
 
 it('cria plano convertendo o dinheiro digitado em centavos', function () {
-    $versao = catalogo();
+    $catalogo = catalogo();
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano 900',
@@ -62,7 +62,7 @@ it('cria plano convertendo o dinheiro digitado em centavos', function () {
 });
 
 it('aceita valor com separador de milhar', function () {
-    $versao = VersaoCatalogo::factory()->comServico('scpc-bvs', [500_000 => 370])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [500_000 => 370])->create();
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano 5000',
@@ -79,7 +79,7 @@ it('aceita valor com separador de milhar', function () {
 it('recusa consumo minimo que nao e faixa do catalogo', function () {
     // R$ 300 nao existe no catalogo: o plano ficaria sem coluna de preco e o
     // erro so apareceria no fechamento da fatura.
-    $versao = catalogo();
+    $catalogo = catalogo();
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano torto',
@@ -91,7 +91,7 @@ it('recusa consumo minimo que nao e faixa do catalogo', function () {
 });
 
 it('recusa plano quando o catalogo nao tem preco nenhum', function () {
-    VersaoCatalogo::factory()->create();
+    Catalogo::factory()->create();
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano orfao',
@@ -103,9 +103,9 @@ it('recusa plano quando o catalogo nao tem preco nenhum', function () {
 });
 
 it('recusa nome repetido, mas deixa salvar o proprio nome na edicao', function () {
-    $versao = catalogo();
-    Plano::factory()->create(['nome' => 'Plano 900', 'versao_id' => $versao->id]);
-    $outro = Plano::factory()->create(['nome' => 'Plano 75', 'versao_id' => $versao->id]);
+    $catalogo = catalogo();
+    Plano::factory()->create(['nome' => 'Plano 900', 'catalogo_id' => $catalogo->id]);
+    $outro = Plano::factory()->create(['nome' => 'Plano 75', 'catalogo_id' => $catalogo->id]);
 
     admin()->post(route('catalogo.planos.salvar'), [
         'nome' => 'Plano 900',
@@ -124,7 +124,7 @@ it('recusa nome repetido, mas deixa salvar o proprio nome na edicao', function (
 
 it('lista os planos em ordem crescente de valor, nao alfabetica', function () {
     // Por nome, "Consumo minimo R$ 1.500,00" viria antes de "R$ 200,00".
-    $versao = VersaoCatalogo::factory()
+    $catalogo = Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 20_000 => 558, 150_000 => 463])
         ->create();
 
@@ -143,11 +143,11 @@ it('lista os planos em ordem crescente de valor, nao alfabetica', function () {
 it('nao consulta o banco uma vez por plano para validar a faixa', function () {
     // A 447 ms por ida e volta ao banco remoto, um SELECT por linha da lista
     // custava segundos de tela.
-    $versao = VersaoCatalogo::factory()
+    $catalogo = Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 20_000 => 558, 150_000 => 463])
         ->create();
 
-    Plano::factory()->count(6)->create(['versao_id' => $versao->id, 'consumo_minimo_cents' => 0]);
+    Plano::factory()->count(6)->create(['catalogo_id' => $catalogo->id, 'consumo_minimo_cents' => 0]);
 
     DB::enableQueryLog();
     admin()->get('/catalogo')->assertOk();
@@ -160,8 +160,8 @@ it('nao consulta o banco uma vez por plano para validar a faixa', function () {
 });
 
 it('marca na listagem o plano cuja faixa saiu do catalogo', function () {
-    $versao = catalogo();
-    Plano::factory()->consumoMinimo(300)->create(['nome' => 'Plano torto', 'versao_id' => $versao->id]);
+    $catalogo = catalogo();
+    Plano::factory()->consumoMinimo(300)->create(['nome' => 'Plano torto', 'catalogo_id' => $catalogo->id]);
 
     admin()->get('/catalogo')
         ->assertOk()
@@ -175,12 +175,12 @@ it('marca na listagem o plano cuja faixa saiu do catalogo', function () {
 */
 
 it('mostra na edicao so os servicos precificados na faixa do plano', function () {
-    $versao = VersaoCatalogo::factory()
+    $catalogo = Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 90_000 => 493])
         ->comServico('renajud', [0 => 1_055])
         ->create();
 
-    $plano = Plano::factory()->consumoMinimo(900)->create(['versao_id' => $versao->id]);
+    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => $catalogo->id]);
 
     // renajud so tem preco sem minimo, entao nao entra neste plano.
     admin()->get(route('catalogo.planos.editar', $plano))
@@ -191,7 +191,7 @@ it('mostra na edicao so os servicos precificados na faixa do plano', function ()
 });
 
 it('grava a franquia de cada servico', function () {
-    $plano = Plano::factory()->consumoMinimo(900)->create(['versao_id' => catalogo()->id]);
+    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => catalogo()->id]);
     $scpc = Servico::firstWhere('codigo', 'scpc-bvs');
 
     admin()->put(route('catalogo.planos.franquias', $plano), [
@@ -204,7 +204,7 @@ it('grava a franquia de cada servico', function () {
 it('apaga a linha quando a quantidade volta a zero', function () {
     // Ausencia e zero significam a mesma coisa no faturamento; guardar as duas
     // representacoes so criaria duvida na apuracao.
-    $plano = Plano::factory()->consumoMinimo(900)->create(['versao_id' => catalogo()->id]);
+    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => catalogo()->id]);
     $scpc = Servico::firstWhere('codigo', 'scpc-bvs');
 
     admin()->put(route('catalogo.planos.franquias', $plano), ['franquias' => [$scpc->id => 20]]);
@@ -219,12 +219,12 @@ it('apaga a linha quando a quantidade volta a zero', function () {
 it('ignora franquia de servico que nao esta na faixa do plano', function () {
     // Defesa contra id chutado no formulario: so servico realmente disponivel
     // no plano pode receber franquia.
-    $versao = VersaoCatalogo::factory()
+    $catalogo = Catalogo::factory()
         ->comServico('scpc-bvs', [90_000 => 493])
         ->comServico('renajud', [0 => 1_055])
         ->create();
 
-    $plano = Plano::factory()->consumoMinimo(900)->create(['versao_id' => $versao->id]);
+    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => $catalogo->id]);
     $renajud = Servico::firstWhere('codigo', 'renajud');
 
     admin()->put(route('catalogo.planos.franquias', $plano), [
@@ -235,7 +235,7 @@ it('ignora franquia de servico que nao esta na faixa do plano', function () {
 });
 
 it('recusa franquia negativa', function () {
-    $plano = Plano::factory()->consumoMinimo(900)->create(['versao_id' => catalogo()->id]);
+    $plano = Plano::factory()->consumoMinimo(900)->create(['catalogo_id' => catalogo()->id]);
     $scpc = Servico::firstWhere('codigo', 'scpc-bvs');
 
     admin()->put(route('catalogo.planos.franquias', $plano), [

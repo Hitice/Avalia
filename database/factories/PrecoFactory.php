@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Catalogo;
 use App\Models\Preco;
 use App\Models\Servico;
-use App\Models\VersaoCatalogo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /** @extends Factory<Preco> */
@@ -15,7 +15,7 @@ class PrecoFactory extends Factory
     public function definition(): array
     {
         return [
-            'versao_id' => VersaoCatalogo::factory(),
+            'catalogo_id' => Catalogo::factory(),
             'servico_id' => Servico::factory(),
             'consumo_minimo_cents' => 0,
             'preco_cents' => 500,

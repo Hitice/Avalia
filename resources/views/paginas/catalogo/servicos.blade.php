@@ -26,16 +26,14 @@
                         <th class="px-5 py-3 text-left font-medium">Categoria</th>
                         <th class="px-5 py-3 text-left font-medium">Situacao</th>
                         <th class="px-5 py-3 text-right font-medium">Precos</th>
+                        <th class="px-5 py-3"><span class="sr-only">Acoes</span></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($servicos as $servico)
                         <tr>
                             <td class="px-5 py-4 text-left">
-                                <a href="{{ route('catalogo.servicos.editar', $servico) }}"
-                                   class="hover:text-brand-500 dark:hover:text-brand-400 font-medium text-gray-800 dark:text-white/90">
-                                    {{ $servico->nome }}
-                                </a>
+                                <span class="font-medium text-gray-800 dark:text-white/90">{{ $servico->nome }}</span>
                                 <code class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{{ $servico->codigo }}</code>
                             </td>
                             <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
@@ -65,10 +63,14 @@
                             <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">
                                 {{ $servico->precos_count }}
                             </td>
+                            <td class="px-5 py-4 text-right">
+                                <x-avalia.botao variante="secundario" tamanho="sm"
+                                                :href="route('catalogo.servicos.editar', $servico)">Editar</x-avalia.botao>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="tabela-vazia">
+                            <td colspan="5" class="tabela-vazia">
                                 Nenhum servico cadastrado.
                             </td>
                         </tr>

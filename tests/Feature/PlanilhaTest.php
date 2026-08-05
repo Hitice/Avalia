@@ -1,9 +1,9 @@
 <?php
 
+use App\Models\Catalogo;
 use App\Models\Plano;
 use App\Models\Servico;
 use App\Models\Staff;
-use App\Models\VersaoCatalogo;
 use App\Support\Planilha;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -66,7 +66,7 @@ it('le csv de ponto e virgula, que e o que o Excel salva em portugues', function
 */
 
 it('exporta uma planilha com as tres abas', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
     Plano::factory()->create(['nome' => 'Plano teste']);
 
     $resposta = admin()->get(route('catalogo.planilha.exportar'))->assertOk();
@@ -87,7 +87,7 @@ it('exporta uma planilha com as tres abas', function () {
 });
 
 it('leva codigo, custo e preco de cada faixa para a aba de catalogo', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
     $catalogo->precos()->update(['custo_cents' => 280]);
 
     $resposta = admin()->get(route('catalogo.planilha.exportar'));
@@ -119,7 +119,7 @@ it('nao deixa vendedor exportar', function () {
 */
 
 it('grava preco e custo vindos da planilha', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
 
     $caminho = planilhaTemporaria([
         'Catalogo' => [
@@ -139,7 +139,7 @@ it('grava preco e custo vindos da planilha', function () {
 
 it('casa pelo titulo da coluna, e nao pela posicao', function () {
     // Quem edita no Excel move coluna. Quebrar por isso seria armadilha.
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
 
     $caminho = planilhaTemporaria([
         'Catalogo' => [
@@ -158,7 +158,7 @@ it('casa pelo titulo da coluna, e nao pela posicao', function () {
 
 it('ignora codigo que nao existe em vez de criar servico', function () {
     // Criar servico e decisao comercial, nao efeito colateral de importacao.
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     $caminho = planilhaTemporaria([
         'Catalogo' => [['codigo', 'sem minimo'], [['servico-inventado', '9,99'], ['scpc-bvs', '8,39']]],
@@ -173,7 +173,7 @@ it('ignora codigo que nao existe em vez de criar servico', function () {
 });
 
 it('recusa planilha sem a coluna de codigo', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     $caminho = planilhaTemporaria([
         'Catalogo' => [['servico', 'sem minimo'], [['SCPC BVS', '9,99']]],
@@ -185,7 +185,7 @@ it('recusa planilha sem a coluna de codigo', function () {
 });
 
 it('sobrevive ao ciclo completo de exportar e importar sem mudar nada', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
     $catalogo->precos()->update(['custo_cents' => 280]);
 
     $baixado = tempnam(sys_get_temp_dir(), 'ciclo').'.xlsx';

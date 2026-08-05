@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\Catalogo;
 use App\Models\Servico;
 use App\Models\Staff;
-use App\Models\VersaoCatalogo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -33,7 +33,7 @@ it('nao deixa visitante abrir o catalogo', function () {
 */
 
 it('abre a tabela direto, sem lista no meio do caminho', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 500_000 => 370])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 500_000 => 370])->create();
 
     admin()->get('/catalogo/tabela')
         ->assertOk()
@@ -44,7 +44,7 @@ it('abre a tabela direto, sem lista no meio do caminho', function () {
 });
 
 it('oferece as categorias na ordem credito, veicular e todos', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     $html = admin()->get('/catalogo/tabela')->assertOk()->getContent();
 
@@ -57,7 +57,7 @@ it('oferece as categorias na ordem credito, veicular e todos', function () {
 });
 
 it('filtra por categoria', function () {
-    VersaoCatalogo::factory()
+    Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631])
         ->comServico('renajud', [0 => 1_055])
         ->create();
@@ -71,7 +71,7 @@ it('filtra por categoria', function () {
 });
 
 it('ignora filtro de categoria invalido em vez de quebrar', function () {
-    VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     admin()->get(route('catalogo.tabela', ['categoria' => 'sei-la']))
         ->assertOk()
@@ -89,7 +89,7 @@ it('avisa quando nao ha catalogo nenhum', function () {
 */
 
 it('grava os precos editados', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
     $precos = $catalogo->precos()->orderBy('consumo_minimo_cents')->get();
 
     admin()->put(route('catalogo.precos', $catalogo), [
@@ -104,7 +104,7 @@ it('grava os precos editados', function () {
 });
 
 it('aceita o dinheiro como o operador digita', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('vip-car', [0 => 5_530])->create();
+    $catalogo = Catalogo::factory()->comServico('vip-car', [0 => 5_530])->create();
     $preco = $catalogo->precos()->first();
 
     admin()->put(route('catalogo.precos', $catalogo), [
@@ -116,8 +116,8 @@ it('aceita o dinheiro como o operador digita', function () {
 
 it('ignora preco que nao pertence a este catalogo', function () {
     // Defesa contra id chutado no formulario.
-    $alvo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
-    $outro = VersaoCatalogo::factory()->comServico('renajud', [0 => 1_055])->create();
+    $alvo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $outro = Catalogo::factory()->comServico('renajud', [0 => 1_055])->create();
 
     $alheio = $outro->precos()->first();
 
@@ -135,7 +135,7 @@ it('ignora preco que nao pertence a este catalogo', function () {
 */
 
 it('aplica percentual em todos os precos', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 1_000, 90_000 => 500])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000, 90_000 => 500])->create();
 
     admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => 10])
         ->assertSessionHas('ok');
@@ -146,7 +146,7 @@ it('aplica percentual em todos os precos', function () {
 
 it('arredonda o reajuste para o centavo mais proximo', function () {
     // 631 + 5% = 662,55 centavos. Centavo fracionado nao existe em fatura.
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
 
     admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => 5]);
 
@@ -154,7 +154,7 @@ it('arredonda o reajuste para o centavo mais proximo', function () {
 });
 
 it('aceita reajuste negativo', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
 
     admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => -10]);
 
@@ -162,7 +162,7 @@ it('aceita reajuste negativo', function () {
 });
 
 it('reajusta so a categoria escolhida', function () {
-    $catalogo = VersaoCatalogo::factory()
+    $catalogo = Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 1_000])
         ->comServico('renajud', [0 => 1_000])
         ->create();
@@ -179,7 +179,7 @@ it('reajusta so a categoria escolhida', function () {
 });
 
 it('recusa percentual fora da faixa aceitavel', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
 
     admin()->post(route('catalogo.reajustar', $catalogo), ['percentual' => -100])
         ->assertSessionHasErrors('percentual');
@@ -188,7 +188,7 @@ it('recusa percentual fora da faixa aceitavel', function () {
 });
 
 it('nao deixa vendedor editar nem reajustar', function () {
-    $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 1_000])->create();
 
     $vendedor = fn () => test()
         ->actingAs(Staff::factory()->create(), 'staff')
@@ -232,11 +232,11 @@ it('converte faixa para inteiro venha ela como for do banco', function () {
         new App\Models\Preco(['consumo_minimo_cents' => '7500']),
     ]);
 
-    expect(App\Models\VersaoCatalogo::faixasDe($precos))->toBe([0, 7_500, 90_000]);
+    expect(App\Models\Catalogo::faixasDe($precos))->toBe([0, 7_500, 90_000]);
 });
 
 it('da a cada faixa o seu proprio rotulo no cabecalho', function () {
-    VersaoCatalogo::factory()
+    Catalogo::factory()
         ->comServico('scpc-bvs', [0 => 631, 7_500 => 594, 90_000 => 493])
         ->create();
 

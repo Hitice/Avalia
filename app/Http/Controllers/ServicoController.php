@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServicoRequest;
+use App\Models\Catalogo;
 use App\Models\Servico;
-use App\Models\VersaoCatalogo;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -32,7 +32,7 @@ class ServicoController extends Controller
     {
         return view('paginas.catalogo.servico-formulario', [
             'servico' => new Servico(['categoria' => 'credito', 'ativo' => true]),
-            'faixas' => VersaoCatalogo::vigente()?->faixas() ?? [],
+            'faixas' => Catalogo::vigente()?->faixas() ?? [],
         ]);
     }
 
@@ -46,7 +46,7 @@ class ServicoController extends Controller
      */
     public function salvar(ServicoRequest $request)
     {
-        $catalogo = VersaoCatalogo::vigente();
+        $catalogo = Catalogo::vigente();
         $faixas = $catalogo?->faixas() ?? [];
 
         if ($faixas === []) {

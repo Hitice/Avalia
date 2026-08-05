@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Catalogo;
 use App\Models\Plano;
-use App\Models\VersaoCatalogo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /** @extends Factory<Plano> */
@@ -14,7 +14,7 @@ class PlanoFactory extends Factory
     public function definition(): array
     {
         return [
-            'versao_id' => VersaoCatalogo::factory(),
+            'catalogo_id' => Catalogo::factory(),
             'nome' => 'Plano '.fake()->unique()->numerify('###'),
             'descricao' => null,
             // Mensalidade da Avalia (PDD.md, secao 5) e a menor faixa com

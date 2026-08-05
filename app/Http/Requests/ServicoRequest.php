@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Categoria;
 use App\Models\Servico;
 use App\Support\Dinheiro;
 use Illuminate\Foundation\Http\FormRequest;
@@ -47,7 +48,7 @@ class ServicoRequest extends FormRequest
     {
         $regras = [
             'nome' => ['required', 'string', 'max:150'],
-            'categoria' => ['required', Rule::in(array_keys(Servico::CATEGORIAS))],
+            'categoria' => ['required', Rule::in(Categoria::valores())],
             'ativo' => ['boolean'],
             'exige_liberacao' => ['boolean'],
         ];

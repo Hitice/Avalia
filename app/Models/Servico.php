@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Categoria;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,16 +18,12 @@ class Servico extends Model
 {
     use HasFactory;
 
-    public const CATEGORIAS = [
-        'credito' => 'Crédito',
-        'veicular' => 'Veicular',
-    ];
-
     protected $fillable = ['codigo', 'nome', 'categoria', 'ativo', 'exige_liberacao'];
 
     protected function casts(): array
     {
         return [
+            'categoria' => Categoria::class,
             'ativo' => 'boolean',
             'exige_liberacao' => 'boolean',
         ];
@@ -59,13 +56,13 @@ class Servico extends Model
         return $query->where('ativo', true)->where('exige_liberacao', false);
     }
 
-    public function scopeDaCategoria(Builder $query, string $categoria): Builder
+    public function scopeDaCategoria(Builder $query, Categoria $categoria): Builder
     {
         return $query->where('categoria', $categoria);
     }
 
     public function rotuloCategoria(): string
     {
-        return self::CATEGORIAS[$this->categoria] ?? $this->categoria;
+        return $this->categoria->rotulo();
     }
 }

@@ -25,16 +25,14 @@
                                                 <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
                         <th class="px-5 py-3 text-right font-medium">Consumo minimo</th>
                         <th class="px-5 py-3 text-right font-medium">Fatura minima</th>
+                        <th class="px-5 py-3"><span class="sr-only">Acoes</span></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($planos as $plano)
                         <tr>
                             <td class="px-5 py-4 text-left">
-                                <a href="{{ route('catalogo.planos.editar', $plano) }}"
-                                   class="hover:text-brand-500 dark:hover:text-brand-400 font-medium text-gray-800 dark:text-white/90">
-                                    {{ $plano->nome }}
-                                </a>
+                                <span class="font-medium text-gray-800 dark:text-white/90">{{ $plano->nome }}</span>
                                 <span class="mt-0.5 flex flex-wrap gap-2 text-xs">
                                     @unless ($plano->ativo)
                                         <span class="etiqueta etiqueta-neutra">
@@ -53,10 +51,14 @@
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->mensalidade }}</td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->consumo_minimo }}</td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $plano->fatura_minima }}</td>
+                            <td class="px-5 py-4 text-right">
+                                <x-avalia.botao variante="secundario" tamanho="sm"
+                                                :href="route('catalogo.planos.editar', $plano)">Editar</x-avalia.botao>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="tabela-vazia">
+                            <td colspan="6" class="tabela-vazia">
                                 Nenhum plano cadastrado.
                             </td>
                         </tr>

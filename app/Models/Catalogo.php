@@ -16,11 +16,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * preco e custo no momento da emissao (PDD.md, secoes 7 e 8). Quem cobra guarda
  * o proprio valor; aqui fica so quanto custa hoje.
  */
-class VersaoCatalogo extends Model
+class Catalogo extends Model
 {
     use HasFactory;
 
-    protected $table = 'versoes_catalogo';
+    protected $table = 'catalogos';
 
     protected $fillable = ['rotulo', 'observacao', 'vigencia_inicio', 'imposto_bps', 'margem_alvo_bps', 'degrau_margem_bps'];
 
@@ -92,12 +92,12 @@ class VersaoCatalogo extends Model
 
     public function precos(): HasMany
     {
-        return $this->hasMany(Preco::class, 'versao_id');
+        return $this->hasMany(Preco::class, 'catalogo_id');
     }
 
     public function planos(): HasMany
     {
-        return $this->hasMany(Plano::class, 'versao_id');
+        return $this->hasMany(Plano::class, 'catalogo_id');
     }
 
     /** O catalogo em uso. Havendo mais de um, o mais recente. */

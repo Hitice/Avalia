@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Catalogo;
 use App\Models\Plano;
 use App\Models\Preco;
 use App\Models\Servico;
-use App\Models\VersaoCatalogo;
 use App\Support\Margem;
 use App\Support\Planilha;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class PlanilhaController extends Controller
 {
     public function exportar(): StreamedResponse
     {
-        $catalogo = VersaoCatalogo::vigente();
+        $catalogo = Catalogo::vigente();
         $nome = 'avalia-catalogo-'.now()->format('Y-m-d').'.xlsx';
 
         $conteudo = Planilha::xlsx([
@@ -50,7 +50,7 @@ class PlanilhaController extends Controller
             'planilha' => ['required', 'file', 'mimes:xlsx,csv,txt', 'max:4096'],
         ]);
 
-        $catalogo = VersaoCatalogo::vigente();
+        $catalogo = Catalogo::vigente();
 
         if (! $catalogo) {
             return back()->with('erro', 'Nao ha catalogo para receber a importacao.');
@@ -142,7 +142,7 @@ class PlanilhaController extends Controller
     }
 
     /** @return array{0: list<string>, 1: list<list<string|int|float|null>>} */
-    private function abaCatalogo(?VersaoCatalogo $catalogo): array
+    private function abaCatalogo(?Catalogo $catalogo): array
     {
         if (! $catalogo) {
             return [['codigo'], []];
@@ -191,7 +191,7 @@ class PlanilhaController extends Controller
     /** @return array{0: list<string>, 1: list<list<string|int|float|null>>} */
     private function abaPlanos(): array
     {
-        $linhas = Plano::with('versao')
+        $linhas = Plano::with('catalogo')
             ->orderBy('consumo_minimo_cents')
             ->get()
             ->map(fn (Plano $plano) => [
