@@ -101,13 +101,26 @@ A administração vê a mesma matriz do catálogo sob três visões: preço de v
 custo do fornecedor e margem. As duas últimas são internas e ficam atrás da mesma
 restrição de acesso do catálogo: vendedor não entra.
 
-    imposto = preço de venda × alíquota
-    margem  = preço de venda − custo do fornecedor − imposto − comissão
-    piso    = custo ÷ (1 − imposto − comissão)
-    preço   = custo ÷ (1 − imposto − comissão − margem alvo da faixa)
+    imposto  = preço de venda × alíquota
+    lucro    = preço de venda − imposto − custo do fornecedor
+    comissão = 10% do lucro
+    margem   = lucro − comissão
+    piso     = custo ÷ (1 − imposto)
+    preço    = custo × 0,9 ÷ [ 0,9 × (1 − imposto) − margem alvo da faixa ]
 
-A comissão do vendedor entra como custo porque é o que ela é: sai do mesmo preço.
-Margem calculada sem ela superestima o resultado em dez pontos.
+A ordem importa. O imposto sai primeiro, porque incide sobre a nota cheia. O
+custo do fornecedor sai em seguida, porque é a Avalia que o paga. O que sobra é
+lucro, e o vendedor leva 10% dele.
+
+Duas consequências aritméticas de comissionar sobre lucro:
+
+- **a Avalia fica sempre com 90% do lucro**, qualquer que seja o preço praticado;
+- **o piso não depende da comissão**, porque no piso o lucro é zero e a comissão
+  também. Quando a comissão lia faturamento, ela empurrava o piso para cima.
+
+Margem calculada sem a comissão superestima o resultado em um décimo. É a
+diferença entre 53% e 48% numa linha de custo baixo, e é sobre o número menor que
+se decide desconto.
 
 O piso não é cadastrado, é calculado, e **preço abaixo dele é recusado na
 gravação**. Relatar prejuízo depois do fato não impede ninguém de vender no
@@ -134,8 +147,20 @@ interno, franquia, regras de consumo e congelamento por contrato.
 ### Edição do catálogo
 
 O catálogo é único e editável a qualquer momento pelo administrador com permissão
-comercial ou financeira, célula a célula ou por reajuste percentual. Toda
-alteração de preço, custo, franquia ou disponibilidade gera auditoria.
+comercial ou financeira. Toda alteração de preço, custo, franquia ou
+disponibilidade gera auditoria.
+
+A edição é **linha a linha**, na página do serviço, e não numa matriz de 301
+campos: lá ficam juntos o cadastro, o custo do fornecedor e o preço de cada
+faixa, e o operador vê a margem do que digitou antes de salvar. A matriz do
+catálogo é de leitura, com um botão de edição por linha. Preço abaixo do piso
+recusa o lote inteiro, e não apenas a célula: gravar só o que passou deixaria o
+operador achando que salvou tudo.
+
+Duas ações não passam por formulário. A disponibilidade do serviço é um
+interruptor que grava no próprio clique, e a escada de margem recalcula o
+catálogo inteiro a partir dos parâmetros comerciais, que vivem em página
+separada por mexerem em todas as linhas de uma vez.
 
 Não há congelamento do catálogo, e isso é decisão consciente. O que impede um
 reajuste de hoje de alterar cobrança de ontem é cada consulta e cada fatura
@@ -163,6 +188,61 @@ código em produção.
 Os nomes comerciais dos serviços são da Avalia. Marca, razão social e
 nomenclatura do fornecedor não aparecem no catálogo, no portal nem em documento
 gerado para o cliente.
+
+### Família suprimida
+
+Os serviços veiculares estão precificados, mas o contrato com o fornecedor não
+foi fechado e o custo não foi levantado. Enquanto isso, seus números são
+estimativa, e estimativa exibida sem aviso vira proposta.
+
+Por isso a categoria fica **travada**: a aba não navega, o filtro por veicular
+não abre nem digitado na URL, e nenhuma linha veicular chega à matriz. A aba
+"Todos" trava junto enquanto houver categoria suprimida, porque a opção mais
+ampla mostraria justamente o que está travado.
+
+O serviço continua visível na lista de serviços, com cadeado, para a
+administração saber que existe e o que falta liberar, e sua página continua
+aceitando preço e custo: suprimir na vitrine não pode impedir de manter a
+estimativa. Fechado o contrato, a regra cai em um lugar só.
+
+### Planilha do módulo
+
+O catálogo sai e volta numa planilha de três abas, catálogo, planos e serviços,
+para quem negocia com o fornecedor trabalhar com custo, preço e plano lado a
+lado.
+
+A importação casa as colunas pelo **título**, nunca pela posição, porque quem
+edita no Excel move coluna. A comparação é feita sobre uma forma canônica, sem
+acento e em minúsculas, então cabeçalho redigitado à mão continua sendo
+reconhecido. Linha com código desconhecido é ignorada e não cria serviço: criar
+serviço é decisão comercial, não efeito colateral de importação.
+
+Serviço pausado não vai na planilha, que existe para reprecificar o que a Avalia
+vende hoje. Isso não apaga nada: a importação só mexe nas linhas que recebe.
+
+### Calculadora de contrato
+
+A margem por serviço responde se um preço dá lucro. A calculadora responde a
+outra pergunta, a que se faz antes de assinar: este cliente, nesta faixa,
+consumindo isto, deixa quanto.
+
+    fatura   = mensalidade + max(consumo realizado, consumo mínimo)
+    imposto  = alíquota × fatura
+    custo    = custo do fornecedor sobre o consumo REALIZADO
+    lucro    = fatura − imposto − custo
+    comissão = 10% do lucro
+
+O custo vem da tabela e não é digitado: custo e preço de venda são fixos por
+serviço, então a proporção entre eles já está decidida e vale para o consumo
+total, qualquer que seja o mix consultado.
+
+Daí sai o efeito que o comercial precisa enxergar: **o cliente que paga o mínimo
+sem usar é o mais lucrativo**, porque o piso da fatura entra quase inteiro no
+lucro, sem gerar custo de fornecedor. Na faixa de R$ 900 isso é 78% de margem
+contra 35% de quem consome o mínimo inteiro.
+
+Nada é gravado, e o endereço carrega o cenário: a simulação vira link em vez de
+captura de tela.
 
 ### Cálculo mensal
 
@@ -504,9 +584,9 @@ falhas, logs seguros e documentação de operação.
   estimativa de 8,60%. Falta o fechamento contábil dizer se ela varia com a
   faixa de faturamento, porque o imposto sai antes do lucro e mexe no piso de
   cada preço.
-- Cadastrar o custo do fornecedor por serviço e faixa. A tela já existe; o dado é
-  que ainda não foi levantado. Sem ele não há margem nem piso de preço, e as 301
-  linhas aparecem como custo não cadastrado.
+- **Levantar o custo do fornecedor dos serviços veiculares.** Os 26 serviços de
+  crédito já estão com custo cadastrado; os veiculares não, e por isso ficam de
+  fora da escada de margem e do cálculo de piso.
 - Homologar comercialmente os preços dos anexos A e B e a margem sobre o custo do fornecedor.
 - Definir a quantidade incluída na franquia de cada serviço, por faixa.
 - Definir quais serviços dos anexos entram no catálogo inicial e quais ficam desativados.
@@ -521,27 +601,42 @@ Acesso: `staff` (contas de administração e vendedores), `clientes` (empresas
 contratantes com login, situação e controle de sessão), `tentativas_login`
 (bloqueio progressivo por conta e origem) e `sessions`.
 
-Catálogo: `versoes_catalogo` (tabela de preços datada, com situação e
-congelamento), `servicos` (código, nome comercial, categoria e trava de
-liberação), `precos` (preço de venda e custo interno por serviço e faixa, dentro
-de uma versão), `planos` (versão contratada, mensalidade, consumo mínimo) e
-`franquias_plano` (quantidade incluída por serviço).
+Catálogo: `catalogos` (a tabela de preços, com alíquota de imposto, margem alvo
+e degrau por faixa), `servicos` (código, nome comercial, categoria e trava de
+liberação), `precos` (preço de venda e custo interno por serviço e faixa),
+`planos` (catálogo contratado, mensalidade, consumo mínimo) e `franquias_plano`
+(quantidade incluída por serviço).
 
-Os preços dos anexos A e B entram pelo `CatalogoSeeder` como **rascunho**, a
-partir de `database/seeders/dados/`, gerado por `tools/gera_precos_catalogo.py`.
-Ativar a versão é ação administrativa consciente: o seeder nunca ativa.
+Não há versionamento nem congelamento do catálogo, e isso é decisão consciente,
+explicada na seção 6: quem protege a cobrança passada é a consulta e a fatura
+gravarem preço e custo na emissão.
 
-As telas de catálogo (`/catalogo`, restritas a administração) têm três abas:
+Os preços dos anexos A e B entram pelo `CatalogoSeeder`, a partir de
+`database/seeders/dados/`, gerado por `tools/gera_precos_catalogo.py`. Os custos
+de crédito entram pelo `CustosSeeder`.
+
+As telas de catálogo (`/catalogo`, restritas a administração) têm quatro abas:
 
 - **Planos**: cadastro de plano, faixa contratada e franquia por serviço;
-- **Catálogo**: a matriz de preços por faixa, em três visões (venda, custo e
-  margem), com edição direta, reajuste percentual e alíquota de imposto;
-- **Serviços**: cadastro, renomeação, categoria, ativação e trava de liberação
-  jurídica.
+- **Catálogo**: a matriz de preços por faixa, de leitura, em três visões (venda,
+  custo e margem), com um botão de edição por linha;
+- **Serviços**: cadastro, renomeação, categoria, interruptor de disponibilidade
+  e trava de liberação jurídica; a página de cada serviço edita também custo e
+  preço de cada faixa;
+- **Calculadora**: simulação de lucro de um contrato, por GET e sem gravar nada.
+
+Fora das abas, `/catalogo/parametros` guarda imposto, margem alvo e degrau, e é
+de lá que sai a reprecificação do catálogo inteiro pela escada de margem.
 
 Serviço não é excluído, apenas desativado: franquia de plano, consulta e fatura
 apontam para ele, e apagar levaria a franquia junto por cascata e deixaria
 histórico órfão. O código do serviço é imutável depois da criação.
+
+O cálculo de dinheiro vive em `app/Support`: `Dinheiro` (centavos inteiros,
+leitura e formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo),
+`Comissao` (alíquota e rateio da adesão), `Simulacao` (o mês de um contrato) e
+`Planilha` (xlsx escrito e lido sem dependência externa). Regra de negócio que
+grava vive em `app/Actions`. A suíte tem 181 testes.
 
 Ainda futuros: `consultas`, `faturas` e `itens_fatura`, `cobrancas_asaas` e
 `eventos_asaas`, `comissoes`, `bonus_cadastro` e `repasses`, `campanhas` e
