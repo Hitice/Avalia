@@ -92,15 +92,53 @@ class CatalogoController extends Controller
     }
 
     /**
-     * Grava o custo do fornecedor.
+     * Grava o custo do fornecedor, um por servico.
      *
-     * Aceita campo vazio: apagar o custo devolve a linha ao estado "custo nao
+     * O custo nao varia por faixa: o fornecedor cobra por consulta, e nao pelo
+     * pacote que o cliente contratou. Por isso o campo e um so por servico e o
+     * valor vai para todas as faixas dele. Sete colunas iguais so obrigavam a
+     * digitar o mesmo numero sete vezes.
+     *
+     * Aceita campo vazio: apagar devolve a linha ao estado "custo nao
      * cadastrado", que a tela deixa em branco em vez de mostrar zero. Zero seria
      * mentira, porque significaria fornecedor de graca.
      */
     public function custos(Request $request, VersaoCatalogo $catalogo)
     {
-        return $this->gravarColuna($request, $catalogo, 'custos', 'custo_cents', 'custo', true);
+        $request->validate([
+            'custos' => ['array'],
+            'custos.*' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $informados = collect($request->input('custos', []))
+            ->map(fn ($valor) => Dinheiro::paraCentavos($valor))
+            ->reject(fn (?int $centavos) => $centavos !== null && $centavos < 0);
+
+        $linhas = $catalogo->precos()
+            ->whereIn('servico_id', $informados->keys())
+            ->get(['id', 'versao_id', 'servico_id', 'consumo_minimo_cents', 'preco_cents', 'custo_cents'])
+            ->filter(fn (Preco $preco) => $preco->custo_cents !== $informados[$preco->servico_id])
+            ->map(fn (Preco $preco) => [
+                'id' => $preco->id,
+                'versao_id' => $preco->versao_id,
+                'servico_id' => $preco->servico_id,
+                'consumo_minimo_cents' => $preco->consumo_minimo_cents,
+                'preco_cents' => $preco->preco_cents,
+                'custo_cents' => $informados[$preco->servico_id],
+            ])
+            ->values()
+            ->all();
+
+        if ($linhas === []) {
+            return back()->with('ok', 'Nenhum custo mudou.');
+        }
+
+        Preco::upsert($linhas, ['id'], ['custo_cents']);
+
+        return back()->with('ok', sprintf(
+            'Custo atualizado em %d servico(s), valendo para todas as faixas.',
+            collect($linhas)->pluck('servico_id')->unique()->count(),
+        ));
     }
 
     /** Aliquotas que governam margem, piso e preco alvo. */
@@ -210,7 +248,6 @@ class CatalogoController extends Controller
         string $campo,
         string $coluna,
         string $rotulo,
-        bool $aceitaVazio = false,
     ) {
         $request->validate([
             $campo => ['array'],
@@ -219,8 +256,7 @@ class CatalogoController extends Controller
 
         $informados = collect($request->input($campo, []))
             ->map(fn ($valor) => Dinheiro::paraCentavos($valor))
-            ->reject(fn (?int $centavos) => $centavos !== null && $centavos < 0)
-            ->when(! $aceitaVazio, fn ($valores) => $valores->filter(fn (?int $c) => $c !== null));
+            ->reject(fn (?int $centavos) => $centavos === null || $centavos < 0);
 
         $linhas = $catalogo->precos()
             ->whereIn('id', $informados->keys())

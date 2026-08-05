@@ -20,7 +20,7 @@ it('grava o custo do fornecedor', function () {
     expect($preco->custo_cents)->toBeNull();
 
     admin()->put(route('catalogo.custos', $catalogo), [
-        'custos' => [$preco->id => '3,70'],
+        'custos' => [$preco->servico_id => '3,70'],
     ])->assertSessionHas('ok');
 
     expect($preco->fresh()->custo_cents)->toBe(370)
@@ -33,33 +33,32 @@ it('apaga o custo quando o campo volta vazio', function () {
     $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
     $preco = $catalogo->precos()->first();
 
-    admin()->put(route('catalogo.custos', $catalogo), ['custos' => [$preco->id => '3,70']]);
+    admin()->put(route('catalogo.custos', $catalogo), ['custos' => [$preco->servico_id => '3,70']]);
     expect($preco->fresh()->custo_cents)->toBe(370);
 
-    admin()->put(route('catalogo.custos', $catalogo), ['custos' => [$preco->id => '']]);
+    admin()->put(route('catalogo.custos', $catalogo), ['custos' => [$preco->servico_id => '']]);
 
     expect($preco->fresh()->custo_cents)->toBeNull();
 });
 
-it('nao deixa o custo mexer no preco de venda', function () {
+it('poe o custo em todas as faixas do servico, sem mexer no preco', function () {
+    // O fornecedor cobra por consulta, nao pelo pacote: um custo por servico.
     $catalogo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
-    $precos = $catalogo->precos()->orderBy('consumo_minimo_cents')->get();
+    $servico = App\Models\Servico::firstWhere('codigo', 'scpc-bvs');
 
-    admin()->put(route('catalogo.custos', $catalogo), [
-        'custos' => [$precos[0]->id => '3,70', $precos[1]->id => '3,10'],
-    ]);
+    admin()->put(route('catalogo.custos', $catalogo), ['custos' => [$servico->id => '3,70']]);
 
     expect($catalogo->precoDe('scpc-bvs', 0))->toBe(631)
         ->and($catalogo->precoDe('scpc-bvs', 90_000))->toBe(493)
-        ->and(Preco::sum('custo_cents'))->toBe(680);
+        ->and($servico->precos()->pluck('custo_cents')->unique()->all())->toBe([370]);
 });
 
-it('ignora custo de preco que nao pertence a este catalogo', function () {
+it('nao deixa o custo de um catalogo vazar para o outro', function () {
     $alvo = VersaoCatalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
     $outro = VersaoCatalogo::factory()->comServico('renajud', [0 => 1_055])->create();
     $alheio = $outro->precos()->first();
 
-    admin()->put(route('catalogo.custos', $alvo), ['custos' => [$alheio->id => '9,99']]);
+    admin()->put(route('catalogo.custos', $alvo), ['custos' => [$alheio->servico_id => '9,99']]);
 
     expect($alheio->fresh()->custo_cents)->toBeNull();
 });
@@ -149,7 +148,7 @@ it('mostra campo de custo editavel na visao de custo', function () {
 
     admin()->get(route('catalogo.tabela', ['visao' => 'custo']))
         ->assertOk()
-        ->assertSee('name="custos['.$preco->id.']"', false)
+        ->assertSee('name="custos['.$preco->servico_id.']"', false)
         ->assertSee('Salvar custos');
 });
 

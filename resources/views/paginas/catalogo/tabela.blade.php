@@ -79,11 +79,17 @@
                                 {{-- text-left explicito: o navegador centraliza th por
                                      padrao, e o text-left da tabela nao vence isso. --}}
                                 <th class="px-5 py-3 text-left font-medium">Servico</th>
+                                @if ($visao === 'custo')
+                                    {{-- Custo e um por servico: o fornecedor cobra por consulta,
+                                         nao pelo pacote do cliente. --}}
+                                    <th class="px-4 py-3 text-right font-medium whitespace-nowrap">Custo do fornecedor</th>
+                                @else
                                 @foreach ($faixas as $faixa)
                                     <th class="px-4 py-3 text-right font-medium whitespace-nowrap">
                                         {{ $faixa === 0 ? 'Sem mínimo' : Dinheiro::brl($faixa) }}
                                     </th>
                                 @endforeach
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -108,6 +114,15 @@
                                         </span>
                                     </td>
 
+                                    @if ($visao === 'custo')
+                                        @php $primeiro = $linha['precos']->first(); @endphp
+                                        <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                            <input type="text" inputmode="decimal" placeholder="-"
+                                                   name="custos[{{ $linha['servico']->id }}]"
+                                                   value="{{ $primeiro?->custo_cents === null ? '' : Dinheiro::numero($primeiro->custo_cents) }}"
+                                                   class="campo-celula">
+                                        </td>
+                                    @else
                                     @foreach ($faixas as $faixa)
                                         @php
                                             $preco = $linha['precos']->get($faixa);
@@ -132,10 +147,11 @@
                                             @endif
                                         </td>
                                     @endforeach
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($faixas) + 1 }}" class="tabela-vazia">
+                                    <td colspan="{{ ($visao === 'custo' ? 1 : count($faixas)) + 1 }}" class="tabela-vazia">
                                         Nenhum servico nesta categoria.
                                     </td>
                                 </tr>
