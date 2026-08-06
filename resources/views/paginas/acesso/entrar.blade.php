@@ -165,7 +165,7 @@
                 <img src="/images/entrar-fundo.png" alt="" draggable="false"
                      class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
                 <div aria-hidden="true" class="pointer-events-none absolute inset-0"
-                     style="background: linear-gradient(to top right, rgb(22 25 80 / 0.96) 0%, rgb(22 25 80 / 0.7) 32%, rgb(22 25 80 / 0.5) 50%, rgb(22 25 80 / 0.7) 68%, rgb(22 25 80 / 0.96) 100%)"></div>
+                     style="background: linear-gradient(to top right, rgb(0 0 0 / 0.96) 0%, rgb(0 0 0 / 0.7) 32%, rgb(0 0 0 / 0.5) 50%, rgb(0 0 0 / 0.7) 68%, rgb(0 0 0 / 0.96) 100%)"></div>
 
                 {{-- A grade sobe para uma camada propria: como fundo do painel
                      ela ficaria escondida atras da foto. --}}
