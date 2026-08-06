@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Consumo\ExecutarConsulta;
 use App\Actions\Consumo\FecharCompetencia;
 use App\Actions\Financeiro\RegistrarLiquidacao;
 use App\Models\Catalogo;
@@ -166,7 +167,13 @@ class DemonstracaoSeeder extends Seeder
         }
     }
 
-    /** Consultas com preco e custo congelados, como a operacao faria. */
+    /**
+     * Consultas passando pelo conector, como o cliente faria pelo portal.
+     *
+     * Uma em cada dez usa um documento que o simulado recusa, para as telas
+     * mostrarem tambem o caso que nao deu certo: base de demonstracao so com
+     * sucesso esconde justamente o que precisa ser conferido.
+     */
     private function consultar(Cliente $empresa, int $quantidade, string $competencia): void
     {
         $precos = $empresa->plano->catalogo
@@ -181,22 +188,32 @@ class DemonstracaoSeeder extends Seeder
             return;
         }
 
-        $linhas = [];
+        $executar = app(ExecutarConsulta::class);
+        $antiga = $competencia !== Consulta::competenciaDe();
 
         for ($i = 0; $i < $quantidade; $i++) {
-            $preco = $precos[$i % $precos->count()];
+            $servico = $precos[$i % $precos->count()]->servico;
 
-            $linhas[] = [
-                'cliente_id' => $empresa->id,
-                'servico_id' => $preco->servico_id,
-                'competencia' => $competencia,
-                'preco_cents' => $preco->preco_cents,
-                'custo_cents' => $preco->custo_cents,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            // Documento valido termina em digito diferente de zero; um em cada
+            // dez termina em zero e o simulado recusa.
+            $documento = str_pad((string) (11144477730 + $i), 11, '0', STR_PAD_LEFT);
+
+            $resultado = $executar(
+                $empresa,
+                $servico,
+                $documento,
+                'Análise de crédito para venda a prazo',
+                'Operação da '.$empresa->razao_social,
+            );
+
+            // Competência antiga: a consulta nasce no mês corrente e precisa ser
+            // reposicionada, porque não há como pedir ao conector uma data.
+            if ($antiga && $resultado['consulta']) {
+                $resultado['consulta']->update([
+                    'competencia' => $competencia,
+                    'created_at' => now()->subMonth(),
+                ]);
+            }
         }
-
-        Consulta::insert($linhas);
     }
 }
