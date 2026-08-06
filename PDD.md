@@ -24,27 +24,69 @@ somente o serviço contratado, o resultado permitido e o seu consumo.
 
 | Papel | Responsabilidades |
 | --- | --- |
-| Administrador | Acesso concedido por permissões de comercial, financeiro, operação ou superadmin; configura catálogo, bases, campanhas e documentos e acompanha os módulos autorizados. |
-| Vendedor | Administra apenas suas carteiras, acompanha clientes, consumo, previsão de ganhos, participação na adesão e materiais liberados. |
-| Empresa cliente | Consulta os serviços contratados, acompanha franquia, excedentes, plano, faturas e atendimento. |
+| Administrador | Configura catálogo, planos, serviços, equipe, documentos e campanhas; acompanha empresas, faturas e auditoria. A permissão financeira é concedida à parte. |
+| Vendedor | Cadastra e mantém as empresas da própria carteira, acompanha o consumo delas e a própria comissão. |
+| Empresa cliente | Consulta os serviços contratados, acompanha plano, franquia, consumo e faturas, e aceita os documentos exigidos. |
 
-As contas de operação (admin e vendedor) ficam na tabela staff; empresas ficam
-em clientes. As tabelas, guards, políticas e sessões são separados. Um papel
-nunca obtém acesso a rotas, registros ou indicadores de outro papel sem permissão
-explícita.
+As contas de operação (administrador e vendedor) ficam na tabela `staff`;
+empresas ficam em `clientes`. As tabelas, guards, políticas e sessões são
+separados. Um papel nunca obtém acesso a rotas, registros ou indicadores de
+outro papel sem permissão explícita.
 
-Hoje existem dois papéis de operação, administrador e vendedor. A separação entre
-comercial, financeiro, operação e superadmin ainda não foi feita: confirmar
-pagamento e mexer no catálogo dependem do mesmo administrador genérico.
+### A separação é física, e não condicional
 
-A separação de telas é física, e não condicional. O vendedor tem uma tela própria,
-a carteira, em vez de ver as telas de administração com campos escondidos. Custo
-do fornecedor, lucro e margem não passam por ela, e a carteira exibida é sempre a
-de quem está autenticado: não há parâmetro de rota que escolha vendedor, então não
-há endereço que peça a de outro.
+O vendedor tem telas próprias, e não as telas de administração com campos
+escondidos. Custo do fornecedor, lucro e margem não passam por elas.
 
-Trocar o papel de alguém revoga as sessões abertas dessa conta. Sem isso a pessoa
-continuaria com a permissão antiga até o cookie expirar.
+Reaproveitar a mesma tela com condicionais deixaria cada campo novo a um `@if`
+de distância de vazar. Há teste afirmando que as palavras custo, lucro e margem
+não aparecem na carteira nem no portal do cliente.
+
+A carteira exibida é sempre a de quem está autenticado: não existe parâmetro de
+rota que escolha o vendedor, então não há endereço que peça a de outro. Trocar o
+papel de alguém revoga as sessões abertas dessa conta, senão ela continuaria com
+a permissão antiga até o cookie expirar.
+
+### Permissão financeira
+
+Confirmar pagamento libera comissão sem que dinheiro tenha entrado, e fechar
+competência emite cobrança. Não é o mesmo tipo de decisão que renomear um
+serviço, e por isso não depende da mesma permissão.
+
+Ela **nasce negada** e é concedida uma a uma no cadastro da equipe. O
+superusuário passa por cima, e o vendedor nunca recebe, mesmo com a marca ligada
+por engano.
+
+Faltam ainda os papéis **comercial** e **operação**, previstos e não construídos:
+hoje quem cuida de cadastro tem o mesmo alcance de quem mexe no catálogo.
+
+### O que cada papel vê
+
+| Informação | Administrador | Vendedor | Empresa |
+| --- | --- | --- | --- |
+| Preço de venda | sim | somente da carteira dele | do que contratou |
+| Custo do fornecedor | sim | **nunca** | **nunca** |
+| Margem e lucro | sim | **nunca** | **nunca** |
+| Comissão | de todos | a própria | **nunca** |
+| Fatura | de todas | da carteira dele | as próprias |
+| Consulta e resultado | metadados | metadados da carteira | as próprias, íntegras |
+| Trilha de auditoria | sim | não | não |
+
+Onde está escrito **nunca**, é regra de produto e não de conveniência: o custo
+do fornecedor é o que sustenta a negociação de reajuste, e a margem revelada ao
+vendedor muda o que ele aceita conceder.
+
+### Lacunas conhecidas de visão
+
+- O painel inicial mostra os mesmos números para administrador e vendedor, apenas
+  filtrados. São trabalhos diferentes e merecem indicadores diferentes.
+- O vendedor vê "a receber" e "vencido", que é dinheiro da Avalia e não dele.
+- O vendedor não enxerga o cliente prestes a ser bloqueado, sendo ele quem
+  deveria ligar antes.
+- Não existe ficha de cliente para o vendedor, porque a ficha atual carrega custo
+  e lucro.
+- O superusuário não tem indicação visual de que está usando um acesso que ignora
+  permissões.
 
 ## 4. Jornada de cliente
 
@@ -521,6 +563,29 @@ resultado de crédito na URL.
 Posteriormente, chamados internos podem incluir status, responsável, prazo e
 histórico, sem substituir o canal principal.
 
+### Comunicação entre os papéis
+
+Hoje nenhum papel fala com outro dentro do sistema. Vendedor, administração e
+empresa se combinam por fora, e nada disso fica no registro: quem prometeu o quê
+some junto com a conversa.
+
+O que precisa existir, em ordem de falta:
+
+| Quem avisa | Quem recebe | Sobre o quê |
+| --- | --- | --- |
+| Sistema | Empresa | Fatura emitida, vencimento próximo, bloqueio e desbloqueio |
+| Sistema | Vendedor | Cliente dele pagou, atrasou ou está a caminho do bloqueio |
+| Sistema | Vendedor | Mudança na comissão dele, porque muda o que ele recebe |
+| Sistema | Administração | Baixa manual, concessão de permissão financeira, falha de cobrança |
+| Vendedor | Administração | Pedido de remoção de empresa com fatura emitida |
+| Administração | Vendedor | Retorno sobre o pedido |
+
+Falta também o histórico de contato por empresa: quem ligou, quando, o que ficou
+combinado. Sem ele, a informação vive na memória de quem atendeu, e a carteira
+não sobrevive à troca de vendedor.
+
+O aceite do contrato não avisa ninguém. A empresa aceita e nada indica que ela já
+pode operar, então a ativação continua dependendo de alguém conferir à mão.
 ### Base de implementação
 
 Uma seção administrativa disponibiliza versões controladas de PDFs:
@@ -539,16 +604,59 @@ registram a versão usada e os valores comerciais congelados. Nesta fase,
 documentos são disponibilizados para download e aceite; assinatura eletrônica
 integrada fica fora do escopo inicial.
 
-## 12. Painéis e BI
+## 12. Painéis, indicadores e BI
 
-| Painel | Conteúdo |
+### Um painel por trabalho, e não um painel filtrado
+
+Administrador e vendedor fazem trabalhos diferentes. Mostrar a mesma lista de
+números para os dois, mudando apenas o filtro, obriga cada um a ignorar metade da
+tela e ensina os dois a não olhar.
+
+| Painel | Pergunta que ele responde |
 | --- | --- |
-| Administração | Consumo por cliente, vendedor, base, serviço e competência; faturamento previsto e realizado; inadimplência; margem; comissões; campanhas; cobranças Asaas e integrações pendentes. |
-| Vendedor | Carteira, consumo de clientes, previsão de ganhos, participação na adesão, situação de pagamento, metas, campanhas e bases liberadas. |
-| Cliente | Plano, consumo, franquia, consultas disponíveis, excedentes, serviços, faturas e atendimento. |
+| Administração | A operação está saudável? Quanto entra, quanto sai, quem está devendo e qual margem sobrou. |
+| Vendedor | Minha carteira está bem? Quem consome, quem parou de consumir, quem vai ser bloqueado e quanto eu ganhei. |
+| Empresa cliente | Estou usando o que contratei? Quanto já consumi, quanto falta para o mínimo, quanto vou pagar e o que ainda tenho de franquia. |
 
-As métricas possuem filtros por período, vendedor, cliente, serviço, base,
-campanha e situação financeira, sempre respeitando permissões.
+### O que cada um precisa ver, e hoje não vê
+
+**Administração**: custo total pago ao fornecedor no mês, que é a segunda maior
+conta da empresa e só aparece linha a linha na matriz; comissão a repassar aberta
+por vendedor; tempo de resposta e taxa de falha do fornecedor, que já estão
+gravados em cada consulta e não aparecem em lugar nenhum.
+
+**Vendedor**: clientes que caem de consumo, clientes a caminho do bloqueio,
+demonstrativo de repasse por competência para conferir e emitir nota, e a base
+sobre a qual a comissão dele incidiu, não só o valor.
+
+**Empresa cliente**: preço unitário antes de consultar, quanto falta para atingir
+o consumo mínimo, franquia restante por serviço, previsão da fatura do mês e a
+composição da fatura fechada, que já existe em `itens_fatura` e não é usada.
+
+### Indicadores de negócio
+
+Estes respondem se o negócio anda, e não se o mês fechou:
+
+| Indicador | Por que importa |
+| --- | --- |
+| Receita recorrente mensal | Base de tudo: mensalidade mais consumo previsível. |
+| Cancelamento no período | Um cliente que sai custa mais que dois que entram. |
+| Receita média por empresa | Mostra se a estratégia de faixas está funcionando. |
+| Margem realizada por empresa | A calculadora simula; isto mostra o que aconteceu de fato. |
+| Serviços por receita e por margem | Quais consultas puxam dinheiro e quais podem sair do catálogo. |
+| Tempo médio de contrato | Diz se a vigência está segurando alguém. |
+
+### Quando vale a pena construir BI
+
+**Não agora.** Com um punhado de clientes, série histórica, coorte e tendência não
+dizem nada que uma consulta ao banco não responda, e custam manutenção contínua.
+
+O corte sugerido é o **décimo cliente pagante**. Até lá, o que vale é exportar os
+números para planilha, porque a decisão sai de uma reunião e não de um gráfico.
+
+O que **não** pode esperar é a série histórica existir: hoje todos os indicadores
+são do mês corrente, e sem guardar o fechamento de cada competência não haverá
+passado para comparar quando a comparação passar a importar.
 
 ## 13. Dados e entidades
 
@@ -615,6 +723,22 @@ falhas, logs seguros e documentação de operação.
 - **Levantar o custo do fornecedor dos serviços veiculares.** Os 26 serviços de
   crédito já estão com custo cadastrado; os veiculares não, e por isso ficam de
   fora da visualização de margem e do cálculo de piso.
+- **Virada de plano no meio do mês.** Cliente muda de faixa no dia 12: cobra
+  proporcional, cobra a faixa nova pelo mês inteiro ou cobra a antiga e passa a
+  nova a valer no mês seguinte? A resposta muda a fatura e o discurso de venda.
+- **Vigência não tem efeito.** Está gravada e ninguém verifica se venceu, nem
+  avisa renovação. Contrato de 12 meses que passa despercebido é desconto dado
+  sem contrapartida.
+- **Carência especial não faz nada.** Três meses de avaliação é regra escrita e
+  sem código.
+- **Cancelamento de contrato não existe.** Marcar como inativo não encerra
+  vigência, não emite fatura final e não avisa o vendedor.
+- **Consulta duplicada.** Mesmo documento, mesmo serviço, dois minutos depois:
+  cobra de novo ou reaproveita? É diferente da retenção: aqui é sobre cobrar
+  duas vezes pela mesma informação.
+- **Prazo de reconsulta gratuita**, se houver, precisa de número.
+- **Reajuste anual.** O catálogo se reajusta; falta dizer se contrato vigente
+  acompanha ou fica congelado até a renovação.
 - Homologar comercialmente os preços dos anexos A e B e a margem sobre o custo do fornecedor.
 - Definir a quantidade incluída na franquia de cada serviço, por faixa.
 - Definir quais serviços dos anexos entram no catálogo inicial e quais ficam desativados.
@@ -698,6 +822,147 @@ contratos e homologação dos bureaus são externos e indispensáveis para ativ�
 não há registro manual de consulta como substituto. A emissão real de cobrança
 também requer credenciais Asaas e URL pública para o webhook. O pagamento de
 repasses e a assinatura eletrônica são operações externas ainda sem integração.
+
+## 18. Glossário e nomenclatura
+
+Seis conceitos deste produto têm significado preciso e nome parecido. Sem uma
+decisão escrita, cada tela nova reinventa como chamá-los, e o operador aprende
+que a mesma coisa muda de nome conforme onde ele clica.
+
+### Glossário
+
+| Termo | O que é |
+| --- | --- |
+| Catálogo | A tabela de preços da Avalia. Uma só, editável, sem versionamento. |
+| Serviço | Uma consulta vendável, com código imutável e nome comercial da Avalia. |
+| Faixa | Um degrau de consumo mínimo. Define a coluna de preços que vale para a empresa. |
+| Plano | O que a empresa contrata: uma faixa, uma mensalidade e as franquias. |
+| Franquia | Quantidade de consultas de um serviço já inclusa na mensalidade. Conta em unidades, não em reais. |
+| Consumo mínimo | Piso de **cobrança**, não de consumo. A empresa paga o maior entre o consumido e o contratado. |
+| Excedente | O que passou da franquia contratada e por isso é cobrado. |
+| Competência | O mês de referência do consumo, no formato AAAA-MM. |
+| Fatura | A competência fechada, com a cascata congelada. |
+| Cobrança | O documento de pagamento gerado a partir da fatura. |
+| Piso de preço | O menor preço que paga fornecedor e imposto sem prejuízo. Calculado, nunca cadastrado. |
+| Margem | O que sobra para a Avalia depois de imposto, fornecedor e comissão. |
+| Adesão | Taxa de entrada, parcelável, rateada meio a meio com o vendedor. |
+| Carteira | O conjunto de empresas de um vendedor. |
+| Retenção | Prazo até a resposta do bureau ser apagada. São 180 dias. |
+
+### Como chamar cada coisa
+
+A regra geral: **código em português sem acento, tela em português correto**, e o
+nome na tela muda conforme quem lê.
+
+| Conceito | No código | Para a administração | Para o vendedor | Para a empresa |
+| --- | --- | --- | --- | --- |
+| Empresa contratante | `Cliente` | Empresa | Cliente da carteira | (ela mesma) |
+| Fatura paga | `liquidado` | Paga | Comissão liberada | Paga |
+| Fatura em aberto | `pendente` | Em aberto | Aguardando pagamento | Em aberto |
+| Fatura vencida | `vencido` | Vencida | Vencida | Em atraso |
+| Consulta que deu certo | `sucesso` | Concluída | Concluída | Concluída |
+| Consulta que falhou | `falha` | Não concluída | Não concluída | Não concluída, sem cobrança |
+| Consumo acima da franquia | `excedente` | Excedente | Excedente | Consumo além do incluído |
+
+### Decisões de nomenclatura
+
+- **Empresa** é o nome na tela; `Cliente` é o nome no código. A rota `/empresas`
+  segue a tela. Não usar "cliente" em texto de administração para não confundir
+  com o consumidor final consultado.
+- **Valor interno nunca aparece na tela.** `liquidado`, `pendente` e `sucesso` são
+  chaves de banco, e o operador não deve aprender o vocabulário do esquema.
+- **Plano precisa de nome comercial.** "Consumo mínimo R$ 900,00" descreve o campo,
+  não o produto. Nome que se venda, com a faixa como atributo ao lado.
+- **A aba de preços do módulo Catálogo chama-se Preços**, e não Catálogo, para não
+  repetir o nome do módulo dentro dele.
+- **Jargão financeiro fica na administração.** "Liquidado" não vai para o portal
+  do cliente nem para a carteira.
+
+## 19. Backlog priorizado
+
+O que falta, na ordem em que atrapalha. A régua é operação enxuta: o que exige
+alguém disponível para atender à mão vem antes do que exige alguém para manter.
+
+### Antes de vender para o primeiro cliente
+
+Sem isto, a operação depende de você atender chamado no lugar do sistema.
+
+1. **Recuperação de senha.** Hoje quem esquece depende de alguém editar o cadastro.
+2. **E-mails transacionais.** A aplicação não envia um e-mail sequer: fatura
+   emitida, vencimento próximo, bloqueio e desbloqueio são silenciosos.
+3. **Aviso entre o vencimento e o bloqueio.** A regra prevê avisar; hoje o cliente
+   descobre no dia 20, quando para de consultar.
+4. **Limite de requisição nas consultas.** Um laço mal escrito do lado do cliente
+   gera milhares de consultas pagas antes de alguém ver.
+5. **Teto de consumo por empresa.** Protege os dois lados de um mês fora da curva.
+6. **Monitoramento das rotinas noturnas.** Falha silenciosa em cobrança é a pior
+   categoria de erro que existe aqui.
+7. **Preço visível antes de consultar** e **quanto falta para o mínimo**, no portal.
+   Os dados já existem no banco; sem eles o cliente opera no escuro.
+8. **Reemissão de cobrança.** Se a criação no provedor falha, hoje fica no log e
+   ninguém tenta de novo: a fatura existe sem cobrança.
+9. **Painel do vendedor separado do painel do administrador.**
+10. **Glossário e nomenclatura aplicados às telas** (seção 18).
+
+### Depois do primeiro cliente pagante
+
+11. Registro de repasse ao vendedor, com data e demonstrativo por competência.
+12. Nota fiscal: número, data e vínculo com a fatura.
+13. Cobrança das parcelas da adesão, que hoje é calculada e nunca cobrada.
+14. Estorno e cancelamento de fatura, que hoje só se resolve no banco.
+15. Conferência de fechamento: soma das faturas contra soma das consultas.
+16. Composição da fatura no portal do cliente, a partir de `itens_fatura`.
+17. Franquia restante por serviço, na tela do cliente.
+18. Previsão da fatura do mês para o cliente.
+19. Ficha do cliente para o vendedor, sem custo e sem margem.
+20. Alerta ao vendedor sobre cliente a caminho do bloqueio.
+21. Duplo fator na administração.
+22. Política de senha forte, com lista de senhas conhecidas.
+23. Cabeçalhos de segurança no HTTP.
+24. Alerta em ação sensível: baixa manual, mudança de comissão, concessão de
+    permissão financeira.
+25. Relatório de consultas por documento, para atender pedido de titular.
+26. Caminho para exclusão a pedido do titular.
+27. Verificação do expurgo: quantas venceram, quantas foram apagadas.
+28. Histórico de contato por empresa.
+29. Observação livre na ficha da empresa.
+30. Exportação de consultas para o cliente conferir o consumo.
+
+### Quando a operação crescer
+
+31. Papéis comercial e operação, separados do administrador.
+32. Registro de sessões ativas e encerramento remoto.
+33. Trilha distinta para uso do superusuário.
+34. Retenção definida para auditoria e faturas, que hoje crescem sem prazo.
+35. Registro de quem leu o resultado de uma consulta.
+36. Prova do conteúdo aceito, e não só da versão do documento.
+37. Histórico de custo do fornecedor, para a margem de ontem não ser recalculada
+    com o custo de hoje.
+38. Índice na trilha de auditoria por entidade.
+39. Consulta em lote por arquivo.
+40. Módulo de atendimento com chamado, responsável e prazo.
+41. Notificação entre papéis dentro do sistema.
+42. Proposta comercial como documento que o cliente assina na tela.
+43. Indicadores de recorrência, cancelamento e receita média.
+44. Ranking de serviços por receita e por margem.
+45. Série histórica dos fechamentos, guardada desde já para existir passado.
+46. Exportação dos indicadores.
+47. Análise estática de tipos no código.
+48. Verificação que falhe quando a documentação citar o que não existe.
+49. Testes das telas de campanhas, documentos e indicadores.
+50. Banco na mesma região da aplicação. Hoje são 172 ms por ida.
+
+### Deliberadamente fora do escopo agora
+
+- **Ambiente de homologação separado.** Custa manutenção contínua e hoje a
+  homologação acontece com dados fictícios em produção, o que é aceitável
+  enquanto não há cliente real.
+- **Fila de processamento.** Só compensa quando o tempo de resposta do fornecedor
+  incomodar de verdade.
+- **BI com coorte e tendência.** Ver seção 12: antes do décimo cliente, planilha
+  responde melhor.
+- **Campanhas.** Ou implementa com efeito em preço e elegibilidade, ou sai do
+  menu. Cadastro que não faz nada ensina o operador a desconfiar do sistema.
 
 ## Anexo A. Preços de referência: crédito
 
