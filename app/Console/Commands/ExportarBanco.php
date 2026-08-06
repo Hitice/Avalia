@@ -26,9 +26,19 @@ use Illuminate\Support\Facades\DB;
  */
 class ExportarBanco extends Command
 {
-    protected $signature = 'avalia:exportar {--saida= : Caminho do arquivo}';
+    protected $signature = 'avalia:exportar {--saida= : Caminho do arquivo} {--reter= : Dias de cópias antigas a manter}';
 
     protected $description = 'Exporta os dados do banco para um arquivo SQL restaurável';
+
+    /**
+     * Por quantos dias a copia diaria fica no disco.
+     *
+     * Duas semanas cobre o caso real de um erro que so e percebido depois: dado
+     * apagado por engano na sexta costuma aparecer na segunda, e uma competencia
+     * fechada errada aparece no fechamento seguinte. Guardar mais nao ajuda,
+     * porque a partir de um ponto o certo e restaurar do backup externo.
+     */
+    public const DIAS_DE_RETENCAO = 14;
 
     /**
      * Tabelas que o destino refaz sozinho.
@@ -95,7 +105,49 @@ class ExportarBanco extends Command
             number_format(filesize($arquivo) / 1024, 1, ',', '.'),
         ));
 
+        // Um arquivo com zero registro nao e backup: e o sinal de que a conexao
+        // caiu no meio, ou de que alguem apontou o comando para o banco errado.
+        // Melhor falhar e a rotina diaria acusar do que guardar um vazio que
+        // parece uma copia.
+        if ($total === 0) {
+            $this->error('Nenhum registro exportado. Confira a conexão antes de confiar neste arquivo.');
+
+            return self::FAILURE;
+        }
+
+        $this->expurgar(dirname($arquivo));
+
         return self::SUCCESS;
+    }
+
+    /**
+     * Apaga copias mais velhas que a retencao.
+     *
+     * Sem isto o disco do servidor enche em silencio, e disco cheio derruba a
+     * aplicacao inteira, nao so o backup. Apaga somente arquivo com o nome que
+     * este comando gera: copia que alguem guardou a mao continua onde esta.
+     */
+    private function expurgar(string $pasta): void
+    {
+        $dias = (int) ($this->option('reter') ?: self::DIAS_DE_RETENCAO);
+
+        if ($dias <= 0) {
+            return;
+        }
+
+        $limite = now()->subDays($dias)->getTimestamp();
+        $apagados = 0;
+
+        foreach (glob($pasta.'/avalia-*.sql') ?: [] as $antigo) {
+            if (filemtime($antigo) < $limite) {
+                unlink($antigo);
+                $apagados++;
+            }
+        }
+
+        if ($apagados > 0) {
+            $this->line("{$apagados} cópia(s) com mais de {$dias} dias apagada(s).");
+        }
     }
 
     /**

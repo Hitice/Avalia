@@ -729,7 +729,10 @@ acesso, retenção e criptografia quando aplicável.
 - Senhas usam hashing do Laravel; sessões são regeneradas e revogáveis por sessao_versao.
 - Limitar login por conta e IP com bloqueio progressivo.
 - Nunca registrar senhas, tokens, autorizações, cookies ou chaves de API em log.
-- Separar segredos por ambiente e validar configuração insegura no deploy.
+- ~~Separar segredos por ambiente e validar configuração insegura no deploy.~~
+  Feito em `avalia:ambiente`, que roda no fim do deploy e impede a versão de
+  subir com depurador ligado, cookie fora de HTTPS, raiz do servidor em `public`
+  ou envio de e-mail desligado.
 - Expurgar resposta de bureau conforme a retenção da seção 5, preservando metadados fiscais e auditoria.
 - Cada consulta deve ter finalidade e responsável rastreáveis.
 - Auditoria não pode impedir a operação principal caso a gravação falhe.
@@ -989,8 +992,11 @@ alguém disponível para atender à mão vem antes do que exige alguém para man
 Cada um protege dinheiro ou impede que um erro chegue em produção, e nenhum leva
 mais de um dia.
 
-1. **Testar restauração de backup.** O Supabase faz backup; ninguém restaurou
-   nenhum. Backup não verificado é fé, não é continuidade.
+1. ~~**Testar restauração de backup.**~~ Feito. `avalia:exportar` e
+   `avalia:importar` não dependem de `pg_dump`, e a restauração num banco vazio
+   foi conferida registro a registro. O que **falta** é o destino externo: a
+   cópia diária das 02:00 fica no mesmo disco que ela protege, o que cobre
+   engano humano e não cobre perda da máquina.
 2. **Estorno com reversão de comissão.** Hoje a comissão liberada não volta
    atrás. É o buraco mais grave do fluxo financeiro.
 3. **Conciliação diária entre faturas e recebimentos do provedor.**

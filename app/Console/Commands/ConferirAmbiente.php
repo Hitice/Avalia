@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Confere a configuracao antes de a aplicacao atender alguem.
+ *
+ * Erro de configuracao nao quebra nada: a tela abre, o login funciona, e a
+ * aplicacao segue servindo com o depurador ligado ou o cookie de sessao viajando
+ * em texto claro. Ninguem descobre olhando, porque nao ha o que olhar.
+ *
+ * Em servidor proprio isso deixa de ser problema do provedor. O que aqui era
+ * padrao seguro da hospedagem gerenciada passa a depender de alguem ter
+ * lembrado, e este comando e o "alguem".
+ *
+ * Roda no fim do deploy. Falha impede a versao nova de entrar no ar, que e
+ * melhor do que subir e descobrir depois.
+ */
+class ConferirAmbiente extends Command
+{
+    protected $signature = 'avalia:ambiente';
+
+    protected $description = 'Verifica se a configuração do ambiente é segura para produção';
+
+    /** @var list<array{item: string, estado: string, detalhe: string}> */
+    private array $achados = [];
+
+    public function handle(): int
+    {
+        $producao = app()->environment('production');
+
+        $this->line('Ambiente: '.app()->environment());
+        $this->newLine();
+
+        $this->segredos($producao);
+        $this->sessao($producao);
+        $this->banco($producao);
+        $this->arquivos();
+        $this->rotinas($producao);
+
+        $this->newLine();
+
+        $falhas = array_filter($this->achados, fn (array $a) => $a['estado'] === 'erro');
+
+        foreach ($this->achados as $achado) {
+            $marca = match ($achado['estado']) {
+                'ok' => '<info>ok  </info>',
+                'erro' => '<error>erro</error>',
+                default => '<comment>  - </comment>',
+            };
+
+            $this->line(sprintf('  %s %-42s %s', $marca, $achado['item'], $achado['detalhe']));
+        }
+
+        $this->newLine();
+
+        if ($falhas !== []) {
+            $this->error(count($falhas).' item(ns) impedem este ambiente de atender em produção.');
+
+            return self::FAILURE;
+        }
+
+        $this->info('Configuração conferida.');
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Registra um item conferido.
+     *
+     * Tres estados, e nao dois. Checagem que so vale em producao aparece como
+     * nao aplicavel em vez de verde: marcar como aprovada uma verificacao que
+     * nao foi feita e o jeito mais rapido de a lista inteira perder o sentido.
+     *
+     * O detalhe so aparece quando explica a falha ou quando e o proprio valor
+     * conferido. Mostrar "APP_DEBUG=true" ao lado de um ok confunde mais do que
+     * informa.
+     */
+    private function anota(string $item, bool $ok, string $detalhe = '', bool $mostrarSempre = false): void
+    {
+        $this->achados[] = [
+            'item' => $item,
+            'estado' => $ok ? 'ok' : 'erro',
+            'detalhe' => (! $ok || $mostrarSempre) ? $detalhe : '',
+        ];
+    }
+
+    /** Item que so faz sentido conferir em producao, e este nao e o caso. */
+    private function pula(string $item): void
+    {
+        $this->achados[] = ['item' => $item, 'estado' => 'pulado', 'detalhe' => 'só em produção'];
+    }
+
+    private function segredos(bool $producao): void
+    {
+        $this->anota('Chave da aplicação definida', config('app.key') !== null && config('app.key') !== '');
+
+        // Depurador ligado imprime a stack, o trecho do arquivo e o conteudo do
+        // ambiente na propria tela de erro. E o vazamento mais barato que existe.
+        $producao
+            ? $this->anota('Depurador desligado', config('app.debug') === false, 'APP_DEBUG=true')
+            : $this->pula('Depurador desligado');
+
+        $url = (string) config('app.url');
+
+        $producao
+            ? $this->anota('Endereço em HTTPS', str_starts_with($url, 'https://'), $url)
+            : $this->pula('Endereço em HTTPS');
+
+        // Servidor apontado para a raiz do projeto em vez de /public deixa .env,
+        // storage e vendor acessiveis pela web.
+        $this->anota(
+            'Raiz do servidor em public',
+            ! str_contains($url, '/public'),
+            str_contains($url, '/public') ? 'APP_URL aponta para /public' : '',
+        );
+    }
+
+    private function sessao(bool $producao): void
+    {
+        // Cookie sem `secure` viaja em texto claro na primeira requisicao HTTP e
+        // e o suficiente para alguem na mesma rede assumir a sessao.
+        $producao
+            ? $this->anota('Cookie de sessão só por HTTPS', config('session.secure') === true, 'SESSION_SECURE_COOKIE=false')
+            : $this->pula('Cookie de sessão só por HTTPS');
+
+        $this->anota(
+            'Cookie inacessível ao navegador',
+            config('session.http_only') === true,
+        );
+
+        $this->anota(
+            'Cookie restrito a este site',
+            in_array(config('session.same_site'), ['strict', 'lax'], true),
+            (string) config('session.same_site'),
+            true,
+        );
+    }
+
+    private function banco(bool $producao): void
+    {
+        $driver = DB::connection()->getDriverName();
+
+        // Conferido so em producao porque a suite roda em SQLite de proposito:
+        // teste em memoria e o que deixa a suite rapida o bastante para rodar a
+        // cada alteracao. O que este item pega e o deploy apontado para MySQL,
+        // onde as migrations nem chegam a subir.
+        $producao
+            ? $this->anota('Banco em PostgreSQL', $driver === 'pgsql', $driver)
+            : $this->pula('Banco em PostgreSQL');
+
+        try {
+            $inicio = microtime(true);
+            DB::select('select 1');
+            $ida = (microtime(true) - $inicio) * 1000;
+
+            // Banco no mesmo servidor responde em fracao de milissegundo. Dezenas
+            // de milissegundos significam banco remoto, e cada tela paga isso
+            // multiplicado pelo numero de consultas dela.
+            $this->anota(
+                'Banco responde',
+                true,
+                number_format($ida, 1, ',', '.').' ms'.($ida > 20 ? '  <comment>banco remoto: cada tela paga isto por consulta</comment>' : ''),
+                true,
+            );
+        } catch (\Throwable $e) {
+            $this->anota('Banco responde', false, $e->getMessage());
+        }
+
+        // Prepare emulado quebra booleano no Postgres, e a suite roda em SQLite,
+        // onde o mesmo SQL funciona: o teste passa e a producao recusa a consulta.
+        $this->anota(
+            'Prepare nativo (não emulado)',
+            ! env('DB_EMULA_PREPARE', false),
+            env('DB_EMULA_PREPARE', false) ? 'DB_EMULA_PREPARE=true' : '',
+        );
+    }
+
+    private function arquivos(): void
+    {
+        foreach (['storage/framework', 'storage/logs', 'bootstrap/cache'] as $pasta) {
+            $this->anota("Gravável: {$pasta}", is_writable(base_path($pasta)));
+        }
+
+        // A pasta de copias tem dado de cliente e hash de senha. Dentro de
+        // public, cada arquivo vira um download aberto.
+        $backup = base_path('backup');
+
+        $this->anota(
+            'Cópias do banco fora de public',
+            ! str_starts_with(realpath($backup) ?: $backup, realpath(public_path()) ?: public_path()),
+        );
+    }
+
+    private function rotinas(bool $producao): void
+    {
+        // Fila em `sync` executa o trabalho dentro da requisicao do usuario: a
+        // tela trava pelo tempo do processamento e a falha vira erro na cara dele.
+        $this->anota(
+            'Fila fora do modo síncrono',
+            ! $producao || config('queue.default') !== 'sync',
+            (string) config('queue.default'),
+            true,
+        );
+
+        // Driver `log` grava a mensagem no arquivo em vez de enviar. Recuperacao
+        // de senha e aviso de vencimento simplesmente nao saem, sem erro nenhum.
+        $producao
+            ? $this->anota('Envio de e-mail configurado', config('mail.default') !== 'log', 'driver "log" não envia nada')
+            : $this->anota('Envio de e-mail configurado', true, (string) config('mail.default'), true);
+    }
+}

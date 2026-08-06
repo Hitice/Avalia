@@ -53,3 +53,20 @@ Schedule::command('avalia:conferir')
     ->name('financeiro:conferencia')
     ->dailyAt('04:00')
     ->withoutOverlapping();
+
+/*
+ * Copia diaria do banco.
+ *
+ * Em servidor proprio o backup deixa de ser do provedor e passa a ser nosso.
+ * Roda as 02:00, antes do expurgo das 03:00: assim a copia do dia ainda tem a
+ * resposta que o expurgo vai apagar, e um pedido de titular respondido tarde
+ * ainda encontra o dado.
+ *
+ * A copia fica no disco do proprio servidor, o que cobre engano humano e nao
+ * cobre perda da maquina. Backup de verdade exige a copia sair daqui, e isso
+ * depende de destino externo contratado (PDD, secao 19).
+ */
+Schedule::command('avalia:exportar')
+    ->name('banco:copia')
+    ->dailyAt('02:00')
+    ->withoutOverlapping();
