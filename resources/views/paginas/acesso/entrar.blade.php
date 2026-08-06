@@ -192,7 +192,7 @@
                     <span class="mb-4 text-4xl leading-none font-semibold tracking-tight text-white">
                         Avalia<span class="text-gray-400">one</span>
                     </span>
-                    <p class="text-center text-gray-400 dark:text-white/60">
+                    <p class="text-center text-white/95">
                         Segurança para suas melhores escolhas.
                     </p>
                 </div>
