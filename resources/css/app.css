@@ -589,18 +589,6 @@
   to   { transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
 }
 
-/* Uma consulta do carrossel: desliza ao aparecer. Quem decide qual aparece e
-   o Alpine, que tambem sabe de clique nas setinhas; o CSS so anima a entrada,
-   e por isso a animacao e de disparo unico. */
-@utility consulta-entra {
-  animation: consulta-entra 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes consulta-entra {
-  from { opacity: 0; transform: translateX(36px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
 /* A pontuacao com a cor de bureau, contando do zero ate o alvo enquanto o
    ponteiro faz a leitura. A propriedade registrada e o que permite interpolar
    o inteiro; o counter escreve o valor a cada quadro. O alvo de cada consulta
@@ -679,10 +667,8 @@
   .flutua { animation: none; }
   .flutua-alto { animation: none; }
 
-  /* Sem movimento: consulta ja no lugar, numero e barra no valor final. O
-     auto-avanco tambem para (o script le a mesma preferencia); as setinhas
-     continuam funcionando. */
-  .consulta-entra { animation: none; }
+  /* Sem movimento: numero e barra no valor final. O auto-avanco tambem para
+     (o script le a mesma preferencia); as setinhas continuam funcionando. */
   .barra-cresce { animation: none; transform: scaleX(1); }
   .numero-conta { animation: none; --pontos: var(--alvo); }
 }

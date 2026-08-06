@@ -66,8 +66,8 @@
              arrasto: 0,
              inicioX: null,
              idxPilar() { return Math.max(0, this.pilares.indexOf(this.aberto)) },
-             anteriorPilar() { this.aberto = this.pilares[(this.idxPilar() + 2) % 3] },
-             proximoPilar() { this.aberto = this.pilares[(this.idxPilar() + 1) % 3] },
+             anteriorPilar() { if (this.idxPilar() > 0) this.aberto = this.pilares[this.idxPilar() - 1] },
+             proximoPilar() { if (this.idxPilar() < 2) this.aberto = this.pilares[this.idxPilar() + 1] },
              comecaArrasto(e) { this.inicioX = e.clientX },
              moveArrasto(e) { if (this.inicioX !== null) this.arrasto = e.clientX - this.inicioX },
              soltaArrasto() {
@@ -139,10 +139,27 @@
                          this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
+                     rastreia(e) {
+                         const r = this.$el.getBoundingClientRect();
+                         const est = getComputedStyle(this.$el);
+                         const px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
+                         const py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
+                         const c = this.$refs.cursor;
+                         if (! c) return;
+                         c.style.width = (px - 1) + 'px';
+                         c.style.height = (py - 1) + 'px';
+                         c.style.transform = `translate(${Math.floor((e.clientX - r.left) / px) * px + 1}px, ${Math.floor((e.clientY - r.top) / py) * py + 1}px)`;
+                         c.style.opacity = '1';
+                     },
+                     esconde() { if (this.$refs.cursor) this.$refs.cursor.style.opacity = '0' },
                  }"
-                 x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
+                 x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)"
+                 @mousemove="rastreia($event)" @mouseleave="esconde()">
             <div aria-hidden="true" class="pointer-events-none absolute inset-0">
-                @foreach ($celulas as $celula)
+                <span x-ref="cursor" aria-hidden="true"
+                          class="pointer-events-none absolute top-0 left-0 rounded-[2px] bg-brand-400/25 opacity-0"
+                          style="transition: opacity 0.35s ease, transform 0.12s ease-out"></span>
+                    @foreach ($celulas as $celula)
                     <span class="celula-viva"
                           style="top: calc(var(--passo-y, 42px) * {{ $celula['top'] }} + 1px); left: calc(var(--passo-x, 42px) * {{ $celula['left'] }} + 1px); animation-delay: {{ $celula['atraso'] }}"></span>
                 @endforeach
@@ -235,15 +252,26 @@
                          },
                          recomeca() {
                              clearInterval(this.compasso);
-                             this.compasso = setInterval(() => this.avanca(1, false), 4200);
+                             this.compasso = setInterval(() => this.avanca(1, false), 4600);
                          },
                          avanca(passo, manual = true) {
                              this.atual = (this.atual + passo + 4) % 4;
+                             this.reanima();
                              if (manual) this.recomeca();
                          },
                          vaiPara(indice) {
                              this.atual = indice;
+                             this.reanima();
                              this.recomeca();
+                         },
+                         reanima() {
+                             const slide = this.$refs.trilho?.children[this.atual];
+                             if (! slide) return;
+                             slide.querySelectorAll('.numero-conta, .barra-cresce, .medidor-nivel-faixa, .medidor-nivel-ponteiro').forEach((el) => {
+                                 el.style.animation = 'none';
+                                 void el.offsetWidth;
+                                 el.style.animation = '';
+                             });
                          },
                      }" x-init="iniciar()">
                     <div class="relative z-10 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-theme-lg dark:border-gray-700 dark:bg-gray-800/70">
@@ -273,15 +301,16 @@
                             </svg>
                         </button>
 
-                        <div class="relative mx-7 mt-4 mb-2 h-[150px]">
+                        <div class="relative mx-7 mt-4 mb-2 h-[150px] overflow-hidden">
+                            <div x-ref="trilho" class="flex h-full transition-transform duration-[800ms] ease-out"
+                                 :style="`transform: translateX(${-atual * 100}%)`">
                             @foreach ([
                                 ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
                                 ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
                                 ['tipo' => 'CNPJ', 'nome' => 'Reparo Tecnologia', 'doc' => '98.765.432/0001-**', 'pontos' => 823, 'faixa' => 82],
                                 ['tipo' => 'CPF', 'nome' => 'Helena Duarte', 'doc' => '***.157.204-**', 'pontos' => 597, 'faixa' => 60],
                             ] as $i => $consulta)
-                                <div x-cloak x-show="atual === {{ $i }}"
-                                     class="consulta-entra absolute inset-0 px-1"
+                                <div class="relative h-full w-full shrink-0 px-1"
                                      style="--nivel: {{ $consulta['pontos'] / 1000 }}">
                                     {{-- O instrumento no centro do palco... --}}
                                     <div class="absolute inset-x-0 top-0 flex justify-center">
@@ -308,6 +337,7 @@
                                     </div>
                                 </div>
                             @endforeach
+                            </div>
                         </div>
 
                         <div class="mt-2 mb-3 flex items-center justify-center gap-1.5">
@@ -397,9 +427,26 @@
                          this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
-                 }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
+                     rastreia(e) {
+                         const r = this.$el.getBoundingClientRect();
+                         const est = getComputedStyle(this.$el);
+                         const px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
+                         const py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
+                         const c = this.$refs.cursor;
+                         if (! c) return;
+                         c.style.width = (px - 1) + 'px';
+                         c.style.height = (py - 1) + 'px';
+                         c.style.transform = `translate(${Math.floor((e.clientX - r.left) / px) * px + 1}px, ${Math.floor((e.clientY - r.top) / py) * py + 1}px)`;
+                         c.style.opacity = '1';
+                     },
+                     esconde() { if (this.$refs.cursor) this.$refs.cursor.style.opacity = '0' },
+                 }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)"
+                 @mousemove="rastreia($event)" @mouseleave="esconde()">
 
                 <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+                    <span x-ref="cursor" aria-hidden="true"
+                          class="pointer-events-none absolute top-0 left-0 rounded-[2px] bg-brand-400/25 opacity-0"
+                          style="transition: opacity 0.35s ease, transform 0.12s ease-out"></span>
                     @foreach ([[0, 1, '0s'], [1, 0, '1.2s'], [2, 2, '2.1s'], [1, 3, '3.3s'], [3, 1, '4.4s'], [0, 4, '5s']] as [$col, $lin, $atraso])
                         <span class="celula-viva"
                               style="right: calc(var(--passo-x, 42px) * {{ $col }} + 1px); bottom: calc(var(--passo-y, 42px) * {{ $lin }} + 1px); animation-delay: {{ $atraso }}"></span>
@@ -465,13 +512,13 @@
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Sobre a Avalia">
             <div class="relative w-full max-w-4xl">
-                <button type="button" @click="anteriorPilar()" aria-label="Assunto anterior"
+                <button type="button" x-show="idxPilar() > 0" @click="anteriorPilar()" aria-label="Assunto anterior"
                         class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
                     <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-                <button type="button" @click="proximoPilar()" aria-label="Próximo assunto"
+                <button type="button" x-show="idxPilar() < 2" @click="proximoPilar()" aria-label="Próximo assunto"
                         class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
                     <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -484,14 +531,14 @@
                     </svg>
                 </button>
 
-                <div class="entra-popup touch-pan-y overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg select-none dark:border-gray-700 dark:bg-gray-800"
+                <div class="entra-popup touch-pan-y select-none"
                      @pointerdown="comecaArrasto($event)" @pointermove="moveArrasto($event)"
                      @pointerup="soltaArrasto()" @pointercancel="soltaArrasto()" @pointerleave="soltaArrasto()">
-                    <div class="flex items-stretch"
-                         :class="inicioX === null ? 'transition-transform duration-500 ease-out' : 'transition-none'"
-                         :style="`transform: translateX(calc(${-idxPilar() * 100}% + ${arrasto}px))`">
+                    <div class="flex items-stretch gap-8"
+                         :class="inicioX === null ? 'transition-transform duration-700 ease-out' : 'transition-none'"
+                         :style="`transform: translateX(calc(${-idxPilar()} * (100% + 2rem) + ${arrasto}px))`">
                         @foreach ($pilares as $chave => $pilar)
-                            <div class="flex w-full shrink-0 flex-col">
+                            <div class="flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
                                 <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
                                     <div class="flex items-start justify-between">
                                         <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">

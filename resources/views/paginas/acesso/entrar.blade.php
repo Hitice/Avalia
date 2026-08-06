@@ -157,7 +157,24 @@
                          this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
-                 }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
+                     rastreia(e) {
+                         const r = this.$el.getBoundingClientRect();
+                         const est = getComputedStyle(this.$el);
+                         const px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
+                         const py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
+                         const c = this.$refs.cursor;
+                         if (! c) return;
+                         c.style.width = (px - 1) + 'px';
+                         c.style.height = (py - 1) + 'px';
+                         c.style.transform = `translate(${Math.floor((e.clientX - r.left) / px) * px + 1}px, ${Math.floor((e.clientY - r.top) / py) * py + 1}px)`;
+                         c.style.opacity = '1';
+                     },
+                     esconde() { if (this.$refs.cursor) this.$refs.cursor.style.opacity = '0' },
+                 }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)"
+                 @mousemove="rastreia($event)" @mouseleave="esconde()">
+                <span x-ref="cursor" aria-hidden="true"
+                      class="pointer-events-none absolute top-0 left-0 z-[2] rounded-[2px] bg-white/15 opacity-0"
+                      style="transition: opacity 0.35s ease, transform 0.12s ease-out"></span>
 
                 {{-- A foto por baixo de tudo, com o veu da marca por cima:
                      e ela que da vida ao painel, mas quem manda na leitura
