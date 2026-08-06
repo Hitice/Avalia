@@ -204,7 +204,7 @@
 
                      Vidro de volta: com os chips fora da janela, a
                      translucidez sobre a grade viva e contraste, nao ruido. --}}
-                <div class="entra-suave relative mx-auto w-full max-w-[30rem] pt-12 lg:mr-0 lg:ml-auto" style="animation-delay: 0.25s"
+                <div class="entra-suave relative mx-auto w-full max-w-[34rem] pt-12 lg:mr-0 lg:ml-auto" style="animation-delay: 0.25s"
                      x-data="{
                          atual: 0,
                          compasso: null,
@@ -227,7 +227,7 @@
                          },
                      }" x-init="iniciar()">
                     <div class="relative z-10 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-theme-lg dark:border-gray-700 dark:bg-gray-800/70">
-                        <div class="border-b border-gray-100 px-6 py-2.5 dark:border-gray-700">
+                        <div class="border-b border-gray-100 px-7 py-3.5 dark:border-gray-700">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Painel de consultas</span>
                         </div>
 
@@ -253,7 +253,7 @@
                             </svg>
                         </button>
 
-                        <div class="relative mx-6 mt-3 mb-1 h-[132px]">
+                        <div class="relative mx-7 mt-4 mb-2 h-[150px]">
                             @foreach ([
                                 ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
                                 ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
@@ -272,7 +272,7 @@
                                     </div>
 
                                     <div class="shrink-0">
-                                        <x-avalia.medidor :tamanho="112" por-nivel />
+                                        <x-avalia.medidor :tamanho="128" por-nivel />
                                     </div>
 
                                     <div class="shrink-0 text-right">
@@ -288,7 +288,7 @@
                             @endforeach
                         </div>
 
-                        <div class="mt-1.5 mb-2.5 flex items-center justify-center gap-1.5">
+                        <div class="mt-2 mb-3 flex items-center justify-center gap-1.5">
                             @foreach (range(0, 3) as $ponto)
                                 <button type="button" @click="vaiPara({{ $ponto }})"
                                         aria-label="Ver consulta {{ $ponto + 1 }}"
@@ -299,7 +299,7 @@
 
                         {{-- Rodape da janela: a acao que o cliente faria em
                              seguida. Parte da simulacao, como o resto. --}}
-                        <div class="flex items-center justify-between border-t border-gray-100 px-6 py-2.5 dark:border-gray-700" aria-hidden="true">
+                        <div class="flex items-center justify-between border-t border-gray-100 px-7 py-3.5 dark:border-gray-700" aria-hidden="true">
                             <span class="inline-flex cursor-default items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 dark:border-gray-600 dark:text-gray-300">
                                 <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
