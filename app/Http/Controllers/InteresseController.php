@@ -37,7 +37,11 @@ class InteresseController extends Controller
             'funcionarios.required' => 'Escolha uma faixa.',
         ]);
 
-        Interessado::create($dados + ['origem' => 'campanha']);
+        // De onde o pedido veio, para saber qual porta converte. Lista
+        // fechada: origem e rotulo nosso, nao campo livre de formulario.
+        $origem = $pedido->input('origem') === 'login' ? 'login' : 'campanha';
+
+        Interessado::create($dados + ['origem' => $origem]);
 
         return back()->with('interesse_ok', true);
     }

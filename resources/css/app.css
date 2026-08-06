@@ -667,13 +667,6 @@
   animation: entra-popup 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Botao rosa da marca: a cor do falar com a gente, distinta do azul de acao
-   do produto. O tema so define o tom 500, entao o hover escurece por opacidade
-   em vez de inventar um 600 fora do mapa. */
-@utility botao-rosa {
-  @apply bg-theme-pink-500 text-white hover:bg-theme-pink-500/90;
-}
-
 /* Convite de rolagem: a setinha balanca para baixo, no mesmo padrao das
    setinhas do carrossel. */
 @utility balanca {

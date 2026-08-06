@@ -1,7 +1,12 @@
 @extends('layouts.fullscreen-layout', ['title' => 'Entrar'])
 
 @section('content')
-    <div class="relative z-1 bg-white p-6 sm:p-0 dark:bg-gray-900">
+    {{-- O pedido de cadastro abre em modal aqui mesmo: quem chegou ate o
+         login nao e mandado de volta para a pagina publica. Os erros de
+         validacao do proprio pedido reabrem o modal; os do login, nao. --}}
+    <div class="relative z-1 bg-white p-6 sm:p-0 dark:bg-gray-900"
+         x-data="{ cadastro: {{ session('interesse_ok') || $errors->hasAny(['nome', 'empresa', 'telefone', 'funcionarios']) ? 'true' : 'false' }} }"
+         @keydown.escape.window="cadastro = false">
         {{-- Claro e escuro no canto superior esquerdo: esta tela nao tem
              header, entao o interruptor mora solto na moldura. --}}
         <button @click="$store.theme.toggle()" aria-label="Alternar tema"
@@ -46,14 +51,14 @@
                         </div>
                     @endif
 
-                    @error('email')
+                    @if ($errors->has('email') && ! $errors->hasAny(['empresa', 'funcionarios']))
                         <div class="mb-5 flex items-start gap-3 rounded-lg border border-error-300 bg-error-50 p-4 text-sm text-error-700 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-400">
                             <svg class="mt-0.5 size-5 shrink-0 fill-current" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 7a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
                             </svg>
-                            <span>{{ $message }}</span>
+                            <span>{{ $errors->first('email') }}</span>
                         </div>
-                    @enderror
+                    @endif
 
                     {{-- action e autocomplete explicitos: sem eles o Chrome nao
                          oferece salvar a senha.
@@ -127,7 +132,7 @@
 
                     <p class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
                         Novo por aqui?
-                        <a href="{{ route('inicio', ['interesse' => 1]) }}"
+                        <a href="{{ route('inicio', ['interesse' => 1]) }}" @click.prevent="cadastro = true"
                            class="text-brand-600 hover:text-brand-700 font-medium dark:text-brand-400 dark:hover:text-brand-300">
                             Solicite seu cadastro.
                         </a>
@@ -159,8 +164,8 @@
                      continua sendo o azul, a grade e a marca. --}}
                 <img src="/images/entrar-fundo.png" alt="" draggable="false"
                      class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
-                <div aria-hidden="true" class="pointer-events-none absolute inset-0 backdrop-blur-[3px]"
-                     style="background: linear-gradient(to top right, rgb(22 25 80 / 0.96) 0%, rgb(22 25 80 / 0.62) 32%, rgb(22 25 80 / 0.28) 50%, rgb(22 25 80 / 0.62) 68%, rgb(22 25 80 / 0.96) 100%)"></div>
+                <div aria-hidden="true" class="pointer-events-none absolute inset-0"
+                     style="background: linear-gradient(to top right, rgb(22 25 80 / 0.96) 0%, rgb(22 25 80 / 0.7) 32%, rgb(22 25 80 / 0.5) 50%, rgb(22 25 80 / 0.7) 68%, rgb(22 25 80 / 0.96) 100%)"></div>
 
                 {{-- A grade sobe para uma camada propria: como fundo do painel
                      ela ficaria escondida atras da foto. --}}
@@ -179,7 +184,7 @@
                     @endforeach
                 </div>
 
-                <div class="z-1 flex max-w-xs flex-col items-center">
+                <div class="z-1 flex max-w-xs flex-col items-center [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
                     <x-avalia.medidor :tamanho="120" por-nivel class="mb-3" style="--nivel: 0.82" />
                     {{-- So o wordmark: o simbolo ja esta logo acima, em
                          tamanho grande, e repetir o gauge pequeno na logo
@@ -190,6 +195,109 @@
                     <p class="text-center text-gray-400 dark:text-white/60">
                         Segurança para suas melhores escolhas.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal do pedido de cadastro: mesmo formulario da campanha, mesma
+             fila no painel da administracao, origem propria. --}}
+        <div x-cloak x-show="cadastro" x-transition.opacity.duration.300ms
+             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
+             @click.self="cadastro = false" role="dialog" aria-modal="true" aria-label="Pedido de cadastro">
+            <div class="relative w-full max-w-md">
+                <button type="button" @click="cadastro = false" aria-label="Fechar"
+                        class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
+                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
+
+                <div class="entra-popup max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                    @if (session('interesse_ok'))
+                        <div class="py-4 text-center">
+                            <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
+                                <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <h3 class="mt-4 text-xl font-semibold text-gray-800 dark:text-white/90">Pedido recebido</h3>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                Obrigado pelo interesse. Um consultor entra em contato ainda hoje,
+                                em horário comercial, com seus dados de acesso.
+                            </p>
+                            <x-avalia.botao variante="secundario" class="mt-6 w-full" type="button" @click="cadastro = false">
+                                Fechar
+                            </x-avalia.botao>
+                        </div>
+                    @else
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Solicite seu cadastro</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                Deixe seu contato e um consultor retorna ainda hoje com seus dados de acesso.
+                            </p>
+                        </div>
+
+                        <form method="POST" action="{{ route('interesse.salvar') }}" class="mt-5 space-y-4">
+                            @csrf
+                            <input type="hidden" name="origem" value="login">
+                            <input type="text" name="site" value="" tabindex="-1" autocomplete="off"
+                                   class="hidden" aria-hidden="true">
+
+                            <div>
+                                <label for="cad-nome" class="rotulo-campo">Seu nome</label>
+                                <input id="cad-nome" name="nome" type="text" class="campo" required
+                                       maxlength="120" value="{{ old('nome') }}" placeholder="Como podemos te chamar">
+                                @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label for="cad-empresa" class="rotulo-campo">Nome da empresa</label>
+                                <input id="cad-empresa" name="empresa" type="text" class="campo" required
+                                       maxlength="150" value="{{ old('empresa') }}">
+                                @error('empresa') <span class="erro-campo">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label for="cad-telefone" class="rotulo-campo">Telefone com DDD</label>
+                                    <input id="cad-telefone" name="telefone" type="tel" class="campo" required
+                                           inputmode="tel" maxlength="20" value="{{ old('telefone') }}" placeholder="(11) 99999-0000">
+                                    @error('telefone') <span class="erro-campo">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label for="cad-funcionarios" class="rotulo-campo">Funcionários</label>
+                                    <select id="cad-funcionarios" name="funcionarios" class="campo" required>
+                                        <option value="" disabled @selected(! old('funcionarios'))>Escolha</option>
+                                        @foreach (['Até 5', '6 a 20', '21 a 50', 'Mais de 50'] as $faixa)
+                                            <option value="{{ $faixa }}" @selected(old('funcionarios') === $faixa)>{{ $faixa }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('funcionarios') <span class="erro-campo">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="cad-email" class="rotulo-campo">E-mail</label>
+                                <input id="cad-email" name="email" type="email" class="campo" required
+                                       maxlength="150" value="{{ old('email') }}" placeholder="voce@empresa.com.br">
+                                @if ($errors->has('email') && $errors->hasAny(['empresa', 'funcionarios']))
+                                    <span class="erro-campo">{{ $errors->first('email') }}</span>
+                                @endif
+                            </div>
+
+                            <x-avalia.botao class="w-full">
+                                Enviar pedido de contato
+                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M18 12H6"/>
+                                </svg>
+                            </x-avalia.botao>
+
+                            <p class="text-center text-xs text-gray-400 dark:text-gray-500">
+                                Retornamos em horário comercial. Seus dados ficam só com a Avalia.
+                            </p>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
