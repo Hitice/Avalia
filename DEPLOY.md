@@ -2,6 +2,63 @@
 
 Servidor próprio (VPS) em São Paulo, com PostgreSQL na mesma máquina.
 
+## Antes de tudo: fechar o acesso
+
+A VPS nasce com senha de root e login por senha liberado. Nesse estado ela recebe
+tentativa de invasão automatizada em minutos, e uma senha de dezesseis caracteres
+não resiste a semanas de tentativa contínua.
+
+A senha de root não vai para lugar nenhum: nem para o `.env`, nem para o
+repositório, nem para conversa. O `.env` é lido pela aplicação web, então uma
+página de erro com depurador ligado entrega junto o acesso ao servidor inteiro.
+Guarde em gerenciador de senhas, e depois desta seção você não precisa mais dela.
+
+**Na sua máquina**, gere um par de chaves só para isto:
+
+```bash
+ssh-keygen -t ed25519 -C "avalia-deploy" -f ~/.ssh/avalia
+ssh-copy-id -i ~/.ssh/avalia.pub root@SEU_IP
+```
+
+**No servidor**, crie o usuário da aplicação e passe a chave para ele:
+
+```bash
+adduser --disabled-password --gecos "" avalia
+usermod -aG www-data avalia
+
+install -d -m 700 -o avalia -g avalia /home/avalia/.ssh
+cp ~/.ssh/authorized_keys /home/avalia/.ssh/
+chown avalia:avalia /home/avalia/.ssh/authorized_keys
+chmod 600 /home/avalia/.ssh/authorized_keys
+```
+
+Confirme que entra como `avalia` **numa segunda janela**, sem fechar a primeira.
+Só depois de confirmar, feche o resto:
+
+```bash
+# /etc/ssh/sshd_config
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+```
+
+```bash
+systemctl restart ssh
+```
+
+Fechar antes de confirmar é como você se tranca do lado de fora.
+
+Por último, o firewall:
+
+```bash
+ufw allow OpenSSH
+ufw allow 'Nginx Full'
+ufw --force enable
+```
+
+O PostgreSQL fica sem regra de propósito: ele só escuta em `127.0.0.1` e não
+precisa estar acessível de fora.
+
 O banco local é o motivo principal da escolha. Contra o Supabase em ca-central-1,
 uma consulta simples leva cerca de 2 segundos incluindo a abertura de conexão;
 no mesmo servidor, é socket local. Confira com `php artisan avalia:ambiente`,
@@ -71,26 +128,80 @@ WantedBy=multi-user.target
 `--max-time=3600` recicla o processo de hora em hora: worker longo acumula
 memória e segura código antigo depois de um deploy.
 
-## Sequência de deploy
+## Instalação inicial
+
+Como `avalia`, não como root:
 
 ```bash
-php artisan down --render=errors::503
+sudo apt update
+sudo apt install -y nginx postgresql php8.3-{fpm,pgsql,mbstring,xml,curl,zip,intl} \
+                    composer git unzip
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs
 
-git pull
+sudo -u postgres createuser --pwprompt avalia
+sudo -u postgres createdb --owner=avalia avalia
+
+sudo install -d -o avalia -g www-data /var/www/avalia
+git clone SEU_REPOSITORIO /var/www/avalia
+cd /var/www/avalia
+
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 
+cp .env.example .env && php artisan key:generate
+# edite o .env: APP_ENV, APP_URL, DB_*, SESSION_SECURE_COOKIE
+
 php artisan migrate --force
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+php artisan db:seed --force
+php artisan db:seed --class=DocumentosSeeder --force
 
-php artisan avalia:ambiente          # falha aqui não deixa subir
-sudo systemctl restart avalia-fila   # o worker precisa recarregar o código novo
-
-php artisan up
+chmod +x deploy.sh
+sudo chown -R avalia:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
 ```
 
-`avalia:ambiente` antes do `up`, e não depois: erro de configuração não quebra
-nada visível, então descobrir depois significa descobrir tarde.
+O certificado sai do Certbot: `sudo certbot --nginx -d SEUDOMINIO`.
+
+O `deploy.sh` reinicia o worker, e isso é a única coisa que ele precisa de root.
+Libere só esse comando, e nada mais:
+
+```
+# /etc/sudoers.d/avalia
+avalia ALL=(root) NOPASSWD: /bin/systemctl restart avalia-fila
+```
+
+## Publicação contínua
+
+Push na `main` dispara a suíte no GitHub. Passando os 382 testes, ele entra por
+SSH e roda o `deploy.sh`. Falhando, não publica nada.
+
+Quatro segredos em **Settings → Secrets and variables → Actions**:
+
+| Segredo | O que é |
+| --- | --- |
+| `SSH_SERVIDOR` | IP ou domínio da VPS |
+| `SSH_USUARIO` | `avalia` |
+| `SSH_CHAVE` | Conteúdo de `~/.ssh/avalia`, a chave **privada**, inteira |
+| `SSH_IDENTIDADE` | Saída de `ssh-keyscan SEU_IP` |
+
+`SSH_IDENTIDADE` existe para o GitHub reconhecer o servidor antes de entrar.
+Sem ele, a alternativa é aceitar a chave que aparecer na hora, inclusive a de
+quem estiver no meio do caminho, e a sessão seguinte carrega a chave privada que
+publica em produção.
+
+Para publicar à mão, é o mesmo arquivo:
+
+```bash
+ssh avalia@SEU_IP 'cd /var/www/avalia && ./deploy.sh'
+```
+
+O `deploy.sh` volta sozinho para a versão anterior se qualquer passo falhar,
+incluindo o `avalia:ambiente`. O que ele **não** desfaz é o banco: migration
+aplicada continua aplicada.
+
+Por isso migration que remove coluna ou tabela nunca sobe junto com o código que
+para de usá-la. Primeiro publica o código que já não usa; depois, em outra
+versão, remove a coluna. Migration que só adiciona é sempre segura.
 
 ## Trazendo os dados do Supabase
 

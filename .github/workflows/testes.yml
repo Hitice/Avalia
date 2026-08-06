@@ -48,3 +48,34 @@ jobs:
 
       - name: Suite
         run: vendor/bin/pest
+
+  # Publica so o que passou pela suite, e so a partir da main.
+  #
+  # A barreira e o motivo de existir: este codigo emite fatura e calcula
+  # comissao, e a leva de mudancas mais cara do projeto foi escrita num ambiente
+  # sem PHP, com cinco testes quebrados chegando ao repositorio. Publicar
+  # depende de passar, e nao de alguem lembrar de rodar.
+  publicar:
+    needs: suite
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Chave de acesso
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_CHAVE }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # A identidade do servidor vem de um segredo, e nao de ssh-keyscan.
+          # Aceitar a chave que aparecer na hora significa aceitar tambem a de
+          # quem estiver no meio do caminho, e a sessao seguinte carrega a chave
+          # privada que publica em producao.
+          echo "${{ secrets.SSH_IDENTIDADE }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Publicar
+        run: |
+          ssh -p "${{ secrets.SSH_PORTA || 22 }}" \
+              "${{ secrets.SSH_USUARIO }}@${{ secrets.SSH_SERVIDOR }}" \
+              'cd /var/www/avalia && ./deploy.sh'
