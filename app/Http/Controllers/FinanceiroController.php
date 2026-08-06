@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Financeiro\EstornarLiquidacao;
 use App\Actions\Financeiro\RegistrarLiquidacao;
 use App\Models\Fatura;
 use App\Models\Staff;
@@ -70,6 +71,34 @@ class FinanceiroController extends Controller
             $fatura->comissao_cents > 0 && $fatura->vendedor_id
                 ? 'Comissão liberada para repasse.'
                 : 'Sem comissão a liberar.',
+        ));
+    }
+
+    /**
+     * Desfaz um recebimento e recolhe a comissao liberada.
+     *
+     * Pagamento desfeito acontece: chargeback, Pix devolvido, boleto baixado
+     * por engano. Sem este caminho, o dinheiro do vendedor ja tinha saido do
+     * controle sem volta, e a correcao so existia no banco.
+     */
+    public function estornar(Request $request, Fatura $fatura, EstornarLiquidacao $estornar)
+    {
+        $dados = $request->validate(
+            ['motivo' => ['required', 'string', 'min:10', 'max:255']],
+            ['motivo.required' => 'Diga por que o recebimento foi desfeito.',
+                'motivo.min' => 'Descreva com mais detalhe: :min caracteres no mínimo.'],
+        );
+
+        $resultado = $estornar($fatura, $dados['motivo']);
+
+        if ($resultado['erro']) {
+            return back()->with('erro', $resultado['erro']);
+        }
+
+        return back()->with('ok', sprintf(
+            'Recebimento de %s desfeito. %s',
+            $fatura->cliente->razao_social,
+            $fatura->comissao_cents > 0 ? 'A comissão foi recolhida.' : 'Não havia comissão liberada.',
         ));
     }
 

@@ -56,7 +56,7 @@ class Fatura extends Model
         'consumo_faturado_cents', 'total_cents',
         'imposto_bps', 'imposto_cents', 'custo_cents', 'lucro_cents',
         'comissao_pct', 'comissao_cents', 'fechada_em', 'situacao_pagamento',
-        'liquidada_em', 'comissao_liberada_em', 'consumo_bruto_cents',
+        'liquidada_em', 'comissao_liberada_em', 'estornada_em', 'consumo_bruto_cents',
         'franquia_cents', 'consumo_excedente_cents',
     ];
 
@@ -77,6 +77,7 @@ class Fatura extends Model
             'fechada_em' => 'datetime',
             'liquidada_em' => 'datetime',
             'comissao_liberada_em' => 'datetime',
+            'estornada_em' => 'datetime',
             'consumo_bruto_cents' => 'integer',
             'franquia_cents' => 'integer',
             'consumo_excedente_cents' => 'integer',

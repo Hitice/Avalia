@@ -15,7 +15,7 @@ class Auditoria extends Model
 
     protected $fillable = [
         'staff_id', 'acao', 'entidade_tipo', 'entidade_id', 'dados',
-        'ip_address', 'user_agent', 'ocorreu_em',
+        'ip_address', 'user_agent', 'ocorreu_em', 'resumo_anterior', 'resumo',
     ];
 
     protected function casts(): array

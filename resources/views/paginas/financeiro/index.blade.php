@@ -109,9 +109,36 @@
                             </td>
                             <td class="px-5 py-4 text-right">
                                 @if ($fatura->estaLiquidada())
-                                    <span class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $fatura->liquidada_em?->format('d/m/Y') }}
-                                    </span>
+                                    {{-- Pagamento desfeito acontece: chargeback, Pix devolvido,
+                                         boleto baixado por engano. Sem este caminho a correcao
+                                         so existiria no banco. --}}
+                                    <div x-data="{ aberto: false }" class="inline-block text-left">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400" x-show="! aberto">
+                                            {{ $fatura->liquidada_em?->format('d/m/Y') }}
+                                            <button type="button" x-on:click="aberto = true"
+                                                    class="hover:text-error-600 dark:hover:text-error-400 ml-2 underline">
+                                                desfazer
+                                            </button>
+                                        </span>
+
+                                        <form method="POST" action="{{ route('financeiro.estornar', $fatura) }}"
+                                              x-show="aberto" x-cloak class="flex items-center gap-2">
+                                            @csrf
+
+                                            <label for="estorno-{{ $fatura->id }}" class="sr-only">
+                                                Por que o recebimento foi desfeito
+                                            </label>
+                                            <input id="estorno-{{ $fatura->id }}" name="motivo" type="text"
+                                                   class="campo-linha w-64" required minlength="10" maxlength="255"
+                                                   placeholder="Por que o recebimento foi desfeito">
+
+                                            <x-avalia.botao tamanho="sm">Desfazer</x-avalia.botao>
+                                            <x-avalia.botao variante="secundario" tamanho="sm"
+                                                            type="button" x-on:click="aberto = false">
+                                                Cancelar
+                                            </x-avalia.botao>
+                                        </form>
+                                    </div>
                                 @else
                                     {{-- A justificativa e obrigatoria porque esta e a unica porta
                                          pela qual dinheiro e dado como recebido sem ter entrado, e

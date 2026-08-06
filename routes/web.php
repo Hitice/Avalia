@@ -96,6 +96,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware(['admin', 'financeiro'])->prefix('financeiro')->name('financeiro.')->group(function () {
         Route::get('/', [FinanceiroController::class, 'index'])->name('index');
         Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
+        Route::post('/{fatura}/estornar', [FinanceiroController::class, 'estornar'])->name('estornar');
     });
 
     // Quem trabalha na Avalia. E aqui que se define a comissao de cada
