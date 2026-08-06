@@ -83,6 +83,47 @@ it('nao cobra em desenvolvimento o que so vale em producao', function () {
         ->assertSuccessful();
 });
 
+it('aceita fila sincrona enquanto a aplicacao nao enfileira nada', function () {
+    // Em hospedagem compartilhada `sync` e a unica opcao: ela nao mantem
+    // processo de pe. Como nenhuma acao da aplicacao vai para a fila, isso nao
+    // custa nada, e reprovar aqui seria alarme sem defeito.
+    app()['env'] = 'production';
+    config([
+        'app.debug' => false, 'app.url' => 'https://avalia.com.br',
+        'session.secure' => true, 'mail.default' => 'smtp',
+        'queue.default' => 'sync',
+    ]);
+
+    $this->artisan('avalia:ambiente')->expectsOutputToContain('nada é enfileirado');
+});
+
+it('nao deixa passar despercebido o dia em que algo for enfileirado', function () {
+    // Guarda o pressuposto do teste acima. No momento em que a primeira classe
+    // implementar ShouldQueue, a fila sincrona deixa de servir e a hospedagem
+    // compartilhada tambem: este teste cai e obriga a decisao.
+    $comFila = [];
+
+    // O import, e nao a palavra: ela aparece no proprio comando que faz esta
+    // varredura, que ficaria se acusando para sempre.
+    $procurado = 'use Illuminate\Contracts\Queue\\'.'ShouldQueue;';
+    $verificador = app_path('Console/Commands/ConferirAmbiente.php');
+
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(app_path())) as $arquivo) {
+        if ($arquivo->getExtension() !== 'php' || $arquivo->getPathname() === $verificador) {
+            continue;
+        }
+
+        if (str_contains(file_get_contents($arquivo->getPathname()), $procurado)) {
+            $comFila[] = $arquivo->getFilename();
+        }
+    }
+
+    expect($comFila)->toBeEmpty(
+        'passou a existir trabalho enfileirado: '.implode(', ', $comFila).
+        '. A fila sincrona nao serve mais, e a hospedagem compartilhada tambem nao.',
+    );
+});
+
 it('recusa exportar de um banco que nao seja postgres', function () {
     // A suite roda em SQLite. Exportar dali geraria um arquivo com a cara de um
     // backup e sem as sequencias, que so o Postgres tem.

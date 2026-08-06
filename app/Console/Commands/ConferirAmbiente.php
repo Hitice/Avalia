@@ -94,6 +94,39 @@ class ConferirAmbiente extends Command
         $this->achados[] = ['item' => $item, 'estado' => 'pulado', 'detalhe' => 'só em produção'];
     }
 
+    /**
+     * Alguma coisa da aplicacao vai para a fila?
+     *
+     * Le o codigo em vez de perguntar a configuracao, porque a pergunta e sobre
+     * intencao: uma classe que implementa ShouldQueue existe para ser processada
+     * fora da requisicao, e a partir do momento em que a primeira aparece, a fila
+     * sincrona deixa de ser aceitavel e a hospedagem compartilhada deixa de
+     * servir. E o dia em que este item precisa reprovar sozinho, sem depender de
+     * alguem lembrar.
+     */
+    private function existeTrabalhoEnfileirado(): bool
+    {
+        $arquivos = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(app_path(), \FilesystemIterator::SKIP_DOTS),
+        );
+
+        // Procura o import, e nao a palavra: a palavra aparece neste proprio
+        // arquivo, que ficaria se acusando para sempre.
+        $procurado = 'use Illuminate\Contracts\Queue\\'.'ShouldQueue;';
+
+        foreach ($arquivos as $arquivo) {
+            if ($arquivo->getExtension() !== 'php' || $arquivo->getPathname() === __FILE__) {
+                continue;
+            }
+
+            if (str_contains((string) file_get_contents($arquivo->getPathname()), $procurado)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function segredos(bool $producao): void
     {
         $this->anota('Chave da aplicação definida', config('app.key') !== null && config('app.key') !== '');
@@ -202,10 +235,21 @@ class ConferirAmbiente extends Command
     {
         // Fila em `sync` executa o trabalho dentro da requisicao do usuario: a
         // tela trava pelo tempo do processamento e a falha vira erro na cara dele.
+        //
+        // So que isso so e problema se houver o que enfileirar. Hoje nao ha, e
+        // em hospedagem compartilhada `sync` e a unica opcao possivel, porque
+        // ela nao mantem processo de pe. Reprovar aqui seria reprovar o ambiente
+        // por um defeito que nao existe, e alarme que toca sem motivo e alarme
+        // que se aprende a ignorar.
+        $enfileira = $this->existeTrabalhoEnfileirado();
+        $sincrona = config('queue.default') === 'sync';
+
         $this->anota(
-            'Fila fora do modo síncrono',
-            ! $producao || config('queue.default') !== 'sync',
-            (string) config('queue.default'),
+            'Fila compatível com o que a aplicação enfileira',
+            ! $producao || ! $sincrona || ! $enfileira,
+            $sincrona
+                ? ($enfileira ? 'há trabalho enfileirado e a fila é síncrona' : 'síncrona, e nada é enfileirado')
+                : (string) config('queue.default'),
             true,
         );
 
