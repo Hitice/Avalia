@@ -18,7 +18,7 @@
 
             {{-- Formulario --}}
             <div class="flex w-full flex-1 flex-col lg:w-1/2">
-                <div class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
+                <div class="mx-auto flex w-full max-w-[25rem] flex-1 flex-col justify-center">
 
                     <a href="{{ route('inicio') }}"
                        class="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400">
