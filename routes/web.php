@@ -178,4 +178,8 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
     ->group(function () {
         Route::get('/', [AreaClienteController::class, 'painel'])->name('painel');
         Route::post('/documentos/{documento}/aceite', [AreaClienteController::class, 'aceitar'])->name('documentos.aceitar');
+
+        // A consulta em si. E a empresa que pede, porque e ela que consome.
+        Route::post('/consultas', [AreaClienteController::class, 'consultar'])->name('consultas.executar');
+        Route::get('/consultas/{consulta}', [AreaClienteController::class, 'verConsulta'])->name('consultas.ver');
     });

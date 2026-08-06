@@ -41,4 +41,13 @@ return [
         ],
     ],
 
+    /*
+     * Quem atende as consultas de credito. Sem conector real configurado vale o
+     * simulado, que responde sem falar com fornecedor nenhum e marca a resposta
+     * como simulada.
+     */
+    'bureau' => [
+        'conector' => env('BUREAU_CONECTOR', 'simulado'),
+    ],
+
 ];

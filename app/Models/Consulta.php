@@ -19,8 +19,18 @@ class Consulta extends Model
 
     protected $table = 'consultas';
 
+    /** Situacoes possiveis de uma tentativa. */
+    public const SUCESSO = 'sucesso';
+
+    public const FALHA = 'falha';
+
+    /** Retencao da resposta do bureau, em dias (PDD.md, secao 5). */
+    public const DIAS_DE_RETENCAO = 180;
+
     protected $fillable = [
         'cliente_id', 'servico_id', 'competencia', 'preco_cents', 'custo_cents',
+        'documento', 'finalidade', 'solicitante', 'situacao',
+        'referencia_externa', 'duracao_ms', 'resposta', 'expurgada_em', 'expurgar_em',
     ];
 
     protected function casts(): array
@@ -30,6 +40,10 @@ class Consulta extends Model
             'servico_id' => 'integer',
             'preco_cents' => 'integer',
             'custo_cents' => 'integer',
+            'duracao_ms' => 'integer',
+            'resposta' => 'array',
+            'expurgada_em' => 'datetime',
+            'expurgar_em' => 'date',
         ];
     }
 
@@ -37,6 +51,17 @@ class Consulta extends Model
     public static function competenciaDe(?\DateTimeInterface $momento = null): string
     {
         return ($momento ?? now())->format('Y-m');
+    }
+
+    public function deuCerto(): bool
+    {
+        return $this->situacao === self::SUCESSO;
+    }
+
+    /** Ja teve a resposta do bureau apagada pela retencao. */
+    public function expurgada(): bool
+    {
+        return $this->expurgada_em !== null;
     }
 
     public function cliente(): BelongsTo

@@ -147,4 +147,101 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Solicite à sua equipe comercial os documentos aplicáveis à sua empresa.</p>
         </div>
     @endif
+
+    @if ($servicos->isNotEmpty())
+        <div class="cartao mt-6 p-6">
+            <h2 class="font-medium text-gray-800 dark:text-white/90">Nova consulta</h2>
+            <p class="ajuda-campo mt-1 mb-5">
+                A finalidade fica registrada junto da consulta. Ela é o que sustenta o uso do dado
+                se alguém perguntar depois por que aquele documento foi consultado.
+            </p>
+
+            <form method="POST" action="{{ route('empresa.consultas.executar') }}" class="grid gap-5 sm:grid-cols-2">
+                @csrf
+
+                <div>
+                    <label for="servico_id" class="rotulo-campo">Serviço</label>
+                    <select id="servico_id" name="servico_id" class="campo" required>
+                        @foreach ($servicos as $servico)
+                            <option value="{{ $servico->id }}" @selected(old('servico_id') == $servico->id)>
+                                {{ $servico->nome }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="documento" class="rotulo-campo">CPF ou CNPJ</label>
+                    <input id="documento" name="documento" type="text" class="campo" required
+                           inputmode="numeric" value="{{ old('documento') }}">
+                    @error('documento') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="finalidade" class="rotulo-campo">Finalidade</label>
+                    <input id="finalidade" name="finalidade" type="text" class="campo" required
+                           maxlength="120" value="{{ old('finalidade') }}"
+                           placeholder="Análise de crédito para venda a prazo">
+                    @error('finalidade') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="solicitante" class="rotulo-campo">Quem está solicitando</label>
+                    <input id="solicitante" name="solicitante" type="text" class="campo"
+                           maxlength="150" value="{{ old('solicitante') }}">
+                    <span class="ajuda-campo">Opcional, e útil quando várias pessoas usam o mesmo acesso.</span>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <x-avalia.botao>Consultar</x-avalia.botao>
+                </div>
+            </form>
+        </div>
+    @endif
+
+    @if ($ultimas->isNotEmpty())
+        <div class="cartao mt-6 overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Últimas consultas</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="tabela min-w-[40rem]">
+                    <thead class="tabela-cabecalho">
+                        <tr>
+                            <th scope="col" class="px-5 py-3 text-left font-medium">Quando</th>
+                            <th scope="col" class="px-5 py-3 text-left font-medium">Serviço</th>
+                            <th scope="col" class="px-5 py-3 text-left font-medium">Resultado</th>
+                            <th scope="col" class="px-5 py-3 text-right font-medium">Valor</th>
+                            <th scope="col" class="px-5 py-3 text-right font-medium">Abrir</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @foreach ($ultimas as $consulta)
+                            <tr>
+                                <td class="px-5 py-4 text-left whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                    {{ $consulta->created_at->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">
+                                    {{ $consulta->servico->nome }}
+                                </td>
+                                <td class="px-5 py-4 text-left">
+                                    <span class="etiqueta {{ $consulta->deuCerto() ? 'etiqueta-sucesso' : 'etiqueta-erro' }}">
+                                        {{ $consulta->deuCerto() ? 'Concluída' : 'Não concluída' }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                    {{ $consulta->preco_cents > 0 ? Dinheiro::brl($consulta->preco_cents) : 'Sem cobrança' }}
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <x-avalia.botao variante="secundario" tamanho="sm"
+                                                    :href="route('empresa.consultas.ver', $consulta)">Ver</x-avalia.botao>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 @endsection

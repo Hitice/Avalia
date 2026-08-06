@@ -29,3 +29,15 @@ Schedule::call(function () {
     ->name('financeiro:fechamento')
     ->dailyAt('00:15')
     ->withoutOverlapping();
+
+/*
+ * Retencao da resposta do bureau, 180 dias. Vencido o prazo, some o dado
+ * pessoal de terceiro e fica o que explica a cobranca. Depende do tempo
+ * passar, e nao de alguem lembrar.
+ */
+Schedule::call(function () {
+    app(App\Actions\Consumo\ExpurgarRespostas::class)();
+})
+    ->name('consultas:expurgo')
+    ->dailyAt('03:00')
+    ->withoutOverlapping();
