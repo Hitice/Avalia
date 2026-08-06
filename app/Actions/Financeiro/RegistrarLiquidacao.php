@@ -30,13 +30,16 @@ class RegistrarLiquidacao
     /**
      * @param  string  $origem  quem confirmou, que e o que diferencia uma baixa
      *                          conferida no extrato de uma digitada a mao
+     * @param  string|null  $motivo  como o pagamento foi conferido, exigido na
+     *                               confirmacao manual
      */
     public function __invoke(
         Fatura $fatura,
         ?\DateTimeInterface $liquidadaEm = null,
         string $origem = self::ORIGEM_AUTOMATICA,
+        ?string $motivo = null,
     ): Fatura {
-        return DB::transaction(function () use ($fatura, $liquidadaEm, $origem) {
+        return DB::transaction(function () use ($fatura, $liquidadaEm, $origem, $motivo) {
             $fatura = Fatura::lockForUpdate()->findOrFail($fatura->id);
 
             if ($fatura->estaLiquidada()) {
@@ -69,6 +72,7 @@ class RegistrarLiquidacao
                 'total_cents' => $fatura->total_cents,
                 'comissao_liberada_cents' => $fatura->comissao_cents,
                 'origem' => $origem,
+                'motivo' => $motivo,
             ]);
 
             return $fatura->fresh();

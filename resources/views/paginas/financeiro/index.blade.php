@@ -113,14 +113,35 @@
                                         {{ $fatura->liquidada_em?->format('d/m/Y') }}
                                     </span>
                                 @else
-                                    <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
-                                          onsubmit="return confirm('Confirmar que o pagamento desta fatura foi recebido?')">
-                                        @csrf
-                                        <x-avalia.botao variante="secundario" tamanho="icone" title="Confirmar pagamento recebido">
+                                    {{-- A justificativa e obrigatoria porque esta e a unica porta
+                                         pela qual dinheiro e dado como recebido sem ter entrado, e
+                                         ela libera a comissao do vendedor na mesma hora. --}}
+                                    <div x-data="{ aberto: false }" class="inline-block text-left">
+                                        <x-avalia.botao variante="secundario" tamanho="icone"
+                                                        title="Confirmar pagamento recebido"
+                                                        x-show="! aberto" x-on:click="aberto = true">
                                             <x-avalia.icone nome="confirmar" />
                                             <span class="sr-only">Confirmar pagamento recebido</span>
                                         </x-avalia.botao>
-                                    </form>
+
+                                        <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
+                                              x-show="aberto" x-cloak class="flex items-center gap-2">
+                                            @csrf
+
+                                            <label for="motivo-{{ $fatura->id }}" class="sr-only">
+                                                Como o pagamento foi conferido
+                                            </label>
+                                            <input id="motivo-{{ $fatura->id }}" name="motivo" type="text"
+                                                   class="campo-linha w-64" required minlength="10" maxlength="255"
+                                                   placeholder="Como o pagamento foi conferido">
+
+                                            <x-avalia.botao tamanho="sm">Confirmar</x-avalia.botao>
+                                            <x-avalia.botao variante="secundario" tamanho="sm"
+                                                            type="button" x-on:click="aberto = false">
+                                                Cancelar
+                                            </x-avalia.botao>
+                                        </form>
+                                    </div>
                                 @endif
                             </td>
                         </tr>

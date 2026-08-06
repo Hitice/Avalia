@@ -46,7 +46,7 @@ it('da baixa na fatura e libera a comissao', function () {
 
     expect($fatura->comissao_liberada_em)->toBeNull();
 
-    admin()->post(route('financeiro.liquidar', $fatura))->assertSessionHas('ok');
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario'])->assertSessionHas('ok');
 
     $fatura->refresh();
 
@@ -58,10 +58,10 @@ it('da baixa na fatura e libera a comissao', function () {
 it('nao da baixa duas vezes na mesma fatura', function () {
     $fatura = faturaFechada();
 
-    admin()->post(route('financeiro.liquidar', $fatura));
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario']);
     $liquidadaEm = $fatura->fresh()->liquidada_em;
 
-    admin()->post(route('financeiro.liquidar', $fatura))->assertSessionHas('erro');
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario'])->assertSessionHas('erro');
 
     expect($fatura->fresh()->liquidada_em->timestamp)->toBe($liquidadaEm->timestamp);
 });
@@ -73,7 +73,7 @@ it('so soma no repasse a comissao de fatura ja paga', function () {
     $resposta = admin()->get(route('financeiro.index'))->assertOk();
     expect($resposta->viewData('comissoes'))->toBeEmpty();
 
-    admin()->post(route('financeiro.liquidar', $fatura));
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario']);
 
     $comissoes = admin()->get(route('financeiro.index'))->viewData('comissoes');
 
@@ -88,7 +88,7 @@ it('filtra por situacao de pagamento', function () {
         ->assertOk()
         ->assertDontSee($fatura->cliente->razao_social);
 
-    admin()->post(route('financeiro.liquidar', $fatura));
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario']);
 
     admin()->get(route('financeiro.index', ['situacao' => 'liquidado']))
         ->assertOk()
@@ -111,7 +111,7 @@ it('nao deixa vendedor abrir a auditoria', function () {
 it('mostra na trilha a baixa que acabou de acontecer', function () {
     $fatura = faturaFechada();
 
-    admin()->post(route('financeiro.liquidar', $fatura));
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario']);
 
     expect(Auditoria::where('acao', 'fatura.liquidada')->count())->toBe(1);
 
@@ -122,7 +122,7 @@ it('mostra na trilha a baixa que acabou de acontecer', function () {
 
 it('filtra a trilha por acao', function () {
     $fatura = faturaFechada();
-    admin()->post(route('financeiro.liquidar', $fatura));
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario']);
 
     admin()->get(route('auditoria', ['acao' => 'fatura.liquidada']))
         ->assertOk()
@@ -138,10 +138,36 @@ it('separa na trilha a baixa manual da confirmada pelo provedor', function () {
     // Quem audita precisa distinguir uma da outra sem adivinhar.
     $fatura = faturaFechada();
 
-    admin()->post(route('financeiro.liquidar', $fatura));
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'Comprovante conferido no extrato bancario']);
 
     $registro = Auditoria::where('acao', 'fatura.liquidada')->latest('id')->first();
 
     expect($registro->dados['origem'])->toBe('manual')
         ->and($registro->staff_id)->not->toBeNull();
+});
+
+it('nao confirma pagamento sem dizer como foi conferido', function () {
+    // Esta e a unica porta pela qual dinheiro e dado como recebido sem ter
+    // entrado. Desfazer depois significa cobrar de volta quem ja recebeu.
+    $fatura = faturaFechada();
+
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => ''])
+        ->assertSessionHasErrors('motivo');
+
+    admin()->post(route('financeiro.liquidar', $fatura), ['motivo' => 'ok'])
+        ->assertSessionHasErrors('motivo');
+
+    expect($fatura->fresh()->estaLiquidada())->toBeFalse();
+});
+
+it('leva a justificativa inteira para a trilha', function () {
+    $fatura = faturaFechada();
+
+    admin()->post(route('financeiro.liquidar', $fatura), [
+        'motivo' => 'Transferência conferida no extrato do dia 12, sem identificação do pagador',
+    ]);
+
+    $registro = Auditoria::where('acao', 'fatura.liquidada')->latest('id')->first();
+
+    expect($registro->dados['motivo'])->toContain('sem identificação do pagador');
 });

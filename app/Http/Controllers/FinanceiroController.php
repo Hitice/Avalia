@@ -41,13 +41,28 @@ class FinanceiroController extends Controller
         ]);
     }
 
-    public function liquidar(Fatura $fatura, RegistrarLiquidacao $liquidar)
+    /**
+     * Confirma o pagamento a mao, e exige dizer por que.
+     *
+     * Esta e a unica porta pela qual dinheiro e dado como recebido sem que
+     * dinheiro nenhum tenha entrado. Ela libera a comissao do vendedor na
+     * mesma hora, e desfazer depois significa cobrar de volta alguem que ja
+     * recebeu. Por isso o motivo e obrigatorio e vai inteiro para a trilha:
+     * quem confirmou precisa poder ser perguntado meses depois.
+     */
+    public function liquidar(Request $request, Fatura $fatura, RegistrarLiquidacao $liquidar)
     {
         if ($fatura->estaLiquidada()) {
             return back()->with('erro', 'Esta fatura já estava liquidada.');
         }
 
-        $liquidar($fatura, null, RegistrarLiquidacao::ORIGEM_MANUAL);
+        $dados = $request->validate(
+            ['motivo' => ['required', 'string', 'min:10', 'max:255']],
+            ['motivo.required' => 'Diga como o pagamento foi conferido.',
+                'motivo.min' => 'Descreva com mais detalhe: :min caracteres no mínimo.'],
+        );
+
+        $liquidar($fatura, null, RegistrarLiquidacao::ORIGEM_MANUAL, $dados['motivo']);
 
         return back()->with('ok', sprintf(
             'Fatura de %s liquidada. %s',
