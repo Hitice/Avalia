@@ -644,6 +644,15 @@
   animation: entra-popup 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Texto na cor de bureau: o mesmo degrade rosa-azul da pontuacao, para
+   frases curtas de marca. */
+@utility texto-bureau {
+  background-image: linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 /* Convite de rolagem: a setinha balanca para baixo, no mesmo padrao das
    setinhas do carrossel. */
 @utility balanca {
