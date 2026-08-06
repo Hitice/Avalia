@@ -155,8 +155,6 @@
                     @endforeach
                 </div>
 
-                <div aria-hidden="true" class="foco-central absolute inset-0"></div>
-
                 <div class="z-1 flex max-w-xs flex-col items-center">
                     <x-avalia.medidor :tamanho="120" por-nivel class="mb-3" style="--nivel: 0.82" />
                     {{-- So o wordmark: o simbolo ja esta logo acima, em

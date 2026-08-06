@@ -673,12 +673,6 @@
   animation: entra-popup 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Escurecimento do miolo do painel da marca: a grade fica nas bordas e o
-   centro abre espaco para a logo e o medidor. */
-@utility foco-central {
-  background: radial-gradient(closest-side, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.18) 55%, transparent 78%);
-}
-
 /* Convite de rolagem: a setinha balanca para baixo, no mesmo padrao das
    setinhas do carrossel. */
 @utility balanca {
