@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Consumo\FecharCompetencia;
 use App\Http\Requests\EmpresaRequest;
+use App\Mail\ConviteDeAcesso;
 use App\Models\Adesao;
 use App\Models\Cliente;
 use App\Models\Consulta;
@@ -11,8 +12,11 @@ use App\Models\Plano;
 use App\Models\Staff;
 use App\Support\Auditar;
 use App\Support\Comissao;
+use App\Support\Convite;
 use App\Support\Dinheiro;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 /**
  * As empresas contratantes e o consumo delas.
@@ -55,11 +59,37 @@ class EmpresaController extends Controller
 
     public function salvar(EmpresaRequest $request)
     {
-        $empresa = Cliente::create($this->comOsCamposQuePode($request->dados()));
+        $dados = $this->comOsCamposQuePode($request->dados());
+
+        // Sem senha digitada, a conta nasce com uma aleatoria que ninguem
+        // conhece e o convite por e-mail entrega o link para definir a real.
+        $convidar = ! $request->filled('senha');
+
+        if ($convidar) {
+            $dados['senha'] = Str::password(40);
+        }
+
+        $empresa = Cliente::create($dados);
         $this->gravarAdesao($empresa, $request);
 
+        $aviso = null;
+
+        if ($convidar) {
+            try {
+                Mail::to($empresa->email)->send(new ConviteDeAcesso(
+                    $empresa->responsavel_nome ?: $empresa->razao_social,
+                    Convite::link($empresa, 'empresa'),
+                    ehEmpresa: true,
+                ));
+            } catch (\Throwable $e) {
+                report($e);
+                $aviso = 'O convite por e-mail não pôde ser enviado. Defina uma senha pela edição do cadastro ou tente de novo.';
+            }
+        }
+
         return redirect($this->depoisDeGravar($empresa))
-            ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.");
+            ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.".($convidar && ! $aviso ? ' Convite de acesso enviado por e-mail.' : ''))
+            ->with('erro', $aviso);
     }
 
     public function editar(Cliente $empresa)

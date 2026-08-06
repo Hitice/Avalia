@@ -3,6 +3,7 @@
 use App\Http\Controllers\AreaClienteController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\SenhaController;
 use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
@@ -69,6 +70,16 @@ Route::middleware('guest:staff,empresa')->group(function () {
 Route::get('/token', fn () => response()->json(['token' => csrf_token()]))
     ->middleware('throttle:60,1')
     ->name('token');
+
+/*
+ * Definicao de senha pelo link do convite. Publica porque quem chega ainda nao
+ * tem como se autenticar; fechada pela assinatura temporaria (link forjado ou
+ * vencido nem chega ao controller) e pelo carimbo, que mata o link usado.
+ */
+Route::middleware(['signed', 'throttle:10,1'])->group(function () {
+    Route::get('/acesso/senha/{guarda}/{id}', [SenhaController::class, 'mostrar'])->name('senha.definir');
+    Route::post('/acesso/senha/{guarda}/{id}', [SenhaController::class, 'salvar'])->name('senha.salvar');
+});
 
 Route::post('/sair', [LoginController::class, 'sair'])
     ->name('sair')

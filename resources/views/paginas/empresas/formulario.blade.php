@@ -89,7 +89,7 @@
                     <input id="senha" name="senha" type="password" class="campo"
                            @required(! $empresa->exists) autocomplete="new-password">
                     @if ($empresa->exists)
-                        <span class="ajuda-campo">Em branco mantém a senha atual.</span>
+                        <span class="ajuda-campo">Em branco no cadastro envia um convite por e-mail para a empresa definir a senha; na edição, mantém a atual.</span>
                     @endif
                     @error('senha') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>

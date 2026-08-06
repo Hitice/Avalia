@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StaffRequest;
+use App\Mail\ConviteDeAcesso;
 use App\Models\Staff;
 use App\Support\Auditar;
+use App\Support\Convite;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 /**
  * Quem trabalha na Avalia: administracao e vendedores.
@@ -34,13 +38,50 @@ class EquipeController extends Controller
 
     public function salvar(StaffRequest $request)
     {
-        $membro = Staff::create($request->dados());
+        $dados = $request->dados();
+
+        // Sem senha digitada, a conta nasce com uma aleatoria que ninguem
+        // conhece e o convite por e-mail entrega o link para definir a real.
+        $convidar = ! $request->filled('senha');
+
+        if ($convidar) {
+            $dados['senha'] = Str::password(40);
+        }
+
+        $membro = Staff::create($dados);
 
         Auditar::registrar('equipe.criada', $membro, $this->rastreavel($membro));
 
+        $aviso = $this->enviarConvite($convidar, $membro->email, $membro->nome, 'staff', $membro);
+
         return redirect()
             ->route('equipe.index')
-            ->with('ok', "{$membro->nome} cadastrado.");
+            ->with('ok', "{$membro->nome} cadastrado.".($convidar && ! $aviso ? ' Convite de acesso enviado por e-mail.' : ''))
+            ->with('erro', $aviso);
+    }
+
+    /**
+     * Envia o convite e devolve o aviso de falha, se houver.
+     *
+     * Falha de e-mail nao desfaz o cadastro: a conta existe e da para definir
+     * uma senha manualmente pela edicao. O que nao pode e falhar em silencio,
+     * com o admin certo de que a pessoa recebeu.
+     */
+    private function enviarConvite(bool $convidar, string $email, string $nome, string $guarda, $conta): ?string
+    {
+        if (! $convidar) {
+            return null;
+        }
+
+        try {
+            Mail::to($email)->send(new ConviteDeAcesso($nome, Convite::link($conta, $guarda), $guarda === 'empresa'));
+
+            return null;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return 'O convite por e-mail não pôde ser enviado. Defina uma senha pela edição do cadastro ou tente de novo.';
+        }
     }
 
     /**

@@ -47,7 +47,9 @@ class EmpresaRequest extends FormRequest
                 'required', 'email', 'max:150',
                 Rule::unique('clientes', 'email')->ignore($empresa)->whereNull('deleted_at'),
             ],
-            'senha' => [$empresa ? 'nullable' : 'required', 'string', 'min:8'],
+            // Opcional tambem na criacao: em branco, o cadastro dispara o
+            // convite por e-mail e a propria empresa define a senha.
+            'senha' => ['nullable', 'string', 'min:8'],
             'situacao' => ['required', Rule::in(['ativo', 'inadimplente', 'bloqueado', 'inativo'])],
             'plano_id' => ['nullable', 'exists:planos,id'],
             'vendedor_id' => ['nullable', 'exists:staff,id'],

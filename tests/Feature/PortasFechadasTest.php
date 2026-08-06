@@ -25,6 +25,8 @@ uses(RefreshDatabase::class);
 const PORTAS_PUBLICAS = [
     'inicio' => 'apresentacao publica; quem tem sessao e redirecionado para o proprio painel',
     'interesse.salvar' => 'formulario de contato da campanha, com teto por origem e campo armadilha',
+    'senha.definir' => 'link do convite: assinatura temporaria barra forjado e vencido, carimbo barra usado',
+    'senha.salvar' => 'mesmo link assinado do convite, conferido de novo no envio',
     'entrar' => 'formulario de acesso',
     'entrar.enviar' => 'envio do formulario de acesso',
     'token' => 'renova o token da tela de entrada, e nao devolve mais nada',

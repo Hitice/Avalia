@@ -32,44 +32,18 @@ it('reprova producao com cookie de sessao fora do HTTPS', function () {
     $this->artisan('avalia:ambiente')->assertFailed();
 });
 
-it('aceita driver de e-mail em arquivo enquanto nada e enviado', function () {
-    // O driver `log` grava a mensagem em arquivo em vez de enviar. Isso so
-    // esconde alguma coisa quando existe e-mail a esconder, e hoje a aplicacao
-    // nao envia nenhum. Mesma leitura de intencao usada para a fila; o teste de
-    // guarda logo abaixo derruba a suite no dia em que o primeiro import de
-    // Mail aparecer, e ai este item volta a reprovar sozinho.
+it('reprova driver de e-mail em arquivo agora que a aplicacao envia', function () {
+    // O convite de acesso foi o primeiro e-mail de verdade. A partir dele, o
+    // driver `log` em producao significa convite que nunca chega, sem erro
+    // nenhum na tela de quem cadastrou. A conferencia le a intencao no codigo
+    // (os imports de Mail existem) e reprova sozinha.
     app()['env'] = 'production';
     config(['app.debug' => false, 'app.url' => 'https://avalia.com.br', 'session.secure' => true]);
     config(['mail.default' => 'log']);
 
-    $this->artisan('avalia:ambiente')->expectsOutputToContain('nada é enviado');
-});
-
-it('nao deixa passar despercebido o primeiro e-mail enviado', function () {
-    // Guarda o pressuposto do teste acima, como o da fila.
-    $comEnvio = [];
-
-    $imports = ['use Illuminate\Support\Facades\\'.'Mail;', 'use Illuminate\Contracts\Mail\\'.'Mailable;'];
-    $verificador = app_path('Console/Commands/ConferirAmbiente.php');
-
-    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(app_path())) as $arquivo) {
-        if ($arquivo->getExtension() !== 'php' || $arquivo->getPathname() === $verificador) {
-            continue;
-        }
-
-        $conteudo = file_get_contents($arquivo->getPathname());
-
-        foreach ($imports as $import) {
-            if (str_contains($conteudo, $import)) {
-                $comEnvio[] = $arquivo->getFilename();
-            }
-        }
-    }
-
-    expect($comEnvio)->toBeEmpty(
-        'a aplicacao passou a enviar e-mail: '.implode(', ', $comEnvio).
-        '. O driver "log" em producao deixou de ser aceitavel; configure um provedor de envio.',
-    );
+    $this->artisan('avalia:ambiente')
+        ->expectsOutputToContain('a aplicação envia e-mail e o driver é "log"')
+        ->assertFailed();
 });
 
 it('reprova endereco que aponta para dentro de public', function () {

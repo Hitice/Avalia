@@ -40,7 +40,9 @@ class StaffRequest extends FormRequest
                 'required', 'email', 'max:150',
                 Rule::unique('staff', 'email')->ignore($staff)->whereNull('deleted_at'),
             ],
-            'senha' => [$staff ? 'nullable' : 'required', 'string', 'min:8'],
+            // Opcional tambem na criacao: em branco, o cadastro dispara o
+            // convite por e-mail e a propria pessoa define a senha.
+            'senha' => ['nullable', 'string', 'min:8'],
             'papel' => ['required', Rule::in(['admin', 'vendedor'])],
             'comissao_pct' => ['required', 'integer', 'min:0', 'max:'.Comissao::PCT_MAXIMO],
             'ativo' => ['boolean'],
