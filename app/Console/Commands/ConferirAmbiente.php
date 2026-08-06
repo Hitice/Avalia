@@ -104,22 +104,43 @@ class ConferirAmbiente extends Command
      * servir. E o dia em que este item precisa reprovar sozinho, sem depender de
      * alguem lembrar.
      */
+    /**
+     * A aplicacao manda algum e-mail?
+     *
+     * Mesma leitura de intencao que a da fila: a fachada Mail ou uma classe
+     * Mailable so existem para enviar. Enquanto nao houver nenhuma, o driver que
+     * grava em arquivo nao esconde nada, porque nao ha nada a esconder.
+     */
+    private function existeEnvioDeEmail(): bool
+    {
+        return $this->codigoContem('Illuminate\Support\Facades\\'.'Mail;')
+            || $this->codigoContem('Illuminate\Contracts\Mail\\'.'Mailable;');
+    }
+
     private function existeTrabalhoEnfileirado(): bool
+    {
+        return $this->codigoContem('Illuminate\Contracts\Queue\\'.'ShouldQueue;');
+    }
+
+    /**
+     * Algum arquivo de `app/` importa isto?
+     *
+     * Procura o import, e nao o nome solto: o nome aparece neste proprio arquivo,
+     * que ficaria se acusando para sempre. Pelo mesmo motivo, o arquivo que faz a
+     * busca fica de fora dela.
+     */
+    private function codigoContem(string $import): bool
     {
         $arquivos = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(app_path(), \FilesystemIterator::SKIP_DOTS),
         );
-
-        // Procura o import, e nao a palavra: a palavra aparece neste proprio
-        // arquivo, que ficaria se acusando para sempre.
-        $procurado = 'use Illuminate\Contracts\Queue\\'.'ShouldQueue;';
 
         foreach ($arquivos as $arquivo) {
             if ($arquivo->getExtension() !== 'php' || $arquivo->getPathname() === __FILE__) {
                 continue;
             }
 
-            if (str_contains((string) file_get_contents($arquivo->getPathname()), $procurado)) {
+            if (str_contains((string) file_get_contents($arquivo->getPathname()), 'use '.$import)) {
                 return true;
             }
         }
@@ -254,9 +275,22 @@ class ConferirAmbiente extends Command
         );
 
         // Driver `log` grava a mensagem no arquivo em vez de enviar. Recuperacao
-        // de senha e aviso de vencimento simplesmente nao saem, sem erro nenhum.
-        $producao
-            ? $this->anota('Envio de e-mail configurado', config('mail.default') !== 'log', 'driver "log" não envia nada')
-            : $this->anota('Envio de e-mail configurado', true, (string) config('mail.default'), true);
+        // de senha e aviso de vencimento sairiam sem erro nenhum e sem chegar.
+        //
+        // Mesma logica da fila: so e defeito se houver o que enviar. Hoje a
+        // aplicacao nao envia nada, e barrar a publicacao por isso seria alarme
+        // sem defeito, do tipo que se aprende a ignorar. O dia em que o primeiro
+        // e-mail existir, este item passa a reprovar sozinho.
+        $envia = $this->existeEnvioDeEmail();
+        $emArquivo = config('mail.default') === 'log';
+
+        $this->anota(
+            'Envio de e-mail compatível com o que a aplicação manda',
+            ! $producao || ! $emArquivo || ! $envia,
+            $emArquivo
+                ? ($envia ? 'a aplicação envia e-mail e o driver é "log"' : 'driver "log", e nada é enviado')
+                : (string) config('mail.default'),
+            true,
+        );
     }
 }
