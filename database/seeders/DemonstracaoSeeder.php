@@ -4,10 +4,12 @@ namespace Database\Seeders;
 
 use App\Actions\Consumo\ExecutarConsulta;
 use App\Actions\Consumo\FecharCompetencia;
+use App\Actions\Documentos\RegistrarAceiteDocumento;
 use App\Actions\Financeiro\RegistrarLiquidacao;
 use App\Models\Catalogo;
 use App\Models\Cliente;
 use App\Models\Consulta;
+use App\Models\DocumentoLegal;
 use App\Models\Plano;
 use App\Models\Staff;
 use Illuminate\Database\Seeder;
@@ -69,6 +71,11 @@ class DemonstracaoSeeder extends Seeder
 
         $vendedores = $this->vendedores();
         $empresas = $this->empresas($vendedores, $planos);
+
+        // Aceite antes do movimento: documento obrigatorio pendente faz a acao
+        // de consumo recusar a consulta, e a demonstracao nasceria sem uma
+        // consulta sequer. Foi o que aconteceu enquanto isto nao existia.
+        $this->aceites($empresas);
 
         $this->movimento($empresas);
 
@@ -168,6 +175,28 @@ class DemonstracaoSeeder extends Seeder
     }
 
     /**
+     * Aceita, por cada empresa da demonstracao, os documentos obrigatorios.
+     *
+     * Empresa que nao aceitou nao consulta, e demonstracao que nao consulta nao
+     * demonstra nada. Passa pela mesma acao que a tela usa, entao a trilha de
+     * auditoria fica igual a de um aceite de verdade.
+     *
+     * @param  array<int, Cliente>  $empresas
+     */
+    private function aceites(array $empresas): void
+    {
+        $registrar = app(RegistrarAceiteDocumento::class);
+
+        $obrigatorios = DocumentoLegal::where('ativo', true)->where('exige_aceite', true)->get();
+
+        foreach ($empresas as $empresa) {
+            foreach ($obrigatorios as $documento) {
+                $registrar($empresa, $documento);
+            }
+        }
+    }
+
+    /**
      * Consultas passando pelo conector, como o cliente faria pelo portal.
      *
      * Uma em cada dez usa um documento que o simulado recusa, para as telas
@@ -205,6 +234,14 @@ class DemonstracaoSeeder extends Seeder
                 'Análise de crédito para venda a prazo',
                 'Operação da '.$empresa->razao_social,
             );
+
+            // Recusa nao pode passar em silencio: a demonstracao existe para as
+            // telas terem conteudo, e tela vazia parece funcionar.
+            if ($resultado['erro']) {
+                $this->command->error('Consulta recusada para '.$empresa->razao_social.': '.$resultado['erro']);
+
+                return;
+            }
 
             // Competência antiga: a consulta nasce no mês corrente e precisa ser
             // reposicionada, porque não há como pedir ao conector uma data.

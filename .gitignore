@@ -25,3 +25,6 @@ Thumbs.db
 
 # Material de referencia local do cliente.
 /temp/
+
+# Copias do banco. Contem dado de cliente e hash de senha: nunca vao para o repositorio.
+/backup
