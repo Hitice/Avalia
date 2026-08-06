@@ -87,7 +87,9 @@
              sumia na pagina. --}}
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
             <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
-                <x-avalia.logotipo :tamanho="40" one />
+                <a href="{{ route('inicio') }}" aria-label="Início">
+                    <x-avalia.logotipo :tamanho="40" one />
+                </a>
 
                 <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14 min-[1550px]:pr-0">
                     <x-avalia.botao variante="secundario" :href="route('entrar')">
@@ -441,7 +443,9 @@
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
-                <x-avalia.logotipo :tamanho="24" />
+                <a href="{{ route('inicio') }}" aria-label="Início">
+                    <x-avalia.logotipo :tamanho="28" one />
+                </a>
                 <p>© {{ now()->year }} Avalia · CNPJ 39.914.870/0001-01</p>
                 <a class="flex items-center gap-1.5 hover:text-brand-500" href="mailto:comercial@avaliaone.com.br">
                     comercial@avaliaone.com.br
@@ -495,7 +499,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $pilar['icone'] }}"/>
                                             </svg>
                                         </div>
-                                        <x-avalia.logotipo :tamanho="26" />
+                                        <x-avalia.logotipo :tamanho="26" one />
                                     </div>
                                     <h3 class="mt-5 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $pilar['titulo'] }}</h3>
                                     <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{{ $pilar['detalhe'] }}</p>

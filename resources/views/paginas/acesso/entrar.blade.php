@@ -190,7 +190,7 @@
                 </div>
 
                 <div class="z-1 flex max-w-xs flex-col items-center [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
-                    <x-avalia.medidor :tamanho="120" por-nivel class="mb-1" style="--nivel: 0.82" />
+                    <x-avalia.medidor :tamanho="120" por-nivel class="-mb-4" style="--nivel: 0.82" />
                     {{-- So o wordmark: o simbolo ja esta logo acima, em
                          tamanho grande, e repetir o gauge pequeno na logo
                          duplicava o desenho na mesma dobra. --}}
