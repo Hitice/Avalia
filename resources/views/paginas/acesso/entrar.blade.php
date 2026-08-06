@@ -127,9 +127,9 @@
 
                     <p class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
                         Novo por aqui?
-                        <a href="https://wa.me/5534991176599" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ route('inicio', ['interesse' => 1]) }}"
                            class="text-brand-600 hover:text-brand-700 font-medium dark:text-brand-400 dark:hover:text-brand-300">
-                            Fale com um de nossos representantes.
+                            Solicite seu cadastro.
                         </a>
                     </p>
                 </div>
@@ -143,7 +143,7 @@
 
                  O painel mede a si mesmo e fecha a grade em azulejos inteiros,
                  como o heroi da pagina inicial. --}}
-            <div class="bg-brand-950 grade-viva-escura relative hidden h-full w-full items-center justify-center overflow-hidden lg:flex lg:w-1/2 dark:bg-white/5"
+            <div class="bg-brand-950 relative hidden h-full w-full items-center justify-center overflow-hidden lg:flex lg:w-1/2"
                  x-data="{
                      ajustar() {
                          const r = this.$el.getBoundingClientRect();
@@ -153,6 +153,17 @@
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
                  }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
+
+                {{-- A foto por baixo de tudo, com o veu da marca por cima:
+                     e ela que da vida ao painel, mas quem manda na leitura
+                     continua sendo o azul, a grade e a marca. --}}
+                <img src="/images/entrar-fundo.png" alt="" draggable="false"
+                     class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+                <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-brand-950/85"></div>
+
+                {{-- A grade sobe para uma camada propria: como fundo do painel
+                     ela ficaria escondida atras da foto. --}}
+                <div aria-hidden="true" class="grade-viva-escura pointer-events-none absolute inset-0"></div>
 
                 <div aria-hidden="true" class="pointer-events-none absolute inset-0">
                     {{-- Canto inferior esquerdo --}}

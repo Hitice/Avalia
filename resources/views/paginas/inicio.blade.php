@@ -79,7 +79,7 @@
                  else if (d > 60) this.anteriorPilar();
              },
          }"
-         x-init="@if (session('interesse_ok')) aberto = 'obrigado' @elseif ($errors->any()) aberto = 'campanha' @endif"
+         x-init="@if (session('interesse_ok')) aberto = 'obrigado' @elseif ($errors->any() || request()->boolean('interesse')) aberto = 'campanha' @endif"
          @keydown.escape.window="aberto = null">
 
         {{-- Topo fixo. Sombra e fundo quase solido para separar do conteudo:
