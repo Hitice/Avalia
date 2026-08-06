@@ -467,7 +467,13 @@
   background-image:
     linear-gradient(to right, var(--grade-linha) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grade-linha) 1px, transparent 1px);
-  background-size: 42px 42px;
+  background-size: var(--passo-x, 42px) var(--passo-y, 42px);
+
+  /* Nenhum azulejo cortado na borda: o navegador estica cada um o minimo
+     necessario para caber um numero inteiro deles. Onde o passo vem calculado
+     (o heroi, que precisa alinhar as celulas acesas), o round nao muda nada,
+     porque a conta ja fecha. */
+  background-repeat: round;
 }
 
 .dark .grade-viva {
@@ -480,15 +486,18 @@
   background-image:
     linear-gradient(to right, var(--grade-linha) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grade-linha) 1px, transparent 1px);
-  background-size: 42px 42px;
+  background-size: var(--passo-x, 42px) var(--passo-y, 42px);
+  background-repeat: round;
 }
 
 /* Celula da grade que acende e apaga. A posicao e o atraso vem de estilo
    inline, porque sao dados da composicao e nao do desenho. */
 @utility celula-viva {
   position: absolute;
-  width: 41px;
-  height: 41px;
+  /* O tamanho segue o passo calculado da grade, menos a linha: a celula acesa
+     preenche exatamente um azulejo, qualquer que seja o ajuste. */
+  width: calc(var(--passo-x, 42px) - 1px);
+  height: calc(var(--passo-y, 42px) - 1px);
   border-radius: 2px;
   background-color: rgb(70 95 255 / 0.1);
   animation: celula-acende 5.5s ease-in-out infinite;

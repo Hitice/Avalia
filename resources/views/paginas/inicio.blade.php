@@ -102,12 +102,27 @@
             </div>
         </header>
 
-        {{-- Herói: a grade viva da marca ao fundo, a promessa na frente. --}}
-        <section class="grade-viva relative overflow-hidden pt-[72px]">
+        {{-- Herói: a grade viva da marca ao fundo, a promessa na frente.
+
+             A seção mede a si mesma e distribui azulejos inteiros: o passo da
+             grade vira variável, calculada para a largura e a altura fecharem
+             sem azulejo cortado na borda. As células acesas usam o mesmo
+             passo, então continuam caindo exatamente dentro dos quadradinhos. --}}
+        <section class="grade-viva relative overflow-hidden pt-[72px]"
+                 x-data="{
+                     ajustar() {
+                         const r = this.$el.getBoundingClientRect();
+                         const cx = Math.max(1, Math.round(r.width / 42));
+                         const cy = Math.max(1, Math.round(r.height / 42));
+                         this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
+                         this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
+                     },
+                 }"
+                 x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
             <div aria-hidden="true" class="absolute inset-0">
                 @foreach ($celulas as $celula)
                     <span class="celula-viva"
-                          style="top: {{ $celula['top'] * 42 }}px; left: {{ $celula['left'] * 42 }}px; animation-delay: {{ $celula['atraso'] }}"></span>
+                          style="top: calc(var(--passo-y, 42px) * {{ $celula['top'] }} + 1px); left: calc(var(--passo-x, 42px) * {{ $celula['left'] }} + 1px); animation-delay: {{ $celula['atraso'] }}"></span>
                 @endforeach
             </div>
             <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white dark:to-gray-900"></div>
