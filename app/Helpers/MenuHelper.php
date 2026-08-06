@@ -16,7 +16,7 @@ class MenuHelper
             ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
-            ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin']],
+            ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
@@ -28,8 +28,12 @@ class MenuHelper
     {
         $papel = auth('staff')->user()?->papel;
 
-        $permitido = fn (array $item) => ! isset($item['papeis'])
-            || in_array($papel, $item['papeis'], true);
+        $conta = auth('staff')->user();
+
+        $permitido = fn (array $item) => (! isset($item['papeis']) || in_array($papel, $item['papeis'], true))
+            // Item que exige permissao financeira some de quem nao a tem: menu
+            // que leva a 403 ensina o operador a ignorar o menu.
+            && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro());
 
         return [
             ['title' => 'Menu', 'items' => array_values(array_filter(self::getMainNavItems(), $permitido))],

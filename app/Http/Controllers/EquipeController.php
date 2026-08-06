@@ -36,14 +36,27 @@ class EquipeController extends Controller
     {
         $membro = Staff::create($request->dados());
 
-        Auditar::registrar('equipe.criada', $membro, [
-            'papel' => $membro->papel,
-            'comissao_pct' => $membro->comissao_pct,
-        ]);
+        Auditar::registrar('equipe.criada', $membro, $this->rastreavel($membro));
 
         return redirect()
             ->route('equipe.index')
             ->with('ok', "{$membro->nome} cadastrado.");
+    }
+
+    /**
+     * O que muda de mao e precisa de rastro: papel, comissao e permissao
+     * financeira. Corrigir um nome nao vira registro, para a trilha nao virar
+     * ruido e esconder o que importa.
+     *
+     * @return array<string, mixed>
+     */
+    private function rastreavel(Staff $membro): array
+    {
+        return [
+            'papel' => $membro->papel,
+            'comissao_pct' => $membro->comissao_pct,
+            'pode_financeiro' => (bool) $membro->pode_financeiro,
+        ];
     }
 
     public function editar(Staff $membro)
@@ -53,7 +66,7 @@ class EquipeController extends Controller
 
     public function atualizar(StaffRequest $request, Staff $membro)
     {
-        $antes = ['papel' => $membro->papel, 'comissao_pct' => $membro->comissao_pct];
+        $antes = $this->rastreavel($membro);
 
         $membro->update($request->dados());
 
@@ -63,11 +76,8 @@ class EquipeController extends Controller
             $membro->revogaSessoes();
         }
 
-        if ($antes !== ['papel' => $membro->papel, 'comissao_pct' => $membro->comissao_pct]) {
-            Auditar::registrar('equipe.alterada', $membro, [
-                'papel' => $membro->papel,
-                'comissao_pct' => $membro->comissao_pct,
-            ]);
+        if ($antes !== $this->rastreavel($membro)) {
+            Auditar::registrar('equipe.alterada', $membro, $this->rastreavel($membro));
         }
 
         return redirect()

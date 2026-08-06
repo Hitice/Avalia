@@ -26,6 +26,7 @@ class StaffRequest extends FormRequest
         $this->merge([
             'email' => mb_strtolower(trim((string) $this->input('email'))),
             'ativo' => $this->boolean('ativo'),
+            'pode_financeiro' => $this->boolean('pode_financeiro'),
         ]);
     }
 
@@ -43,6 +44,7 @@ class StaffRequest extends FormRequest
             'papel' => ['required', Rule::in(['admin', 'vendedor'])],
             'comissao_pct' => ['required', 'integer', 'min:0', 'max:'.Comissao::PCT_MAXIMO],
             'ativo' => ['boolean'],
+            'pode_financeiro' => ['boolean'],
         ];
     }
 

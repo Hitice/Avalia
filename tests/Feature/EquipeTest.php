@@ -165,3 +165,79 @@ it('ignora taxa fora da faixa em vez de pagar errado', function () {
         ->and(Comissao::pct(90))->toBe(10)
         ->and(Comissao::pct(20))->toBe(20);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Permissao financeira
+|--------------------------------------------------------------------------
+*/
+
+it('nega o financeiro ao administrador sem a permissao', function () {
+    // Quem mexe no catalogo deixa de dar baixa so por ser administrador.
+    $semPermissao = Staff::factory()->admin()->create(['pode_financeiro' => false]);
+
+    $comoEle = fn () => test()->actingAs($semPermissao, 'staff')
+        ->withSession(['versao_staff' => $semPermissao->sessao_versao]);
+
+    $comoEle()->get(route('financeiro.index'))->assertForbidden();
+
+    // E continua fazendo o resto do trabalho dele.
+    $comoEle()->get(route('catalogo.servicos.index'))->assertOk();
+    $comoEle()->get(route('empresas.index'))->assertOk();
+});
+
+it('nao mostra o financeiro no menu de quem nao pode abrir', function () {
+    // Menu que leva a 403 ensina o operador a ignorar o menu.
+    $semPermissao = Staff::factory()->admin()->create(['pode_financeiro' => false]);
+
+    test()->actingAs($semPermissao, 'staff')
+        ->withSession(['versao_staff' => $semPermissao->sessao_versao])
+        ->get('/')
+        ->assertOk()
+        ->assertDontSee('href="/financeiro"', false);
+
+    admin()->get('/')->assertOk()->assertSee('href="/financeiro"', false);
+});
+
+it('nao deixa fechar competencia sem permissao financeira', function () {
+    // Fechar emite cobranca: e decisao financeira, nao de cadastro.
+    $semPermissao = Staff::factory()->admin()->create(['pode_financeiro' => false]);
+    $empresa = App\Models\Cliente::factory()->create();
+
+    test()->actingAs($semPermissao, 'staff')
+        ->withSession(['versao_staff' => $semPermissao->sessao_versao])
+        ->post(route('empresas.fechar', $empresa))
+        ->assertForbidden();
+});
+
+it('da a permissao ao superusuario sem precisar marcar', function () {
+    $super = Staff::factory()->super()->create(['pode_financeiro' => false]);
+
+    expect($super->podeFinanceiro())->toBeTrue();
+});
+
+it('nao concede permissao financeira a vendedor', function () {
+    // A marca ligada por engano no cadastro nao abre a porta: a permissao so
+    // faz sentido dentro da administracao.
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor', 'pode_financeiro' => true]);
+
+    expect($vendedor->podeFinanceiro())->toBeFalse();
+});
+
+it('registra na trilha quando a permissao financeira muda', function () {
+    $membro = Staff::factory()->admin()->create(['pode_financeiro' => false]);
+
+    admin()->put(route('equipe.atualizar', $membro), [
+        'nome' => $membro->nome,
+        'email' => $membro->email,
+        'papel' => 'admin',
+        'comissao_pct' => 10,
+        'pode_financeiro' => '1',
+        'ativo' => '1',
+    ]);
+
+    $registro = Auditoria::where('acao', 'equipe.alterada')->latest('id')->first();
+
+    expect($membro->fresh()->pode_financeiro)->toBeTrue()
+        ->and($registro->dados['pode_financeiro'])->toBeTrue();
+});

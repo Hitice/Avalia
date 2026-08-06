@@ -22,7 +22,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'comissao_pct', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'pode_financeiro', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
@@ -33,6 +33,8 @@ class Staff extends Authenticatable implements ContaAutenticavel
             'senha' => 'hashed',
             'super' => 'boolean',
             'ativo' => 'boolean',
+            'pode_financeiro' => 'boolean',
+            'comissao_pct' => 'integer',
             'sessao_versao' => 'integer',
             'ultimo_acesso_em' => 'datetime',
         ];
@@ -48,6 +50,18 @@ class Staff extends Authenticatable implements ContaAutenticavel
     public function clientes(): HasMany
     {
         return $this->hasMany(Cliente::class, 'vendedor_id');
+    }
+
+    /**
+     * Pode confirmar pagamento e fechar competencia.
+     *
+     * Superusuario passa por cima, como em qualquer outra permissao. Vendedor
+     * nunca pode, mesmo com a marca ligada por engano no cadastro: a permissao
+     * so faz sentido dentro da administracao.
+     */
+    public function podeFinanceiro(): bool
+    {
+        return $this->ehSuper() || ($this->ehAdmin() && (bool) $this->pode_financeiro);
     }
 
     public function ehAdmin(): bool

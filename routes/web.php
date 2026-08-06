@@ -78,7 +78,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::middleware('admin')->group(function () {
             Route::get('/', [EmpresaController::class, 'index'])->name('index');
             Route::get('/{empresa}', [EmpresaController::class, 'ficha'])->name('ficha');
-            Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])->name('fechar');
+            // Fechar competencia emite cobranca: e decisao financeira.
+            Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])
+                ->middleware('financeiro')->name('fechar');
             Route::post('/{empresa}/restaurar', [EmpresaController::class, 'restaurar'])->name('restaurar');
         });
     });
@@ -91,7 +93,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // As faturas de todas as empresas. A baixa registrada aqui e a mesma que o
     // provedor de cobranca dispara por webhook: uma acao so, para baixa manual
     // e automatica nao divergirem.
-    Route::middleware('admin')->prefix('financeiro')->name('financeiro.')->group(function () {
+    Route::middleware(['admin', 'financeiro'])->prefix('financeiro')->name('financeiro.')->group(function () {
         Route::get('/', [FinanceiroController::class, 'index'])->name('index');
         Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
     });

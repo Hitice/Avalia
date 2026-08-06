@@ -76,6 +76,20 @@
                     @error('comissao_pct') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
+                <div x-show="papel === 'admin'" x-cloak class="sm:col-span-2">
+                    <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="hidden" name="pode_financeiro" value="0">
+                        <input type="checkbox" name="pode_financeiro" value="1"
+                               class="size-4 rounded border-gray-300 dark:border-gray-700"
+                               @checked(old('pode_financeiro', $membro->pode_financeiro ?? false))>
+                        Pode confirmar pagamentos e fechar competências
+                    </label>
+                    <span class="ajuda-campo">
+                        Confirmar um pagamento libera a comissão do vendedor na hora, mesmo que nada
+                        tenha entrado em conta. Conceda a quem confere o extrato.
+                    </span>
+                </div>
+
                 <div class="flex items-center sm:col-span-2">
                     <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                         <input type="hidden" name="ativo" value="0">
