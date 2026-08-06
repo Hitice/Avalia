@@ -43,7 +43,7 @@ it('nao deixa a empresa aceitar documento em nome de outra', function () {
         'conteudo' => 'Conteúdo.', 'exige_aceite' => true, 'ativo' => true,
     ]);
 
-    comoEmpresa($minha)->post(route('empresa.documentos.aceitar', $documento))->assertRedirect();
+    comoEmpresa($minha)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento))->assertRedirect();
 
     expect($alheia->aceitesDocumentos()->count())->toBe(0)
         ->and($minha->aceitesDocumentos()->count())->toBe(1);

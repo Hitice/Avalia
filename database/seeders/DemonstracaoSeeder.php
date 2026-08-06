@@ -191,7 +191,7 @@ class DemonstracaoSeeder extends Seeder
 
         foreach ($empresas as $empresa) {
             foreach ($obrigatorios as $documento) {
-                $registrar($empresa, $documento);
+                $registrar($empresa, $documento, 'Aceite de demonstração');
             }
         }
     }

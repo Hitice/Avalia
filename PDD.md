@@ -619,9 +619,23 @@ Uma seção administrativa disponibiliza versões controladas de PDFs:
 
 Os arquivos possuem versão, categoria, vigência, público, status e trilha de
 aceite ou download. O administrador define os acessos. Contratos gerados
-registram a versão usada e os valores comerciais congelados. Nesta fase,
-documentos são disponibilizados para download e aceite; assinatura eletrônica
-integrada fica fora do escopo inicial.
+registram a versão usada e os valores comerciais congelados. Assinatura
+eletrônica integrada fica fora do escopo inicial.
+
+O que já está implementado desta seção:
+
+- **PDF de todo documento**, gerado sem dependência externa (a hospedagem
+  bloqueia processos externos, e o gerador próprio segue o precedente da
+  planilha XLSX). O rodapé de cada página carrega tipo, versão e o resumo
+  sha256 da íntegra, então uma cópia impressa é conferível contra o banco.
+- **Aceite como evidência**, não como clique: exige o nome de quem aceita (a
+  conta é da empresa, mas quem clica é uma pessoa), a confirmação explícita de
+  leitura, e o hash do texto que estava na tela, conferido no ato. Se o
+  documento mudou entre a leitura e o clique, o aceite é recusado e a pessoa
+  relê a versão vigente.
+- **Comprovante de aceite em PDF**: quem aceitou, quando, de onde (IP e
+  navegador), o hash aceito e a íntegra do texto, disponível para a empresa a
+  qualquer momento depois do aceite.
 
 ## 12. Painéis, indicadores e BI
 

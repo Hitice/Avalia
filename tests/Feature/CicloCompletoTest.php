@@ -87,7 +87,7 @@ it('percorre cadastro, aceite, consulta, fechamento, cobranca e repasse', functi
 
     expect(Consulta::count())->toBe(0);
 
-    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento))->assertRedirect();
+    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento))->assertRedirect();
 
     /*
      * 4. Agora consulta. Cinco dao certo, uma nao, e a que falhou nao e cobrada.

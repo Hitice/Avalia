@@ -176,6 +176,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware('admin')->prefix('documentos')->name('documentos.')->group(function () {
         Route::get('/', [DocumentoController::class, 'index'])->name('index');
         Route::get('/novo', [DocumentoController::class, 'criar'])->name('criar');
+        Route::get('/{documento}/pdf', [DocumentoController::class, 'pdf'])->name('pdf');
         Route::post('/', [DocumentoController::class, 'salvar'])->name('salvar');
     });
 
@@ -247,6 +248,8 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
 
         Route::get('/documentos', [AreaClienteController::class, 'documentos'])->name('documentos');
         Route::post('/documentos/{documento}/aceite', [AreaClienteController::class, 'aceitar'])->name('documentos.aceitar');
+        Route::get('/documentos/{documento}/pdf', [AreaClienteController::class, 'documentoPdf'])->name('documentos.pdf');
+        Route::get('/documentos/{documento}/comprovante', [AreaClienteController::class, 'comprovantePdf'])->name('documentos.comprovante');
 
         // A consulta em si. E a empresa que pede, porque e ela que consome.
         // Teto por origem, alem do teto diario por empresa: um vaza acesso,

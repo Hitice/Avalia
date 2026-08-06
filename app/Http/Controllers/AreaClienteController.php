@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Actions\Consumo\ExecutarConsulta;
 use App\Actions\Documentos\RegistrarAceiteDocumento;
+use App\Models\AceiteDocumento;
 use App\Models\Consulta;
 use App\Models\DocumentoLegal;
 use App\Models\Servico;
+use App\Support\DocumentoPdf;
 use App\Support\FiltroConsultas;
 use Illuminate\Http\Request;
 
@@ -175,11 +177,61 @@ class AreaClienteController extends Controller
         return view('paginas.empresa.consulta', ['consulta' => $consulta->load('servico')]);
     }
 
-    public function aceitar(DocumentoLegal $documento, RegistrarAceiteDocumento $registrar)
+    /**
+     * O aceite deixa de ser um clique e vira evidencia.
+     *
+     * Tres exigencias: o nome de quem aceita (a conta e da empresa, mas quem
+     * clica e uma pessoa), a confirmacao explicita de leitura, e o hash do
+     * conteudo que estava na tela. O hash fecha a janela entre ler e aceitar:
+     * se o documento mudou no meio, o aceite e recusado e a pessoa rele a
+     * versao vigente, em vez de aceitar as cegas um texto que nao viu.
+     */
+    public function aceitar(Request $pedido, DocumentoLegal $documento, RegistrarAceiteDocumento $registrar)
     {
-        $registrar(auth('empresa')->user(), $documento);
+        $dados = $pedido->validate([
+            'responsavel' => ['required', 'string', 'min:5', 'max:150'],
+            'li' => ['accepted'],
+            'hash' => ['required', 'string'],
+        ], [
+            'responsavel.required' => 'Informe o nome completo de quem está aceitando.',
+            'responsavel.min' => 'Informe o nome completo de quem está aceitando.',
+            'li.accepted' => 'Confirme que leu o documento.',
+        ]);
 
-        return back()->with('ok', 'Aceite registrado.');
+        if (! hash_equals($documento->hashConteudo(), $dados['hash'])) {
+            return back()->with('erro', 'O documento foi atualizado desde a sua leitura. Releia a versão vigente antes de aceitar.');
+        }
+
+        $registrar(auth('empresa')->user(), $documento, $dados['responsavel']);
+
+        return back()->with('ok', 'Aceite registrado. O comprovante em PDF já está disponível.');
+    }
+
+    /** O documento em PDF, para leitura e arquivo. */
+    public function documentoPdf(DocumentoLegal $documento)
+    {
+        abort_unless($documento->ativo, 404);
+
+        return response(DocumentoPdf::documento($documento), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$documento->tipo.'-v'.$documento->versao.'.pdf"',
+        ]);
+    }
+
+    /**
+     * O comprovante do aceite da propria empresa: quem, quando, de onde e o
+     * hash do que foi aceito. Sem aceite, nao ha o que comprovar.
+     */
+    public function comprovantePdf(DocumentoLegal $documento)
+    {
+        $aceite = AceiteDocumento::where('documento_id', $documento->id)
+            ->where('cliente_id', auth('empresa')->id())
+            ->firstOrFail();
+
+        return response(DocumentoPdf::comprovante($aceite), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="comprovante-'.$documento->tipo.'.pdf"',
+        ]);
     }
 
     /**

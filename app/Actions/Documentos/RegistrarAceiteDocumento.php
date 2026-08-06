@@ -11,14 +11,15 @@ use Illuminate\Support\Facades\DB;
 /** Registra aceite idempotente com a versão e o hash do conteúdo exibido. */
 class RegistrarAceiteDocumento
 {
-    public function __invoke(Cliente $cliente, DocumentoLegal $documento): AceiteDocumento
+    public function __invoke(Cliente $cliente, DocumentoLegal $documento, ?string $responsavel = null): AceiteDocumento
     {
         abort_unless($documento->ativo && $documento->exige_aceite, 404);
 
-        return DB::transaction(function () use ($cliente, $documento) {
+        return DB::transaction(function () use ($cliente, $documento, $responsavel) {
             $aceite = AceiteDocumento::firstOrCreate(
                 ['documento_id' => $documento->id, 'cliente_id' => $cliente->id],
                 [
+                    'responsavel' => $responsavel,
                     'versao' => $documento->versao,
                     'hash_conteudo' => $documento->hashConteudo(),
                     'ip_address' => request()->ip(),

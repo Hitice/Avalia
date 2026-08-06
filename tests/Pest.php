@@ -54,3 +54,16 @@ function admin(): Tests\TestCase
         ->actingAs(App\Models\Staff::factory()->admin()->create(), 'staff')
         ->withSession(['versao_staff' => 1]);
 }
+
+/**
+ * Payload de aceite valido para os testes: nome, confirmacao de leitura e o
+ * hash do conteudo vigente, como a tela envia.
+ */
+function aceiteValido(App\Models\DocumentoLegal $documento): array
+{
+    return [
+        'responsavel' => 'Fulana Responsável de Teste',
+        'li' => '1',
+        'hash' => $documento->hashConteudo(),
+    ];
+}

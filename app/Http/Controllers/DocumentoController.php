@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\DB;
 
 class DocumentoController extends Controller
 {
+    /** O documento em PDF, como a empresa o recebe. */
+    public function pdf(\App\Models\DocumentoLegal $documento)
+    {
+        return response(\App\Support\DocumentoPdf::documento($documento), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$documento->tipo.'-v'.$documento->versao.'.pdf"',
+        ]);
+    }
+
     public function index()
     {
         return view('paginas.documentos.index', ['documentos' => DocumentoLegal::orderBy('tipo')->orderByDesc('created_at')->get()]);

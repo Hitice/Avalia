@@ -25,7 +25,7 @@ it('mostra o documento e preserva a prova do aceite da empresa', function () {
         ->assertSee('Termo de confidencialidade')
         ->assertSee('Texto do termo para leitura antes do aceite.');
 
-    $sessao->post(route('empresa.documentos.aceitar', $documento))
+    $sessao->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento))
         ->assertRedirect()
         ->assertSessionHas('ok');
 

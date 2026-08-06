@@ -1,0 +1,244 @@
+<?php
+
+namespace App\Support;
+
+/**
+ * Gerador de PDF sem dependencia externa, irmao da Planilha.
+ *
+ * A hospedagem desabilita proc_open, entao qualquer conversor que chame um
+ * navegador ou binario externo esta fora. E biblioteca de composer para isto
+ * seria a primeira dependencia de arquivo do projeto, que ate aqui gera XLSX a
+ * mao. Um PDF de texto corrido e um formato pequeno: objetos, paginas, duas
+ * fontes padrao e streams de texto.
+ *
+ * O que este gerador faz, e so o que ele faz: texto em Helvetica (normal e
+ * negrito), quebra de linha por largura real dos caracteres, paginacao com
+ * rodape. E o suficiente para documento juridico de texto, que e o caso de
+ * uso. Imagem, tabela e fonte propria ficam de fora ate existir necessidade.
+ *
+ * Acentos: as fontes padrao do PDF usam WinAnsi (CP1252), que cobre o
+ * portugues inteiro. O texto e convertido na saida; para MEDIR largura, o
+ * caractere acentuado usa a largura do caractere base, que em Helvetica e a
+ * mesma na pratica.
+ */
+final class Pdf
+{
+    private const LARGURA = 595.28;   // A4 em pontos
+
+    private const ALTURA = 841.89;
+
+    private const MARGEM = 56.0;
+
+    private const RODAPE_ALTURA = 30.0;
+
+    /** Larguras Helvetica em milesimos de em, do espaco (32) ao til (126). */
+    private const LARGURAS = [
+        278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
+        556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
+        1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
+        667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
+        333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
+        556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584,
+    ];
+
+    /** @var list<string> conteudo de cada pagina, em operadores de texto */
+    private array $paginas = [];
+
+    private string $atual = '';
+
+    private float $y;
+
+    private string $rodape = '';
+
+    public function __construct()
+    {
+        $this->y = self::ALTURA - self::MARGEM;
+    }
+
+    /** Linha discreta repetida ao pe de toda pagina, junto do numero. */
+    public function rodape(string $texto): static
+    {
+        $this->rodape = $texto;
+
+        return $this;
+    }
+
+    public function titulo(string $texto): static
+    {
+        $this->escrever($texto, 16, true, 0.11);
+        $this->espaco(6);
+
+        return $this;
+    }
+
+    /** Linha de contexto sob o titulo: versao, data, identificacao. */
+    public function meta(string $texto): static
+    {
+        $this->escrever($texto, 9, false, 0.45);
+
+        return $this;
+    }
+
+    public function secao(string $texto): static
+    {
+        $this->espaco(14);
+        $this->escrever($texto, 12, true, 0.11);
+        $this->espaco(4);
+
+        return $this;
+    }
+
+    public function paragrafo(string $texto): static
+    {
+        $this->escrever($texto, 10.5, false, 0.2);
+        $this->espaco(7);
+
+        return $this;
+    }
+
+    public function espaco(float $pontos): static
+    {
+        $this->y -= $pontos;
+
+        return $this;
+    }
+
+    /** O arquivo pronto, byte a byte. */
+    public function bytes(): string
+    {
+        $this->fecharPagina();
+
+        $n = count($this->paginas);
+        $objetos = [];
+
+        // 1 catalogo, 2 arvore de paginas, 3 e 4 fontes; paginas e conteudos
+        // vem depois, em pares.
+        $kids = [];
+        for ($i = 0; $i < $n; $i++) {
+            $kids[] = (5 + $i * 2).' 0 R';
+        }
+
+        $objetos[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+        $objetos[2] = '<< /Type /Pages /Kids ['.implode(' ', $kids).'] /Count '.$n.' >>';
+        $objetos[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+        $objetos[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+
+        foreach ($this->paginas as $i => $conteudo) {
+            $rodape = $this->operadoresDoRodape($i + 1, $n);
+            $stream = $conteudo.$rodape;
+            $pagina = 5 + $i * 2;
+
+            $objetos[$pagina] = '<< /Type /Page /Parent 2 0 R'
+                .' /MediaBox [0 0 '.self::LARGURA.' '.self::ALTURA.']'
+                .' /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >>'
+                .' /Contents '.($pagina + 1).' 0 R >>';
+            $objetos[$pagina + 1] = '<< /Length '.strlen($stream)." >>\nstream\n".$stream.'endstream';
+        }
+
+        $corpo = "%PDF-1.4\n";
+        $posicoes = [];
+
+        foreach ($objetos as $num => $objeto) {
+            $posicoes[$num] = strlen($corpo);
+            $corpo .= $num." 0 obj\n".$objeto."\nendobj\n";
+        }
+
+        $inicioXref = strlen($corpo);
+        $total = count($objetos) + 1;
+
+        $corpo .= "xref\n0 {$total}\n0000000000 65535 f \n";
+        for ($num = 1; $num < $total; $num++) {
+            $corpo .= sprintf("%010d 00000 n \n", $posicoes[$num]);
+        }
+
+        $corpo .= "trailer\n<< /Size {$total} /Root 1 0 R >>\nstartxref\n{$inicioXref}\n%%EOF";
+
+        return $corpo;
+    }
+
+    /** Escreve um bloco com quebra automatica, paginando quando acabar o espaco. */
+    private function escrever(string $texto, float $tamanho, bool $negrito, float $cinza): void
+    {
+        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
+        $entrelinha = $tamanho * 1.45;
+
+        foreach ($this->quebrar($texto, $tamanho, $negrito, $larguraUtil) as $linha) {
+            if ($this->y - $entrelinha < self::MARGEM + self::RODAPE_ALTURA) {
+                $this->fecharPagina();
+                $this->y = self::ALTURA - self::MARGEM;
+            }
+
+            $this->y -= $entrelinha;
+            $fonte = $negrito ? 'F2' : 'F1';
+            $this->atual .= sprintf(
+                "BT /%s %.2F Tf %.2F %.2F %.2F rg %.2F %.2F Td (%s) Tj ET\n",
+                $fonte, $tamanho, $cinza, $cinza, $cinza, self::MARGEM, $this->y,
+                $this->escapar($linha),
+            );
+        }
+    }
+
+    /** @return list<string> */
+    private function quebrar(string $texto, float $tamanho, bool $negrito, float $larguraUtil): array
+    {
+        $linhas = [];
+        $linha = '';
+
+        foreach (preg_split('/\s+/u', trim($texto)) ?: [] as $palavra) {
+            $tentativa = $linha === '' ? $palavra : $linha.' '.$palavra;
+
+            if ($this->largura($tentativa, $tamanho, $negrito) <= $larguraUtil || $linha === '') {
+                $linha = $tentativa;
+
+                continue;
+            }
+
+            $linhas[] = $linha;
+            $linha = $palavra;
+        }
+
+        if ($linha !== '') {
+            $linhas[] = $linha;
+        }
+
+        return $linhas;
+    }
+
+    private function largura(string $texto, float $tamanho, bool $negrito): float
+    {
+        // Para medir, o acentuado vale como o base: em Helvetica as larguras
+        // coincidem. O negrito e ~6% mais largo que o normal.
+        $base = iconv('UTF-8', 'ASCII//TRANSLIT', $texto) ?: $texto;
+        $soma = 0;
+
+        foreach (str_split($base) as $c) {
+            $codigo = ord($c);
+            $soma += self::LARGURAS[$codigo - 32] ?? 556;
+        }
+
+        return $soma / 1000 * $tamanho * ($negrito ? 1.06 : 1.0);
+    }
+
+    private function escapar(string $texto): string
+    {
+        $cp1252 = mb_convert_encoding($texto, 'Windows-1252', 'UTF-8');
+
+        return strtr($cp1252, ['\\' => '\\\\', '(' => '\\(', ')' => '\\)', "\r" => '', "\n" => '']);
+    }
+
+    private function operadoresDoRodape(int $pagina, int $total): string
+    {
+        $texto = trim($this->rodape.'   ·   Página '.$pagina.' de '.$total, ' ·');
+
+        return sprintf(
+            "BT /F1 8 Tf 0.55 0.55 0.55 rg %.2F %.2F Td (%s) Tj ET\n",
+            self::MARGEM, self::MARGEM - 14, $this->escapar($texto),
+        );
+    }
+
+    private function fecharPagina(): void
+    {
+        $this->paginas[] = $this->atual;
+        $this->atual = '';
+    }
+}

@@ -14,7 +14,7 @@ class AceiteDocumento extends Model
     protected $table = 'aceites_documento';
 
     protected $fillable = [
-        'documento_id', 'cliente_id', 'versao', 'hash_conteudo',
+        'documento_id', 'cliente_id', 'responsavel', 'versao', 'hash_conteudo',
         'ip_address', 'user_agent', 'aceito_em',
     ];
 

@@ -101,10 +101,10 @@ it('registra o aceite e nao registra duas vezes', function () {
         'ativo' => true,
     ]);
 
-    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento))
+    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento))
         ->assertRedirect();
 
-    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento));
+    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento));
 
     expect($empresa->aceitesDocumentos()->where('documento_id', $documento->id)->count())->toBe(1);
 });
@@ -120,7 +120,7 @@ it('deixa rastro do aceite na trilha', function () {
         'ativo' => true,
     ]);
 
-    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento));
+    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento));
 
     expect(Auditoria::where('acao', 'documento.aceito')->count())->toBe(1);
 });
@@ -143,7 +143,7 @@ it('bloqueia a consulta enquanto ha documento obrigatorio pendente', function ()
     expect(app(RegistrarConsulta::class)($empresa, $servico)['erro'])
         ->toContain('pendentes de aceite');
 
-    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento));
+    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento));
 
     expect(app(RegistrarConsulta::class)($empresa->fresh(), $servico)['erro'])->toBeNull();
 });
