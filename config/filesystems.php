@@ -33,7 +33,19 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+
+            /*
+             * Desligado porque nada na aplicacao guarda arquivo em disco: os
+             * documentos legais vivem no banco. Ligado, ele publica a rota
+             * storage/{path}, que serve arquivo por URL assinada e e superficie
+             * de ataque sem contrapartida enquanto nao houver o que servir.
+             *
+             * Ao passar a guardar arquivo, ligue de novo E decida quem pode
+             * pedir cada um: a assinatura prova que o link foi emitido por nos,
+             * nao que quem clicou tem direito ao conteudo.
+             */
+            'serve' => false,
+
             'throw' => false,
             'report' => false,
         ],
