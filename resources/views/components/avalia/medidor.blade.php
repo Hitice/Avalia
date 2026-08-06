@@ -26,7 +26,7 @@
             <stop offset="0" stop-color="var(--color-theme-pink-500)" />
             <stop offset="1" stop-color="var(--color-brand-500)" />
         </linearGradient>
-        <linearGradient id="{{ $grad }}-p" x1="12.6" y1="22.5" x2="6.8" y2="22.5" gradientUnits="userSpaceOnUse">
+        <linearGradient id="{{ $grad }}-p" x1="12.2" y1="22.5" x2="7.0" y2="22.5" gradientUnits="userSpaceOnUse">
             <stop offset="0" stop-color="var(--color-theme-pink-500)" />
             <stop offset="1" stop-color="var(--color-brand-500)" />
         </linearGradient>
@@ -43,8 +43,8 @@
 
     {{-- Ponta solta girando em volta do eixo, sem encostar nele --}}
     <g class="medidor-nivel-ponteiro">
-        <path d="M6.8 22.5 12.6 20.9 12.6 24.1 Z" fill="url(#{{ $grad }}-p)"
-            stroke="url(#{{ $grad }}-p)" stroke-width="0.9" stroke-linejoin="round" />
+        <path d="M7.0 22.5 12.2 21.7 12.2 23.3 Z" fill="url(#{{ $grad }}-p)"
+            stroke="url(#{{ $grad }}-p)" stroke-width="0.7" stroke-linejoin="round" />
     </g>
 
     <circle cx="16" cy="22.5" r="2.6" fill="var(--color-theme-pink-500)" />
