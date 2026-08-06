@@ -129,7 +129,8 @@ it('mantem a area da empresa fora do alcance do staff', function () {
 it('exige permissao de administracao em tudo que nao e do vendedor', function () {
     // O vendedor abre a carteira e o cadastro de empresa da carteira dele.
     // O resto da gestao mostra custo, margem ou dinheiro de terceiros.
-    $doVendedor = ['carteira', 'painel', 'sair', 'empresas.criar', 'empresas.salvar',
+    $doVendedor = ['carteira', 'carteira.consultas', 'carteira.servicos', 'carteira.simulacao',
+        'painel', 'sair', 'empresas.criar', 'empresas.salvar',
         'empresas.editar', 'empresas.atualizar', 'empresas.remover'];
 
     $abertas = [];

@@ -63,7 +63,9 @@
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start'">
-        <a href="/">
+        {{-- A marca leva a porta de entrada de quem esta logado. Fixa em "/", o
+             cliente cai numa rota de gestao e e devolvido para o login. --}}
+        <a href="{{ auth('empresa')->check() ? route('empresa.painel') : '/' }}">
             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
                 <x-avalia.logotipo :tamanho="30" />
             </span>

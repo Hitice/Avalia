@@ -31,6 +31,8 @@
         <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
     </div>
 
+    @include('paginas.carteira.abas')
+
     @include('paginas.catalogo.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-3">

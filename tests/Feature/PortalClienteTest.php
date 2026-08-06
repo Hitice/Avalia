@@ -31,10 +31,11 @@ it('abre o painel da empresa com plano, uso e faturas', function () {
     app(RegistrarConsulta::class)($empresa, $servico, 4);
     app(FecharCompetencia::class)($empresa, '2026-07');
 
-    $resposta = comoEmpresa($empresa)->get(route('empresa.painel'))->assertOk();
+    $painel = comoEmpresa($empresa)->get(route('empresa.painel'))->assertOk();
+    $faturas = comoEmpresa($empresa)->get(route('empresa.faturas'))->assertOk();
 
-    expect($resposta->viewData('faturas'))->toHaveCount(1)
-        ->and($resposta->viewData('uso')[$servico->id])->toBe(4);
+    expect($faturas->viewData('faturas'))->toHaveCount(1)
+        ->and($painel->viewData('uso')[$servico->id])->toBe(4);
 });
 
 it('nao leva custo, lucro nem margem para o portal do cliente', function () {
@@ -43,11 +44,15 @@ it('nao leva custo, lucro nem margem para o portal do cliente', function () {
     $empresa = empresaComPlano();
     app(FecharCompetencia::class)($empresa, '2026-07');
 
-    $html = comoEmpresa($empresa)->get(route('empresa.painel'))->assertOk()->getContent();
+    // Varre as cinco telas, e nao so o painel: a area do cliente deixou de ser
+    // uma pagina unica, e vazamento aparece justamente na tela nova.
+    foreach (['painel', 'consultar', 'consultas', 'faturas', 'documentos'] as $tela) {
+        $html = comoEmpresa($empresa)->get(route('empresa.'.$tela))->assertOk()->getContent();
 
-    expect($html)->not->toContain('Custo do fornecedor')
-        ->not->toContain('Lucro')
-        ->not->toContain('Margem');
+        expect($html)->not->toContain('Custo do fornecedor')
+            ->not->toContain('Lucro')
+            ->not->toContain('Margem');
+    }
 });
 
 it('mostra a cada empresa so as faturas dela', function () {
@@ -57,7 +62,7 @@ it('mostra a cada empresa so as faturas dela', function () {
     app(FecharCompetencia::class)($minha, '2026-07');
     app(FecharCompetencia::class)($alheia, '2026-07');
 
-    $faturas = comoEmpresa($minha)->get(route('empresa.painel'))->viewData('faturas');
+    $faturas = comoEmpresa($minha)->get(route('empresa.faturas'))->viewData('faturas');
 
     expect($faturas)->toHaveCount(1)
         ->and($faturas->first()->cliente_id)->toBe($minha->id);

@@ -7,6 +7,7 @@ use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
@@ -93,10 +94,20 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         });
     });
 
-    // A carteira do vendedor. Sem `admin` no meio: e a unica tela de gestao
-    // que ele abre, e ela nao mostra custo, lucro nem margem. A carteira e
-    // sempre a de quem esta logado, entao nao ha URL que peca a de outro.
-    Route::get('/carteira', CarteiraController::class)->name('carteira');
+    // Consultas de todas as empresas, para a operacao acompanhar volume e
+    // resposta do fornecedor. So leitura, e so admin: a lista do vendedor e
+    // /carteira/consultas, restrita as empresas dele.
+    Route::get('/consultas', ConsultaController::class)->middleware('admin')->name('consultas');
+
+    // A carteira do vendedor. Sem `admin` no meio: sao as telas de gestao que
+    // ele abre, e nenhuma mostra custo, lucro nem margem. A carteira e sempre a
+    // de quem esta logado, entao nao ha URL que peca a de outro.
+    Route::prefix('carteira')->group(function () {
+        Route::get('/', [CarteiraController::class, 'index'])->name('carteira');
+        Route::get('/consultas', [CarteiraController::class, 'consultas'])->name('carteira.consultas');
+        Route::get('/servicos', [CarteiraController::class, 'servicos'])->name('carteira.servicos');
+        Route::get('/simulacao', [CarteiraController::class, 'simulacao'])->name('carteira.simulacao');
+    });
 
     // As faturas de todas as empresas. A baixa registrada aqui e a mesma que o
     // provedor de cobranca dispara por webhook: uma acao so, para baixa manual
@@ -185,13 +196,20 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
     ->prefix('empresa')
     ->name('empresa.')
     ->group(function () {
+        // Um assunto por tela, e nao uma pagina unica com tudo empilhado: quem
+        // entra para pagar a fatura nao passa pelo formulario de consulta.
         Route::get('/', [AreaClienteController::class, 'painel'])->name('painel');
+        Route::get('/consultar', [AreaClienteController::class, 'consultar'])->name('consultar');
+        Route::get('/consultas', [AreaClienteController::class, 'consultas'])->name('consultas');
+        Route::get('/faturas', [AreaClienteController::class, 'faturas'])->name('faturas');
+
+        Route::get('/documentos', [AreaClienteController::class, 'documentos'])->name('documentos');
         Route::post('/documentos/{documento}/aceite', [AreaClienteController::class, 'aceitar'])->name('documentos.aceitar');
 
         // A consulta em si. E a empresa que pede, porque e ela que consome.
         // Teto por origem, alem do teto diario por empresa: um vaza acesso,
         // o outro vaza laco de programa.
-        Route::post('/consultas', [AreaClienteController::class, 'consultar'])
+        Route::post('/consultas', [AreaClienteController::class, 'executar'])
             ->middleware('throttle:30,1')
             ->name('consultas.executar');
         Route::get('/consultas/{consulta}', [AreaClienteController::class, 'verConsulta'])->name('consultas.ver');

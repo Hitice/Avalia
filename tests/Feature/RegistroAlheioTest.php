@@ -84,7 +84,7 @@ it('nao deixa a empresa alcancar fatura pela area dela', function () {
 
     app(FecharCompetencia::class)($alheia, '2026-07');
 
-    $faturas = comoEmpresa($minha)->get(route('empresa.painel'))->viewData('faturas');
+    $faturas = comoEmpresa($minha)->get(route('empresa.faturas'))->viewData('faturas');
 
     expect($faturas)->toBeEmpty();
 });

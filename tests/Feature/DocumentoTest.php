@@ -20,7 +20,7 @@ it('mostra o documento e preserva a prova do aceite da empresa', function () {
     ]);
 
     $sessao = $this->actingAs($cliente, 'empresa')->withSession(['versao_empresa' => $cliente->sessao_versao]);
-    $sessao->get(route('empresa.painel'))
+    $sessao->get(route('empresa.documentos'))
         ->assertOk()
         ->assertSee('Termo de confidencialidade')
         ->assertSee('Texto do termo para leitura antes do aceite.');

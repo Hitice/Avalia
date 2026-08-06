@@ -14,6 +14,7 @@ class MenuHelper
         return [
             ['icon' => 'dashboard', 'name' => 'Visão geral', 'path' => '/'],
             ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
+            ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
@@ -24,8 +25,33 @@ class MenuHelper
         ];
     }
 
+    /**
+     * Menu da area do cliente.
+     *
+     * Cada assunto em uma tela: quem entra para pagar a fatura nao passa pelo
+     * formulario de consulta, e quem entra para consultar nao rola a pagina
+     * inteira ate o campo. A tela unica so funcionava enquanto o cliente tinha
+     * meia duzia de consultas.
+     */
+    public static function getItensDaEmpresa()
+    {
+        return [
+            ['icon' => 'dashboard', 'name' => 'Painel', 'path' => '/empresa'],
+            ['icon' => 'consulta', 'name' => 'Consultar', 'path' => '/empresa/consultar'],
+            ['icon' => 'tables', 'name' => 'Consultas', 'path' => '/empresa/consultas'],
+            ['icon' => 'charts', 'name' => 'Faturas', 'path' => '/empresa/faturas'],
+            ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/empresa/documentos'],
+        ];
+    }
+
     public static function getMenuGroups()
     {
+        // A area do cliente tem menu proprio: os dois guards nunca coexistem na
+        // mesma sessao, entao quem responde e o guard que esta autenticado.
+        if (auth('empresa')->check()) {
+            return [['title' => 'Menu', 'items' => self::getItensDaEmpresa()]];
+        }
+
         $papel = auth('staff')->user()?->papel;
 
         $conta = auth('staff')->user();

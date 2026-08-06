@@ -76,13 +76,32 @@ Onde está escrito **nunca**, é regra de produto e não de conveniência: o cus
 do fornecedor é o que sustenta a negociação de reajuste, e a margem revelada ao
 vendedor muda o que ele aceita conceder.
 
+### Conflito assumido: comissionar sobre lucro revela o lucro
+
+A comissão é 10% do lucro, e o vendedor vê a própria comissão. De R$ 38,59 ele
+chega a R$ 385,90 de lucro, e daí ao custo do fornecedor. As duas regras da
+tabela acima não podem valer ao mesmo tempo.
+
+A decisão é manter a comissão visível. Ela aparece na carteira desde o primeiro
+fechamento, e sem ela a simulação de proposta não serve para decidir desconto,
+que é para o que ela existe. O que continua fora das telas do vendedor é o
+número direto: custo, imposto, lucro e margem não são impressos nem chegam à
+view. A dedução exige que ele saiba a regra e faça a conta, o que é diferente de
+ler o valor na tela.
+
+As alternativas, se o conflito incomodar depois, são comissionar sobre
+faturamento com alíquota menor, ou publicar a alíquota e tratar o lucro como
+informação aberta ao vendedor. Ambas mudam contrato, e nenhuma se resolve na
+camada de tela.
+
 ### Lacunas conhecidas de visão
 
 - O painel inicial mostra os mesmos números para administrador e vendedor, apenas
   filtrados. São trabalhos diferentes e merecem indicadores diferentes.
 - O vendedor vê "a receber" e "vencido", que é dinheiro da Avalia e não dele.
 - O vendedor não enxerga o cliente prestes a ser bloqueado, sendo ele quem
-  deveria ligar antes.
+  deveria ligar antes. A aba de consultas da carteira mostra quem parou de
+  consultar, que é o sinal anterior a esse, mas ainda não avisa sozinha.
 - Não existe ficha de cliente para o vendedor, porque a ficha atual carrega custo
   e lucro.
 - O superusuário não tem indicação visual de que está usando um acesso que ignora
@@ -628,16 +647,34 @@ tela e ensina os dois a não olhar.
 
 **Administração**: custo total pago ao fornecedor no mês, que é a segunda maior
 conta da empresa e só aparece linha a linha na matriz; comissão a repassar aberta
-por vendedor; tempo de resposta e taxa de falha do fornecedor, que já estão
-gravados em cada consulta e não aparecem em lugar nenhum.
+por vendedor.
 
-**Vendedor**: clientes que caem de consumo, clientes a caminho do bloqueio,
-demonstrativo de repasse por competência para conferir e emitir nota, e a base
-sobre a qual a comissão dele incidiu, não só o valor.
+Tempo de resposta e taxa de falha por serviço passaram a aparecer no painel de
+consultas, que lê `duracao_ms` e `situacao` do recorte escolhido. O tempo médio
+considera apenas as consultas concluídas: tentativa encerrada por tempo esgotado
+tem duração alta e não representa a resposta do fornecedor, e misturar as duas
+piora a média justamente quando o serviço melhora.
+
+**Vendedor**: clientes a caminho do bloqueio, demonstrativo de repasse por
+competência para conferir e emitir nota, e a base sobre a qual a comissão dele
+incidiu, não só o valor.
+
+A queda de consumo é visível na aba de consultas da carteira, filtrada por
+período, mas ainda depende de o vendedor abrir a tela: não existe aviso.
 
 **Empresa cliente**: preço unitário antes de consultar, quanto falta para atingir
-o consumo mínimo, franquia restante por serviço, previsão da fatura do mês e a
-composição da fatura fechada, que já existe em `itens_fatura` e não é usada.
+o consumo mínimo, previsão da fatura do mês e a composição da fatura fechada, que
+já existe em `itens_fatura` e não é usada.
+
+A área do cliente deixou de ser página única e passou a ter uma tela por assunto:
+painel, consultar, consultas, faturas e documentos. Franquia restante por serviço
+e consumo do mês corrente estão no painel; o histórico completo, filtrável por
+período, serviço e resultado, está em consultas.
+
+Não há filtro por CPF ou CNPJ consultado em nenhuma das três telas. Filtro vira
+query string, e query string vai para o log do servidor, para o histórico do
+navegador e para o link colado no chat. O protocolo responde à mesma pergunta sem
+carregar dado pessoal.
 
 ### Indicadores de negócio
 
@@ -800,10 +837,13 @@ Registro: `auditoria`, `documentos` e `aceites_documento`.
 
 A área de gestão é dividida por papel, e a divisão é física.
 
-**Administração** vê Empresa, Catálogo, Financeiro, Equipe e Auditoria.
+**Administração** vê Empresa, Consultas, Catálogo, Financeiro, Equipe e Auditoria.
 
 - **Empresa**: cadastro com CNPJ validado por dígito, plano e vendedor; ficha com
   o consumo da competência aberta, fechamento e as faturas emitidas.
+- **Consultas**: todas as empresas em uma lista, filtrável por período, serviço,
+  resultado e protocolo, com tempo médio de resposta e falhas por serviço.
+  Somente leitura: consulta é registrada pela ação de consumo, nunca à mão.
 - **Catálogo**: quatro abas, Planos, Catálogo, Serviços e Calculadora, mais a
   página de parâmetros comerciais. A matriz é de leitura, com edição por linha na
   página do serviço.
@@ -813,11 +853,25 @@ A área de gestão é dividida por papel, e a divisão é física.
 - **Equipe**: quem trabalha na Avalia e o percentual de comissão de cada vendedor.
 - **Auditoria**: a trilha, apenas leitura.
 
-**Vendedor** vê apenas a carteira: as empresas dele, o consumo da competência
-aberta e a comissão por competência, separando o que já foi liberada do que
-aguarda o pagamento da empresa. Custo, lucro e margem não aparecem.
+**Vendedor** vê apenas a carteira, em quatro abas:
 
-**Empresa cliente** entra na área dela, onde acompanha plano, franquias por serviço, faturas, segunda via quando disponível, atendimento e documentos.
+- **Empresas**: as empresas dele, o consumo da competência aberta e a comissão
+  por competência, separando o que já foi liberada do que aguarda o pagamento.
+- **Consultas**: as consultas das empresas da carteira, com os mesmos filtros da
+  tela da administração. O recorte vem do vínculo da empresa com o vendedor, e
+  não de parâmetro de URL.
+- **Serviços**: o que ele pode vender em cada plano, com o preço que a empresa
+  paga. Substitui a captura de tela da planilha, que envelhece a cada reajuste.
+- **Simulação**: quanto a empresa paga por mês no cenário proposto e quanto ele
+  recebe de comissão e de adesão.
+
+Custo, lucro, imposto e margem não aparecem em nenhuma delas, e nem chegam à
+view: o controller escolhe os campos que envia.
+
+**Empresa cliente** entra na área dela, dividida por assunto: **Painel** com
+plano, franquias, consumo do mês e pendências; **Consultar** com o formulário
+sozinho; **Consultas** com o histórico filtrável; **Faturas** com a segunda via
+quando disponível; e **Documentos** com os aceites.
 
 ### Regras que o código garante
 
@@ -1001,7 +1055,8 @@ Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
 
 ### Interface
 
-48. Paginação nas listas, que vão quebrar sozinhas quando a base crescer.
+48. Paginação nas listas, que vão quebrar sozinhas quando a base crescer. Feita
+    nas listas de consultas e de faturas do cliente; falta nas demais.
 49. Busca global por empresa, CNPJ e fatura.
 50. Máscara e validação de CPF, CNPJ, CEP e telefone.
 51. Estado vazio com ação direta em toda tabela.

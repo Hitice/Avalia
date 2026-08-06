@@ -2,15 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Catalogo;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
+use App\Models\Plano;
+use App\Models\Preco;
+use App\Models\Servico;
+use App\Support\Comissao;
+use App\Support\Dinheiro;
+use App\Support\FiltroConsultas;
+use App\Support\Simulacao;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * A carteira do vendedor: as empresas dele e o que ele tem a receber.
+ * A carteira do vendedor: as empresas dele, o consumo delas e o que ele tem a
+ * receber, mais as duas ferramentas que ele usa para vender.
  *
- * Tela separada das de administracao de proposito, e nao um filtro aplicado
+ * Telas separadas das de administracao de proposito, e nao um filtro aplicado
  * naquelas. As telas de admin mostram custo do fornecedor, lucro e margem, que
  * sao internos e nunca vao para o vendedor (PDD.md, secao 6). Reaproveitar a
  * mesma tela com condicionais deixaria cada campo novo a um `@if` de distancia
@@ -21,7 +31,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class CarteiraController extends Controller
 {
-    public function __invoke()
+    private const POR_PAGINA = 25;
+
+    public function index()
     {
         $vendedor = Auth::guard('staff')->user();
 
@@ -55,5 +67,155 @@ class CarteiraController extends Controller
             'aReceber' => (int) $faturas->whereNotNull('comissao_liberada_em')->sum('comissao_cents'),
             'aConfirmar' => (int) $faturas->whereNull('comissao_liberada_em')->sum('comissao_cents'),
         ]);
+    }
+
+    /**
+     * As consultas das empresas da carteira.
+     *
+     * Serve para o vendedor acompanhar quem esta usando e quem parou de usar,
+     * que e o sinal mais antecipado de cancelamento que existe na operacao.
+     *
+     * Mostra o valor que a empresa pagou, que e o preco de tabela que ele mesmo
+     * vendeu. Nao mostra custo do fornecedor.
+     */
+    public function consultas(Request $pedido)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        // O recorte vem do vinculo da empresa com o vendedor, nao da URL: sem
+        // esta subconsulta, filtro nenhum impediria ver a carteira alheia.
+        $daCarteira = Consulta::query()->whereIn(
+            'cliente_id',
+            Cliente::query()->where('vendedor_id', $vendedor->id)->select('id'),
+        );
+
+        $filtradas = FiltroConsultas::aplicar($daCarteira, $pedido);
+
+        return view('paginas.carteira.consultas', [
+            'vendedor' => $vendedor,
+            'escolha' => FiltroConsultas::escolhido($pedido),
+            'resumo' => FiltroConsultas::resumo($filtradas),
+            'servicos' => Servico::orderBy('nome')->get(),
+            'consultas' => $filtradas->with(['servico', 'cliente'])->latest('id')
+                ->paginate(self::POR_PAGINA)->withQueryString(),
+        ]);
+    }
+
+    /**
+     * O que ele pode vender, por faixa, com o preco que o cliente paga.
+     *
+     * Substitui a captura de tela da planilha que circulava por mensagem: aqui o
+     * preco e sempre o do catalogo vigente, entao ninguem vende pelo valor do
+     * reajuste passado.
+     */
+    public function servicos(Request $pedido)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $planos = Plano::query()->where('ativo', true)->orderBy('consumo_minimo_cents')->get();
+        $plano = $planos->firstWhere('id', (int) $pedido->query('plano')) ?? $planos->first();
+
+        $disponiveis = $plano?->servicosDisponiveis() ?? collect();
+
+        // O `select` e explicito e nao traz `custo_cents`: a coluna existe na
+        // mesma linha do preco, e um dia alguem faz um `@foreach` sobre os
+        // atributos. Nao carregar e mais firme do que lembrar de nao imprimir.
+        $precos = $plano === null ? collect() : Preco::query()
+            ->select('servico_id', 'preco_cents')
+            ->where('catalogo_id', $plano->catalogo_id)
+            ->where('consumo_minimo_cents', $plano->consumo_minimo_cents)
+            ->whereIn('servico_id', $disponiveis->pluck('id'))
+            ->pluck('preco_cents', 'servico_id');
+
+        return view('paginas.carteira.servicos', [
+            'vendedor' => $vendedor,
+            'planos' => $planos,
+            'plano' => $plano,
+            'servicos' => $disponiveis,
+            'precos' => $precos,
+        ]);
+    }
+
+    /**
+     * Simulador de proposta do vendedor.
+     *
+     * Responde a pergunta que o cliente faz na mesa: quanto vou pagar por mes se
+     * consumir isto? E a pergunta que o vendedor faz em seguida: quanto sobra
+     * para mim?
+     *
+     * Custo do fornecedor, imposto, lucro e margem nao aparecem: sao numeros
+     * internos, e a tela do vendedor e uma das que o cliente olha por cima do
+     * ombro. A comissao aparece porque sem ela a ferramenta nao serve para
+     * decidir desconto, que e para o que ela existe.
+     *
+     * Tudo por GET e nada e gravado: simulacao nao e proposta. O endereco carrega
+     * o cenario inteiro, entao o vendedor manda o link em vez de a captura.
+     */
+    public function simulacao(Request $pedido)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $catalogo = Catalogo::vigente();
+        $faixas = $catalogo?->faixas() ?? [];
+
+        $faixa = $this->faixaEscolhida($pedido, $faixas);
+        $plano = Plano::where('consumo_minimo_cents', $faixa)->where('ativo', true)->first();
+
+        $mensalidade = Dinheiro::paraCentavos($pedido->query('mensalidade')) ?? $plano?->mensalidade_cents ?? 0;
+
+        // Sem consumo informado, o cenario neutro e o cliente que consome
+        // exatamente o minimo: e o que a proposta promete.
+        $consumo = Dinheiro::paraCentavos($pedido->query('consumo')) ?? $faixa;
+
+        $adesao = Dinheiro::paraCentavos($pedido->query('adesao')) ?? 0;
+        $parcelas = max(1, (int) $pedido->query('parcelas', 1));
+
+        $mes = Simulacao::mensal(
+            consumoCents: $consumo,
+            consumoMinimoCents: $faixa,
+            mensalidadeCents: $mensalidade,
+            custoSobreVendaBps: $catalogo?->custoSobreVendaBps($faixa) ?? 0,
+            impostoBps: $catalogo?->imposto_bps ?? 0,
+            comissaoPct: $vendedor->comissao_pct,
+        );
+
+        return view('paginas.carteira.simulacao', [
+            'vendedor' => $vendedor,
+            'faixas' => $faixas,
+            'faixa' => $faixa,
+            'plano' => $plano,
+            // So o que o vendedor pode ver. O array de Simulacao traz custo,
+            // imposto e lucro juntos, e mandar ele inteiro para a view deixaria
+            // os tres a um `{{ }}` de distancia da tela.
+            'proposta' => [
+                'fatura_cents' => $mes['fatura_cents'],
+                'mensalidade_cents' => $mensalidade,
+                'consumo_faturado_cents' => $mes['consumo_faturado_cents'],
+                'pagou_sem_usar_cents' => $mes['pagou_sem_usar_cents'],
+                'comissao_cents' => $mes['comissao_cents'],
+            ],
+            'adesaoDoVendedor' => Simulacao::adesaoDoMes($adesao, $parcelas)['vendedor_cents'],
+            'pctComissao' => Comissao::pct($vendedor->comissao_pct ?? null),
+            'entrada' => [
+                'consumo' => $consumo,
+                'mensalidade' => $mensalidade,
+                'adesao' => $adesao,
+                'parcelas' => $parcelas,
+            ],
+        ]);
+    }
+
+    /** @param  list<int>  $faixas */
+    private function faixaEscolhida(Request $pedido, array $faixas): int
+    {
+        $pedida = Dinheiro::paraCentavos($pedido->query('faixa'));
+
+        if ($pedida !== null && in_array($pedida, $faixas, true)) {
+            return $pedida;
+        }
+
+        // Faixa do meio como padrao: comeca num cenario plausivel em vez do
+        // extremo, que sempre parece bom demais ou ruim demais.
+        return $faixas === [] ? 0 : $faixas[intdiv(count($faixas), 2)];
     }
 }

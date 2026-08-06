@@ -39,6 +39,9 @@ final class Simulacao
         int $mensalidadeCents,
         int $custoSobreVendaBps,
         int $impostoBps,
+        // Aliquota do vendedor simulado. Nula usa o padrao, que e o cenario
+        // certo quando ainda nao se sabe quem vai atender a conta.
+        ?int $comissaoPct = null,
     ): array {
         $consumo = max(0, $consumoCents);
         $minimo = max(0, $consumoMinimoCents);
@@ -55,7 +58,7 @@ final class Simulacao
         $custo = (int) round($consumo * max(0, min($custoSobreVendaBps, 10_000)) / 10_000);
 
         $lucroAntes = $fatura - $imposto - $custo;
-        $comissao = Comissao::cents($lucroAntes);
+        $comissao = Comissao::cents($lucroAntes, $comissaoPct);
         $lucro = $lucroAntes - $comissao;
 
         return [
