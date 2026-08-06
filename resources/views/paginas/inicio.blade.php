@@ -71,7 +71,7 @@
             <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
                 <x-avalia.logotipo :tamanho="40" one />
 
-                <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14">
+                <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14 min-[1550px]:pr-0">
                     <x-avalia.botao variante="secundario" :href="route('entrar')">
                         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a1 1 0 011 1v16a1 1 0 01-1 1h-4M10 17l5-5-5-5M15 12H3"/>
