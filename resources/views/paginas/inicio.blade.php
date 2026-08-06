@@ -261,9 +261,15 @@
                                 ['tipo' => 'CPF', 'nome' => 'Helena Duarte', 'doc' => '***.157.204-**', 'pontos' => 597, 'faixa' => 60],
                             ] as $i => $consulta)
                                 <div x-cloak x-show="atual === {{ $i }}"
-                                     class="consulta-entra absolute inset-0 flex items-center justify-between gap-3 px-1"
+                                     class="consulta-entra absolute inset-0 px-1"
                                      style="--nivel: {{ $consulta['pontos'] / 1000 }}">
-                                    <div class="min-w-0">
+                                    {{-- O instrumento no centro do palco... --}}
+                                    <div class="absolute inset-x-0 top-0 flex justify-center">
+                                        <x-avalia.medidor :tamanho="132" por-nivel />
+                                    </div>
+
+                                    {{-- ...e os dados assentados na base. --}}
+                                    <div class="absolute bottom-0 left-0 max-w-[46%] min-w-0">
                                         <span class="rounded-md px-1.5 py-0.5 text-[11px] font-semibold {{ $consulta['tipo'] === 'CPF' ? 'bg-theme-pink-500/10 text-theme-pink-500' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400' }}">
                                             {{ $consulta['tipo'] }}
                                         </span>
@@ -271,11 +277,7 @@
                                         <p class="text-xs text-gray-400 tabular-nums dark:text-gray-500">{{ $consulta['doc'] }}</p>
                                     </div>
 
-                                    <div class="shrink-0">
-                                        <x-avalia.medidor :tamanho="128" por-nivel />
-                                    </div>
-
-                                    <div class="shrink-0 text-right">
+                                    <div class="absolute right-0 bottom-0 text-right">
                                         <span class="numero-conta text-4xl font-semibold tabular-nums"
                                               style="--alvo: {{ $consulta['pontos'] }}"></span>
                                         <span class="block text-[11px] text-gray-400 dark:text-gray-500">pontos</span>
@@ -363,7 +365,7 @@
 
         {{-- Campanha de adesao: o convite direto, no fundo escuro da marca. --}}
         <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-16 lg:pb-24">
-            <div class="grade-viva-escura relative overflow-hidden rounded-3xl bg-brand-950 px-6 py-14 text-center sm:px-14">
+            <div class="grade-viva-escura relative overflow-hidden rounded-3xl bg-black/35 px-6 py-14 text-center sm:px-14">
                 <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white">
                     <span class="size-1.5 animate-pulse rounded-full bg-success-500"></span>
                     Campanha de adesão aberta
@@ -408,9 +410,12 @@
                  @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="{{ $pilar['titulo'] }}">
                 <div class="relative w-full max-w-4xl">
                     <button type="button" @click="aberto = null" aria-label="Fechar"
-                            class="seta-bureau group absolute -top-3 -right-3 z-10 flex size-10 items-center justify-center rounded-full shadow-theme-md transition sm:-top-4 sm:-right-4">
-                        <svg class="size-4 text-gray-500 group-hover:text-white dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                            class="absolute -top-10 right-0 z-10 transition hover:scale-125">
+                        <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                            <defs><linearGradient id="x-{{ $chave }}" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
+                            </linearGradient></defs>
+                            <path stroke="url(#x-{{ $chave }})" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
                         </svg>
                     </button>
 
@@ -467,9 +472,12 @@
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido de contato">
             <div class="relative w-full max-w-md">
                 <button type="button" @click="aberto = null" aria-label="Fechar"
-                        class="seta-bureau group absolute -top-3 -right-3 z-10 flex size-10 items-center justify-center rounded-full shadow-theme-md transition">
-                    <svg class="size-4 text-gray-500 group-hover:text-white dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                        class="absolute -top-10 right-0 z-10 transition hover:scale-125">
+                    <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                        <defs><linearGradient id="x-form" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                            <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
+                        </linearGradient></defs>
+                        <path stroke="url(#x-form)" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
                     </svg>
                 </button>
 
