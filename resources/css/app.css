@@ -577,30 +577,45 @@
   to   { transform: scaleX(1); }
 }
 
-/* O medidor em ciclo: refaz a leitura a cada consulta do carrossel. O ciclo
-   do carrossel e de 16s com quatro consultas, entao a leitura dura 4s. */
-@utility medidor-ponteiro-vivo {
+/* O medidor por nivel: a faixa sobe ate a fracao de --nivel e o ponteiro gira
+   ate o mesmo ponto, no compasso da contagem da pontuacao. Roda quando o
+   slide aparece, entao recarrega a cada consulta, clique ou auto-avanco. */
+@utility medidor-nivel-faixa {
+  stroke-dasharray: 100;
+  animation: medidor-nivel-faixa 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+@keyframes medidor-nivel-faixa {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
+}
+
+@utility medidor-nivel-ponteiro {
   transform-origin: 16px 22.5px;
-  animation: medidor-le-denovo 4s cubic-bezier(0.34, 1.4, 0.64, 1) infinite;
+  animation: medidor-nivel-ponteiro 1.5s cubic-bezier(0.34, 1.2, 0.64, 1) 0.1s both;
 }
 
-@keyframes medidor-le-denovo {
-  0%       { transform: rotate(-96deg); }
-  32%      { transform: rotate(0deg); }
-  86%      { transform: rotate(0deg); }
-  100%     { transform: rotate(-96deg); }
+@keyframes medidor-nivel-ponteiro {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
 }
 
-@utility medidor-faixa-viva {
-  stroke-dasharray: 19;
-  animation: medidor-faixa-denovo 4s cubic-bezier(0.34, 1, 0.64, 1) infinite;
+/* Setinha do carrossel com as duas cores de uma vez: borda em degrade pelo
+   truque das duas camadas de fundo, e o preenchimento completo no hover. */
+@utility seta-bureau {
+  --fundo-seta: #ffffff;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--fundo-seta), var(--fundo-seta)) padding-box,
+    linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500)) border-box;
+
+  &:hover {
+    background: linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500));
+  }
 }
 
-@keyframes medidor-faixa-denovo {
-  0%       { stroke-dashoffset: 19; }
-  32%      { stroke-dashoffset: 0; }
-  86%      { stroke-dashoffset: 0; }
-  100%     { stroke-dashoffset: 19; }
+.dark .seta-bureau {
+  --fundo-seta: var(--color-gray-800);
 }
 
 /* Uma consulta do carrossel: desliza ao aparecer. Quem decide qual aparece e
@@ -655,7 +670,24 @@
    overlay sozinho. Duas transicoes brigando na saida era o que fazia o
    popup piscar antes de sumir. */
 @utility entra-popup {
-  animation: entra-popup 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: entra-popup 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Escurecimento do miolo do painel da marca: a grade fica nas bordas e o
+   centro abre espaco para a logo e o medidor. */
+@utility foco-central {
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.18) 55%, transparent 78%);
+}
+
+/* Convite de rolagem: a setinha balanca para baixo, no mesmo padrao das
+   setinhas do carrossel. */
+@utility balanca {
+  animation: balanca 2s ease-in-out infinite;
+}
+
+@keyframes balanca {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(7px); }
 }
 
 @keyframes entra-popup {
@@ -665,12 +697,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .entra-popup { animation: none; }
+  .balanca { animation: none; }
   .celula-viva { animation: none; opacity: 0.4; }
   .entra-suave { animation: none; opacity: 1; }
   .medidor-ponteiro { animation: none; }
   .medidor-faixa { animation: none; stroke-dashoffset: 0; }
-  .medidor-ponteiro-vivo { animation: none; }
-  .medidor-faixa-viva { animation: none; stroke-dashoffset: 0; }
+  .medidor-nivel-faixa { animation: none; stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
+  .medidor-nivel-ponteiro { animation: none; transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
   .flutua { animation: none; }
 
   /* Sem movimento: consulta ja no lugar, numero e barra no valor final. O

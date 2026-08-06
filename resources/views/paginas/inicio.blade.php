@@ -68,22 +68,10 @@
              com a grade animada passando por baixo, o header translucido
              sumia na pagina. --}}
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
-            <div class="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-6">
-                <x-avalia.logotipo :tamanho="40" />
+            <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
+                <x-avalia.logotipo :tamanho="40" one />
 
-                <nav class="flex items-center gap-2 sm:gap-3">
-                    {{-- Claro e escuro, o mesmo interruptor do painel. --}}
-                    <button @click="$store.theme.toggle()" aria-label="Alternar tema"
-                            class="flex size-11 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
-                        <svg class="hidden size-5 dark:block" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="4"/>
-                            <path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/>
-                        </svg>
-                        <svg class="size-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
-                        </svg>
-                    </button>
-
+                <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14">
                     <x-avalia.botao variante="secundario" :href="route('entrar')">
                         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a1 1 0 011 1v16a1 1 0 01-1 1h-4M10 17l5-5-5-5M15 12H3"/>
@@ -100,6 +88,20 @@
                     </a>
                 </nav>
             </div>
+
+            {{-- Claro e escuro na ponta extrema, de proposito fora do
+                 alinhamento das colunas: e ferramenta da pagina, nao passo do
+                 funil, e a posicao diz isso. --}}
+            <button @click="$store.theme.toggle()" aria-label="Alternar tema"
+                    class="absolute top-1/2 right-3 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 sm:right-4 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+                <svg class="hidden size-5 dark:block" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/>
+                </svg>
+                <svg class="size-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+                </svg>
+            </button>
         </header>
 
         {{-- Herói: a grade viva da marca ao fundo, a promessa na frente.
@@ -127,7 +129,7 @@
             </div>
             <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white dark:to-gray-900"></div>
 
-            <div class="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-8 lg:grid-cols-2 lg:py-12">
+            <div class="relative mx-auto grid w-full max-w-[87rem] items-center gap-10 px-6 py-8 lg:grid-cols-2 lg:py-12">
                 <div>
                     <span class="entra-suave inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-600 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-400">
                         <span class="size-1.5 rounded-full bg-brand-500"></span>
@@ -142,8 +144,8 @@
 
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Crédito, cadastro e veicular em um painel só. Sua empresa consulta
-                        antes de vender, acompanha o consumo e recebe uma fatura única por mês.
+                        Crédito e consulta veicular em um só lugar. Sua empresa consulta
+                        antes de vender, acompanha o consumo e obtém mais segurança na operação.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
@@ -217,20 +219,11 @@
                          },
                          avanca(passo, manual = true) {
                              this.atual = (this.atual + passo + 4) % 4;
-                             this.leDeNovo();
                              if (manual) this.recomeca();
                          },
                          vaiPara(indice) {
                              this.atual = indice;
-                             this.leDeNovo();
                              this.recomeca();
-                         },
-                         leDeNovo() {
-                             this.$refs.medidor.querySelectorAll('.medidor-ponteiro-vivo, .medidor-faixa-viva').forEach((el) => {
-                                 el.style.animation = 'none';
-                                 void el.offsetWidth;
-                                 el.style.animation = '';
-                             });
                          },
                      }" x-init="iniciar()">
                     <div class="relative z-10 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-theme-lg dark:border-gray-700 dark:bg-gray-800/70">
@@ -238,27 +231,29 @@
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Painel de consultas</span>
                         </div>
 
-                        <div class="flex flex-col items-center px-6 pt-3" x-ref="medidor">
-                            <x-avalia.medidor :tamanho="118" vivo />
-                        </div>
-
                         {{-- Setinhas nas duas cores do numero, rosa volta e
                              azul avanca: centralizadas na altura da janela e
                              para fora dela, flanqueando o vidro. --}}
                         <button type="button" @click="avanca(-1)" aria-label="Consulta anterior"
-                                class="absolute top-1/2 -left-4 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-theme-pink-500/30 bg-white text-theme-pink-500 shadow-theme-md transition hover:bg-theme-pink-500 hover:text-white sm:-left-12 dark:bg-gray-800">
-                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                                class="absolute top-1/2 -left-4 z-20 -translate-y-1/2 transition hover:scale-125 sm:-left-11">
+                            <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                                <defs><linearGradient id="seta-esq" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0" stop-color="var(--color-brand-500)"/><stop offset="1" stop-color="var(--color-theme-pink-500)"/>
+                                </linearGradient></defs>
+                                <path stroke="url(#seta-esq)" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </button>
                         <button type="button" @click="avanca(1)" aria-label="Próxima consulta"
-                                class="absolute top-1/2 -right-4 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-brand-500/30 bg-white text-brand-500 shadow-theme-md transition hover:bg-brand-500 hover:text-white sm:-right-12 dark:bg-gray-800">
-                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                class="absolute top-1/2 -right-4 z-20 -translate-y-1/2 transition hover:scale-125 sm:-right-11">
+                            <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                                <defs><linearGradient id="seta-dir" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
+                                </linearGradient></defs>
+                                <path stroke="url(#seta-dir)" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
 
-                        <div class="relative mx-6 mt-2 h-[84px]">
+                        <div class="relative mx-6 mt-3 mb-1 h-[132px]">
                             @foreach ([
                                 ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
                                 ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
@@ -266,13 +261,18 @@
                                 ['tipo' => 'CPF', 'nome' => 'Helena Duarte', 'doc' => '***.157.204-**', 'pontos' => 597, 'faixa' => 60],
                             ] as $i => $consulta)
                                 <div x-cloak x-show="atual === {{ $i }}"
-                                     class="consulta-entra absolute inset-0 flex items-center justify-between gap-4 px-1">
+                                     class="consulta-entra absolute inset-0 flex items-center justify-between gap-3 px-1"
+                                     style="--nivel: {{ $consulta['pontos'] / 1000 }}">
                                     <div class="min-w-0">
                                         <span class="rounded-md px-1.5 py-0.5 text-[11px] font-semibold {{ $consulta['tipo'] === 'CPF' ? 'bg-theme-pink-500/10 text-theme-pink-500' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400' }}">
                                             {{ $consulta['tipo'] }}
                                         </span>
                                         <p class="mt-1.5 truncate font-medium text-gray-800 dark:text-white/90">{{ $consulta['nome'] }}</p>
                                         <p class="text-xs text-gray-400 tabular-nums dark:text-gray-500">{{ $consulta['doc'] }}</p>
+                                    </div>
+
+                                    <div class="shrink-0">
+                                        <x-avalia.medidor :tamanho="112" por-nivel />
                                     </div>
 
                                     <div class="shrink-0 text-right">
@@ -325,7 +325,7 @@
 
         {{-- O que a empresa leva. O card e o convite; o popup, a conversa
              inteira. Preco de tabela continua atras do login. --}}
-        <section class="mx-auto w-full max-w-7xl px-6 py-10 lg:py-14">
+        <section class="mx-auto w-full max-w-[87rem] px-6 py-10 lg:py-14">
             <div class="grid gap-6 md:grid-cols-3">
                 @foreach ($pilares as $chave => $pilar)
                     <button type="button" @click="aberto = '{{ $chave }}'"
@@ -349,8 +349,20 @@
             </div>
         </section>
 
+        <div class="mx-auto -mt-2 flex w-full max-w-[87rem] justify-end px-6 pb-4">
+            <a href="#campanha" aria-label="Rolar até a campanha"
+               class="balanca transition hover:scale-125">
+                <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                    <defs><linearGradient id="seta-baixo" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
+                    </linearGradient></defs>
+                    <path stroke="url(#seta-baixo)" stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </a>
+        </div>
+
         {{-- Campanha de adesao: o convite direto, no fundo escuro da marca. --}}
-        <section class="mx-auto w-full max-w-7xl px-6 pb-16 lg:pb-24">
+        <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-16 lg:pb-24">
             <div class="grade-viva-escura relative overflow-hidden rounded-3xl bg-brand-950 px-6 py-14 text-center sm:px-14">
                 <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white">
                     <span class="size-1.5 animate-pulse rounded-full bg-success-500"></span>
@@ -378,7 +390,7 @@
         </section>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
                 <x-avalia.logotipo :tamanho="24" />
                 <p>© {{ now()->year }} Avalia. Consultas com finalidade declarada e trilha de auditoria.</p>
                 <div class="flex items-center gap-5">
@@ -391,10 +403,18 @@
         {{-- Popups. Um so trilho para todos: fundo escurecido, cartao ao
              centro, Esc ou clique fora fecham. --}}
         @foreach ($pilares as $chave => $pilar)
-            <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.300ms
+            <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.500ms
                  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
                  @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="{{ $pilar['titulo'] }}">
-                <div class="entra-popup w-full max-w-3xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="relative w-full max-w-4xl">
+                    <button type="button" @click="aberto = null" aria-label="Fechar"
+                            class="seta-bureau group absolute -top-3 -right-3 z-10 flex size-10 items-center justify-center rounded-full shadow-theme-md transition sm:-top-4 sm:-right-4">
+                        <svg class="size-4 text-gray-500 group-hover:text-white dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                        </svg>
+                    </button>
+
+                <div class="entra-popup w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
 
                     {{-- Faixa de abertura em neutro: cinza meio transparente
                          no claro, preto meio transparente no escuro, com a
@@ -406,15 +426,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $pilar['icone'] }}"/>
                                 </svg>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <x-avalia.logotipo :tamanho="26" />
-                                <button type="button" @click="aberto = null" aria-label="Fechar"
-                                        class="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-200/60 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white">
-                                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                                    </svg>
-                                </button>
-                            </div>
+                            <x-avalia.logotipo :tamanho="26" />
                         </div>
                         <h3 class="mt-5 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $pilar['titulo'] }}</h3>
                         <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{{ $pilar['detalhe'] }}</p>
@@ -443,29 +455,30 @@
                         </a>
                     </div>
                 </div>
+                </div>
             </div>
         @endforeach
 
         {{-- O formulario da campanha. Os dados entram no nosso banco e a
              conversa comeca do nosso lado: nome e telefone sao dado pessoal e
              nao viajam em URL de WhatsApp. --}}
-        <div x-cloak x-show="aberto === 'campanha'" x-transition.opacity.duration.300ms
+        <div x-cloak x-show="aberto === 'campanha'" x-transition.opacity.duration.500ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido de contato">
-            <div class="entra-popup max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <h3 class="text-xl font-semibold">Quase lá</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Deixe seu contato e um consultor retorna ainda hoje.
-                        </p>
-                    </div>
-                    <button type="button" @click="aberto = null" aria-label="Fechar"
-                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/10 dark:hover:text-gray-200">
-                        <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                        </svg>
-                    </button>
+            <div class="relative w-full max-w-md">
+                <button type="button" @click="aberto = null" aria-label="Fechar"
+                        class="seta-bureau group absolute -top-3 -right-3 z-10 flex size-10 items-center justify-center rounded-full shadow-theme-md transition">
+                    <svg class="size-4 text-gray-500 group-hover:text-white dark:text-gray-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
+
+            <div class="entra-popup max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <div>
+                    <h3 class="text-xl font-semibold">Quase lá</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Deixe seu contato e um consultor retorna ainda hoje.
+                    </p>
                 </div>
 
                 <form method="POST" action="{{ route('interesse.salvar') }}" class="mt-5 space-y-4">
@@ -529,10 +542,11 @@
                     </p>
                 </form>
             </div>
+            </div>
         </div>
 
         {{-- Confirmacao de que o pedido chegou. --}}
-        <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.300ms
+        <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.500ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido recebido">
             <div class="entra-popup w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">

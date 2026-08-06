@@ -5,6 +5,9 @@
     // tema da pagina. Antes isso era um seletor arbitrario no ponto de uso,
     // que quebrava calado se a estrutura interna daqui mudasse.
     'claro' => false,
+    // Com o sufixo do dominio em cinza: Avaliaone. E o nome publico; o
+    // wordmark curto continua valendo dentro do produto.
+    'one' => false,
 ])
 
 {{--
@@ -33,8 +36,12 @@
     </svg>
 
     @unless ($somenteIcone)
+        {{-- Sem diretiva no meio do texto: "Avalia@if" colado nao compila como
+             Blade (limite de palavra), mas o @endif compila, e sobrava um
+             endif orfao derrubando toda pagina com a logo. O ternario nao tem
+             esse problema. --}}
         <span class="text-[1.35rem] leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : 'text-gray-800 dark:text-white/90' }}">
-            Avalia
+            Avalia{{ '' }}<span class="text-gray-400 dark:text-gray-500">{{ $one ? 'one' : '' }}</span>
         </span>
     @endunless
 </span>

@@ -123,14 +123,42 @@
                 </div>
             </div>
 
-            {{-- Lateral da marca: a mesma grade viva da pagina inicial, com o
-                 medidor fazendo a leitura. A logo e o slogan ancorados no
-                 centro, sem seletor arbitrario mexendo por dentro do
-                 componente. --}}
-            <div class="bg-brand-950 grade-viva-escura relative hidden h-full w-full items-center justify-center lg:flex lg:w-1/2 dark:bg-white/5">
-                <x-common.common-grid-shape />
+            {{-- Lateral da marca: a mesma grade viva da pagina inicial, com as
+                 celulas acesas concentradas nos cantos inferior esquerdo e
+                 superior direito, e o miolo escurecido para a logo e o medidor
+                 respirarem. O medidor e o mesmo instrumento do carrossel, lendo
+                 um nivel alto no degrade da marca.
+
+                 O painel mede a si mesmo e fecha a grade em azulejos inteiros,
+                 como o heroi da pagina inicial. --}}
+            <div class="bg-brand-950 grade-viva-escura relative hidden h-full w-full items-center justify-center overflow-hidden lg:flex lg:w-1/2 dark:bg-white/5"
+                 x-data="{
+                     ajustar() {
+                         const r = this.$el.getBoundingClientRect();
+                         const cx = Math.max(1, Math.round(r.width / 42));
+                         const cy = Math.max(1, Math.round(r.height / 42));
+                         this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
+                         this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
+                     },
+                 }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
+
+                <div aria-hidden="true" class="absolute inset-0">
+                    {{-- Canto inferior esquerdo --}}
+                    @foreach ([[0, 1, '0s'], [1, 0, '1.1s'], [2, 2, '2.3s'], [1, 3, '3.4s'], [3, 1, '4.3s']] as [$col, $lin, $atraso])
+                        <span class="celula-viva"
+                              style="left: calc(var(--passo-x, 42px) * {{ $col }} + 1px); bottom: calc(var(--passo-y, 42px) * {{ $lin }} + 1px); animation-delay: {{ $atraso }}"></span>
+                    @endforeach
+                    {{-- Canto superior direito --}}
+                    @foreach ([[1, 1, '0.6s'], [0, 3, '1.7s'], [2, 0, '2.9s'], [3, 2, '3.9s'], [1, 4, '4.8s']] as [$col, $lin, $atraso])
+                        <span class="celula-viva"
+                              style="right: calc(var(--passo-x, 42px) * {{ $col }} + 1px); top: calc(var(--passo-y, 42px) * {{ $lin }} + 1px); animation-delay: {{ $atraso }}"></span>
+                    @endforeach
+                </div>
+
+                <div aria-hidden="true" class="foco-central absolute inset-0"></div>
+
                 <div class="z-1 flex max-w-xs flex-col items-center">
-                    <x-avalia.medidor :tamanho="120" class="mb-3" />
+                    <x-avalia.medidor :tamanho="120" por-nivel class="mb-3" style="--nivel: 0.82" />
                     {{-- So o wordmark: o simbolo ja esta logo acima, em
                          tamanho grande, e repetir o gauge pequeno na logo
                          duplicava o desenho na mesma dobra. --}}
