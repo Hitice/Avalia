@@ -327,8 +327,7 @@
             <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.200ms
                  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
                  @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="{{ $pilar['titulo'] }}">
-                <div x-show="aberto === '{{ $chave }}'" x-transition.scale.origin.bottom.duration.300ms
-                     class="w-full max-w-lg overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="entra-popup w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
 
                     {{-- Faixa da marca: o mesmo fundo da campanha, com a grade
                          e a logo. E peca de venda, e assina como tal. --}}
@@ -354,7 +353,7 @@
                     </div>
 
                     <div class="p-7">
-                        <ul class="space-y-3">
+                        <ul class="grid gap-3 sm:grid-cols-2">
                             @foreach ($pilar['itens'] as $item)
                                 <li class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
                                     <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
@@ -385,7 +384,7 @@
         <div x-cloak x-show="aberto === 'campanha'" x-transition.opacity.duration.200ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido de contato">
-            <div class="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="entra-popup max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h3 class="text-xl font-semibold">Quase lá</h3>
@@ -468,7 +467,7 @@
         <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.200ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido recebido">
-            <div class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="entra-popup w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
                 <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
                     <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>

@@ -669,7 +669,20 @@
   background-image: linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500));
 }
 
+/* Entrada do popup: sobe e assenta. So na entrada; a saida e o fade do
+   overlay sozinho. Duas transicoes brigando na saida era o que fazia o
+   popup piscar antes de sumir. */
+@utility entra-popup {
+  animation: entra-popup 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes entra-popup {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .entra-popup { animation: none; }
   .celula-viva { animation: none; opacity: 0.4; }
   .entra-suave { animation: none; opacity: 1; }
   .medidor-ponteiro { animation: none; }
