@@ -30,6 +30,16 @@ Schedule::call(function () {
     ->dailyAt('00:15')
     ->withoutOverlapping();
 
+// Lembrete de vencimento, ate 3 dias antes do dia 10. As 09:00 e nao de
+// madrugada: e-mail de dinheiro chegando junto com o expediente e lido;
+// chegando as 03:00, ja esta soterrado quando o dia comeca.
+Schedule::call(function () {
+    app(App\Actions\Financeiro\AvisarVencimentoProximo::class)();
+})
+    ->name('financeiro:aviso-vencimento')
+    ->dailyAt('09:00')
+    ->withoutOverlapping();
+
 /*
  * Retencao da resposta do bureau, 180 dias. Vencido o prazo, some o dado
  * pessoal de terceiro e fica o que explica a cobranca. Depende do tempo

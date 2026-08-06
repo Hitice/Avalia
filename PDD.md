@@ -919,7 +919,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 425 testes.
+A suíte tem 433 testes.
 
 ### Convite de acesso e senha
 
@@ -1071,10 +1071,16 @@ Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
     empresa, e a página pública "Esqueci minha senha", em que a própria pessoa
     pede o link sem depender de ninguém. O link é assinado, vale 48 horas e
     morre no uso; definida a senha nova, todo link anterior morre.
-14. **E-mails transacionais de cobrança.** O primeiro e-mail do sistema existe
-    (o convite de acesso, enviado por financeiro@avaliaone.com.br); fatura
-    emitida, vencimento próximo, bloqueio e desbloqueio continuam silenciosos.
-15. Aviso entre o vencimento e o bloqueio, que a regra prevê e o código não faz.
+14. ~~**E-mails transacionais de cobrança.**~~ Feitos, num layout único de
+    e-mail (`mail/base`): fatura emitida (no fechamento, da rotina ou do
+    clique), lembrete até 3 dias antes do vencimento (rotina das 09:00, com
+    carimbo na fatura para nunca repetir), recibo de pagamento confirmado (que
+    também avisa quando o pagamento reativa as consultas) e aviso de suspensão
+    por atraso. Falha de envio nunca desfaz o evento financeiro, e evento
+    repetido nunca repete e-mail.
+15. ~~Aviso entre o vencimento e o bloqueio.~~ Feito: quando a rotina marca a
+    fatura como vencida, o cliente recebe o aviso com a data limite antes da
+    suspensão. A transição acontece uma vez por fatura, então o aviso também.
 16. Limite de requisição nas consultas e limite diário por empresa.
 17. **Preço visível antes de consultar** e **quanto falta para o mínimo**, no
     portal. Os dados já existem no banco.

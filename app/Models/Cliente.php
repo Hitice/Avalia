@@ -87,6 +87,12 @@ class Cliente extends Authenticatable implements ContaAutenticavel
         return Documento::formatarCnpj($this->cnpj);
     }
 
+    /** Como chamar a empresa num e-mail: a pessoa, se houver, senão a razão social. */
+    public function tratamento(): string
+    {
+        return $this->responsavel_nome ?: $this->razao_social;
+    }
+
     public function getAuthPassword(): string
     {
         return $this->senha;

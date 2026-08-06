@@ -67,3 +67,34 @@ function aceiteValido(App\Models\DocumentoLegal $documento): array
         'hash' => $documento->hashConteudo(),
     ];
 }
+
+/**
+ * Uma empresa com plano na faixa de R$ 900 e vendedor na carteira.
+ *
+ * Vive aqui, e nao no arquivo que a criou, porque metade da suite precisa de
+ * uma empresa completa: helper em arquivo de teste so existe quando aquele
+ * arquivo carrega, e rodar um teste sozinho quebraria.
+ */
+function empresaComPlano(array $atributos = []): App\Models\Cliente
+{
+    $catalogo = App\Models\Catalogo::factory()->comServico('scpc-bvs', [90_000 => 324])->create();
+    $catalogo->precos()->update(['custo_cents' => 150]);
+
+    $plano = App\Models\Plano::factory()->consumoMinimo(900)->create([
+        'catalogo_id' => $catalogo->id,
+        'mensalidade_cents' => 7_990,
+    ]);
+
+    return App\Models\Cliente::factory()->create($atributos + [
+        'plano_id' => $plano->id,
+        'vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
+        'situacao' => 'ativo',
+    ]);
+}
+
+/** Entra como a empresa contratante. */
+function comoEmpresa(App\Models\Cliente $empresa): Tests\TestCase
+{
+    return test()->actingAs($empresa, 'empresa')
+        ->withSession(['versao_empresa' => $empresa->sessao_versao]);
+}

@@ -11,13 +11,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-/** Entra como a empresa contratante. */
-function comoEmpresa(Cliente $empresa): Tests\TestCase
-{
-    return test()->actingAs($empresa, 'empresa')
-        ->withSession(['versao_empresa' => $empresa->sessao_versao]);
-}
-
 /*
 |--------------------------------------------------------------------------
 | O que a empresa ve

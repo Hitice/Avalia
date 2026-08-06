@@ -3,6 +3,7 @@
 namespace App\Actions\Consumo;
 
 use App\Actions\Financeiro\CriarCobrancaAsaas;
+use App\Mail\FaturaEmitida;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
@@ -11,6 +12,7 @@ use App\Support\Comissao;
 use App\Support\Margem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Fecha o mes de uma empresa e emite a fatura.
@@ -134,6 +136,17 @@ class FecharCompetencia
             // A fatura interna permanece válida; a cobrança externa pode ser
             // reprocessada sem fechar a competência de novo.
             Log::channel('auditoria')->error('cobranca.asaas_falhou', ['fatura_id' => $fatura->id]);
+        }
+
+        // Vale para os dois caminhos, rotina e clique na tela: fatura que so
+        // aparece quando alguem abre o portal e fatura que vence sem ninguem
+        // saber que existia. Falha de envio nao desfaz o fechamento.
+        try {
+            if ($cliente->email) {
+                Mail::to($cliente->email)->send(new FaturaEmitida($fatura));
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         return ['erro' => null, 'fatura' => $fatura];

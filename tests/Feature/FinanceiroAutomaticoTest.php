@@ -4,40 +4,13 @@ use App\Actions\Consumo\FecharCompetencia;
 use App\Actions\Financeiro\AtualizarInadimplencia;
 use App\Actions\Financeiro\FecharCompetenciasVencidas;
 use App\Models\Auditoria;
-use App\Models\Catalogo;
 use App\Models\Cliente;
 use App\Models\CobrancaAsaas;
 use App\Models\EventoAsaas;
 use App\Models\Fatura;
-use App\Models\Plano;
-use App\Models\Staff;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
-
-/**
- * Uma empresa com plano na faixa de R$ 900 e vendedor na carteira.
- *
- * As rotinas deste arquivo mexem em dinheiro sozinhas, sem ninguem olhando:
- * fecham competencia, marcam vencimento, bloqueiam cliente e liberam comissao.
- * E onde um erro passa despercebido por mais tempo.
- */
-function empresaComPlano(array $atributos = []): Cliente
-{
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [90_000 => 324])->create();
-    $catalogo->precos()->update(['custo_cents' => 150]);
-
-    $plano = Plano::factory()->consumoMinimo(900)->create([
-        'catalogo_id' => $catalogo->id,
-        'mensalidade_cents' => 7_990,
-    ]);
-
-    return Cliente::factory()->create($atributos + [
-        'plano_id' => $plano->id,
-        'vendedor_id' => Staff::factory()->create(['papel' => 'vendedor'])->id,
-        'situacao' => 'ativo',
-    ]);
-}
 
 /*
 |--------------------------------------------------------------------------

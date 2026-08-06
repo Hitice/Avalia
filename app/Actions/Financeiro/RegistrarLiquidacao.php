@@ -2,10 +2,12 @@
 
 namespace App\Actions\Financeiro;
 
+use App\Mail\ReciboDeLiquidacao;
 use App\Models\Cliente;
 use App\Models\Fatura;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Ponto único de confirmação de pagamento de uma fatura.
@@ -39,7 +41,13 @@ class RegistrarLiquidacao
         string $origem = self::ORIGEM_AUTOMATICA,
         ?string $motivo = null,
     ): Fatura {
-        return DB::transaction(function () use ($fatura, $liquidadaEm, $origem, $motivo) {
+        // O que aconteceu de fato sai da transacao nestas duas flags, porque o
+        // e-mail vai DEPOIS do commit: enviado de dentro, um rollback deixaria
+        // o cliente com um recibo de pagamento que o banco desfez.
+        $liquidadaAgora = false;
+        $acessoLiberado = false;
+
+        $fatura = DB::transaction(function () use ($fatura, $liquidadaEm, $origem, $motivo, &$liquidadaAgora, &$acessoLiberado) {
             $fatura = Fatura::lockForUpdate()->findOrFail($fatura->id);
 
             if ($fatura->estaLiquidada()) {
@@ -52,6 +60,7 @@ class RegistrarLiquidacao
                 'liquidada_em' => $momento,
                 'comissao_liberada_em' => $fatura->vendedor_id && $fatura->comissao_cents > 0 ? $momento : null,
             ]);
+            $liquidadaAgora = true;
 
             $cliente = Cliente::lockForUpdate()->findOrFail($fatura->cliente_id);
             $haAberta = Fatura::query()
@@ -62,6 +71,7 @@ class RegistrarLiquidacao
             // Não revoga bloqueio administrativo ou contrato encerrado.
             if ($cliente->situacao === 'inadimplente' && ! $haAberta) {
                 $cliente->update(['situacao' => 'ativo']);
+                $acessoLiberado = true;
             }
 
             // A origem entra na trilha porque separa a baixa conferida no
@@ -77,5 +87,21 @@ class RegistrarLiquidacao
 
             return $fatura->fresh();
         });
+
+        // So na transicao: a confirmacao repetida que chega de novo do provedor
+        // nao pode mandar um segundo recibo. Falha de envio nao desfaz a baixa.
+        if ($liquidadaAgora) {
+            try {
+                $email = $fatura->cliente?->email;
+
+                if ($email) {
+                    Mail::to($email)->send(new ReciboDeLiquidacao($fatura, $acessoLiberado));
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return $fatura;
     }
 }

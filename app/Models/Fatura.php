@@ -57,7 +57,7 @@ class Fatura extends Model
         'imposto_bps', 'imposto_cents', 'custo_cents', 'lucro_cents',
         'comissao_pct', 'comissao_cents', 'fechada_em', 'situacao_pagamento',
         'liquidada_em', 'comissao_liberada_em', 'estornada_em', 'consumo_bruto_cents',
-        'franquia_cents', 'consumo_excedente_cents',
+        'franquia_cents', 'consumo_excedente_cents', 'aviso_vencimento_em',
     ];
 
     protected function casts(): array
@@ -78,6 +78,7 @@ class Fatura extends Model
             'liquidada_em' => 'datetime',
             'comissao_liberada_em' => 'datetime',
             'estornada_em' => 'datetime',
+            'aviso_vencimento_em' => 'datetime',
             'consumo_bruto_cents' => 'integer',
             'franquia_cents' => 'integer',
             'consumo_excedente_cents' => 'integer',
