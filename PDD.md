@@ -907,6 +907,28 @@ Regra de negócio que grava vive em `app/Actions`.
 
 A suíte tem 227 testes.
 
+### Convite de acesso e senha
+
+Ninguém digita a senha de outra pessoa, nem a conhece. O cadastro de vendedor e
+de empresa não tem campo de senha: a conta nasce com uma senha aleatória que
+ninguém sabe, e um e-mail de convite (enviado por financeiro@avaliaone.com.br)
+leva o link para o próprio dono definir a dele.
+
+O link morre duas vezes: pelo prazo, com assinatura temporária de 48 horas
+conferida antes do controller; e pelo uso, com um carimbo derivado do hash da
+senha atual embutido na assinatura, o que invalida todo link anterior no
+momento em que uma senha nova é definida. Definir a senha também revoga as
+sessões e o cookie de lembrança da conta, e entra na trilha de auditoria.
+
+A redefinição é o mesmo mecanismo: o botão "Enviar redefinição de senha" na
+edição gera um convite novo. O vendedor só reenvia para empresa da própria
+carteira. Falha de envio não desfaz cadastro e não passa em silêncio: a tela
+avisa e o botão de reenvio resolve.
+
+A conferência de ambiente reprova produção com driver de e-mail em arquivo
+desde que o primeiro envio passou a existir: convite que não chega seria conta
+que ninguém consegue acessar, sem erro em tela nenhuma.
+
 ### O que não existe
 
 Conector de consulta ao fornecedor e resultado de consulta. As credenciais,
@@ -1021,9 +1043,13 @@ mais de um dia.
 
 Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
 
-13. **Recuperação de senha.** Hoje quem esquece depende de alguém editar o cadastro.
-14. **E-mails transacionais.** A aplicação não envia um e-mail sequer: fatura
-    emitida, vencimento próximo, bloqueio e desbloqueio são silenciosos.
+13. ~~**Recuperação de senha.**~~ Feita pelo convite de acesso: o botão "Enviar
+    redefinição de senha" na edição de vendedor e de empresa manda um link
+    assinado de 48 horas, e a pessoa define a própria senha. Definida a nova,
+    todo link anterior morre.
+14. **E-mails transacionais de cobrança.** O primeiro e-mail do sistema existe
+    (o convite de acesso, enviado por financeiro@avaliaone.com.br); fatura
+    emitida, vencimento próximo, bloqueio e desbloqueio continuam silenciosos.
 15. Aviso entre o vencimento e o bloqueio, que a regra prevê e o código não faz.
 16. Limite de requisição nas consultas e limite diário por empresa.
 17. **Preço visível antes de consultar** e **quanto falta para o mínimo**, no

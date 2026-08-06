@@ -47,9 +47,6 @@ class EmpresaRequest extends FormRequest
                 'required', 'email', 'max:150',
                 Rule::unique('clientes', 'email')->ignore($empresa)->whereNull('deleted_at'),
             ],
-            // Opcional tambem na criacao: em branco, o cadastro dispara o
-            // convite por e-mail e a propria empresa define a senha.
-            'senha' => ['nullable', 'string', 'min:8'],
             'situacao' => ['required', Rule::in(['ativo', 'inadimplente', 'bloqueado', 'inativo'])],
             'plano_id' => ['nullable', 'exists:planos,id'],
             'vendedor_id' => ['nullable', 'exists:staff,id'],
@@ -72,16 +69,10 @@ class EmpresaRequest extends FormRequest
         ];
     }
 
-    /** Dados prontos para gravar, sem a senha em branco da edicao. */
+    /** Dados prontos para gravar. Senha nao passa por aqui: e do convite. */
     public function dados(): array
     {
-        $dados = $this->safe()->except(['senha', 'adesao_valor', 'adesao_parcelas']);
-
-        if ($this->filled('senha')) {
-            $dados['senha'] = $this->input('senha');
-        }
-
-        return $dados;
+        return $this->safe()->except(['senha', 'adesao_valor', 'adesao_parcelas']);
     }
 
     public function attributes(): array

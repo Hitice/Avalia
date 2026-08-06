@@ -61,34 +61,28 @@ class EmpresaController extends Controller
     {
         $dados = $this->comOsCamposQuePode($request->dados());
 
-        // Sem senha digitada, a conta nasce com uma aleatoria que ninguem
-        // conhece e o convite por e-mail entrega o link para definir a real.
-        $convidar = ! $request->filled('senha');
-
-        if ($convidar) {
-            $dados['senha'] = Str::password(40);
-        }
+        // A conta nasce com uma senha aleatoria que ninguem conhece; o convite
+        // por e-mail entrega o link para a propria empresa definir a dela.
+        $dados['senha'] = Str::password(40);
 
         $empresa = Cliente::create($dados);
         $this->gravarAdesao($empresa, $request);
 
         $aviso = null;
 
-        if ($convidar) {
-            try {
-                Mail::to($empresa->email)->send(new ConviteDeAcesso(
-                    $empresa->responsavel_nome ?: $empresa->razao_social,
-                    Convite::link($empresa, 'empresa'),
-                    ehEmpresa: true,
-                ));
-            } catch (\Throwable $e) {
-                report($e);
-                $aviso = 'O convite por e-mail não pôde ser enviado. Defina uma senha pela edição do cadastro ou tente de novo.';
-            }
+        try {
+            Mail::to($empresa->email)->send(new ConviteDeAcesso(
+                $empresa->responsavel_nome ?: $empresa->razao_social,
+                Convite::link($empresa, 'empresa'),
+                ehEmpresa: true,
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+            $aviso = 'O convite por e-mail não pôde ser enviado. Use o botão de redefinição na edição do cadastro.';
         }
 
         return redirect($this->depoisDeGravar($empresa))
-            ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.".($convidar && ! $aviso ? ' Convite de acesso enviado por e-mail.' : ''))
+            ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.".($aviso ? '' : ' Convite de acesso enviado por e-mail.'))
             ->with('erro', $aviso);
     }
 
@@ -97,6 +91,34 @@ class EmpresaController extends Controller
         $this->soDaPropriaCarteira($empresa);
 
         return view('paginas.empresas.formulario', $this->opcoes($empresa));
+    }
+
+    /**
+     * Reenvia o convite de redefinicao de senha para o e-mail da empresa.
+     *
+     * Mesma regra de carteira da edicao: vendedor so reenvia para empresa que
+     * e dele. Nao mexe na senha atual.
+     */
+    public function convite(Cliente $empresa)
+    {
+        $this->soDaPropriaCarteira($empresa);
+
+        $aviso = null;
+
+        try {
+            Mail::to($empresa->email)->send(new ConviteDeAcesso(
+                $empresa->responsavel_nome ?: $empresa->razao_social,
+                Convite::link($empresa, 'empresa'),
+                ehEmpresa: true,
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+            $aviso = 'O convite por e-mail não pôde ser enviado. Tente de novo em instantes.';
+        }
+
+        return back()
+            ->with('ok', $aviso ? null : "Convite de redefinição enviado para {$empresa->email}.")
+            ->with('erro', $aviso);
     }
 
     public function atualizar(EmpresaRequest $request, Cliente $empresa)
@@ -232,7 +254,10 @@ class EmpresaController extends Controller
         return [
             'empresa' => $empresa,
             'planos' => Plano::where('ativo', true)->orderBy('consumo_minimo_cents')->get(),
-            'vendedores' => Staff::where('ativo', true)->orderBy('nome')->get(),
+            // So quem tem carteira entra na lista: administrador nao tem
+            // comissao nem carteira (PDD, secao 3), e aparecer aqui convidava
+            // ao vinculo errado.
+            'vendedores' => Staff::where('ativo', true)->where('papel', 'vendedor')->orderBy('nome')->get(),
         ];
     }
 

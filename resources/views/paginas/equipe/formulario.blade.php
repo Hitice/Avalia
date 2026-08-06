@@ -9,9 +9,22 @@
         Equipe
     </a>
 
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">
-        {{ $membro->exists ? $membro->nome : 'Nova pessoa' }}
-    </h1>
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+            {{ $membro->exists ? $membro->nome : 'Nova pessoa' }}
+        </h1>
+
+        @if ($membro->exists)
+            {{-- Fora do formulario principal: form dentro de form nao existe
+                 em HTML. Nao mexe na senha atual, so manda o link novo. --}}
+            <form method="POST" action="{{ route('equipe.convite', $membro) }}">
+                @csrf
+                <x-avalia.botao variante="secundario" tamanho="sm">
+                    Enviar redefinição de senha
+                </x-avalia.botao>
+            </form>
+        @endif
+    </div>
 
     @include('paginas.catalogo.avisos')
 
@@ -37,16 +50,6 @@
                     <input id="email" name="email" type="email" class="campo" required
                            value="{{ old('email', $membro->email) }}">
                     @error('email') <span class="erro-campo">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <label for="senha" class="rotulo-campo">Senha</label>
-                    <input id="senha" name="senha" type="password" class="campo"
-                           @required(! $membro->exists) autocomplete="new-password">
-                    @if ($membro->exists)
-                        <span class="ajuda-campo">Em branco no cadastro envia um convite por e-mail para a própria pessoa definir a senha; na edição, mantém a atual.</span>
-                    @endif
-                    @error('senha') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
                 <div>

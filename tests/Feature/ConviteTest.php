@@ -34,19 +34,31 @@ it('cadastrar vendedor sem senha dispara o convite', function () {
     expect(Staff::firstWhere('email', 'nova@avalia.com.br')->senha)->not->toBeNull();
 });
 
-it('cadastrar vendedor com senha digitada nao envia convite', function () {
+it('senha enviada no POST e ignorada: o convite decide', function () {
+    // O formulario nem tem o campo; se alguem forjar o POST com senha, ela nao
+    // vira credencial. A conta nasce com aleatoria e o convite segue.
     Mail::fake();
 
     admin()->post(route('equipe.salvar'), [
-        'nome' => 'Vendedor Manual',
-        'email' => 'manual@avalia.com.br',
+        'nome' => 'Vendedor Forjado',
+        'email' => 'forjado@avalia.com.br',
         'papel' => 'vendedor',
         'comissao_pct' => 10,
         'ativo' => 1,
-        'senha' => 'senha-escolhida-123',
+        'senha' => 'senha-forjada-123',
     ])->assertRedirect(route('equipe.index'));
 
-    Mail::assertNothingSent();
+    Mail::assertSent(ConviteDeAcesso::class);
+
+    // A senha forjada nao entra. Sessao do admin fora antes: logado, o
+    // formulario de entrada nem valida, so redireciona.
+    $this->flushSession();
+    app('auth')->forgetGuards();
+
+    $this->post('/entrar', [
+        'email' => 'forjado@avalia.com.br',
+        'senha' => 'senha-forjada-123',
+    ])->assertSessionHasErrors();
 });
 
 it('cadastrar empresa sem senha dispara o convite para o e-mail dela', function () {
@@ -116,6 +128,28 @@ it('link com assinatura adulterada nem chega ao formulario', function () {
     $adulterado = str_replace('/staff/'.$staff->id, '/staff/'.($staff->id + 7), $link);
 
     $this->get($adulterado)->assertForbidden();
+});
+
+it('reenvia a redefinicao pela edicao da equipe', function () {
+    Mail::fake();
+
+    $staff = Staff::factory()->create(['papel' => 'vendedor', 'email' => 'reenvio@avalia.com.br']);
+
+    admin()->post(route('equipe.convite', $staff))->assertRedirect();
+
+    Mail::assertSent(ConviteDeAcesso::class, fn ($m) => $m->hasTo('reenvio@avalia.com.br'));
+});
+
+it('vendedor so reenvia redefinicao para empresa da propria carteira', function () {
+    Mail::fake();
+
+    [$vendedor, $minha] = carteira();
+    $alheia = Cliente::factory()->create();
+
+    comoVendedor($vendedor)->post(route('empresas.convite', $minha))->assertRedirect();
+    Mail::assertSent(ConviteDeAcesso::class, fn ($m) => $m->hasTo($minha->email));
+
+    comoVendedor($vendedor)->post(route('empresas.convite', $alheia))->assertForbidden();
 });
 
 it('empresa tambem define a senha pelo proprio link', function () {

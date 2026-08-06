@@ -40,9 +40,6 @@ class StaffRequest extends FormRequest
                 'required', 'email', 'max:150',
                 Rule::unique('staff', 'email')->ignore($staff)->whereNull('deleted_at'),
             ],
-            // Opcional tambem na criacao: em branco, o cadastro dispara o
-            // convite por e-mail e a propria pessoa define a senha.
-            'senha' => ['nullable', 'string', 'min:8'],
             'papel' => ['required', Rule::in(['admin', 'vendedor'])],
             'comissao_pct' => ['required', 'integer', 'min:0', 'max:'.Comissao::PCT_MAXIMO],
             'ativo' => ['boolean'],
@@ -50,16 +47,10 @@ class StaffRequest extends FormRequest
         ];
     }
 
-    /** Dados prontos para gravar, sem a senha em branco da edicao. */
+    /** Dados prontos para gravar. Senha nao passa por aqui: e do convite. */
     public function dados(): array
     {
-        $dados = $this->safe()->except('senha');
-
-        if ($this->filled('senha')) {
-            $dados['senha'] = $this->input('senha');
-        }
-
-        return $dados;
+        return $this->safe()->except('senha');
     }
 
     public function messages(): array

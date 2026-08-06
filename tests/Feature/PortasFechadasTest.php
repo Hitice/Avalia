@@ -135,7 +135,7 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
     // O resto da gestao mostra custo, margem ou dinheiro de terceiros.
     $doVendedor = ['carteira', 'carteira.consultas', 'carteira.servicos', 'carteira.simulacao',
         'painel', 'sair', 'empresas.criar', 'empresas.salvar',
-        'empresas.editar', 'empresas.atualizar', 'empresas.remover'];
+        'empresas.editar', 'empresas.atualizar', 'empresas.remover', 'empresas.convite'];
 
     $abertas = [];
 

@@ -18,9 +18,22 @@
         {{ $ehAdmin ? ($empresa->exists ? $empresa->razao_social : 'Empresas') : 'Minha carteira' }}
     </a>
 
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">
-        {{ $empresa->exists ? 'Editar cadastro' : 'Nova empresa' }}
-    </h1>
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+            {{ $empresa->exists ? 'Editar cadastro' : 'Nova empresa' }}
+        </h1>
+
+        @if ($empresa->exists)
+            {{-- Fora do formulario principal: form dentro de form nao existe
+                 em HTML. Nao mexe na senha atual, so manda o link novo. --}}
+            <form method="POST" action="{{ route('empresas.convite', $empresa) }}">
+                @csrf
+                <x-avalia.botao variante="secundario" tamanho="sm">
+                    Enviar redefinição de senha
+                </x-avalia.botao>
+            </form>
+        @endif
+    </div>
 
     @include('paginas.catalogo.avisos')
 
@@ -85,16 +98,6 @@
                 </div>
 
                 <div>
-                    <label for="senha" class="rotulo-campo">Senha</label>
-                    <input id="senha" name="senha" type="password" class="campo"
-                           @required(! $empresa->exists) autocomplete="new-password">
-                    @if ($empresa->exists)
-                        <span class="ajuda-campo">Em branco no cadastro envia um convite por e-mail para a empresa definir a senha; na edição, mantém a atual.</span>
-                    @endif
-                    @error('senha') <span class="erro-campo">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
                     <label for="plano_id" class="rotulo-campo">Plano contratado</label>
                     <select id="plano_id" name="plano_id" class="campo">
                         <option value="">Sem plano</option>
@@ -110,7 +113,7 @@
                 <div @class(['hidden' => ! $ehAdmin])>
                     <label for="vendedor_id" class="rotulo-campo">Vendedor</label>
                     <select id="vendedor_id" name="vendedor_id" class="campo">
-                        <option value="">Sem carteira</option>
+                        <option value="">Sem vendedor responsável</option>
                         @foreach ($vendedores as $vendedor)
                             <option value="{{ $vendedor->id }}" @selected(old('vendedor_id', $empresa->vendedor_id) == $vendedor->id)>
                                 {{ $vendedor->nome }}

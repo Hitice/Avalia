@@ -110,6 +110,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/', [EmpresaController::class, 'salvar'])->name('salvar');
         Route::get('/{empresa}/editar', [EmpresaController::class, 'editar'])->name('editar');
         Route::put('/{empresa}', [EmpresaController::class, 'atualizar'])->name('atualizar');
+        // Redefinicao de senha por e-mail, respeitando a carteira: o vendedor
+        // so reenvia para empresa que e dele.
+        Route::post('/{empresa}/convite', [EmpresaController::class, 'convite'])->name('convite');
 
         // Remover e tirar de circulacao, nao apagar: consulta, fatura e trilha
         // apontam para a empresa. A administracao continua vendo e restaura.
@@ -158,6 +161,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/', [EquipeController::class, 'salvar'])->name('salvar');
         Route::get('/{membro}', [EquipeController::class, 'editar'])->name('editar');
         Route::put('/{membro}', [EquipeController::class, 'atualizar'])->name('atualizar');
+        // Redefinicao de senha por e-mail: gera link novo de convite. Definida
+        // a senha, todos os links anteriores morrem juntos.
+        Route::post('/{membro}/convite', [EquipeController::class, 'convite'])->name('convite');
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.

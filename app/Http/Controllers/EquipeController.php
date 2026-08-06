@@ -40,23 +40,36 @@ class EquipeController extends Controller
     {
         $dados = $request->dados();
 
-        // Sem senha digitada, a conta nasce com uma aleatoria que ninguem
-        // conhece e o convite por e-mail entrega o link para definir a real.
-        $convidar = ! $request->filled('senha');
-
-        if ($convidar) {
-            $dados['senha'] = Str::password(40);
-        }
+        // A conta nasce com uma senha aleatoria que ninguem conhece; o convite
+        // por e-mail entrega o link para a propria pessoa definir a dela.
+        $dados['senha'] = Str::password(40);
 
         $membro = Staff::create($dados);
 
         Auditar::registrar('equipe.criada', $membro, $this->rastreavel($membro));
 
-        $aviso = $this->enviarConvite($convidar, $membro->email, $membro->nome, 'staff', $membro);
+        $aviso = $this->enviarConvite(true, $membro->email, $membro->nome, 'staff', $membro);
 
         return redirect()
             ->route('equipe.index')
-            ->with('ok', "{$membro->nome} cadastrado.".($convidar && ! $aviso ? ' Convite de acesso enviado por e-mail.' : ''))
+            ->with('ok', "{$membro->nome} cadastrado.".($aviso ? '' : ' Convite de acesso enviado por e-mail.'))
+            ->with('erro', $aviso);
+    }
+
+    /**
+     * Reenvia o convite de redefinicao de senha, a pedido da administracao.
+     *
+     * Gera link novo de 48h. Nao mexe na senha atual: quem tem acesso continua
+     * entrando ate definir a nova pelo link.
+     */
+    public function convite(Staff $membro)
+    {
+        $aviso = $this->enviarConvite(true, $membro->email, $membro->nome, 'staff', $membro);
+
+        Auditar::registrar('equipe.convite_enviado', $membro, ['email' => $membro->email]);
+
+        return back()
+            ->with('ok', $aviso ? null : "Convite de redefinição enviado para {$membro->email}.")
             ->with('erro', $aviso);
     }
 
