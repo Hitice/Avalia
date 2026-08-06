@@ -572,6 +572,17 @@ alterações futuras não mudem valores históricos.
 
 ## 11. Atendimento e documentos
 
+### Pedidos de contato da página pública
+
+O formulário da campanha na página pública grava o interessado no nosso banco
+(nome, empresa, telefone, e-mail, faixa de funcionários e a origem do pedido),
+em vez de abrir o WhatsApp com dado pessoal na URL. A fila de quem ainda espera
+retorno aparece no painel da administração, que é a primeira tela aberta do
+dia; o botão Atendido tira o pedido da fila sem apagá-lo, porque o registro
+mede qual porta converte, e a trilha de auditoria guarda quem atendeu. O
+vendedor não vê nem atende a fila: lead ainda não tem carteira, e distribuí-lo
+é decisão da administração.
+
 ### Atendimento
 
 O portal do cliente oferece acesso direto ao SAC pelo WhatsApp +55 34 99117-6599.
@@ -919,7 +930,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 433 testes.
+A suíte tem 435 testes.
 
 ### Convite de acesso e senha
 

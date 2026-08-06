@@ -98,3 +98,31 @@ function comoEmpresa(App\Models\Cliente $empresa): Tests\TestCase
     return test()->actingAs($empresa, 'empresa')
         ->withSession(['versao_empresa' => $empresa->sessao_versao]);
 }
+
+/** Entra como um vendedor especifico. */
+function comoVendedor(App\Models\Staff $vendedor): Tests\TestCase
+{
+    return test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => $vendedor->sessao_versao]);
+}
+
+/** Vendedor com uma empresa na carteira, plano e servico precificado. */
+function carteira(): array
+{
+    $catalogo = App\Models\Catalogo::factory()->comServico('scpc-bvs', [90_000 => 324])->create();
+    $catalogo->precos()->update(['custo_cents' => 150]);
+
+    $plano = App\Models\Plano::factory()->consumoMinimo(900)->create([
+        'catalogo_id' => $catalogo->id,
+        'mensalidade_cents' => 7_990,
+    ]);
+
+    $vendedor = App\Models\Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Vendedor da Casa']);
+
+    $empresa = App\Models\Cliente::factory()->create([
+        'razao_social' => 'Empresa da Carteira LTDA',
+        'plano_id' => $plano->id,
+        'vendedor_id' => $vendedor->id,
+    ]);
+
+    return [$vendedor, $empresa, App\Models\Servico::firstWhere('codigo', 'scpc-bvs')];
+}

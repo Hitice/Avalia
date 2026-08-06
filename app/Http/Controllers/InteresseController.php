@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Interessado;
+use App\Support\Auditar;
 use Illuminate\Http\Request;
 
 /**
@@ -44,5 +45,21 @@ class InteresseController extends Controller
         Interessado::create($dados + ['origem' => $origem]);
 
         return back()->with('interesse_ok', true);
+    }
+
+    /**
+     * Tira o pedido da fila do painel depois do retorno feito.
+     *
+     * Marca, nao apaga: quem pediu contato e quando segue no banco para medir
+     * qual porta converte. A trilha guarda quem atendeu.
+     */
+    public function atender(Interessado $interessado)
+    {
+        if ($interessado->atendido_em === null) {
+            $interessado->update(['atendido_em' => now()]);
+            Auditar::registrar('interessado.atendido', $interessado);
+        }
+
+        return back()->with('ok', 'Pedido de '.$interessado->nome.' marcado como atendido.');
     }
 }

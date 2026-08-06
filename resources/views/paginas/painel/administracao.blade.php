@@ -40,6 +40,10 @@
         </div>
     </div>
 
+    @if (session('ok'))
+        <div class="aviso aviso-sucesso mb-6">{{ session('ok') }}</div>
+    @endif
+
     {{-- Pedidos de contato da pagina publica. Lead esfria em horas, entao a
          fila mora na primeira tela que a administracao abre. --}}
     @if ($interessados->isNotEmpty())
@@ -56,6 +60,7 @@
                         <th scope="col" class="px-5 py-3 text-left font-medium">Empresa</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Contato</th>
                         <th scope="col" class="px-5 py-3 text-right font-medium">Funcionários</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium"><span class="sr-only">Ações</span></th>
                     </tr></thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @foreach ($interessados as $interessado)
@@ -68,6 +73,13 @@
                                     <span class="block text-xs text-gray-400 dark:text-gray-500">{{ $interessado->email }}</span>
                                 </td>
                                 <td class="px-5 py-4 text-right text-gray-600 dark:text-gray-300">{{ $interessado->funcionarios }}</td>
+                                <td class="px-5 py-4 text-right">
+                                    {{-- Atender e tirar da fila: o registro fica para medir conversao. --}}
+                                    <form method="POST" action="{{ route('interessados.atendido', $interessado) }}" class="inline">
+                                        @csrf
+                                        <x-avalia.botao variante="secundario" tamanho="sm">Atendido</x-avalia.botao>
+                                    </form>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

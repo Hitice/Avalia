@@ -69,6 +69,46 @@ it('mostra a fila de interessados no painel da administracao', function () {
         ->assertSee('Costa Autopeças');
 });
 
+it('marca o pedido como atendido e tira da fila', function () {
+    $interessado = Interessado::create([
+        'nome' => 'Marina Costa',
+        'empresa' => 'Costa Autopeças',
+        'telefone' => '(34) 99911-2233',
+        'email' => 'marina@costapecas.com.br',
+        'funcionarios' => '6 a 20',
+    ]);
+
+    admin()->from(route('painel'))
+        ->post(route('interessados.atendido', $interessado))
+        ->assertRedirect(route('painel'))
+        ->assertSessionHas('ok');
+
+    // Sai da fila, fica no banco: o registro mede qual porta converte.
+    expect($interessado->fresh()->atendido_em)->not->toBeNull()
+        ->and(Interessado::aguardando()->count())->toBe(0)
+        ->and(Interessado::count())->toBe(1);
+
+    admin()->get(route('painel'))->assertDontSee('Costa Autopeças');
+});
+
+it('nao deixa o vendedor atender pedido da fila', function () {
+    // A fila e da administracao: o lead ainda nao tem carteira.
+    $interessado = Interessado::create([
+        'nome' => 'Marina Costa',
+        'empresa' => 'Costa Autopeças',
+        'telefone' => '(34) 99911-2233',
+        'email' => 'marina@costapecas.com.br',
+        'funcionarios' => '6 a 20',
+    ]);
+
+    [$vendedor] = carteira();
+
+    comoVendedor($vendedor)->post(route('interessados.atendido', $interessado))
+        ->assertForbidden();
+
+    expect($interessado->fresh()->atendido_em)->toBeNull();
+});
+
 it('nao mostra a fila ao vendedor', function () {
     // O lead ainda nao tem carteira: distribui-lo e decisao da administracao.
     Interessado::create([

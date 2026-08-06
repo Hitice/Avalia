@@ -142,6 +142,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // /carteira/consultas, restrita as empresas dele.
     Route::get('/consultas', ConsultaController::class)->middleware('admin')->name('consultas');
 
+    // A fila de pedidos de contato vive no painel da administracao; atender e
+    // tirar da fila, e a trilha guarda quem atendeu.
+    Route::post('/interessados/{interessado}/atendido', [InteresseController::class, 'atender'])
+        ->middleware('admin')
+        ->name('interessados.atendido');
+
     // A carteira do vendedor. Sem `admin` no meio: sao as telas de gestao que
     // ele abre, e nenhuma mostra custo, lucro nem margem. A carteira e sempre a
     // de quem esta logado, entao nao ha URL que peca a de outro.

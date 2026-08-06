@@ -3,42 +3,11 @@
 use App\Actions\Consumo\FecharCompetencia;
 use App\Actions\Consumo\RegistrarConsulta;
 use App\Actions\Financeiro\RegistrarLiquidacao;
-use App\Models\Catalogo;
 use App\Models\Cliente;
-use App\Models\Plano;
-use App\Models\Servico;
 use App\Models\Staff;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
-
-/** Entra como um vendedor especifico. */
-function comoVendedor(Staff $vendedor): Tests\TestCase
-{
-    return test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => $vendedor->sessao_versao]);
-}
-
-/** Vendedor com uma empresa na carteira, plano e servico precificado. */
-function carteira(): array
-{
-    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [90_000 => 324])->create();
-    $catalogo->precos()->update(['custo_cents' => 150]);
-
-    $plano = Plano::factory()->consumoMinimo(900)->create([
-        'catalogo_id' => $catalogo->id,
-        'mensalidade_cents' => 7_990,
-    ]);
-
-    $vendedor = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Vendedor da Casa']);
-
-    $empresa = Cliente::factory()->create([
-        'razao_social' => 'Empresa da Carteira LTDA',
-        'plano_id' => $plano->id,
-        'vendedor_id' => $vendedor->id,
-    ]);
-
-    return [$vendedor, $empresa, Servico::firstWhere('codigo', 'scpc-bvs')];
-}
 
 /*
 |--------------------------------------------------------------------------
