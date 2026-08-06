@@ -353,12 +353,18 @@ SCR e Veicular têm catálogo e permissões implementados desde já. A trava por
 serviço é operada na tela de Serviços: enquanto marcada, o serviço aparece no
 catálogo e pode ser precificado, mas não entra em plano nenhum.
 
-Os serviços de SCR foram liberados dessa trava por decisão comercial. Isso os
-torna vendáveis no catálogo; **não** os torna consultáveis, porque o conector
-ainda não existe. A homologação jurídica, contratual e técnica continua sendo
-pré-requisito da integração, e o SCR depende de autorização expressa verificável
-para cada consulta. Quando o módulo Consultas for construído, essa verificação
-precisa existir no próprio conector, porque a trava do catálogo não a substitui.
+Os serviços de SCR estão liberados no catálogo, e o arranjo jurídico foi
+confirmado em 05/08/2026. Isso os torna vendáveis; **não** os torna consultáveis,
+porque o conector do fornecedor ainda não existe.
+
+Estar seguro de que se pode consultar é diferente de conseguir demonstrar, dois
+anos depois, que aquela consulta específica tinha autorização. O que se guarda
+não é a permissão de operar, é a **evidência de cada uso**. Por isso, quando o
+conector de SCR for construído, duas coisas são obrigatórias no próprio conector,
+e não na trava do catálogo:
+
+- **prova da autorização vinculada à consulta**, guardada junto dela;
+- **trilha específica** para consultas de SCR, separada da trilha geral.
 
 O SCR recebe nome comercial mascarado.
 
@@ -747,6 +753,31 @@ falhas, logs seguros e documentação de operação.
 - Definir política comercial de campanhas e reativação após inadimplência.
 - Validar documentos jurídicos, LGPD, base legal de consulta e fluxos de aceite.
 
+### Regras de cobrança sem definição
+
+Nenhuma delas é trabalho de programação ainda: é regra que precisa existir antes
+de aparecer o primeiro caso, porque no dia em que aparecer não haverá tempo de
+decidir com calma.
+
+- **Pagamento parcial.** O cliente paga metade da fatura: fica em aberto pelo
+  saldo, é recusado, ou vira duas cobranças?
+- **Pagamento em duplicidade.** Pagou duas vezes a mesma fatura: devolve,
+  credita na competência seguinte, ou fica como saldo?
+- **Renegociação de fatura vencida.** Prazo novo, parcelamento e efeito no
+  bloqueio das consultas.
+- **Juros, multa, desconto e tolerância.** Hoje não há nenhum dos quatro, e o
+  boleto sai sem encargo por atraso.
+- **Chargeback, Pix devolvido e boleto baixado indevidamente.** O pagamento foi
+  desfeito depois de a comissão ter sido liberada: como se reverte, e quem
+  comunica o vendedor?
+- **Volta a consultar quando.** O código já devolve a empresa ao estado ativo
+  assim que não resta fatura em aberto. Falta o texto concordar com isso e dizer
+  se vale também para bloqueio administrativo.
+- **Quem altera a adesão depois do contrato assinado**, e com qual aprovação.
+- **Consequência do cancelamento antecipado**, quando houver vigência.
+- **Desligamento de vendedor.** A carteira fica com a Avalia e as comissões
+  futuras cessam, o que está escrito na seção 9 e não existe em código.
+
 ## 17. Estado atual do repositório
 
 ### Tabelas
@@ -883,82 +914,145 @@ nome na tela muda conforme quem lê.
 O que falta, na ordem em que atrapalha. A régua é operação enxuta: o que exige
 alguém disponível para atender à mão vem antes do que exige alguém para manter.
 
+### Os cinco primeiros
+
+Cada um protege dinheiro ou impede que um erro chegue em produção, e nenhum leva
+mais de um dia.
+
+1. **Testar restauração de backup.** O Supabase faz backup; ninguém restaurou
+   nenhum. Backup não verificado é fé, não é continuidade.
+2. **Estorno com reversão de comissão.** Hoje a comissão liberada não volta
+   atrás. É o buraco mais grave do fluxo financeiro.
+3. **Conciliação diária entre faturas e recebimentos do provedor.**
+4. **Impedir consulta duplicada por clique repetido**, que é cobrança dupla
+   esperando acontecer.
+5. **Pipeline que bloqueia o merge com teste de negócio falhando.** Hoje isso
+   depende de alguém lembrar de rodar.
+
+### Dinheiro que pode sumir sem ninguém ver
+
+6. Alerta de webhook recebido sem cobrança correspondente.
+7. Alerta de cobrança sem identificador externo no provedor.
+8. Idempotência também na reemissão, no cancelamento e na atualização de cobrança.
+9. Validação de configuração obrigatória antes de ativar integração externa,
+   falhando na largada em vez de silenciosamente.
+10. Alerta imediato a um segundo par de olhos em baixa manual, mudança de
+    comissão e concessão de permissão financeira.
+11. Conferência de fechamento: soma das faturas contra soma das consultas.
+12. Alerta de falha do fechamento mensal e do envio de cobrança.
+
 ### Antes de vender para o primeiro cliente
 
-Sem isto, a operação depende de você atender chamado no lugar do sistema.
+Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
 
-1. **Recuperação de senha.** Hoje quem esquece depende de alguém editar o cadastro.
-2. **E-mails transacionais.** A aplicação não envia um e-mail sequer: fatura
-   emitida, vencimento próximo, bloqueio e desbloqueio são silenciosos.
-3. **Aviso entre o vencimento e o bloqueio.** A regra prevê avisar; hoje o cliente
-   descobre no dia 20, quando para de consultar.
-4. **Limite de requisição nas consultas.** Um laço mal escrito do lado do cliente
-   gera milhares de consultas pagas antes de alguém ver.
-5. **Teto de consumo por empresa.** Protege os dois lados de um mês fora da curva.
-6. **Monitoramento das rotinas noturnas.** Falha silenciosa em cobrança é a pior
-   categoria de erro que existe aqui.
-7. **Preço visível antes de consultar** e **quanto falta para o mínimo**, no portal.
-   Os dados já existem no banco; sem eles o cliente opera no escuro.
-8. **Reemissão de cobrança.** Se a criação no provedor falha, hoje fica no log e
-   ninguém tenta de novo: a fatura existe sem cobrança.
-9. **Painel do vendedor separado do painel do administrador.**
-10. **Glossário e nomenclatura aplicados às telas** (seção 18).
+13. **Recuperação de senha.** Hoje quem esquece depende de alguém editar o cadastro.
+14. **E-mails transacionais.** A aplicação não envia um e-mail sequer: fatura
+    emitida, vencimento próximo, bloqueio e desbloqueio são silenciosos.
+15. Aviso entre o vencimento e o bloqueio, que a regra prevê e o código não faz.
+16. Limite de requisição nas consultas e limite diário por empresa.
+17. **Preço visível antes de consultar** e **quanto falta para o mínimo**, no
+    portal. Os dados já existem no banco.
+18. Reemissão de cobrança quando a criação no provedor falha.
+19. Painel do vendedor separado do painel do administrador.
+20. Glossário e nomenclatura aplicados às telas (seção 18).
 
-### Depois do primeiro cliente pagante
+### Segurança de baixo custo e alto retorno
 
-11. Registro de repasse ao vendedor, com data e demonstrativo por competência.
-12. Nota fiscal: número, data e vínculo com a fatura.
-13. Cobrança das parcelas da adesão, que hoje é calculada e nunca cobrada.
-14. Estorno e cancelamento de fatura, que hoje só se resolve no banco.
-15. Conferência de fechamento: soma das faturas contra soma das consultas.
-16. Composição da fatura no portal do cliente, a partir de `itens_fatura`.
-17. Franquia restante por serviço, na tela do cliente.
-18. Previsão da fatura do mês para o cliente.
-19. Ficha do cliente para o vendedor, sem custo e sem margem.
-20. Alerta ao vendedor sobre cliente a caminho do bloqueio.
-21. Duplo fator na administração.
-22. Política de senha forte, com lista de senhas conhecidas.
-23. Cabeçalhos de segurança no HTTP.
-24. Alerta em ação sensível: baixa manual, mudança de comissão, concessão de
-    permissão financeira.
-25. Relatório de consultas por documento, para atender pedido de titular.
-26. Caminho para exclusão a pedido do titular.
-27. Verificação do expurgo: quantas venceram, quantas foram apagadas.
-28. Histórico de contato por empresa.
-29. Observação livre na ficha da empresa.
-30. Exportação de consultas para o cliente conferir o consumo.
+21. Cookies `Secure`, `HttpOnly` e `SameSite`.
+22. Cabeçalhos de segurança HTTP e política de conteúdo.
+23. Duplo fator na administração.
+24. Limite de tentativas em endpoints sensíveis além do login.
+25. Proteção contra enumeração de empresas, e-mails e documentos.
+26. Revisão das mensagens de erro para não expor detalhe interno.
+27. Rotação de chaves de API e do token de webhook, como política escrita.
+28. Monitoramento de dependências vulneráveis, que é automático e gratuito.
+29. Resumo criptográfico encadeado na trilha de auditoria: denuncia alteração
+    posterior sem trocar a arquitetura por um banco imutável.
+
+### Consultas e consumo
+
+30. **PDF do resultado** com identificação da empresa, data, protocolo e aviso de
+    confidencialidade. É o entregável que o cliente mostra ao gerente dele.
+31. Histórico de consultas para a empresa, com filtro por período, serviço e
+    situação, e exportação controlada.
+32. Alerta ao atingir e ao exceder a franquia.
+33. Registrar o fornecedor efetivamente usado, sem expor ao cliente.
+34. Taxa de falha por serviço e por fornecedor. Os dados já estão gravados em
+    cada consulta e não aparecem em lugar nenhum.
+35. Prova de autorização vinculada a cada consulta de SCR, e trilha específica
+    para elas.
+36. Custo total pago ao fornecedor no mês, que é a segunda maior conta da empresa.
+37. Conciliação mensal do consumo com cada fornecedor.
+
+### Comercial
+
+38. Congelar as condições comerciais na proposta e no contrato.
+39. Bloquear alteração comercial que afete cobrança já emitida.
+40. Aditivo quando plano, vigência ou adesão mudarem.
+41. Histórico de preço negociado por empresa.
+42. Cobrança das parcelas da adesão, hoje calculada e nunca cobrada.
+43. Registro de repasse ao vendedor, com data, comprovante e demonstrativo por
+    competência.
+44. Nota fiscal do vendedor: número, data e vínculo com o repasse.
+45. Transferência de carteira com motivo, responsável e data.
+46. Calendário de vigência, carência e renovação, com alerta de contrato próximo
+    do fim.
+47. Alerta ao vendedor sobre cliente a caminho do bloqueio.
+
+### Interface
+
+48. Paginação nas listas, que vão quebrar sozinhas quando a base crescer.
+49. Busca global por empresa, CNPJ e fatura.
+50. Máscara e validação de CPF, CNPJ, CEP e telefone.
+51. Estado vazio com ação direta em toda tabela.
+52. Confirmação específica em ação irreversível ou financeira.
+53. Composição da fatura no portal do cliente, a partir de `itens_fatura`.
+54. Franquia restante por serviço e previsão da fatura do mês.
+55. Ficha do cliente para o vendedor, sem custo e sem margem.
+56. Foco visível, navegação por teclado, contraste e nome acessível nos ícones,
+    como padrão contínuo e não como tarefa isolada.
 
 ### Quando a operação crescer
 
-31. Papéis comercial e operação, separados do administrador.
-32. Registro de sessões ativas e encerramento remoto.
-33. Trilha distinta para uso do superusuário.
-34. Retenção definida para auditoria e faturas, que hoje crescem sem prazo.
-35. Registro de quem leu o resultado de uma consulta.
-36. Prova do conteúdo aceito, e não só da versão do documento.
-37. Histórico de custo do fornecedor, para a margem de ontem não ser recalculada
+57. Papéis comercial e operação, separados do administrador.
+58. Registro de sessões ativas e encerramento remoto.
+59. Trilha distinta para uso do superusuário.
+60. Retenção definida para auditoria e faturas, que hoje crescem sem prazo.
+61. Registro de quem leu o resultado de uma consulta.
+62. Prova do conteúdo aceito, e não só da versão do documento.
+63. Histórico de custo do fornecedor, para a margem de ontem não ser recalculada
     com o custo de hoje.
-38. Índice na trilha de auditoria por entidade.
-39. Consulta em lote por arquivo.
-40. Módulo de atendimento com chamado, responsável e prazo.
-41. Notificação entre papéis dentro do sistema.
-42. Proposta comercial como documento que o cliente assina na tela.
-43. Indicadores de recorrência, cancelamento e receita média.
-44. Ranking de serviços por receita e por margem.
-45. Série histórica dos fechamentos, guardada desde já para existir passado.
-46. Exportação dos indicadores.
-47. Análise estática de tipos no código.
-48. Verificação que falhe quando a documentação citar o que não existe.
-49. Testes das telas de campanhas, documentos e indicadores.
-50. Banco na mesma região da aplicação. Hoje são 172 ms por ida.
+64. Consulta em lote por arquivo.
+65. Módulo de atendimento com chamado, responsável e prazo.
+66. Notificação entre papéis dentro do sistema.
+67. Indicadores de recorrência, cancelamento, receita média e margem realizada.
+68. Série histórica dos fechamentos, guardada desde já para existir passado.
+69. Análise estática de tipos e de segurança no pipeline.
+70. Banco na mesma região da aplicação. Hoje são 172 ms por ida.
 
 ### Deliberadamente fora do escopo agora
 
-- **Ambiente de homologação separado.** Custa manutenção contínua e hoje a
-  homologação acontece com dados fictícios em produção, o que é aceitável
-  enquanto não há cliente real.
+Cada um resolve um problema que a operação ainda não tem, e cobra manutenção
+contínua desde o primeiro dia.
+
+- **Dupla aprovação para baixa manual acima de valor.** Numa operação de uma ou
+  duas pessoas vira alguém aprovando a si mesmo, ou o processo sendo contornado.
+  O item 10 dá o mesmo controle sem travar o dia.
+- **Criptografia por coluna.** O banco já cifra o disco. Por coluna, quebra busca
+  e ordenação e adiciona gestão de chave. Faria apenas na resposta do bureau, e
+  só se um contrato exigir.
+- **Expiração periódica de senha.** As recomendações atuais desaconselham: leva a
+  senha fraca com número no fim. O duplo fator do item 23 resolve melhor.
+- **Fallback entre fornecedores** e **circuito de bloqueio para fornecedor
+  instável.** Não há dois contratos para alternar, nem evidência de instabilidade.
 - **Fila de processamento.** Só compensa quando o tempo de resposta do fornecedor
   incomodar de verdade.
+- **Ambiente de homologação separado.** Hoje a homologação acontece com dados
+  fictícios, o que é aceitável enquanto não há cliente real.
+- **Conector separado por bureau** antes de existir contrato com cada um. A
+  interface já está pronta e é o que importa.
+- **Antivírus em upload** e **usuários de banco por função.** Não há upload, e a
+  separação de usuários custa mais do que protege nesta escala.
 - **BI com coorte e tendência.** Ver seção 12: antes do décimo cliente, planilha
   responde melhor.
 - **Campanhas.** Ou implementa com efeito em preço e elegibilidade, ou sai do
