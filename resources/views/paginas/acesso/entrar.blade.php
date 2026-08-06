@@ -169,7 +169,12 @@
 
                 {{-- A grade sobe para uma camada propria: como fundo do painel
                      ela ficaria escondida atras da foto. --}}
-                <div aria-hidden="true" class="grade-viva-escura pointer-events-none absolute inset-0"></div>
+                {{-- A grade abre um vazio irregular no miolo: duas elipses
+                     descentradas mascaram ~15 quadrados e devolvem a area para
+                     a foto e a marca. Nos cantos, onde as celulas acendem, ela
+                     segue inteira. --}}
+                <div aria-hidden="true" class="grade-viva-escura pointer-events-none absolute inset-0"
+                     style="mask-image: radial-gradient(ellipse 44% 40% at 47% 42%, transparent 58%, black 78%), radial-gradient(ellipse 30% 27% at 66% 60%, transparent 52%, black 74%); -webkit-mask-image: radial-gradient(ellipse 44% 40% at 47% 42%, transparent 58%, black 78%), radial-gradient(ellipse 30% 27% at 66% 60%, transparent 52%, black 74%)"></div>
 
                 <div aria-hidden="true" class="pointer-events-none absolute inset-0">
                     {{-- Canto inferior esquerdo --}}
