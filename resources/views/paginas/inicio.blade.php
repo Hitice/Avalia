@@ -187,7 +187,7 @@
 
                      Vidro de volta: com os chips fora da janela, a
                      translucidez sobre a grade viva e contraste, nao ruido. --}}
-                <div class="entra-suave relative mx-auto w-full max-w-[30rem] pt-12" style="animation-delay: 0.25s"
+                <div class="entra-suave relative mx-auto w-full max-w-[30rem] pt-12 lg:mr-0 lg:ml-auto" style="animation-delay: 0.25s"
                      x-data="{
                          atual: 0,
                          compasso: null,
@@ -227,21 +227,23 @@
                             <x-avalia.medidor :tamanho="140" vivo />
                         </div>
 
-                        {{-- Setinhas nas duas cores do numero: rosa volta,
-                             azul avanca. --}}
+                        {{-- Setinhas nas duas cores do numero, rosa volta e
+                             azul avanca: centralizadas na altura da janela e
+                             para fora dela, flanqueando o vidro. --}}
+                        <button type="button" @click="avanca(-1)" aria-label="Consulta anterior"
+                                class="absolute top-1/2 -left-4 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-theme-pink-500/30 bg-white text-theme-pink-500 shadow-theme-md transition hover:bg-theme-pink-500 hover:text-white sm:-left-12 dark:bg-gray-800">
+                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <button type="button" @click="avanca(1)" aria-label="Próxima consulta"
+                                class="absolute top-1/2 -right-4 z-20 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-brand-500/30 bg-white text-brand-500 shadow-theme-md transition hover:bg-brand-500 hover:text-white sm:-right-12 dark:bg-gray-800">
+                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+
                         <div class="relative mx-6 mt-4 h-[92px]">
-                            <button type="button" @click="avanca(-1)" aria-label="Consulta anterior"
-                                    class="absolute top-1/2 -left-3 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-theme-pink-500/30 bg-white/80 text-theme-pink-500 shadow-theme-xs transition hover:bg-theme-pink-500 hover:text-white dark:bg-gray-800/80">
-                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                                </svg>
-                            </button>
-                            <button type="button" @click="avanca(1)" aria-label="Próxima consulta"
-                                    class="absolute top-1/2 -right-3 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-brand-500/30 bg-white/80 text-brand-500 shadow-theme-xs transition hover:bg-brand-500 hover:text-white dark:bg-gray-800/80">
-                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </button>
                             @foreach ([
                                 ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
                                 ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
@@ -249,7 +251,7 @@
                                 ['tipo' => 'CPF', 'nome' => 'Helena Duarte', 'doc' => '***.157.204-**', 'pontos' => 597, 'faixa' => 60],
                             ] as $i => $consulta)
                                 <div x-cloak x-show="atual === {{ $i }}"
-                                     class="consulta-entra absolute inset-0 flex items-center justify-between gap-4 px-7">
+                                     class="consulta-entra absolute inset-0 flex items-center justify-between gap-4 px-1">
                                     <div class="min-w-0">
                                         <span class="rounded-md px-1.5 py-0.5 text-[11px] font-semibold {{ $consulta['tipo'] === 'CPF' ? 'bg-theme-pink-500/10 text-theme-pink-500' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400' }}">
                                             {{ $consulta['tipo'] }}
@@ -294,11 +296,11 @@
                         </div>
                     </div>
 
-                    <span class="absolute top-4 right-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-medium text-gray-400 dark:bg-white/10 dark:text-gray-400">
+                    <span class="absolute top-4 left-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-medium text-gray-400 dark:bg-white/10 dark:text-gray-400">
                         Simulação
                     </span>
 
-                    <div class="flutua absolute top-9 left-0 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-left-4 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flutua absolute top-9 right-0 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-right-4 dark:border-gray-700 dark:bg-gray-800">
                         <span class="etiqueta etiqueta-sucesso">Concluída</span>
                         <span class="text-sm text-gray-600 dark:text-gray-300">Consulta de CNPJ</span>
                     </div>
