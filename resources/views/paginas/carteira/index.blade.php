@@ -89,13 +89,20 @@
                             </td>
                             <td class="px-5 py-4 text-right">
                                 <form method="POST" action="{{ route('empresas.remover', $empresa) }}"
-                                      onsubmit="return confirm('Remover {{ $empresa->razao_social }} da sua carteira?')">
+                                      x-data="{ armado: false }"
+                                      @submit="if (! armado) { $event.preventDefault(); armado = true; setTimeout(() => armado = false, 3500) }">
                                     @csrf
                                     @method('DELETE')
-                                    <x-avalia.botao variante="secundario" tamanho="icone" title="Remover">
+                                    <x-avalia.botao variante="secundario" tamanho="icone" title="Remover"
+                                                    x-show="! armado">
                                         <x-avalia.icone nome="lixeira" />
                                         <span class="sr-only">Remover</span>
                                     </x-avalia.botao>
+                                    {{-- Segundo clique confirma; 3,5s sem ele desarma. --}}
+                                    <button type="submit" x-cloak x-show="armado"
+                                            class="botao botao-sm bg-error-500 text-white hover:bg-error-600">
+                                        Remover?
+                                    </button>
                                 </form>
                             </td>
                         </tr>

@@ -96,9 +96,15 @@
 
             @if ($plano)
                 <form method="POST" action="{{ route('empresas.fechar', $empresa) }}" class="mt-6"
-                      onsubmit="return confirm('Fechar a competência {{ $competencia }}? Depois disso ela não aceita consulta nova.')">
+                      x-data="{ armado: false }"
+                      @submit="if (! armado) { $event.preventDefault(); armado = true; setTimeout(() => armado = false, 4000) }">
                     @csrf
-                    <x-avalia.botao>Fechar competência</x-avalia.botao>
+                    <x-avalia.botao x-show="! armado">Fechar competência</x-avalia.botao>
+                    {{-- Segundo clique confirma; 4s sem ele desarma. --}}
+                    <button type="submit" x-cloak x-show="armado"
+                            class="botao bg-warning-500 text-white hover:bg-warning-600">
+                        Confirmar fechamento?
+                    </button>
                 </form>
             @endif
         </div>

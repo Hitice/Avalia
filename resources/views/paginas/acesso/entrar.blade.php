@@ -157,24 +157,35 @@
                          this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
+                     px: 42, py: 42, rastro: [], seq: 0, ultimo: null,
                      rastreia(e) {
-                         const r = this.$el.getBoundingClientRect();
+                         const rct = this.$el.getBoundingClientRect();
                          const est = getComputedStyle(this.$el);
-                         const px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
-                         const py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
-                         const c = this.$refs.cursor;
-                         if (! c) return;
-                         c.style.width = (px - 1) + 'px';
-                         c.style.height = (py - 1) + 'px';
-                         c.style.transform = `translate(${Math.floor((e.clientX - r.left) / px) * px + 1}px, ${Math.floor((e.clientY - r.top) / py) * py + 1}px)`;
-                         c.style.opacity = '1';
+                         this.px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
+                         this.py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
+                         const c = Math.floor((e.clientX - rct.left) / this.px);
+                         const r = Math.floor((e.clientY - rct.top) / this.py);
+                         const chave = c + ':' + r;
+                         if (chave === this.ultimo) return;
+                         this.ultimo = chave;
+                         const vizinhas = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
+                             .sort(() => Math.random() - 0.5).slice(0, 3);
+                         const grupo = [[0, 0], ...vizinhas].map(([dc, dr], i) => ({
+                             id: ++this.seq, c: c + dc, r: r + dr, atraso: i * 90,
+                         }));
+                         const ids = grupo.map((g) => g.id);
+                         this.rastro = [...this.rastro.slice(-4), ...grupo];
+                         setTimeout(() => { this.rastro = this.rastro.filter((x) => ! ids.includes(x.id)); }, 1400);
                      },
-                     esconde() { if (this.$refs.cursor) this.$refs.cursor.style.opacity = '0' },
                  }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)"
-                 @mousemove="rastreia($event)" @mouseleave="esconde()">
-                <span x-ref="cursor" aria-hidden="true"
-                      class="pointer-events-none absolute top-0 left-0 z-[2] rounded-[2px] bg-white/15 opacity-0"
-                      style="transition: opacity 0.35s ease, transform 0.12s ease-out"></span>
+                 @mousemove="rastreia($event)">
+                <template x-for="ponto in rastro" :key="ponto.id">
+                    <span class="pointer-events-none absolute top-0 left-0 z-[2]"
+                          :style="`width:${px - 1}px;height:${py - 1}px;transform:translate(${ponto.c * px + 1}px,${ponto.r * py + 1}px)`">
+                        <span class="celula-vira block h-full w-full rounded-[2px]"
+                              :style="`animation-delay:${ponto.atraso}ms;background-color:rgb(255 255 255 / 0.14)`"></span>
+                    </span>
+                </template>
 
                 {{-- A foto por baixo de tudo, com o veu da marca por cima:
                      e ela que da vida ao painel, mas quem manda na leitura

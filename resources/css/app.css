@@ -507,6 +507,26 @@
   background-color: rgb(117 146 255 / 0.14);
 }
 
+/* Painel que o mouse desdobra: a casa sob o cursor e tres vizinhas viram em
+   3D, em cascatinha, e se apagam viradas. O grupo substitui o anterior, entao
+   o efeito e local, sem cauda de cobrinha. Sobre uma celula que ja vive ali,
+   as opacidades se somam e ela flareja junto. */
+@utility celula-vira {
+  background-color: rgb(70 95 255 / 0.2);
+  opacity: 0;
+  animation: celula-vira 1s ease-out both;
+}
+
+.dark .celula-vira {
+  background-color: rgb(117 146 255 / 0.24);
+}
+
+@keyframes celula-vira {
+  0%   { opacity: 0; transform: perspective(600px) rotateY(0deg); }
+  22%  { opacity: 1; }
+  100% { opacity: 0; transform: perspective(600px) rotateY(180deg); }
+}
+
 @keyframes celula-acende {
   0%, 100% { opacity: 0; }
   12%      { opacity: 1; }
@@ -661,6 +681,7 @@
   .entra-popup { animation: none; }
   .balanca { animation: none; }
   .celula-viva { animation: none; opacity: 0.4; }
+  .celula-vira { animation: none; opacity: 0; }
   .entra-suave { animation: none; opacity: 1; }
   .medidor-nivel-faixa { animation: none; stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
   .medidor-nivel-ponteiro { animation: none; transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }

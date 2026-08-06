@@ -85,7 +85,7 @@
         {{-- Topo fixo. Sombra e fundo quase solido para separar do conteudo:
              com a grade animada passando por baixo, o header translucido
              sumia na pagina. --}}
-        <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
+        <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95 dark:shadow-[0_6px_18px_rgb(0_0_0/0.45)]">
             <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="40" one />
@@ -139,26 +139,37 @@
                          this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
+                     px: 42, py: 42, rastro: [], seq: 0, ultimo: null,
                      rastreia(e) {
-                         const r = this.$el.getBoundingClientRect();
+                         const rct = this.$el.getBoundingClientRect();
                          const est = getComputedStyle(this.$el);
-                         const px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
-                         const py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
-                         const c = this.$refs.cursor;
-                         if (! c) return;
-                         c.style.width = (px - 1) + 'px';
-                         c.style.height = (py - 1) + 'px';
-                         c.style.transform = `translate(${Math.floor((e.clientX - r.left) / px) * px + 1}px, ${Math.floor((e.clientY - r.top) / py) * py + 1}px)`;
-                         c.style.opacity = '1';
+                         this.px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
+                         this.py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
+                         const c = Math.floor((e.clientX - rct.left) / this.px);
+                         const r = Math.floor((e.clientY - rct.top) / this.py);
+                         const chave = c + ':' + r;
+                         if (chave === this.ultimo) return;
+                         this.ultimo = chave;
+                         const vizinhas = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
+                             .sort(() => Math.random() - 0.5).slice(0, 3);
+                         const grupo = [[0, 0], ...vizinhas].map(([dc, dr], i) => ({
+                             id: ++this.seq, c: c + dc, r: r + dr, atraso: i * 90,
+                         }));
+                         const ids = grupo.map((g) => g.id);
+                         this.rastro = [...this.rastro.slice(-4), ...grupo];
+                         setTimeout(() => { this.rastro = this.rastro.filter((x) => ! ids.includes(x.id)); }, 1400);
                      },
-                     esconde() { if (this.$refs.cursor) this.$refs.cursor.style.opacity = '0' },
                  }"
                  x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)"
-                 @mousemove="rastreia($event)" @mouseleave="esconde()">
+                 @mousemove="rastreia($event)">
             <div aria-hidden="true" class="pointer-events-none absolute inset-0">
-                <span x-ref="cursor" aria-hidden="true"
-                          class="pointer-events-none absolute top-0 left-0 rounded-[2px] bg-brand-400/25 opacity-0"
-                          style="transition: opacity 0.35s ease, transform 0.12s ease-out"></span>
+                <template x-for="ponto in rastro" :key="ponto.id">
+                        <span class="pointer-events-none absolute top-0 left-0"
+                              :style="`width:${px - 1}px;height:${py - 1}px;transform:translate(${ponto.c * px + 1}px,${ponto.r * py + 1}px)`">
+                            <span class="celula-vira block h-full w-full rounded-[2px]"
+                                  :style="`animation-delay:${ponto.atraso}ms`"></span>
+                        </span>
+                    </template>
                     @foreach ($celulas as $celula)
                     <span class="celula-viva"
                           style="top: calc(var(--passo-y, 42px) * {{ $celula['top'] }} + 1px); left: calc(var(--passo-x, 42px) * {{ $celula['left'] }} + 1px); animation-delay: {{ $celula['atraso'] }}"></span>
@@ -427,26 +438,37 @@
                          this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
                          this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
                      },
+                     px: 42, py: 42, rastro: [], seq: 0, ultimo: null,
                      rastreia(e) {
-                         const r = this.$el.getBoundingClientRect();
+                         const rct = this.$el.getBoundingClientRect();
                          const est = getComputedStyle(this.$el);
-                         const px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
-                         const py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
-                         const c = this.$refs.cursor;
-                         if (! c) return;
-                         c.style.width = (px - 1) + 'px';
-                         c.style.height = (py - 1) + 'px';
-                         c.style.transform = `translate(${Math.floor((e.clientX - r.left) / px) * px + 1}px, ${Math.floor((e.clientY - r.top) / py) * py + 1}px)`;
-                         c.style.opacity = '1';
+                         this.px = parseFloat(est.getPropertyValue('--passo-x')) || 42;
+                         this.py = parseFloat(est.getPropertyValue('--passo-y')) || 42;
+                         const c = Math.floor((e.clientX - rct.left) / this.px);
+                         const r = Math.floor((e.clientY - rct.top) / this.py);
+                         const chave = c + ':' + r;
+                         if (chave === this.ultimo) return;
+                         this.ultimo = chave;
+                         const vizinhas = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
+                             .sort(() => Math.random() - 0.5).slice(0, 3);
+                         const grupo = [[0, 0], ...vizinhas].map(([dc, dr], i) => ({
+                             id: ++this.seq, c: c + dc, r: r + dr, atraso: i * 90,
+                         }));
+                         const ids = grupo.map((g) => g.id);
+                         this.rastro = [...this.rastro.slice(-4), ...grupo];
+                         setTimeout(() => { this.rastro = this.rastro.filter((x) => ! ids.includes(x.id)); }, 1400);
                      },
-                     esconde() { if (this.$refs.cursor) this.$refs.cursor.style.opacity = '0' },
                  }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)"
-                 @mousemove="rastreia($event)" @mouseleave="esconde()">
+                 @mousemove="rastreia($event)">
 
                 <div aria-hidden="true" class="pointer-events-none absolute inset-0">
-                    <span x-ref="cursor" aria-hidden="true"
-                          class="pointer-events-none absolute top-0 left-0 rounded-[2px] bg-brand-400/25 opacity-0"
-                          style="transition: opacity 0.35s ease, transform 0.12s ease-out"></span>
+                    <template x-for="ponto in rastro" :key="ponto.id">
+                        <span class="pointer-events-none absolute top-0 left-0"
+                              :style="`width:${px - 1}px;height:${py - 1}px;transform:translate(${ponto.c * px + 1}px,${ponto.r * py + 1}px)`">
+                            <span class="celula-vira block h-full w-full rounded-[2px]"
+                                  :style="`animation-delay:${ponto.atraso}ms`"></span>
+                        </span>
+                    </template>
                     @foreach ([[0, 1, '0s'], [1, 0, '1.2s'], [2, 2, '2.1s'], [1, 3, '3.3s'], [3, 1, '4.4s'], [0, 4, '5s']] as [$col, $lin, $atraso])
                         <span class="celula-viva"
                               style="right: calc(var(--passo-x, 42px) * {{ $col }} + 1px); bottom: calc(var(--passo-y, 42px) * {{ $lin }} + 1px); animation-delay: {{ $atraso }}"></span>
