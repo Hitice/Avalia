@@ -142,7 +142,7 @@
                      },
                  }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
 
-                <div aria-hidden="true" class="absolute inset-0">
+                <div aria-hidden="true" class="pointer-events-none absolute inset-0">
                     {{-- Canto inferior esquerdo --}}
                     @foreach ([[0, 1, '0s'], [1, 0, '1.1s'], [2, 2, '2.3s'], [1, 3, '3.4s'], [3, 1, '4.3s']] as [$col, $lin, $atraso])
                         <span class="celula-viva"

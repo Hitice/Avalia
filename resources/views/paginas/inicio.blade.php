@@ -121,7 +121,7 @@
                      },
                  }"
                  x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
-            <div aria-hidden="true" class="absolute inset-0">
+            <div aria-hidden="true" class="pointer-events-none absolute inset-0">
                 @foreach ($celulas as $celula)
                     <span class="celula-viva"
                           style="top: calc(var(--passo-y, 42px) * {{ $celula['top'] }} + 1px); left: calc(var(--passo-x, 42px) * {{ $celula['left'] }} + 1px); animation-delay: {{ $celula['atraso'] }}"></span>
@@ -379,7 +379,7 @@
                      },
                  }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
 
-                <div aria-hidden="true" class="absolute inset-0">
+                <div aria-hidden="true" class="pointer-events-none absolute inset-0">
                     @foreach ([[0, 1, '0s'], [1, 0, '1.2s'], [2, 2, '2.1s'], [1, 3, '3.3s'], [3, 1, '4.4s'], [0, 4, '5s']] as [$col, $lin, $atraso])
                         <span class="celula-viva"
                               style="right: calc(var(--passo-x, 42px) * {{ $col }} + 1px); bottom: calc(var(--passo-y, 42px) * {{ $lin }} + 1px); animation-delay: {{ $atraso }}"></span>
