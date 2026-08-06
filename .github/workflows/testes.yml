@@ -63,9 +63,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # O front e montado aqui, e nao no servidor: a Hostinger so oferece Node
-      # nos planos Business para cima, e o plano atual e Premium. Aqui ele existe
-      # sempre, e o servidor recebe o resultado pronto.
+      # Tudo que exige ferramenta e montado aqui, e nao no servidor.
+      #
+      # A hospedagem compartilhada desabilita proc_open, exec e shell_exec, entao
+      # o Composer nao roda la de jeito nenhum; e Node so existe nos planos
+      # Business para cima. Aqui os dois existem sempre, e o servidor recebe o
+      # resultado pronto. Isso tambem deixa o servidor com menos ferramenta
+      # instalada, que e menos superficie para alguem usar.
+      - name: PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, curl, zip, intl, fileinfo, bcmath
+          coverage: none
+
+      - name: Dependencias de producao
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
       - name: Front
         run: npm ci && npm run build
 
@@ -82,11 +96,19 @@ jobs:
           echo "${{ secrets.SSH_IDENTIDADE }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Enviar o front pronto
+      # Antes do deploy.sh, e nao depois: ele confere o ambiente e sobe a
+      # aplicacao, entao precisa encontrar vendor e front no lugar.
+      #
+      # `--delete` remove no servidor o que saiu daqui. Sem isso, pacote retirado
+      # do composer.json continuaria la para sempre, e o autoload novo apontando
+      # para arquivo velho e o tipo de erro que so aparece em uma tela.
+      - name: Enviar dependencias e front
         run: |
-          rsync -az --delete -e "ssh -p ${{ secrets.SSH_PORTA || 22 }}" \
-                public/build/ \
-                "${{ secrets.SSH_USUARIO }}@${{ secrets.SSH_SERVIDOR }}:${{ secrets.SSH_CAMINHO }}/public/build/"
+          destino="${{ secrets.SSH_USUARIO }}@${{ secrets.SSH_SERVIDOR }}:${{ secrets.SSH_CAMINHO }}"
+          transporte="ssh -p ${{ secrets.SSH_PORTA || 22 }}"
+
+          rsync -az --delete -e "$transporte" vendor/       "$destino/vendor/"
+          rsync -az --delete -e "$transporte" public/build/ "$destino/public/build/"
 
       - name: Publicar
         run: |
