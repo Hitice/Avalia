@@ -365,24 +365,24 @@
 
         {{-- Campanha de adesao: o convite direto, no fundo escuro da marca. --}}
         <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-16 lg:pb-24">
-            <div class="grade-viva-escura relative overflow-hidden rounded-3xl bg-black/35 px-6 py-14 text-center sm:px-14">
-                <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white">
+            <div class="grade-viva relative overflow-hidden rounded-3xl border border-gray-200 bg-gray-300/40 px-6 py-14 text-center dark:border-gray-800 dark:bg-black/35 sm:px-14">
+                <span class="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white/70 px-3 py-1 text-xs font-medium text-gray-700 dark:border-white/20 dark:bg-white/10 dark:text-white">
                     <span class="size-1.5 animate-pulse rounded-full bg-success-500"></span>
                     Campanha de adesão aberta
                 </span>
 
-                <h2 class="mx-auto mt-5 max-w-2xl text-3xl font-semibold text-white sm:text-4xl">
+                <h2 class="mx-auto mt-5 max-w-2xl text-3xl font-semibold text-gray-800 sm:text-4xl dark:text-white">
                     Comece a consultar ainda esta semana
                 </h2>
 
-                <p class="mx-auto mt-4 max-w-xl text-gray-400">
+                <p class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-400">
                     Novos clientes contam com condições especiais de adesão e uma
                     proposta sob medida para o volume da sua empresa. Deixe seu contato
                     e um consultor retorna ainda hoje.
                 </p>
 
                 <button type="button" @click="aberto = 'campanha'"
-                        class="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-medium text-brand-950 transition hover:bg-brand-50">
+                        class="mt-8 inline-flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-3 text-sm font-medium text-white transition hover:bg-brand-600">
                     Quero aproveitar a campanha
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M18 12H6"/>
