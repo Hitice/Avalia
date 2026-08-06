@@ -50,10 +50,16 @@ echo "    $(git rev-parse --short HEAD)  $(git log -1 --format=%s)"
 
 echo "==> Dependencias"
 composer install --no-dev --optimize-autoloader --no-interaction --quiet
-npm ci --silent
 
-echo "==> Front"
-npm run build --silent
+# Node so existe no VPS e nos planos Business para cima. Onde nao houver, os
+# arquivos do front chegam prontos, enviados pelo GitHub antes desta chamada.
+if command -v npm > /dev/null 2>&1; then
+    echo "==> Front"
+    npm ci --silent
+    npm run build --silent
+else
+    echo "==> Front: enviado pronto (sem node neste servidor)"
+fi
 
 echo "==> Migrations"
 php artisan migrate --force
@@ -70,8 +76,13 @@ php artisan avalia:ambiente
 
 # O worker segura o codigo antigo em memoria: sem reiniciar, a fila continua
 # rodando a versao que acabou de sair.
-echo "==> Fila"
-sudo systemctl restart avalia-fila
+#
+# Hospedagem compartilhada nao mantem processo de pe. La a fila roda em modo
+# sincrono, o que hoje nao custa nada: nenhuma acao da aplicacao e enfileirada.
+if systemctl list-unit-files 2> /dev/null | grep -q '^avalia-fila'; then
+    echo "==> Fila"
+    sudo systemctl restart avalia-fila
+fi
 
 echo "==> Subindo"
 php artisan up

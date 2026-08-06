@@ -1,6 +1,65 @@
 # Deploy
 
-Servidor próprio (VPS) em São Paulo, com PostgreSQL na mesma máquina.
+Dois destinos possíveis, e a aplicação roda nos dois. Ela não depende de recurso
+exclusivo de banco nenhum, e a prova é a suíte inteira passando em SQLite.
+
+| | Hospedagem compartilhada (Premium) | VPS |
+| --- | --- | --- |
+| Banco | MySQL | PostgreSQL ou MySQL |
+| Node no servidor | só Business+ | sim |
+| Processo de pé | não | sim |
+| Custo | já contratado | a mais |
+
+**Hospedagem compartilhada atende hoje.** O único recurso que ela não oferece e
+que costuma ser eliminatório é o processo permanente da fila, e a aplicação não
+enfileira nada: não existe um `ShouldQueue` nem um `dispatch()` no código. O dia
+em que existir, a fila passa a precisar de VPS.
+
+O que se perde é latência de banco: no VPS, aplicação e banco ficam na mesma
+máquina. `avalia:ambiente` mede a ida e avisa quando o banco está longe.
+
+## Compartilhada: o que muda
+
+O banco é MySQL. Para trazer os dados que hoje estão no PostgreSQL, a exportação
+escreve no dialeto do destino:
+
+```bash
+php artisan avalia:exportar --destino=mysql
+```
+
+Sem `--destino`, o arquivo sai com aspas duplas e comandos de sequência, que são
+do PostgreSQL. O MySQL recusa os dois.
+
+O front é montado pelo GitHub e enviado pronto, porque o Premium não tem Node. O
+`deploy.sh` percebe a ausência e não tenta montar.
+
+A raiz do domínio precisa apontar para `public`. Com o projeto em `~/avalia`:
+
+```bash
+rm -rf ~/domains/SEUDOMINIO/public_html
+ln -s ~/avalia/public ~/domains/SEUDOMINIO/public_html
+```
+
+O `.env` fica em `~/avalia`, fora do que a web alcança. Deixá-lo dentro de
+`public_html` publica as credenciais do banco.
+
+As rotinas entram no cron do hPanel, uma linha só:
+
+```
+* * * * * cd ~/avalia && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Confira o intervalo mínimo que o plano permite. Se for maior que um minuto,
+ajuste os horários em `routes/console.php` para múltiplos desse intervalo: uma
+rotina agendada às 00:05 num cron de 15 em 15 minutos nunca roda.
+
+O resto deste documento descreve o VPS.
+
+---
+
+## VPS
+
+Servidor próprio em São Paulo, com PostgreSQL na mesma máquina.
 
 ## Antes de tudo: fechar o acesso
 
@@ -179,10 +238,12 @@ Quatro segredos em **Settings → Secrets and variables → Actions**:
 
 | Segredo | O que é |
 | --- | --- |
-| `SSH_SERVIDOR` | IP ou domínio da VPS |
-| `SSH_USUARIO` | `avalia` |
+| `SSH_SERVIDOR` | IP ou domínio do servidor |
+| `SSH_USUARIO` | `avalia` no VPS, ou o usuário do hPanel na compartilhada |
 | `SSH_CHAVE` | Conteúdo de `~/.ssh/avalia`, a chave **privada**, inteira |
 | `SSH_IDENTIDADE` | Saída de `ssh-keyscan SEU_IP` |
+| `SSH_CAMINHO` | `/var/www/avalia` no VPS, ou `~/avalia` na compartilhada |
+| `SSH_PORTA` | Só se não for 22. A Hostinger usa 65002 na compartilhada |
 
 `SSH_IDENTIDADE` existe para o GitHub reconhecer o servidor antes de entrar.
 Sem ele, a alternativa é aceitar a chave que aparecer na hora, inclusive a de

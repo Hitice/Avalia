@@ -61,6 +61,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
+      # O front e montado aqui, e nao no servidor: a Hostinger so oferece Node
+      # nos planos Business para cima, e o plano atual e Premium. Aqui ele existe
+      # sempre, e o servidor recebe o resultado pronto.
+      - name: Front
+        run: npm ci && npm run build
+
       - name: Chave de acesso
         run: |
           mkdir -p ~/.ssh
@@ -74,8 +82,14 @@ jobs:
           echo "${{ secrets.SSH_IDENTIDADE }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      - name: Enviar o front pronto
+        run: |
+          rsync -az --delete -e "ssh -p ${{ secrets.SSH_PORTA || 22 }}" \
+                public/build/ \
+                "${{ secrets.SSH_USUARIO }}@${{ secrets.SSH_SERVIDOR }}:${{ secrets.SSH_CAMINHO }}/public/build/"
+
       - name: Publicar
         run: |
           ssh -p "${{ secrets.SSH_PORTA || 22 }}" \
               "${{ secrets.SSH_USUARIO }}@${{ secrets.SSH_SERVIDOR }}" \
-              'cd /var/www/avalia && ./deploy.sh'
+              'cd ${{ secrets.SSH_CAMINHO }} && ./deploy.sh'

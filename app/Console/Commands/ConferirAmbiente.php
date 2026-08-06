@@ -144,13 +144,16 @@ class ConferirAmbiente extends Command
     {
         $driver = DB::connection()->getDriverName();
 
-        // Conferido so em producao porque a suite roda em SQLite de proposito:
-        // teste em memoria e o que deixa a suite rapida o bastante para rodar a
-        // cada alteracao. O que este item pega e o deploy apontado para MySQL,
-        // onde as migrations nem chegam a subir.
+        // PostgreSQL ou MySQL, e nao um so: a aplicacao nao depende de recurso
+        // exclusivo de nenhum dos dois, e a prova e a suite inteira rodando em
+        // SQLite. O que este item pega e producao servida a partir do arquivo
+        // SQLite de teste, que nao aguenta dois acessos simultaneos.
+        //
+        // Conferido so em producao porque a suite usa SQLite de proposito: teste
+        // em memoria e o que a deixa rapida o bastante para rodar a cada mudanca.
         $producao
-            ? $this->anota('Banco em PostgreSQL', $driver === 'pgsql', $driver)
-            : $this->pula('Banco em PostgreSQL');
+            ? $this->anota('Banco de produção', in_array($driver, ['pgsql', 'mysql', 'mariadb'], true), $driver, true)
+            : $this->pula('Banco de produção');
 
         try {
             $inicio = microtime(true);

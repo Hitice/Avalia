@@ -26,7 +26,10 @@ use Illuminate\Support\Facades\DB;
  */
 class ExportarBanco extends Command
 {
-    protected $signature = 'avalia:exportar {--saida= : Caminho do arquivo} {--reter= : Dias de cópias antigas a manter}';
+    protected $signature = 'avalia:exportar
+        {--saida= : Caminho do arquivo}
+        {--reter= : Dias de cópias antigas a manter}
+        {--destino= : Dialeto do banco que vai receber (pgsql ou mysql)}';
 
     protected $description = 'Exporta os dados do banco para um arquivo SQL restaurável';
 
@@ -53,8 +56,8 @@ class ExportarBanco extends Command
 
     public function handle(): int
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            $this->error('Este comando exporta de Postgres.');
+        if (! in_array($this->driver(), ['pgsql', 'mysql', 'mariadb'], true)) {
+            $this->error('Este comando exporta de PostgreSQL ou MySQL.');
 
             return self::FAILURE;
         }
@@ -162,21 +165,33 @@ class ExportarBanco extends Command
      */
     private function emOrdemDeDependencia(): array
     {
-        $tabelas = collect(DB::select("select tablename from pg_tables where schemaname = 'public'"))
-            ->pluck('tablename')
+        $listagem = $this->origemEhPostgres()
+            ? "select tablename as nome from pg_tables where schemaname = 'public'"
+            : "select table_name as nome from information_schema.tables
+               where table_schema = database() and table_type = 'BASE TABLE'";
+
+        $tabelas = collect(DB::select($listagem))
+            ->pluck('nome')
             ->reject(fn (string $t) => in_array($t, self::DESCARTAVEIS, true))
             ->values()
             ->all();
 
         $depende = [];
 
-        foreach (DB::select("
-            select tc.table_name as origem, ccu.table_name as destino
-            from information_schema.table_constraints tc
-            join information_schema.constraint_column_usage ccu
-              on ccu.constraint_name = tc.constraint_name
-            where tc.constraint_type = 'FOREIGN KEY' and tc.table_schema = 'public'
-        ") as $fk) {
+        // Mesma pergunta, dois catalogos: o MySQL guarda a tabela apontada na
+        // propria key_column_usage, e o Postgres exige a juncao com
+        // constraint_column_usage.
+        $chaves = $this->origemEhPostgres()
+            ? "select tc.table_name as origem, ccu.table_name as destino
+               from information_schema.table_constraints tc
+               join information_schema.constraint_column_usage ccu
+                 on ccu.constraint_name = tc.constraint_name
+               where tc.constraint_type = 'FOREIGN KEY' and tc.table_schema = 'public'"
+            : 'select table_name as origem, referenced_table_name as destino
+               from information_schema.key_column_usage
+               where table_schema = database() and referenced_table_name is not null';
+
+        foreach (DB::select($chaves) as $fk) {
             // Autorreferencia nao cria dependencia entre tabelas.
             if ($fk->origem !== $fk->destino) {
                 $depende[$fk->origem][$fk->destino] = true;
@@ -207,10 +222,58 @@ class ExportarBanco extends Command
     /** @param  array<string, mixed>  $linha */
     private function insert(string $tabela, array $linha): string
     {
-        $colunas = implode(', ', array_map(fn ($c) => '"'.$c.'"', array_keys($linha)));
+        $colunas = implode(', ', array_map($this->citar(...), array_keys($linha)));
         $valores = implode(', ', array_map($this->valor(...), $linha));
 
-        return "INSERT INTO \"{$tabela}\" ({$colunas}) VALUES ({$valores});";
+        return 'INSERT INTO '.$this->citar($tabela)." ({$colunas}) VALUES ({$valores});";
+    }
+
+    private function driver(): string
+    {
+        return DB::connection()->getDriverName();
+    }
+
+    /**
+     * Banco de onde se le. Decide qual catalogo responde sobre tabelas e chaves.
+     *
+     * Separado do destino de proposito: com `--destino=mysql` rodando sobre uma
+     * origem PostgreSQL, confundir os dois faria o comando perguntar ao catalogo
+     * errado e nao achar tabela nenhuma.
+     */
+    private function origemEhPostgres(): bool
+    {
+        return $this->driver() === 'pgsql';
+    }
+
+    /**
+     * Dialeto em que o arquivo e escrito.
+     *
+     * Por padrao e o da propria origem, que e o caso comum: copiar um banco para
+     * outro igual. Com `--destino` passa a ser o do banco que vai receber, e e
+     * isso que permite sair do PostgreSQL e entrar no MySQL, onde a citacao de
+     * identificador e outra e sequencia nao existe.
+     *
+     * So a forma de escrever muda. Os dados sao os mesmos: nenhuma tabela daqui
+     * usa recurso exclusivo de um dos dois, e a prova e a suite inteira rodando
+     * em SQLite.
+     */
+    private function destinoEhPostgres(): bool
+    {
+        $destino = (string) ($this->option('destino') ?? '');
+
+        return $destino === '' ? $this->origemEhPostgres() : $destino === 'pgsql';
+    }
+
+    /**
+     * Nome de tabela ou coluna, com a marca que o banco de destino entende.
+     *
+     * Aspas duplas sao o padrao ANSI e o que o Postgres usa. O MySQL usa crase e
+     * recusa aspas duplas fora do modo ANSI_QUOTES: sem isto, um arquivo
+     * exportado do Postgres nao entra no MySQL de jeito nenhum.
+     */
+    private function citar(string $identificador): string
+    {
+        return $this->destinoEhPostgres() ? '"'.$identificador.'"' : '`'.$identificador.'`';
     }
 
     private function valor(mixed $valor): string
@@ -251,6 +314,13 @@ class ExportarBanco extends Command
      */
     private function sequencias(): array
     {
+        // O MySQL nao tem sequencia. O contador do AUTO_INCREMENT se ajusta
+        // sozinho quando um id explicito maior que ele e gravado, entao ao fim da
+        // restauracao ele ja esta em max(id) + 1 sem ninguem mandar.
+        if (! $this->destinoEhPostgres()) {
+            return [];
+        }
+
         $sql = ["\n-- Sequencias, para o proximo id nao colidir com o que foi restaurado"];
 
         // Quem e o dono de cada sequencia vem do proprio catalogo do Postgres, e
