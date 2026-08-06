@@ -525,29 +525,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* O medidor da marca em movimento: o ponteiro parte do fundo da escala,
-   passa do ponto e assenta na leitura. E a logo fazendo o que ela diz. */
-@utility medidor-ponteiro {
-  transform-origin: 16px 22.5px;
-  animation: medidor-le 2.2s cubic-bezier(0.34, 1.4, 0.64, 1) 0.4s both;
-}
-
-@keyframes medidor-le {
-  from { transform: rotate(-96deg); }
-  to   { transform: rotate(0deg); }
-}
-
-/* O arco da faixa atingida se desenha junto da leitura do ponteiro. */
-@utility medidor-faixa {
-  stroke-dasharray: 19;
-  animation: medidor-faixa 2.2s cubic-bezier(0.34, 1, 0.64, 1) 0.4s both;
-}
-
-@keyframes medidor-faixa {
-  from { stroke-dashoffset: 19; }
-  to   { stroke-dashoffset: 0; }
-}
-
 /* Flutuacao curta dos cartoes soltos do topo. Amplitude pequena de proposito:
    e respiracao, nao balanco. */
 @utility flutua {
@@ -688,8 +665,6 @@
   .balanca { animation: none; }
   .celula-viva { animation: none; opacity: 0.4; }
   .entra-suave { animation: none; opacity: 1; }
-  .medidor-ponteiro { animation: none; }
-  .medidor-faixa { animation: none; stroke-dashoffset: 0; }
   .medidor-nivel-faixa { animation: none; stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
   .medidor-nivel-ponteiro { animation: none; transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
   .flutua { animation: none; }
