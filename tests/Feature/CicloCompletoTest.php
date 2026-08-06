@@ -195,10 +195,14 @@ it('percorre cadastro, aceite, consulta, fechamento, cobranca e repasse', functi
 
     /*
      * 11. A empresa volta a consultar, e a competencia nova comeca do zero.
+     *
+     * Documento novo de proposito: repetir um ja consultado cairia na janela
+     * que impede cobrar duas vezes pela mesma informacao, e o teste estaria
+     * medindo outra coisa.
      */
     comoEmpresa($empresa->fresh())->post(route('empresa.consultas.executar'), [
         'servico_id' => $servico->id,
-        'documento' => '11144477735',
+        'documento' => '11144477741',
         'finalidade' => 'Análise de crédito para venda a prazo',
     ])->assertRedirect();
 
