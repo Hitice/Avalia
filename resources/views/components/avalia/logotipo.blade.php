@@ -43,7 +43,7 @@
         {{-- No lockup Avaliaone, a palavra Avalia sai no azul da marca sobre
              tema claro; no escuro continua clara para nao sumir no fundo. --}}
         <span class="text-[1.35rem] leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : ($one ? 'text-brand-600 dark:text-white/90' : 'text-gray-800 dark:text-white/90') }}">
-            Avalia{{ '' }}<span class="text-gray-400 dark:text-gray-500">{{ $one ? 'one' : '' }}</span>
+            Avalia{{ '' }}<span class="{{ $one ? 'ml-1' : '' }} text-gray-300 dark:text-gray-400">{{ $one ? 'one' : '' }}</span>
         </span>
     @endunless
 </span>

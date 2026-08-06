@@ -195,7 +195,7 @@
                          tamanho grande, e repetir o gauge pequeno na logo
                          duplicava o desenho na mesma dobra. --}}
                     <span class="mb-4 text-5xl leading-none font-semibold tracking-tight text-white">
-                        Avalia<span class="text-gray-400">one</span>
+                        Avalia<span class="ml-1.5 text-gray-300">one</span>
                     </span>
                     <p class="texto-bureau text-center font-medium">
                         Segurança para suas melhores escolhas.
