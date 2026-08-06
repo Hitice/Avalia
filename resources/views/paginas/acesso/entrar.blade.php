@@ -130,8 +130,13 @@
             <div class="bg-brand-950 grade-viva-escura relative hidden h-full w-full items-center justify-center lg:flex lg:w-1/2 dark:bg-white/5">
                 <x-common.common-grid-shape />
                 <div class="z-1 flex max-w-xs flex-col items-center">
-                    <x-avalia.medidor :tamanho="120" class="mb-6" />
-                    <x-avalia.logotipo :tamanho="42" claro class="mb-4 [&>span:last-child]:text-3xl" />
+                    <x-avalia.medidor :tamanho="120" class="mb-3" />
+                    {{-- So o wordmark: o simbolo ja esta logo acima, em
+                         tamanho grande, e repetir o gauge pequeno na logo
+                         duplicava o desenho na mesma dobra. --}}
+                    <span class="mb-4 text-4xl leading-none font-semibold tracking-tight text-white">
+                        Avalia<span class="text-gray-400">one</span>
+                    </span>
                     <p class="text-center text-gray-400 dark:text-white/60">
                         Segurança para suas melhores escolhas.
                     </p>

@@ -40,6 +40,42 @@
         </div>
     </div>
 
+    {{-- Pedidos de contato da pagina publica. Lead esfria em horas, entao a
+         fila mora na primeira tela que a administracao abre. --}}
+    @if ($interessados->isNotEmpty())
+        <div class="cartao mb-6 overflow-hidden border-brand-200 dark:border-brand-500/40">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Pedidos de contato aguardando retorno</h2>
+                <p class="ajuda-campo mt-1">Chegaram pela campanha da página pública. Retorno prometido: ainda hoje.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="tabela min-w-[44rem]">
+                    <thead class="tabela-cabecalho"><tr>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Quando</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Nome</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Empresa</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Contato</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Funcionários</th>
+                    </tr></thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @foreach ($interessados as $interessado)
+                            <tr>
+                                <td class="px-5 py-4 text-left whitespace-nowrap text-gray-500 dark:text-gray-400">{{ $interessado->created_at->format('d/m H:i') }}</td>
+                                <td class="px-5 py-4 text-left font-medium text-gray-800 dark:text-white/90">{{ $interessado->nome }}</td>
+                                <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $interessado->empresa }}</td>
+                                <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
+                                    {{ $interessado->telefone }}
+                                    <span class="block text-xs text-gray-400 dark:text-gray-500">{{ $interessado->email }}</span>
+                                </td>
+                                <td class="px-5 py-4 text-right text-gray-600 dark:text-gray-300">{{ $interessado->funcionarios }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
     <div class="grid gap-6 lg:grid-cols-2">
         {{-- A janela entre o vencimento e a suspensao automatica: e o unico
              momento em que uma ligacao ainda evita a interrupcao. --}}

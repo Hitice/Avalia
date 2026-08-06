@@ -13,6 +13,7 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InicioController;
+use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
@@ -41,6 +42,12 @@ use Illuminate\Support\Facades\Route;
  * painel.
  */
 Route::get('/', InicioController::class)->name('inicio');
+
+// Pedido de contato da campanha. Teto por origem apertado: e o unico POST
+// publico que grava no banco, e formulario aberto e ima de robo.
+Route::post('/interesse', [InteresseController::class, 'salvar'])
+    ->middleware('throttle:10,1')
+    ->name('interesse.salvar');
 
 Route::middleware('guest:staff,empresa')->group(function () {
     Route::get('/entrar', [LoginController::class, 'mostrar'])->name('entrar');

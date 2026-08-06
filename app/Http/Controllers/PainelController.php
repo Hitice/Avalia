@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
+use App\Models\Interessado;
 use App\Models\Staff;
 use App\Support\Alertas;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,11 @@ class PainelController extends Controller
 
             'aCaminhoDaSuspensao' => Alertas::aCaminhoDaSuspensao(Fatura::query()),
             'comissaoPorVendedor' => $this->comissaoPorVendedor(),
+
+            // Pedidos de contato da pagina publica. Aparecem aqui, e nao numa
+            // tela propria: lead esfria em horas, e o painel e a tela que o
+            // administrador abre primeiro.
+            'interessados' => Interessado::aguardando()->latest()->limit(6)->get(),
         ]);
     }
 

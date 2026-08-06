@@ -54,14 +54,16 @@ it('nao vaza fornecedor, preco nem numero interno', function () {
         ->not->toContain('Margem');
 });
 
-it('anuncia a campanha sem levar dado pessoal na conversa', function () {
+it('recolhe o interesse da campanha por formulario, e nao por URL de conversa', function () {
     $html = $this->get('/')->assertOk()->getContent();
 
-    // O botao da campanha abre o WhatsApp com o assunto ja escrito. So o
-    // assunto: URL de conversa passa por servidor de terceiro e fica no
-    // historico, entao nela nao entra nome, documento nem valor.
-    expect($html)->toContain('wa.me/')
-        ->toContain(rawurlencode('Campanha de adesão'));
+    // A campanha abre um formulario que grava no nosso banco: nome e telefone
+    // sao dado pessoal e nao viajam em URL de WhatsApp. Os links de conversa
+    // que restam levam so o assunto.
+    expect($html)->toContain(route('interesse.salvar'))
+        ->toContain('Enviar pedido de contato')
+        ->toContain('wa.me/')
+        ->toContain(rawurlencode('Quero contratar a Avalia'));
 });
 
 it('leva cada sessao para o proprio painel sem mostrar a apresentacao', function () {

@@ -550,6 +550,28 @@
   50%      { transform: translateY(-8px); }
 }
 
+/* Alpine esconde com x-cloak ate hidratar; sem esta regra os popups piscam
+   abertos no carregamento. */
+[x-cloak] {
+  display: none !important;
+}
+
+/* A barra de faixa cresce junto com a leitura do medidor, uma vez por
+   consulta do ciclo. Escala, e nao largura: anima sem relayout. */
+@utility barra-cresce {
+  transform-origin: left;
+  animation: barra-cresce 16s ease-out infinite;
+}
+
+@keyframes barra-cresce {
+  0%       { transform: scaleX(0); }
+  4%       { transform: scaleX(0); }
+  12%      { transform: scaleX(1); }
+  22%      { transform: scaleX(1); }
+  25%      { transform: scaleX(0); }
+  100%     { transform: scaleX(0); }
+}
+
 /* O medidor em ciclo: refaz a leitura a cada consulta do carrossel. O ciclo
    do carrossel e de 16s com quatro consultas, entao a leitura dura 4s. */
 @utility medidor-ponteiro-vivo {
@@ -586,19 +608,61 @@
 }
 
 @keyframes consulta-passa {
-  0%       { opacity: 0; transform: translateY(10px); }
-  3%       { opacity: 1; transform: translateY(0); }
-  22%      { opacity: 1; transform: translateY(0); }
-  25%      { opacity: 0; transform: translateY(-10px); }
-  100%     { opacity: 0; }
+  0%       { opacity: 0; transform: translateX(36px); }
+  3.5%     { opacity: 1; transform: translateX(0); }
+  21.5%    { opacity: 1; transform: translateX(0); }
+  25%      { opacity: 0; transform: translateX(-36px); }
+  100%     { opacity: 0; transform: translateX(-36px); }
 }
 
-/* A pontuacao com a cor de bureau: do rosa do tema ao azul da marca. */
-@utility numero-bureau {
-  background-image: linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500));
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+/* Pontinho do carrossel: acende no quarto de ciclo da consulta dele. */
+@utility ponto-do-carrossel {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: rgb(70 95 255 / 0.18);
+  animation: ponto-ativo 16s ease infinite;
+}
+
+@keyframes ponto-ativo {
+  0%       { background-color: var(--color-brand-500); transform: scale(1.25); }
+  22%      { background-color: var(--color-brand-500); transform: scale(1.25); }
+  26%      { background-color: rgb(70 95 255 / 0.18); transform: scale(1); }
+  100%     { background-color: rgb(70 95 255 / 0.18); transform: scale(1); }
+}
+
+/* A pontuacao com a cor de bureau, contando do zero ate o alvo enquanto o
+   ponteiro faz a leitura. A propriedade registrada e o que permite interpolar
+   o inteiro; o counter escreve o valor a cada quadro. O alvo de cada consulta
+   vem de --alvo, em estilo inline.
+
+   O numero visivel mora num pseudo-elemento e o valor real fica em texto
+   sr-only ao lado: leitor de tela e teste leem o numero inteiro, sem depender
+   do truque. */
+@property --pontos {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@utility numero-conta {
+  counter-reset: pontos var(--pontos);
+  animation: pontos-sobem 16s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+
+  &::after {
+    content: counter(pontos);
+    background-image: linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+
+@keyframes pontos-sobem {
+  0%, 4%    { --pontos: 0; }
+  14%       { --pontos: var(--alvo); }
+  22%       { --pontos: var(--alvo); }
+  25%, 100% { --pontos: 0; }
 }
 
 @utility barra-bureau {
@@ -616,6 +680,10 @@
 
   /* Sem movimento, o carrossel vira a primeira consulta parada. */
   .consulta-do-carrossel { animation: none; }
+  .barra-cresce { animation: none; transform: scaleX(1); }
+  .numero-conta { animation: none; --pontos: var(--alvo); }
+  .ponto-do-carrossel { animation: none; }
+  .ponto-do-carrossel:first-of-type { background-color: var(--color-brand-500); }
   .consulta-do-carrossel ~ .consulta-do-carrossel { display: none; }
   .consulta-do-carrossel:first-of-type { opacity: 1; }
 }
