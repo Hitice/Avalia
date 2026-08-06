@@ -3,6 +3,7 @@
 use App\Http\Controllers\AreaClienteController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RecuperacaoController;
 use App\Http\Controllers\Auth\SenhaController;
 use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
@@ -52,6 +53,13 @@ Route::post('/interesse', [InteresseController::class, 'salvar'])
 
 Route::middleware('guest:staff,empresa')->group(function () {
     Route::get('/entrar', [LoginController::class, 'mostrar'])->name('entrar');
+
+    // Esqueci minha senha: reusa o convite de acesso. Resposta identica exista
+    // ou nao a conta, para nao virar verificador de quem e cliente.
+    Route::get('/esqueci', [RecuperacaoController::class, 'mostrar'])->name('senha.esqueci');
+    Route::post('/esqueci', [RecuperacaoController::class, 'enviar'])
+        ->middleware('throttle:5,1')
+        ->name('senha.esqueci.enviar');
     // O bloqueio progressivo por conta ja existe; este teto e por origem, e
     // fecha a tentativa em massa contra muitas contas diferentes.
     Route::post('/entrar', [LoginController::class, 'entrar'])

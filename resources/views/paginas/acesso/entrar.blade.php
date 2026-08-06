@@ -116,13 +116,20 @@
                                 </div>
                             </div>
 
-                            {{-- Marcado por padrao: e o comportamento que o usuario espera. --}}
-                            <label for="lembrar" class="flex cursor-pointer items-center gap-3 text-sm text-gray-700 select-none dark:text-gray-400">
-                                <input type="checkbox" id="lembrar" name="lembrar" value="1"
-                                    {{ old('lembrar', true) ? 'checked' : '' }}
-                                    class="text-brand-500 focus:ring-brand-500/20 size-5 rounded-md border-gray-300 focus:ring-2 dark:border-gray-700 dark:bg-gray-900" />
-                                Manter conectado neste dispositivo
-                            </label>
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                {{-- Marcado por padrao: e o comportamento que o usuario espera. --}}
+                                <label for="lembrar" class="flex cursor-pointer items-center gap-3 text-sm text-gray-700 select-none dark:text-gray-400">
+                                    <input type="checkbox" id="lembrar" name="lembrar" value="1"
+                                        {{ old('lembrar', true) ? 'checked' : '' }}
+                                        class="text-brand-500 focus:ring-brand-500/20 size-5 rounded-md border-gray-300 focus:ring-2 dark:border-gray-700 dark:bg-gray-900" />
+                                    Manter conectado neste dispositivo
+                                </label>
+
+                                <a href="{{ route('senha.esqueci') }}"
+                                   class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+                                    Esqueci minha senha
+                                </a>
+                            </div>
 
                             <button type="submit"
                                 class="bg-brand-500 shadow-theme-xs hover:bg-brand-600 flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-medium text-white transition">

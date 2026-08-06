@@ -62,11 +62,11 @@ Schedule::command('avalia:conferir')
  * resposta que o expurgo vai apagar, e um pedido de titular respondido tarde
  * ainda encontra o dado.
  *
- * A copia fica no disco do proprio servidor, o que cobre engano humano e nao
- * cobre perda da maquina. Backup de verdade exige a copia sair daqui, e isso
- * depende de destino externo contratado (PDD, secao 19).
+ * A copia fica no disco e TAMBEM sai por e-mail comprimida (--enviar): a
+ * caixa do dominio e o destino externo, fora desta maquina. Cobre engano
+ * humano e perda do servidor.
  */
-Schedule::command('avalia:exportar')
+Schedule::command('avalia:exportar --enviar')
     ->name('banco:copia')
     ->dailyAt('02:00')
     ->withoutOverlapping();

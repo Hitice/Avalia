@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Caixa que recebe a copia diaria do banco
+    |--------------------------------------------------------------------------
+    |
+    | Destino do avalia:exportar --enviar. E o cofre externo do backup, entao
+    | precisa ser uma caixa nossa, sem encaminhamento automatico.
+    |
+    */
+
+    'copia_para' => env('AVALIA_COPIA_EMAIL', 'financeiro@avaliaone.com.br'),
+
 ];

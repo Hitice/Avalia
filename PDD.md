@@ -919,7 +919,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 227 testes.
+A suíte tem 425 testes.
 
 ### Convite de acesso e senha
 
@@ -938,6 +938,13 @@ A redefinição é o mesmo mecanismo: o botão "Enviar redefinição de senha" n
 edição gera um convite novo. O vendedor só reenvia para empresa da própria
 carteira. Falha de envio não desfaz cadastro e não passa em silêncio: a tela
 avisa e o botão de reenvio resolve.
+
+Quem esqueceu a senha não depende de ninguém: a página "Esqueci minha senha"
+(`/esqueci`, com link na tela de entrada) recebe o e-mail e dispara o mesmo
+convite. A resposta na tela é idêntica exista ou não a conta, para o formulário
+não virar um verificador público de quem é cliente; conta desligada e empresa
+sem acesso não recebem nada, e o envio tem teto de cinco tentativas por minuto
+por origem.
 
 A conferência de ambiente reprova produção com driver de e-mail em arquivo
 desde que o primeiro envio passou a existir: convite que não chega seria conta
@@ -1028,11 +1035,13 @@ alguém disponível para atender à mão vem antes do que exige alguém para man
 Cada um protege dinheiro ou impede que um erro chegue em produção, e nenhum leva
 mais de um dia.
 
-1. ~~**Testar restauração de backup.**~~ Feito. `avalia:exportar` e
-   `avalia:importar` não dependem de `pg_dump`, e a restauração num banco vazio
-   foi conferida registro a registro. O que **falta** é o destino externo: a
-   cópia diária das 02:00 fica no mesmo disco que ela protege, o que cobre
-   engano humano e não cobre perda da máquina.
+1. ~~**Testar restauração de backup.**~~ Feito, incluindo o destino externo.
+   `avalia:exportar` e `avalia:importar` não dependem de `pg_dump`, a
+   restauração num banco vazio foi conferida registro a registro, e a rotina
+   das 02:00 roda com `--enviar`: a cópia comprimida sai da máquina por e-mail
+   para financeiro@avaliaone.com.br (`AVALIA_COPIA_EMAIL` muda o destino). Se o
+   envio falhar, a cópia local permanece e a rotina termina em erro, para a
+   falha aparecer no log em vez de passar em silêncio.
 2. **Estorno com reversão de comissão.** Hoje a comissão liberada não volta
    atrás. É o buraco mais grave do fluxo financeiro.
 3. **Conciliação diária entre faturas e recebimentos do provedor.**
@@ -1057,10 +1066,11 @@ mais de um dia.
 
 Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
 
-13. ~~**Recuperação de senha.**~~ Feita pelo convite de acesso: o botão "Enviar
-    redefinição de senha" na edição de vendedor e de empresa manda um link
-    assinado de 48 horas, e a pessoa define a própria senha. Definida a nova,
-    todo link anterior morre.
+13. ~~**Recuperação de senha.**~~ Feita pelo convite de acesso, em dois
+    caminhos: o botão "Enviar redefinição de senha" na edição de vendedor e de
+    empresa, e a página pública "Esqueci minha senha", em que a própria pessoa
+    pede o link sem depender de ninguém. O link é assinado, vale 48 horas e
+    morre no uso; definida a senha nova, todo link anterior morre.
 14. **E-mails transacionais de cobrança.** O primeiro e-mail do sistema existe
     (o convite de acesso, enviado por financeiro@avaliaone.com.br); fatura
     emitida, vencimento próximo, bloqueio e desbloqueio continuam silenciosos.

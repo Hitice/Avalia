@@ -29,7 +29,8 @@ class ExportarBanco extends Command
     protected $signature = 'avalia:exportar
         {--saida= : Caminho do arquivo}
         {--reter= : Dias de cópias antigas a manter}
-        {--destino= : Dialeto do banco que vai receber (pgsql ou mysql)}';
+        {--destino= : Dialeto do banco que vai receber (pgsql ou mysql)}
+        {--enviar : Manda a cópia comprimida por e-mail, para fora da máquina}';
 
     protected $description = 'Exporta os dados do banco para um arquivo SQL restaurável';
 
@@ -119,6 +120,27 @@ class ExportarBanco extends Command
         }
 
         $this->expurgar(dirname($arquivo));
+
+        // O destino externo: a copia em disco protege de engano humano, mas
+        // mora no disco que ela protege. A caixa do dominio e um cofre fora da
+        // maquina que ja existe; enquanto o banco couber num anexo, e o
+        // destino mais simples possivel.
+        if ($this->option('enviar')) {
+            try {
+                \Illuminate\Support\Facades\Mail::to(config('mail.copia_para', 'financeiro@avaliaone.com.br'))
+                    ->send(new \App\Mail\CopiaDoBanco(
+                        basename($arquivo),
+                        gzencode((string) file_get_contents($arquivo), 9),
+                        $total,
+                    ));
+                $this->info('Cópia enviada por e-mail.');
+            } catch (\Throwable $e) {
+                report($e);
+                $this->error('A cópia local foi gerada, mas o envio por e-mail falhou: '.$e->getMessage());
+
+                return self::FAILURE;
+            }
+        }
 
         return self::SUCCESS;
     }
