@@ -176,7 +176,10 @@
                      cartao diz "Simulação": vitrine publica exibindo consulta
                      que parecesse real seria exatamente o vazamento que o
                      produto promete impedir. --}}
-                <div class="entra-suave relative mx-auto w-full max-w-md" style="animation-delay: 0.25s">
+                {{-- O padding de cima e de baixo reserva a faixa onde os chips
+                     flutuam: fora da janela, nunca sobre o conteudo dela. Era o
+                     que acontecia com eles ancorados nos cantos do cartao. --}}
+                <div class="entra-suave relative mx-auto w-full max-w-md pt-14 pb-14" style="animation-delay: 0.25s">
                     <div class="relative z-10 rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
                         <div class="flex items-center justify-between border-b border-gray-100 px-6 py-3.5 dark:border-gray-700">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Painel de consultas</span>
@@ -239,14 +242,12 @@
                         </div>
                     </div>
 
-                    {{-- Chips soltos, solidos e fora do miolo: sobre a janela
-                         translucida eles se atropelavam com o conteudo. --}}
-                    <div class="flutua absolute -top-4 -right-2 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-right-6 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flutua absolute top-0 right-0 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-right-4 dark:border-gray-700 dark:bg-gray-800">
                         <span class="etiqueta etiqueta-sucesso">Concluída</span>
                         <span class="text-sm text-gray-600 dark:text-gray-300">Consulta de CNPJ</span>
                     </div>
 
-                    <div class="flutua absolute -bottom-4 -left-2 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-left-6 dark:border-gray-700 dark:bg-gray-800"
+                    <div class="flutua absolute bottom-0 left-0 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-left-4 dark:border-gray-700 dark:bg-gray-800"
                          style="animation-delay: 1.4s">
                         <span class="etiqueta etiqueta-neutra">Registrada</span>
                         <span class="text-sm text-gray-600 dark:text-gray-300">Finalidade declarada</span>
