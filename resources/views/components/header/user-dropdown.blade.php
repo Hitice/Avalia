@@ -36,7 +36,7 @@
                 @if ($ehStaff)
                     {{ $conta->ehAdmin() ? 'Administrador' : 'Vendedor' }}
                     @if ($conta->ehSuper())
-                        <span class="text-brand-500">&bull; super</span>
+                        <span class="text-brand-500" title="Este acesso ignora as permissões">&bull; acesso total</span>
                     @endif
                 @else
                     Empresa contratante

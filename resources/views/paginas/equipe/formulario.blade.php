@@ -96,7 +96,7 @@
                         <input type="checkbox" name="ativo" value="1"
                                class="size-4 rounded border-gray-300 dark:border-gray-700"
                                @checked(old('ativo', $membro->ativo ?? true))>
-                        Pode entrar no sistema
+                        Acesso liberado
                     </label>
                 </div>
             </div>

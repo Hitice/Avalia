@@ -2,21 +2,7 @@
 
 @php
     use App\Support\Dinheiro;
-
-    $etiqueta = [
-        'ativo' => 'etiqueta-sucesso',
-        'inadimplente' => 'etiqueta-alerta',
-        'bloqueado' => 'etiqueta-erro',
-        'inativo' => 'etiqueta-neutra',
-    ];
-
-    $pagamento = [
-        'liquidado' => 'etiqueta-sucesso',
-        'vencido' => 'etiqueta-alerta',
-        'pendente' => 'etiqueta-neutra',
-        'cancelado' => 'etiqueta-erro',
-        'estornado' => 'etiqueta-erro',
-    ];
+    use App\Support\Rotulos;
 @endphp
 
 @section('content')
@@ -84,11 +70,11 @@
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
-                                {{ $empresa->plano?->nome ?? 'sem plano' }}
+                                {{ $empresa->plano?->nome ?? 'Sem plano' }}
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <span class="etiqueta {{ $etiqueta[$empresa->situacao] ?? 'etiqueta-neutra' }}">
-                                    {{ $empresa->situacao }}
+                                <span class="etiqueta {{ Rotulos::empresaEtiqueta($empresa->situacao) }}">
+                                    {{ Rotulos::empresa($empresa->situacao) }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-800 dark:text-white/90">
@@ -148,15 +134,15 @@
                                 {{ $fatura->competenciaRotulo() }}
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <span class="etiqueta {{ $pagamento[$fatura->situacao_pagamento] ?? 'etiqueta-neutra' }}">
-                                    {{ $fatura->situacao_pagamento }}
+                                <span class="etiqueta {{ Rotulos::faturaEtiqueta($fatura->situacao_pagamento) }}">
+                                    {{ Rotulos::fatura($fatura->situacao_pagamento) }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right font-medium tabular-nums whitespace-nowrap
                                        {{ $fatura->comissao_liberada_em ? 'text-success-600 dark:text-success-500' : 'text-gray-600 dark:text-gray-300' }}">
                                 {{ Dinheiro::brl($fatura->comissao_cents) }}
                                 @if ($fatura->comissao_liberada_em)
-                                    <span class="mt-0.5 block text-xs font-normal">liberada</span>
+                                    <span class="mt-0.5 block text-xs font-normal">Liberada</span>
                                 @endif
                             </td>
                         </tr>

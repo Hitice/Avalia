@@ -2,7 +2,7 @@
 
 @php
     use App\Support\Dinheiro;
-    $pagamento = ['liquidado' => 'etiqueta-sucesso', 'vencido' => 'etiqueta-alerta', 'pendente' => 'etiqueta-neutra'];
+    use App\Support\Rotulos;
 @endphp
 
 @section('content')
@@ -76,7 +76,7 @@
                                     <td class="px-5 py-4 text-right tabular-nums">{{ max(0, $franquia->quantidade - $utilizadas) }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="4" class="tabela-vazia">Solicite à sua equipe comercial a configuração das franquias deste plano.</td></tr>
+                                <tr><td colspan="4" class="tabela-vazia">Solicite à sua equipe comercial a definição das franquias deste plano.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -101,7 +101,7 @@
                         @forelse ($emAberto as $fatura)
                             <tr>
                                 <td class="px-5 py-4 text-left">{{ $fatura->competenciaRotulo() }}</td>
-                                <td class="px-5 py-4 text-left"><span class="etiqueta {{ $pagamento[$fatura->situacao_pagamento] ?? 'etiqueta-neutra' }}">{{ $fatura->situacao_pagamento }}</span></td>
+                                <td class="px-5 py-4 text-left"><span class="etiqueta {{ Rotulos::faturaEtiqueta($fatura->situacao_pagamento) }}">{{ Rotulos::fatura($fatura->situacao_pagamento) }}</span></td>
                                 <td class="px-5 py-4 text-right tabular-nums">{{ $fatura->totalRotulo() }}</td>
                                 <td class="px-5 py-4 text-right tabular-nums">{{ $fatura->vencimento()->format('d/m/Y') }}</td>
                             </tr>

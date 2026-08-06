@@ -37,7 +37,7 @@
                             <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
                                 {{ $membro->ehAdmin() ? 'Administração' : 'Vendedor' }}
                                 @if ($membro->ehSuper())
-                                    <span class="etiqueta etiqueta-alerta ml-1">super</span>
+                                    <span class="etiqueta etiqueta-alerta ml-1" title="Acesso que ignora as permissões">Acesso total</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">
@@ -48,7 +48,7 @@
                             </td>
                             <td class="px-5 py-4 text-left">
                                 <span class="etiqueta {{ $membro->ativo ? 'etiqueta-sucesso' : 'etiqueta-neutra' }}">
-                                    {{ $membro->ativo ? 'ativo' : 'inativo' }}
+                                    {{ $membro->ativo ? 'Ativo' : 'Inativo' }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right">

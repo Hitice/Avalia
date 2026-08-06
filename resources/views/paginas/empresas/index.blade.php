@@ -1,22 +1,16 @@
-@extends('layouts.app', ['title' => 'Gestão do cliente'])
+@extends('layouts.app', ['title' => 'Empresas'])
 
 @php
     use App\Support\Dinheiro;
-
-    $etiqueta = [
-        'ativo' => 'etiqueta-sucesso',
-        'inadimplente' => 'etiqueta-alerta',
-        'bloqueado' => 'etiqueta-erro',
-        'inativo' => 'etiqueta-neutra',
-    ];
+    use App\Support\Rotulos;
 @endphp
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Gestão do cliente</h1>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Empresas</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Empresas cadastradas.
+                Empresas contratantes e a situação de cada uma.
             </p>
         </div>
 
@@ -64,15 +58,15 @@
                                         mínimo {{ Dinheiro::faixa($empresa->plano->consumo_minimo_cents) }}
                                     </span>
                                 @else
-                                    <span class="text-gray-400 dark:text-gray-600">sem plano</span>
+                                    <span class="text-gray-400 dark:text-gray-600">Sem plano</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
                                 {{ $empresa->vendedor?->nome ?? '-' }}
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <span class="etiqueta {{ $etiqueta[$empresa->situacao] ?? 'etiqueta-neutra' }}">
-                                    {{ $empresa->situacao }}
+                                <span class="etiqueta {{ Rotulos::empresaEtiqueta($empresa->situacao) }}">
+                                    {{ Rotulos::empresa($empresa->situacao) }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right">

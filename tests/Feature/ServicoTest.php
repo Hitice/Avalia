@@ -197,7 +197,7 @@ it('mostra a situacao de cada servico no interruptor', function () {
     $html = admin()->get(route('catalogo.servicos.index'))->assertOk()->getContent();
 
     expect($html)->toContain('Servico normal')
-        ->toContain('aguarda liberação')
+        ->toContain('Aguarda liberação')
         // Verde de um lado, vermelho do outro, e cada linha grava no proprio clique.
         ->toContain(route('catalogo.servicos.alternar', $ativo))
         ->toContain(route('catalogo.servicos.alternar', $pausado));
@@ -223,5 +223,5 @@ it('marca no catalogo o servico inativo', function () {
     Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
     Servico::where('codigo', 'scpc-bvs')->update(['ativo' => false]);
 
-    admin()->get(route('catalogo.tabela'))->assertOk()->assertSee('pausado');
+    admin()->get(route('catalogo.tabela'))->assertOk()->assertSee('Pausado');
 });

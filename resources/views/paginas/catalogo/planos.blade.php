@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Planos</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Gerencie os planos disponíveis.
+                Faixas de consumo que a empresa contrata.
             </p>
         </div>
 
@@ -24,7 +24,7 @@
                         <th class="px-5 py-3 text-left font-medium">Plano</th>
                                                 <th class="px-5 py-3 text-right font-medium">Mensalidade</th>
                         <th class="px-5 py-3 text-right font-medium">Consumo mínimo</th>
-                        <th class="px-5 py-3 text-right font-medium">Fatura minima</th>
+                        <th class="px-5 py-3 text-right font-medium">Fatura mínima</th>
                         <th class="px-5 py-3 text-right font-medium">Editar</th>
                     </tr>
                 </thead>
@@ -36,7 +36,7 @@
                                 <span class="mt-0.5 flex flex-wrap gap-2 text-xs">
                                     @unless ($plano->ativo)
                                         <span class="etiqueta etiqueta-neutra">
-                                            inativo
+                                            Inativo
                                         </span>
                                     @endunless
 

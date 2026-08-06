@@ -103,7 +103,7 @@
                             </tr>
                             <tr>
                                 <td class="py-3 text-left text-gray-600 dark:text-gray-300">
-                                    Custo Fornecedor
+                                    Custo do fornecedor
                                     <span class="ajuda-campo block">
                                         @if ($entrada['custo_bps'] === null)
                                             nenhum custo cadastrado nesta faixa
@@ -195,7 +195,7 @@
                 @endif
 
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Informações baseadas no catálogo vigente, apenas para referência média de resultado.
+                    Simulação sobre o catálogo vigente. Serve de referência, e não substitui a proposta assinada.
                 </p>
             </div>
         </div>

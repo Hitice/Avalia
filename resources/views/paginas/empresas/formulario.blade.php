@@ -52,11 +52,11 @@
                 <div @class(['hidden' => ! $ehAdmin])>
                     <label for="situacao" class="rotulo-campo">Situação</label>
                     <select id="situacao" name="situacao" class="campo" required>
-                        @foreach (['ativo' => 'Ativo', 'inadimplente' => 'Inadimplente', 'bloqueado' => 'Bloqueado', 'inativo' => 'Inativo'] as $valor => $rotulo)
+                        @foreach (App\Support\Rotulos::situacoesDaEmpresa() as $valor => $rotulo)
                             <option value="{{ $valor }}" @selected(old('situacao', $empresa->situacao) === $valor)>{{ $rotulo }}</option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">Só ativo consulta. Inadimplente e bloqueado ainda entram para ver a fatura.</span>
+                    <span class="ajuda-campo">Só empresa ativa consulta. Suspensa e bloqueada ainda entram para ver a fatura.</span>
                 </div>
 
                 <div>
@@ -104,7 +104,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">Define a coluna de preços que a consulta vai congelar.</span>
+                    <span class="ajuda-campo">Define a faixa de preços aplicada às consultas desta empresa.</span>
                 </div>
 
                 <div @class(['hidden' => ! $ehAdmin])>

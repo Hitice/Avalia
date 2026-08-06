@@ -30,7 +30,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Auditoria</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Acompanhe as ações registradas na plataforma.
+            Quem fez o quê, quando. A trilha não pode ser alterada por nenhuma tela.
         </p>
     </div>
 
@@ -54,8 +54,8 @@
                         <th class="px-5 py-3 text-left font-medium">Data e hora</th>
                         <th class="px-5 py-3 text-left font-medium">Responsável</th>
                         <th class="px-5 py-3 text-left font-medium">Atividade</th>
-                        <th class="px-5 py-3 text-left font-medium">Registro</th>
-                        <th class="px-5 py-3 text-left font-medium">Informações</th>
+                        <th class="px-5 py-3 text-left font-medium">O que foi alterado</th>
+                        <th class="px-5 py-3 text-left font-medium">Detalhes</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -65,7 +65,7 @@
                                 {{ $registro->ocorreu_em?->format('d/m/Y H:i') }}
                             </td>
                             <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">
-                                {{ $registro->staff?->nome ?? 'sistema' }}
+                                {{ $registro->staff?->nome ?? 'Rotina automática' }}
                                 @if ($registro->ip_address)
                                     <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
                                         Origem: {{ $registro->ip_address }}

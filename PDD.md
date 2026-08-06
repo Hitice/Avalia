@@ -959,7 +959,19 @@ nome na tela muda conforme quem lê.
   segue a tela. Não usar "cliente" em texto de administração para não confundir
   com o consumidor final consultado.
 - **Valor interno nunca aparece na tela.** `liquidado`, `pendente` e `sucesso` são
-  chaves de banco, e o operador não deve aprender o vocabulário do esquema.
+  chaves de banco, e o operador não deve aprender o vocabulário do esquema. A
+  tradução vive em `App\Support\Rotulos`, em um lugar só: a mesma situação aparece
+  na tela do cliente, na do vendedor e na da administração, e três listas soltas
+  viram três nomes para o mesmo estado no primeiro ajuste. A cor da etiqueta sai
+  de lá pelo mesmo motivo. Situação nova sem rótulo derruba o teste em vez de
+  aparecer crua para alguém.
+- **Unidade de medida também é vocabulário.** O banco guarda a espera em
+  milissegundos porque é o que o fornecedor devolve; a tela mostra segundos,
+  porque ninguém decide nada com "847 ms".
+- **Nada de palavra de quem escreve o sistema.** Integração, credenciais,
+  parâmetro, coluna de preços, configuração, gerenciamento e tentativa descrevem
+  como a coisa foi construída, e não o que ela resolve. O teste é simples: se a
+  frase só faz sentido para quem viu o código, ela está errada na tela.
 - **Plano precisa de nome comercial.** "Consumo mínimo R$ 900,00" descreve o campo,
   não o produto. Nome que se venda, com a faixa como atributo ao lado.
 - **A aba de preços do módulo Catálogo chama-se Preços**, e não Catálogo, para não

@@ -2,6 +2,7 @@
 
 @php
     use App\Support\Dinheiro;
+    use App\Support\Rotulos;
 @endphp
 
 @section('content')
@@ -27,32 +28,32 @@
             <span class="mt-1 block font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($resumo['valor_cents']) }}</span>
         </div>
         <div class="cartao p-5">
-            <span class="rotulo-grupo block">Tempo médio de resposta</span>
+            <span class="rotulo-grupo block">Espera do cliente</span>
             <span class="mt-1 block font-semibold text-gray-800 dark:text-white/90 tabular-nums">
-                {{ $saude['tempo_medio_ms'] === null ? 'Sem dados' : $saude['tempo_medio_ms'].' ms' }}
+                {{ Rotulos::espera($saude['tempo_medio_ms']) }}
             </span>
-            <span class="ajuda-campo">Somente as concluídas.</span>
+            <span class="ajuda-campo">Tempo médio até a resposta chegar.</span>
         </div>
     </div>
 
     @if ($saude['por_servico']->isNotEmpty())
         <div class="cartao mb-6 overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Falhas por serviço</h2>
-                <p class="ajuda-campo mt-1">Serviço que falha muito costuma ser problema de integração, e não de uso.</p>
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Consultas não concluídas por serviço</h2>
+                <p class="ajuda-campo mt-1">Não são cobradas da empresa. Concentração em um serviço é assunto para o fornecedor.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[28rem]">
                     <thead class="tabela-cabecalho"><tr>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Serviço</th>
-                        <th scope="col" class="px-5 py-3 text-right font-medium">Tentativas</th>
-                        <th scope="col" class="px-5 py-3 text-right font-medium">Falhas</th>
-                        <th scope="col" class="px-5 py-3 text-right font-medium">Taxa</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Consultas</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Não concluídas</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Proporção</th>
                     </tr></thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @foreach ($saude['por_servico'] as $linha)
                             <tr>
-                                <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $linha->servico?->nome ?? 'Serviço removido' }}</td>
+                                <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $linha->servico?->nome ?? 'Serviço descontinuado' }}</td>
                                 <td class="px-5 py-4 text-right tabular-nums">{{ $linha->total }}</td>
                                 <td class="px-5 py-4 text-right tabular-nums">{{ $linha->falhas }}</td>
                                 <td class="px-5 py-4 text-right tabular-nums">
@@ -74,22 +75,22 @@
                     <th scope="col" class="px-5 py-3 text-left font-medium">Empresa</th>
                     <th scope="col" class="px-5 py-3 text-left font-medium">Serviço</th>
                     <th scope="col" class="px-5 py-3 text-left font-medium">Resultado</th>
-                    <th scope="col" class="px-5 py-3 text-right font-medium">Tempo</th>
+                    <th scope="col" class="px-5 py-3 text-right font-medium">Espera</th>
                     <th scope="col" class="px-5 py-3 text-right font-medium">Valor</th>
                 </tr></thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($consultas as $consulta)
                         <tr>
                             <td class="px-5 py-4 text-left whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $consulta->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $consulta->cliente?->razao_social ?? 'Empresa removida' }}</td>
-                            <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $consulta->servico?->nome ?? 'Serviço removido' }}</td>
+                            <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $consulta->cliente?->razao_social ?? 'Empresa encerrada' }}</td>
+                            <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $consulta->servico?->nome ?? 'Serviço descontinuado' }}</td>
                             <td class="px-5 py-4 text-left">
                                 <span class="etiqueta {{ $consulta->deuCerto() ? 'etiqueta-sucesso' : 'etiqueta-erro' }}">
                                     {{ $consulta->deuCerto() ? 'Concluída' : 'Não concluída' }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-right tabular-nums text-gray-500 dark:text-gray-400">
-                                {{ $consulta->duracao_ms ? $consulta->duracao_ms.' ms' : '' }}
+                                {{ $consulta->duracao_ms ? Rotulos::espera($consulta->duracao_ms) : '' }}
                             </td>
                             <td class="px-5 py-4 text-right tabular-nums whitespace-nowrap text-gray-600 dark:text-gray-300">
                                 {{ $consulta->preco_cents > 0 ? Dinheiro::brl($consulta->preco_cents) : 'Sem cobrança' }}

@@ -2,6 +2,7 @@
 
 @php
     use App\Support\Dinheiro;
+    use App\Support\Rotulos;
 
     $plano = $empresa->plano;
     $faturado = $plano ? max($consumo, $plano->consumo_minimo_cents) : $consumo;
@@ -135,16 +136,9 @@
                             </td>
                             <td class="px-5 py-4 text-left">
                                 @php
-                                    $pagamento = [
-                                        'liquidado' => 'etiqueta-sucesso',
-                                        'vencido' => 'etiqueta-alerta',
-                                        'pendente' => 'etiqueta-neutra',
-                                        'cancelado' => 'etiqueta-erro',
-                                        'estornado' => 'etiqueta-erro',
-                                    ];
                                 @endphp
-                                <span class="etiqueta {{ $pagamento[$fatura->situacao_pagamento] ?? 'etiqueta-neutra' }}">
-                                    {{ $fatura->situacao_pagamento }}
+                                <span class="etiqueta {{ Rotulos::faturaEtiqueta($fatura->situacao_pagamento) }}">
+                                    {{ Rotulos::fatura($fatura->situacao_pagamento) }}
                                 </span>
                                 @if ($fatura->comissao_liberada_em)
                                     <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">comissão liberada</span>

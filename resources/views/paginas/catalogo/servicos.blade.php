@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Serviços</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Painel de gerenciamento de serviços por categoria.
+                Serviços do catálogo, agrupados por categoria.
             </p>
         </div>
 
@@ -50,7 +50,7 @@
                                         :titulo="$servico->ativo ? 'Ativo: clique para pausar' : 'Pausado: clique para ativar'" />
 
                                     @if ($servico->exige_liberacao)
-                                        <span class="etiqueta etiqueta-alerta">aguarda liberação</span>
+                                        <span class="etiqueta etiqueta-alerta">Aguarda liberação</span>
                                     @endif
                                 </div>
                             </td>

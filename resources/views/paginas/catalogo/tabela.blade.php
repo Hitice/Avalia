@@ -100,10 +100,10 @@
                                     <span class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         <code>{{ $servico->codigo }}</code>
                                         @unless ($servico->ativo)
-                                            <span class="etiqueta etiqueta-neutra">pausado</span>
+                                            <span class="etiqueta etiqueta-neutra">Pausado</span>
                                         @endunless
                                         @if ($servico->exige_liberacao)
-                                            <span class="etiqueta etiqueta-alerta">aguarda liberação</span>
+                                            <span class="etiqueta etiqueta-alerta">Aguarda liberação</span>
                                         @endif
                                     </span>
                                 </td>

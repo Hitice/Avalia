@@ -2,7 +2,7 @@
 
 @php
     use App\Support\Dinheiro;
-    $pagamento =['liquidado' => 'etiqueta-sucesso', 'vencido' => 'etiqueta-alerta', 'pendente' => 'etiqueta-neutra'];
+    use App\Support\Rotulos;
 @endphp
 
 @section('content')
@@ -30,7 +30,7 @@
                     @forelse ($faturas as $fatura)
                         <tr>
                             <td class="px-5 py-4 text-left">{{ $fatura->competenciaRotulo() }}</td>
-                            <td class="px-5 py-4 text-left"><span class="etiqueta {{ $pagamento[$fatura->situacao_pagamento] ?? 'etiqueta-neutra' }}">{{ $fatura->situacao_pagamento }}</span></td>
+                            <td class="px-5 py-4 text-left"><span class="etiqueta {{ Rotulos::faturaEtiqueta($fatura->situacao_pagamento) }}">{{ Rotulos::fatura($fatura->situacao_pagamento) }}</span></td>
                             <td class="px-5 py-4 text-right tabular-nums">{{ Dinheiro::brl($fatura->mensalidade_cents) }}</td>
                             <td class="px-5 py-4 text-right tabular-nums">{{ Dinheiro::brl($fatura->consumo_faturado_cents) }}</td>
                             <td class="px-5 py-4 text-right tabular-nums font-medium text-gray-800 dark:text-white/90">{{ $fatura->totalRotulo() }}</td>

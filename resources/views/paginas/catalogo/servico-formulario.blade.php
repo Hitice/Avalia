@@ -51,8 +51,8 @@
                         <input id="codigo" type="text" class="{{ $campo }} cursor-not-allowed opacity-60"
                                value="{{ $servico->codigo }}" disabled>
                         <span class="ajuda-campo">
-                            Não muda depois de criado: é por ele que franquia, relatório e integração
-                            acham o serviço.
+                            Não muda depois de criado: é por ele que franquia, relatório e catálogo
+                            identificam o serviço.
                         </span>
                     @else
                         <input id="codigo" name="codigo" type="text" class="{{ $campo }}"

@@ -64,7 +64,7 @@
                         </template>
                     </select>
                     <span class="ajuda-campo">
-                        Define a coluna de preços e a alíquota de comissão.
+                        Define a faixa de preços e a alíquota de comissão.
                     </span>
                     @error('consumo_minimo') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
@@ -121,7 +121,7 @@
                                 <tr>
                                     <th class="py-3 pr-4 text-left font-medium">Serviço</th>
                                     <th class="px-4 py-3 text-right font-medium">Preço na faixa</th>
-                                    <th class="py-3 pl-4 text-right font-medium">Incluidas</th>
+                                    <th class="py-3 pl-4 text-right font-medium">Incluídas</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">

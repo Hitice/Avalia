@@ -13,7 +13,7 @@
                             Gestão <span class="text-brand-500 font-bold">360°</span> Avalia
                         </h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Entre com suas credenciais para continuar.
+                            Entre com seu e-mail e senha.
                         </p>
                     </div>
 
