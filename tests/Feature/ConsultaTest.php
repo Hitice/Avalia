@@ -290,3 +290,69 @@ it('avisa na tela quando a consulta nao foi concluida', function () {
 
     expect(Consulta::first()->deuCerto())->toBeFalse();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Repeticao e limite
+|--------------------------------------------------------------------------
+*/
+
+it('nao cobra duas vezes o mesmo clique repetido', function () {
+    // Navegador reenvia formulario, pessoa clica duas vezes, conexao cai e ela
+    // tenta de novo. Cada uma dessas viraria consulta paga pela mesma
+    // informacao, e a reclamacao chegaria semanas depois na fatura.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    $primeira = app(ExecutarConsulta::class)($empresa, $servico, DOC_OK, 'Análise')['consulta'];
+    $segunda = app(ExecutarConsulta::class)($empresa, $servico, DOC_OK, 'Análise')['consulta'];
+
+    expect(Consulta::count())->toBe(1)
+        ->and($segunda->id)->toBe($primeira->id);
+});
+
+it('deixa repetir a consulta depois da janela', function () {
+    // Repetir no dia seguinte e uso legitimo: a informacao do bureau muda.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    app(ExecutarConsulta::class)($empresa, $servico, DOC_OK, 'Análise');
+
+    Consulta::query()->update([
+        'created_at' => now()->subSeconds(Consulta::SEGUNDOS_SEM_REPETIR + 1),
+    ]);
+
+    app(ExecutarConsulta::class)($empresa, $servico, DOC_OK, 'Análise');
+
+    expect(Consulta::count())->toBe(2);
+});
+
+it('nao confunde documento diferente com repeticao', function () {
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    app(ExecutarConsulta::class)($empresa, $servico, DOC_OK, 'Análise');
+    app(ExecutarConsulta::class)($empresa, $servico, '11144477736', 'Análise');
+
+    expect(Consulta::count())->toBe(2);
+});
+
+it('para no teto diario de consultas', function () {
+    // Um laco mal escrito do lado do cliente gera milhares de consultas pagas
+    // antes de alguem olhar.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    $empresa->consultas()->createMany(
+        collect(range(1, Consulta::LIMITE_DIARIO))->map(fn ($i) => [
+            'servico_id' => $servico->id,
+            'competencia' => Consulta::competenciaDe(),
+            'situacao' => Consulta::SUCESSO,
+            'preco_cents' => 324,
+            'custo_cents' => 150,
+        ])->all()
+    );
+
+    expect(app(ExecutarConsulta::class)($empresa, $servico, DOC_OK, 'Análise')['erro'])
+        ->toContain('Limite de');
+});

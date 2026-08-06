@@ -27,6 +27,18 @@ class Consulta extends Model
     /** Retencao da resposta do bureau, em dias (PDD.md, secao 5). */
     public const DIAS_DE_RETENCAO = 180;
 
+    /**
+     * Janela em que a mesma consulta nao e refeita nem cobrada de novo.
+     *
+     * Curta de proposito: repetir no dia seguinte e uso legitimo, porque a
+     * informacao do bureau muda. O que ela impede e o clique repetido, o
+     * reenvio de formulario e a nova tentativa depois de queda de conexao.
+     */
+    public const SEGUNDOS_SEM_REPETIR = 120;
+
+    /** Teto diario de consultas por empresa, enquanto nao houver um por contrato. */
+    public const LIMITE_DIARIO = 500;
+
     protected $fillable = [
         'cliente_id', 'servico_id', 'competencia', 'preco_cents', 'custo_cents',
         'documento', 'finalidade', 'solicitante', 'situacao',

@@ -41,3 +41,15 @@ Schedule::call(function () {
     ->name('consultas:expurgo')
     ->dailyAt('03:00')
     ->withoutOverlapping();
+
+/*
+ * Conferencia diaria de integridade.
+ *
+ * Divergencia entre consulta, fatura e cobranca e silenciosa: nada quebra e
+ * nenhuma tela mostra erro. Sem esta rotina, o problema aparece semanas depois
+ * no extrato de alguem.
+ */
+Schedule::command('avalia:conferir')
+    ->name('financeiro:conferencia')
+    ->dailyAt('04:00')
+    ->withoutOverlapping();

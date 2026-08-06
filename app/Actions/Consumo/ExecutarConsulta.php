@@ -55,6 +55,27 @@ class ExecutarConsulta
             return $this->recusa("O serviço {$servico->nome} não está liberado para consulta.");
         }
 
+        /*
+         * Teto diario.
+         *
+         * Um laco mal escrito do lado do cliente, ou um acesso vazado, gera
+         * milhares de consultas pagas ao fornecedor antes de alguem olhar. O
+         * teto para o prejuizo no mesmo dia, e o operador libera se for uso
+         * legitimo.
+         */
+        $hoje = Consulta::query()
+            ->where('cliente_id', $cliente->id)
+            ->where('situacao', Consulta::SUCESSO)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        if ($hoje >= Consulta::LIMITE_DIARIO) {
+            return $this->recusa(sprintf(
+                'Limite de %d consultas por dia atingido. Fale com a Avalia para liberar mais.',
+                Consulta::LIMITE_DIARIO,
+            ));
+        }
+
         $preco = $cliente->plano->catalogo
             ?->precos()
             ->where('servico_id', $servico->id)
@@ -66,6 +87,30 @@ class ExecutarConsulta
         }
 
         $competencia = Consulta::competenciaDe();
+
+        /*
+         * Clique repetido nao vira cobranca repetida.
+         *
+         * O navegador reenvia formulario, a pessoa clica duas vezes, a conexao
+         * cai e ela tenta de novo. Sem esta janela, cada uma dessas viraria uma
+         * consulta paga ao fornecedor e cobrada do cliente pela mesma
+         * informacao, e a reclamacao chegaria semanas depois na fatura.
+         *
+         * A janela e curta de proposito: consultar de novo no dia seguinte e
+         * uso legitimo, porque a informacao do bureau muda.
+         */
+        $recente = Consulta::query()
+            ->where('cliente_id', $cliente->id)
+            ->where('servico_id', $servico->id)
+            ->where('documento', $documento)
+            ->where('situacao', Consulta::SUCESSO)
+            ->where('created_at', '>=', now()->subSeconds(Consulta::SEGUNDOS_SEM_REPETIR))
+            ->latest('id')
+            ->first();
+
+        if ($recente) {
+            return ['erro' => null, 'consulta' => $recente];
+        }
 
         // Competencia fechada ja virou cobranca: aceitar mais uma linha mudaria
         // um numero que o cliente ja recebeu.
