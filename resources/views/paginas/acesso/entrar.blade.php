@@ -17,7 +17,7 @@
         <div class="relative flex h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900">
 
             {{-- Formulario --}}
-            <div class="flex w-full flex-1 flex-col lg:w-1/2">
+            <div class="flex w-full flex-1 flex-col lg:w-2/5">
                 <div class="mx-auto flex w-full max-w-[25rem] flex-1 flex-col justify-center">
 
                     <a href="{{ route('inicio') }}"
@@ -143,7 +143,7 @@
 
                  O painel mede a si mesmo e fecha a grade em azulejos inteiros,
                  como o heroi da pagina inicial. --}}
-            <div class="bg-brand-950 relative hidden h-full w-full items-center justify-center overflow-hidden lg:flex lg:w-1/2"
+            <div class="bg-brand-950 relative hidden h-full w-full items-center justify-center overflow-hidden lg:flex lg:w-3/5"
                  x-data="{
                      ajustar() {
                          const r = this.$el.getBoundingClientRect();
@@ -159,7 +159,8 @@
                      continua sendo o azul, a grade e a marca. --}}
                 <img src="/images/entrar-fundo.png" alt="" draggable="false"
                      class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
-                <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-brand-950/85"></div>
+                <div aria-hidden="true" class="pointer-events-none absolute inset-0 backdrop-blur-[3px]"
+                     style="background: linear-gradient(to top right, rgb(22 25 80 / 0.96) 0%, rgb(22 25 80 / 0.62) 32%, rgb(22 25 80 / 0.28) 50%, rgb(22 25 80 / 0.62) 68%, rgb(22 25 80 / 0.96) 100%)"></div>
 
                 {{-- A grade sobe para uma camada propria: como fundo do painel
                      ela ficaria escondida atras da foto. --}}
