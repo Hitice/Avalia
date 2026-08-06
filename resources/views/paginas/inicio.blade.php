@@ -317,7 +317,7 @@
                         Simulação
                     </span>
 
-                    <div class="flutua absolute top-9 right-0 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-right-4 dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flutua-alto absolute top-9 right-0 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-right-4 dark:border-gray-700 dark:bg-gray-800">
                         <span class="etiqueta etiqueta-sucesso">Concluída</span>
                         <span class="text-sm text-gray-600 dark:text-gray-300">Consulta de CNPJ</span>
                     </div>
@@ -365,8 +365,28 @@
 
         {{-- Campanha de adesao: o convite direto, no fundo escuro da marca. --}}
         <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-16 lg:pb-24">
-            <div class="grade-viva relative overflow-hidden rounded-3xl border border-gray-200 bg-gray-300/40 px-6 py-14 text-center dark:border-gray-800 dark:bg-black/35 sm:px-14">
-                <span class="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white/70 px-3 py-1 text-xs font-medium text-gray-700 dark:border-white/20 dark:bg-white/10 dark:text-white">
+            {{-- O banner mede a si mesmo como o heroi: azulejos inteiros, e as
+                 celulas acesas no canto inferior direito caem exatamente na
+                 grade. --}}
+            <div class="grade-viva relative overflow-hidden rounded-3xl border border-gray-200 bg-gray-300/15 px-6 py-14 text-center dark:border-gray-800 dark:bg-black/35 sm:px-14"
+                 x-data="{
+                     ajustar() {
+                         const r = this.$el.getBoundingClientRect();
+                         const cx = Math.max(1, Math.round(r.width / 42));
+                         const cy = Math.max(1, Math.round(r.height / 42));
+                         this.$el.style.setProperty('--passo-x', (r.width / cx) + 'px');
+                         this.$el.style.setProperty('--passo-y', (r.height / cy) + 'px');
+                     },
+                 }" x-init="ajustar(); new ResizeObserver(() => ajustar()).observe($el)">
+
+                <div aria-hidden="true" class="absolute inset-0">
+                    @foreach ([[0, 1, '0s'], [1, 0, '1.2s'], [2, 2, '2.1s'], [1, 3, '3.3s'], [3, 1, '4.4s'], [0, 4, '5s']] as [$col, $lin, $atraso])
+                        <span class="celula-viva"
+                              style="right: calc(var(--passo-x, 42px) * {{ $col }} + 1px); bottom: calc(var(--passo-y, 42px) * {{ $lin }} + 1px); animation-delay: {{ $atraso }}"></span>
+                    @endforeach
+                </div>
+
+                <span class="relative inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white/70 px-3 py-1 text-xs font-medium text-gray-700 dark:border-white/20 dark:bg-white/10 dark:text-white">
                     <span class="size-1.5 animate-pulse rounded-full bg-success-500"></span>
                     Campanha de adesão aberta
                 </span>

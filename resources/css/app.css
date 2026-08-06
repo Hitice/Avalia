@@ -559,6 +559,17 @@
   50%      { transform: translateY(-8px); }
 }
 
+/* Flutuacao ampla do chip de consulta: sobe ate a linha do selo Simulação e
+   desce de volta, num ciclo mais longo para o percurso maior. */
+@utility flutua-alto {
+  animation: flutua-alto 7s ease-in-out infinite;
+}
+
+@keyframes flutua-alto {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-20px); }
+}
+
 /* Alpine esconde com x-cloak ate hidratar; sem esta regra os popups piscam
    abertos no carregamento. */
 [x-cloak] {
@@ -682,6 +693,7 @@
   .medidor-nivel-faixa { animation: none; stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
   .medidor-nivel-ponteiro { animation: none; transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
   .flutua { animation: none; }
+  .flutua-alto { animation: none; }
 
   /* Sem movimento: consulta ja no lugar, numero e barra no valor final. O
      auto-avanco tambem para (o script le a mesma preferencia); as setinhas
