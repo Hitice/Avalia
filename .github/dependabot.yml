@@ -1,0 +1,24 @@
+# Aviso de dependencia vulneravel e desatualizada.
+#
+# Semanal, e nao diario: numa operacao enxuta, ruido de atualizacao ensina a
+# fechar a aba. Atualizacao de seguranca chega fora dessa janela de qualquer
+# forma, porque o GitHub trata alerta de vulnerabilidade em separado.
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

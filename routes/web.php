@@ -31,7 +31,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:staff,empresa')->group(function () {
     Route::get('/entrar', [LoginController::class, 'mostrar'])->name('entrar');
-    Route::post('/entrar', [LoginController::class, 'entrar'])->name('entrar.enviar');
+    // O bloqueio progressivo por conta ja existe; este teto e por origem, e
+    // fecha a tentativa em massa contra muitas contas diferentes.
+    Route::post('/entrar', [LoginController::class, 'entrar'])
+        ->middleware('throttle:20,1')
+        ->name('entrar.enviar');
 });
 
 /*
@@ -42,13 +46,17 @@ Route::middleware('guest:staff,empresa')->group(function () {
  * esquecida aberta para de expirar antes de ser usada, porque cada chamada
  * renova o token E toca a sessao.
  */
-Route::get('/token', fn () => response()->json(['token' => csrf_token()]))->name('token');
+Route::get('/token', fn () => response()->json(['token' => csrf_token()]))
+    ->middleware('throttle:60,1')
+    ->name('token');
 
 Route::post('/sair', [LoginController::class, 'sair'])
     ->name('sair')
     ->middleware('auth:staff,empresa');
 
-Route::post('/webhooks/asaas', WebhookAsaasController::class)->name('webhooks.asaas');
+Route::post('/webhooks/asaas', WebhookAsaasController::class)
+    ->middleware('throttle:120,1')
+    ->name('webhooks.asaas');
 
 /*
 |--------------------------------------------------------------------------
@@ -181,6 +189,10 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
         Route::post('/documentos/{documento}/aceite', [AreaClienteController::class, 'aceitar'])->name('documentos.aceitar');
 
         // A consulta em si. E a empresa que pede, porque e ela que consome.
-        Route::post('/consultas', [AreaClienteController::class, 'consultar'])->name('consultas.executar');
+        // Teto por origem, alem do teto diario por empresa: um vaza acesso,
+        // o outro vaza laco de programa.
+        Route::post('/consultas', [AreaClienteController::class, 'consultar'])
+            ->middleware('throttle:30,1')
+            ->name('consultas.executar');
         Route::get('/consultas/{consulta}', [AreaClienteController::class, 'verConsulta'])->name('consultas.ver');
     });

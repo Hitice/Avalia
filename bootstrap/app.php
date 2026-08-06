@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: ['webhooks/asaas']);
 
+        // Vale para toda resposta, inclusive erro e redirecionamento.
+        $middleware->append(App\Http\Middleware\CabecalhosDeSeguranca::class);
+
         $middleware->alias([
             'sessao' => App\Http\Middleware\ConfereSessao::class,
             'admin' => App\Http\Middleware\SomenteAdmin::class,

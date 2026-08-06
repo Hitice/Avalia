@@ -50,4 +50,12 @@ return [
         'conector' => env('BUREAU_CONECTOR', 'simulado'),
     ],
 
+    /*
+     * Canal de duvidas do cliente. So o numero: a mensagem e montada em
+     * App\Support\Suporte, que decide o que pode e o que nao pode ir na URL.
+     */
+    'suporte' => [
+        'whatsapp' => env('SUPORTE_WHATSAPP', '5534991176599'),
+    ],
+
 ];

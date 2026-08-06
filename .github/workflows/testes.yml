@@ -1,0 +1,50 @@
+# Barreira antes do merge.
+#
+# Existe porque rodar a suite dependia de alguem lembrar, e a leva de mudancas
+# mais cara deste projeto foi escrita num ambiente sem PHP: cinco testes
+# quebrados chegaram ao repositorio, entre eles um 500 no cadastro de empresa.
+#
+# A suite roda em SQLite em memoria, como em desenvolvimento. Nao toca o banco
+# real, e por isso pode rodar em qualquer proposta de mudanca sem risco.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, zip, intl, fileinfo
+          coverage: none
+
+      - name: Dependencias do PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Chave da aplicacao
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Dependencias do front
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Formatacao antes dos testes: erro de estilo e barato de ver e nao
+      # merece esperar a suite inteira para aparecer.
+      - name: Formatacao
+        run: vendor/bin/pint --test
+
+      - name: Suite
+        run: vendor/bin/pest

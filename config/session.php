@@ -169,7 +169,14 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    /*
+     * Cookie so viaja por conexao cifrada, exceto em desenvolvimento.
+     *
+     * A leitura e de env e nao de app()->environment(): arquivo de configuracao
+     * e carregado antes de a aplicacao existir, e chamar o container aqui
+     * derruba tudo com "Target class [env] does not exist".
+     */
+    'secure' => env('SESSION_SECURE_COOKIE', ! in_array(env('APP_ENV', 'production'), ['local', 'testing'], true)),
 
     /*
     |--------------------------------------------------------------------------
@@ -199,7 +206,7 @@ return [
     |
     */
 
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    'same_site' => env('SESSION_SAME_SITE', 'strict'),
 
     /*
     |--------------------------------------------------------------------------
