@@ -428,7 +428,36 @@
             <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.500ms
                  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
                  @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="{{ $pilar['titulo'] }}">
+                @php
+                    // Vizinhos do pilar, para folhear sem fechar: as setinhas
+                    // levam ao anterior e ao proximo, em roda.
+                    $chaves = array_keys($pilares);
+                    $indice = array_search($chave, $chaves, true);
+                    $anterior = $chaves[($indice + count($chaves) - 1) % count($chaves)];
+                    $proximo = $chaves[($indice + 1) % count($chaves)];
+                @endphp
                 <div class="relative w-full max-w-4xl">
+                    {{-- Folhear entre os pilares, no mesmo padrao das setas do
+                         carrossel: chevron em degrade, fora do card. --}}
+                    <button type="button" @click="aberto = '{{ $anterior }}'" aria-label="Assunto anterior"
+                            class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 transition hover:scale-125 sm:block">
+                        <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                            <defs><linearGradient id="nav-{{ $chave }}-e" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="var(--color-brand-500)"/><stop offset="1" stop-color="var(--color-theme-pink-500)"/>
+                            </linearGradient></defs>
+                            <path stroke="url(#nav-{{ $chave }}-e)" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button type="button" @click="aberto = '{{ $proximo }}'" aria-label="Próximo assunto"
+                            class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 transition hover:scale-125 sm:block">
+                        <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                            <defs><linearGradient id="nav-{{ $chave }}-d" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
+                            </linearGradient></defs>
+                            <path stroke="url(#nav-{{ $chave }}-d)" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+
                     <button type="button" @click="aberto = null" aria-label="Fechar"
                             class="absolute -top-10 right-0 z-10 transition hover:scale-125">
                         <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
