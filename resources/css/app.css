@@ -646,11 +646,11 @@
    overlay sozinho. Duas transicoes brigando na saida era o que fazia o
    popup piscar antes de sumir. */
 @utility entra-popup {
-  animation: entra-popup 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: entra-popup 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes entra-popup {
-  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  from { opacity: 0; transform: translateY(26px) scale(0.94); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 

@@ -68,7 +68,7 @@
              com a grade animada passando por baixo, o header translucido
              sumia na pagina. --}}
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
-            <div class="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-6">
+            <div class="mx-auto flex h-[72px] w-full max-w-7xl items-center justify-between px-6">
                 <x-avalia.logotipo :tamanho="40" />
 
                 <nav class="flex items-center gap-2 sm:gap-3">
@@ -103,7 +103,7 @@
         </header>
 
         {{-- Herói: a grade viva da marca ao fundo, a promessa na frente. --}}
-        <section class="grade-viva relative overflow-hidden pt-20">
+        <section class="grade-viva relative overflow-hidden pt-[72px]">
             <div aria-hidden="true" class="absolute inset-0">
                 @foreach ($celulas as $celula)
                     <span class="celula-viva"
@@ -219,12 +219,12 @@
                          },
                      }" x-init="iniciar()">
                     <div class="relative z-10 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-theme-lg dark:border-gray-700 dark:bg-gray-800/70">
-                        <div class="border-b border-gray-100 px-6 py-3.5 dark:border-gray-700">
+                        <div class="border-b border-gray-100 px-6 py-2.5 dark:border-gray-700">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Painel de consultas</span>
                         </div>
 
-                        <div class="flex flex-col items-center px-6 pt-6" x-ref="medidor">
-                            <x-avalia.medidor :tamanho="140" vivo />
+                        <div class="flex flex-col items-center px-6 pt-3" x-ref="medidor">
+                            <x-avalia.medidor :tamanho="118" vivo />
                         </div>
 
                         {{-- Setinhas nas duas cores do numero, rosa volta e
@@ -243,7 +243,7 @@
                             </svg>
                         </button>
 
-                        <div class="relative mx-6 mt-4 h-[92px]">
+                        <div class="relative mx-6 mt-2 h-[84px]">
                             @foreach ([
                                 ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
                                 ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
@@ -273,7 +273,7 @@
                             @endforeach
                         </div>
 
-                        <div class="mt-2 mb-4 flex items-center justify-center gap-1.5">
+                        <div class="mt-1.5 mb-2.5 flex items-center justify-center gap-1.5">
                             @foreach (range(0, 3) as $ponto)
                                 <button type="button" @click="vaiPara({{ $ponto }})"
                                         aria-label="Ver consulta {{ $ponto + 1 }}"
@@ -284,7 +284,7 @@
 
                         {{-- Rodape da janela: a acao que o cliente faria em
                              seguida. Parte da simulacao, como o resto. --}}
-                        <div class="flex items-center justify-between border-t border-gray-100 px-6 py-3.5 dark:border-gray-700" aria-hidden="true">
+                        <div class="flex items-center justify-between border-t border-gray-100 px-6 py-2.5 dark:border-gray-700" aria-hidden="true">
                             <span class="inline-flex cursor-default items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 dark:border-gray-600 dark:text-gray-300">
                                 <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
@@ -376,32 +376,33 @@
         {{-- Popups. Um so trilho para todos: fundo escurecido, cartao ao
              centro, Esc ou clique fora fecham. --}}
         @foreach ($pilares as $chave => $pilar)
-            <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.200ms
+            <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.300ms
                  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
                  @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="{{ $pilar['titulo'] }}">
-                <div class="entra-popup w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="entra-popup w-full max-w-3xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
 
-                    {{-- Faixa da marca: o mesmo fundo da campanha, com a grade
-                         e a logo. E peca de venda, e assina como tal. --}}
-                    <div class="grade-viva-escura relative bg-brand-950 px-7 py-6">
+                    {{-- Faixa de abertura em neutro: cinza meio transparente
+                         no claro, preto meio transparente no escuro, com a
+                         grade da marca por cima. --}}
+                    <div class="grade-viva relative bg-gray-300/50 px-7 py-6 dark:bg-black/50">
                         <div class="flex items-start justify-between">
-                            <div class="flex size-14 items-center justify-center rounded-2xl bg-white/10 text-white">
+                            <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
                                 <svg class="size-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $pilar['icone'] }}"/>
                                 </svg>
                             </div>
                             <div class="flex items-center gap-3">
-                                <x-avalia.logotipo :tamanho="26" claro />
+                                <x-avalia.logotipo :tamanho="26" />
                                 <button type="button" @click="aberto = null" aria-label="Fechar"
-                                        class="rounded-lg p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white">
+                                        class="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-200/60 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white">
                                     <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
                                     </svg>
                                 </button>
                             </div>
                         </div>
-                        <h3 class="mt-5 text-2xl font-semibold text-white">{{ $pilar['titulo'] }}</h3>
-                        <p class="mt-1.5 text-sm text-gray-400">{{ $pilar['detalhe'] }}</p>
+                        <h3 class="mt-5 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $pilar['titulo'] }}</h3>
+                        <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{{ $pilar['detalhe'] }}</p>
                     </div>
 
                     <div class="p-7">
@@ -433,7 +434,7 @@
         {{-- O formulario da campanha. Os dados entram no nosso banco e a
              conversa comeca do nosso lado: nome e telefone sao dado pessoal e
              nao viajam em URL de WhatsApp. --}}
-        <div x-cloak x-show="aberto === 'campanha'" x-transition.opacity.duration.200ms
+        <div x-cloak x-show="aberto === 'campanha'" x-transition.opacity.duration.300ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido de contato">
             <div class="entra-popup max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
@@ -516,7 +517,7 @@
         </div>
 
         {{-- Confirmacao de que o pedido chegou. --}}
-        <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.200ms
+        <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.300ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido recebido">
             <div class="entra-popup w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
