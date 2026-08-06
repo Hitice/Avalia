@@ -96,12 +96,6 @@ camada de tela.
 
 ### Lacunas conhecidas de visão
 
-- O painel inicial mostra os mesmos números para administrador e vendedor, apenas
-  filtrados. São trabalhos diferentes e merecem indicadores diferentes.
-- O vendedor vê "a receber" e "vencido", que é dinheiro da Avalia e não dele.
-- O vendedor não enxerga o cliente prestes a ser bloqueado, sendo ele quem
-  deveria ligar antes. A aba de consultas da carteira mostra quem parou de
-  consultar, que é o sinal anterior a esse, mas ainda não avisa sozinha.
 - Não existe ficha de cliente para o vendedor, porque a ficha atual carrega custo
   e lucro.
 - O superusuário não tem indicação visual de que está usando um acesso que ignora
@@ -637,6 +631,11 @@ Administrador e vendedor fazem trabalhos diferentes. Mostrar a mesma lista de
 números para os dois, mudando apenas o filtro, obriga cada um a ignorar metade da
 tela e ensina os dois a não olhar.
 
+A separação foi feita: administrador e vendedor abrem a mesma URL e recebem telas
+inteiras diferentes, escolhidas em um único ponto do controller. Nenhum número da
+operação chega à view do vendedor, e nenhum indicador de comissão pessoal chega à
+do administrador, que não recebe comissão.
+
 | Painel | Pergunta que ele responde |
 | --- | --- |
 | Administração | A operação está saudável? Quanto entra, quanto sai, quem está devendo e qual margem sobrou. |
@@ -645,9 +644,10 @@ tela e ensina os dois a não olhar.
 
 ### O que cada um precisa ver, e hoje não vê
 
-**Administração**: custo total pago ao fornecedor no mês, que é a segunda maior
-conta da empresa e só aparece linha a linha na matriz; comissão a repassar aberta
-por vendedor.
+**Administração**: o custo total pago ao fornecedor no mês e a comissão liberada
+aberta por vendedor passaram a estar no painel da operação. O custo era a segunda
+maior conta da empresa e só aparecia linha a linha na matriz; a comissão só
+existia como total, o que obrigava o financeiro a somar à mão para pagar cada um.
 
 Tempo de resposta e taxa de falha por serviço passaram a aparecer no painel de
 consultas, que lê `duracao_ms` e `situacao` do recorte escolhido. O tempo médio
@@ -655,12 +655,16 @@ considera apenas as consultas concluídas: tentativa encerrada por tempo esgotad
 tem duração alta e não representa a resposta do fornecedor, e misturar as duas
 piora a média justamente quando o serviço melhora.
 
-**Vendedor**: clientes a caminho do bloqueio, demonstrativo de repasse por
-competência para conferir e emitir nota, e a base sobre a qual a comissão dele
-incidiu, não só o valor.
+**Vendedor**: demonstrativo de repasse por competência para conferir e emitir
+nota, e a base sobre a qual a comissão dele incidiu, não só o valor.
 
-A queda de consumo é visível na aba de consultas da carteira, filtrada por
-período, mas ainda depende de o vendedor abrir a tela: não existe aviso.
+Empresas a caminho da suspensão e empresas que pararam de consultar são as duas
+listas do painel dele. A primeira mostra a janela entre o vencimento e a suspensão
+automática, que é o único momento em que uma ligação ainda evita a interrupção. A
+segunda coloca quem nunca consultou no topo: contrato assinado e nunca usado não
+vira renovação.
+
+As duas ainda dependem de o vendedor abrir a tela. Não existe aviso ativo.
 
 **Empresa cliente**: preço unitário antes de consultar, quanto falta para atingir
 o consumo mínimo, previsão da fatura do mês e a composição da fatura fechada, que
