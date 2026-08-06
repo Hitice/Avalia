@@ -69,10 +69,43 @@ class EmpresaRequest extends FormRequest
         ];
     }
 
+    /**
+     * As datas decorrem do tipo de vigencia, e a tela nao pede o que da para
+     * calcular: 12 e 24 meses derivam o fim do inicio; carencia usa a data
+     * propria; sem vigencia nao guarda data nenhuma. Era ambiguidade na tela
+     * (fim digitavel ao lado de um prazo fechado) e virava dado divergente.
+     *
+     * @param  array<string, mixed>  $dados
+     * @return array<string, mixed>
+     */
+    private function comVigenciaResolvida(array $dados): array
+    {
+        $tipo = $dados['vigencia_tipo'] ?? null;
+        $inicio = $dados['contrato_inicio'] ?? null;
+
+        $meses = ['12_meses' => 12, '24_meses' => 24][$tipo] ?? null;
+
+        if ($meses !== null) {
+            $dados['contrato_fim'] = $inicio
+                ? \Illuminate\Support\Carbon::parse($inicio)->addMonths($meses)->toDateString()
+                : null;
+            $dados['carencia_ate'] = null;
+        } elseif ($tipo === 'carencia') {
+            $dados['contrato_fim'] = null;
+        } elseif ($tipo === 'sem_vigencia' || $tipo === null) {
+            $dados['contrato_fim'] = null;
+            $dados['carencia_ate'] = null;
+        }
+
+        return $dados;
+    }
+
     /** Dados prontos para gravar. Senha nao passa por aqui: e do convite. */
     public function dados(): array
     {
-        return $this->safe()->except(['senha', 'adesao_valor', 'adesao_parcelas']);
+        return $this->comVigenciaResolvida(
+            $this->safe()->except(['senha', 'adesao_valor', 'adesao_parcelas'])
+        );
     }
 
     public function attributes(): array

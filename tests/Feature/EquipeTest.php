@@ -241,3 +241,52 @@ it('registra na trilha quando a permissao financeira muda', function () {
     expect($membro->fresh()->pode_financeiro)->toBeTrue()
         ->and($registro->dados['pode_financeiro'])->toBeTrue();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Remocao e restauracao
+|--------------------------------------------------------------------------
+*/
+
+it('remove vendedor sem apagar o historico', function () {
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    admin()->delete(route('equipe.remover', $vendedor))->assertRedirect(route('equipe.index'));
+
+    // Fora de circulacao, mas de pe: fatura e carteira seguem apontando.
+    expect(Staff::find($vendedor->id))->toBeNull()
+        ->and(Staff::withTrashed()->find($vendedor->id))->not->toBeNull();
+});
+
+it('removido nao entra mais', function () {
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor', 'email' => 'fora@avalia.com.br']);
+
+    admin()->delete(route('equipe.remover', $vendedor));
+
+    $this->flushSession();
+    app('auth')->forgetGuards();
+
+    $this->post('/entrar', [
+        'email' => 'fora@avalia.com.br',
+        'senha' => 'senha-valida-123',
+    ])->assertSessionHasErrors();
+});
+
+it('nao deixa remover a si mesmo nem o superusuario', function () {
+    $eu = Staff::factory()->admin()->create();
+    $super = Staff::factory()->create(['papel' => 'admin', 'super' => true]);
+
+    $sessao = test()->actingAs($eu, 'staff')->withSession(['versao_staff' => $eu->sessao_versao]);
+
+    $sessao->delete(route('equipe.remover', $eu))->assertForbidden();
+    $sessao->delete(route('equipe.remover', $super))->assertForbidden();
+});
+
+it('restaura quem foi removido', function () {
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    admin()->delete(route('equipe.remover', $vendedor));
+    admin()->post(route('equipe.restaurar', $vendedor->id))->assertRedirect(route('equipe.index'));
+
+    expect(Staff::find($vendedor->id))->not->toBeNull();
+});

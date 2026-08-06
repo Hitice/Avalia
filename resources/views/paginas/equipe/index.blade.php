@@ -24,7 +24,7 @@
                         <th class="px-5 py-3 text-right font-medium">Comissão</th>
                         <th class="px-5 py-3 text-right font-medium">Empresas</th>
                         <th class="px-5 py-3 text-left font-medium">Situação</th>
-                        <th class="px-5 py-3 text-right font-medium">Editar</th>
+                        <th class="px-5 py-3 text-right font-medium">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -47,16 +47,47 @@
                                 {{ $membro->ehAdmin() ? '-' : $membro->clientes_count }}
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <span class="etiqueta {{ $membro->ativo ? 'etiqueta-sucesso' : 'etiqueta-neutra' }}">
-                                    {{ $membro->ativo ? 'Ativo' : 'Inativo' }}
-                                </span>
+                                @if ($membro->trashed())
+                                    <span class="etiqueta etiqueta-erro">Removido</span>
+                                @else
+                                    <span class="etiqueta {{ $membro->ativo ? 'etiqueta-sucesso' : 'etiqueta-neutra' }}">
+                                        {{ $membro->ativo ? 'Ativo' : 'Inativo' }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <x-avalia.botao variante="secundario" tamanho="icone" title="Editar"
-                                                :href="route('equipe.editar', $membro)">
-                                    <x-avalia.icone nome="lapis" />
-                                    <span class="sr-only">Editar</span>
-                                </x-avalia.botao>
+                                @if ($membro->trashed())
+                                    <form method="POST" action="{{ route('equipe.restaurar', $membro->id) }}" class="inline">
+                                        @csrf
+                                        <x-avalia.botao variante="secundario" tamanho="sm">Restaurar</x-avalia.botao>
+                                    </form>
+                                @else
+                                    <div class="inline-flex items-center gap-2">
+                                        <x-avalia.botao variante="secundario" tamanho="icone" title="Editar"
+                                                        :href="route('equipe.editar', $membro)">
+                                            <x-avalia.icone nome="lapis" />
+                                            <span class="sr-only">Editar</span>
+                                        </x-avalia.botao>
+
+                                        @if (! $membro->ehSuper() && $membro->id !== auth('staff')->id())
+                                            {{-- Segundo clique confirma; 3,5s sem ele desarma. --}}
+                                            <form method="POST" action="{{ route('equipe.remover', $membro) }}" class="inline"
+                                                  x-data="{ armado: false }"
+                                                  @submit="if (! armado) { $event.preventDefault(); armado = true; setTimeout(() => armado = false, 3500) }">
+                                                @csrf
+                                                @method('DELETE')
+                                                <x-avalia.botao variante="secundario" tamanho="icone" title="Remover" x-show="! armado">
+                                                    <x-avalia.icone nome="lixeira" />
+                                                    <span class="sr-only">Remover</span>
+                                                </x-avalia.botao>
+                                                <button type="submit" x-cloak x-show="armado"
+                                                        class="botao botao-sm bg-error-500 text-white hover:bg-error-600">
+                                                    Remover?
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

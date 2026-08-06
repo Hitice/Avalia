@@ -28,6 +28,17 @@
 
     @include('paginas.catalogo.avisos')
 
+    @if ($errors->any())
+        <div class="aviso aviso-erro mb-6">
+            <p class="font-medium">Confira os campos destacados:</p>
+            <ul class="mt-1 list-inside list-disc">
+                @foreach ($errors->all() as $erro)
+                    <li>{{ $erro }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="cartao p-6">
         <form method="POST"
               action="{{ $membro->exists ? route('equipe.atualizar', $membro) : route('equipe.salvar') }}"

@@ -25,8 +25,40 @@ class EquipeController extends Controller
     public function index()
     {
         return view('paginas.equipe.index', [
-            'membros' => Staff::withCount('clientes')->orderBy('nome')->get(),
+            // Removidos aparecem na lista com o proprio estado: sumir sem
+            // rastro e como se perde a nocao de quem ja passou pela equipe.
+            'membros' => Staff::withTrashed()->withCount('clientes')->orderBy('nome')->get(),
         ]);
+    }
+
+    /**
+     * Tira a pessoa de circulacao, sem apagar: fatura, carteira e trilha
+     * continuam apontando para ela, e o historico de comissao fica de pe.
+     *
+     * Nao remove a si mesmo (a sessao que remove nao pode serrar o proprio
+     * galho) nem o superusuario, que e a chave reserva da operacao.
+     */
+    public function remover(Staff $membro)
+    {
+        abort_if($membro->id === auth('staff')->id(), 403, 'Você não pode remover a si mesmo.');
+        abort_if($membro->ehSuper(), 403, 'O superusuário não pode ser removido pela tela.');
+
+        $membro->revogaSessoes();
+        $membro->delete();
+
+        Auditar::registrar('equipe.removida', $membro, $this->rastreavel($membro));
+
+        return redirect()->route('equipe.index')->with('ok', "{$membro->nome} removido da equipe.");
+    }
+
+    public function restaurar(int $id)
+    {
+        $membro = Staff::withTrashed()->findOrFail($id);
+        $membro->restore();
+
+        Auditar::registrar('equipe.restaurada', $membro, $this->rastreavel($membro));
+
+        return redirect()->route('equipe.index')->with('ok', "{$membro->nome} de volta à equipe.");
     }
 
     public function criar()

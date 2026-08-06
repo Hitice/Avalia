@@ -164,6 +164,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // Redefinicao de senha por e-mail: gera link novo de convite. Definida
         // a senha, todos os links anteriores morrem juntos.
         Route::post('/{membro}/convite', [EquipeController::class, 'convite'])->name('convite');
+        // Remover e tirar de circulacao, nao apagar: fatura e carteira apontam
+        // para a pessoa. Restaurar desfaz.
+        Route::delete('/{membro}', [EquipeController::class, 'remover'])->name('remover');
+        Route::post('/{id}/restaurar', [EquipeController::class, 'restaurar'])->name('restaurar');
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.

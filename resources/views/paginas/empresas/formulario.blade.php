@@ -37,6 +37,19 @@
 
     @include('paginas.catalogo.avisos')
 
+    @if ($errors->any())
+        {{-- O formulario e longo: sem o resumo aqui em cima, o erro la embaixo
+             fica fora da dobra e o clique parece nao ter feito nada. --}}
+        <div class="aviso aviso-erro mb-6">
+            <p class="font-medium">Confira os campos destacados:</p>
+            <ul class="mt-1 list-inside list-disc">
+                @foreach ($errors->all() as $erro)
+                    <li>{{ $erro }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="cartao p-6">
         <form method="POST"
               action="{{ $empresa->exists ? route('empresas.atualizar', $empresa) : route('empresas.salvar') }}">
@@ -127,27 +140,35 @@
                     <div class="sm:col-span-2 border-t border-gray-100 pt-5 dark:border-gray-800">
                         <h2 class="font-medium text-gray-800 dark:text-white/90">Condições comerciais</h2>
                     </div>
-                    <div>
-                        <label for="vigencia_tipo" class="rotulo-campo">Vigência</label>
-                        <select id="vigencia_tipo" name="vigencia_tipo" class="campo">
-                            <option value="">Não definida</option>
-                            <option value="sem_vigencia" @selected(old('vigencia_tipo', $empresa->vigencia_tipo) === 'sem_vigencia')>Sem vigência</option>
-                            <option value="12_meses" @selected(old('vigencia_tipo', $empresa->vigencia_tipo) === '12_meses')>12 meses</option>
-                            <option value="24_meses" @selected(old('vigencia_tipo', $empresa->vigencia_tipo) === '24_meses')>24 meses</option>
-                            <option value="carencia" @selected(old('vigencia_tipo', $empresa->vigencia_tipo) === 'carencia')>Carência especial</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="contrato_inicio" class="rotulo-campo">Início do contrato</label>
-                        <input id="contrato_inicio" name="contrato_inicio" type="date" class="campo" value="{{ old('contrato_inicio', optional($empresa->contrato_inicio)->format('Y-m-d')) }}">
-                    </div>
-                    <div>
-                        <label for="contrato_fim" class="rotulo-campo">Fim da vigência</label>
-                        <input id="contrato_fim" name="contrato_fim" type="date" class="campo" value="{{ old('contrato_fim', optional($empresa->contrato_fim)->format('Y-m-d')) }}">
-                    </div>
-                    <div>
-                        <label for="carencia_ate" class="rotulo-campo">Carência até</label>
-                        <input id="carencia_ate" name="carencia_ate" type="date" class="campo" value="{{ old('carencia_ate', optional($empresa->carencia_ate)->format('Y-m-d')) }}">
+                    {{-- Cada tipo mostra so as datas que lhe pertencem: 12 e 24
+                         meses calculam o fim sozinhos a partir do inicio;
+                         carencia pede a data dela; sem vigencia nao pede nada.
+                         O fim digitavel ao lado de um prazo fechado era a
+                         ambiguidade, e o servidor resolve as datas de novo ao
+                         gravar, entao esconder aqui nao e so cosmetico. --}}
+                    <div x-data="{ vig: '{{ old('vigencia_tipo', $empresa->vigencia_tipo ?? '') }}' }"
+                         class="contents">
+                        <div>
+                            <label for="vigencia_tipo" class="rotulo-campo">Vigência</label>
+                            <select id="vigencia_tipo" name="vigencia_tipo" class="campo" x-model="vig">
+                                <option value="">Não definida</option>
+                                <option value="sem_vigencia">Sem vigência</option>
+                                <option value="12_meses">12 meses</option>
+                                <option value="24_meses">24 meses</option>
+                                <option value="carencia">Carência especial</option>
+                            </select>
+                        </div>
+                        <div x-show="vig !== '' && vig !== 'sem_vigencia'">
+                            <label for="contrato_inicio" class="rotulo-campo">Início do contrato</label>
+                            <input id="contrato_inicio" name="contrato_inicio" type="date" class="campo" value="{{ old('contrato_inicio', optional($empresa->contrato_inicio)->format('Y-m-d')) }}">
+                            <span class="ajuda-campo" x-show="vig === '12_meses' || vig === '24_meses'">
+                                O fim da vigência é calculado a partir desta data.
+                            </span>
+                        </div>
+                        <div x-cloak x-show="vig === 'carencia'">
+                            <label for="carencia_ate" class="rotulo-campo">Carência até</label>
+                            <input id="carencia_ate" name="carencia_ate" type="date" class="campo" value="{{ old('carencia_ate', optional($empresa->carencia_ate)->format('Y-m-d')) }}">
+                        </div>
                     </div>
                     <div>
                         <label for="adesao_valor" class="rotulo-campo">Taxa de adesão</label>

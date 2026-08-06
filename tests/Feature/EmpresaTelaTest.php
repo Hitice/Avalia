@@ -143,3 +143,39 @@ it('abre a ficha de empresa sem plano sem quebrar', function () {
         ->assertOk()
         ->assertSee('Sem plano contratado');
 });
+
+it('calcula o fim da vigencia a partir do tipo, e nao de digitacao', function () {
+    // 12 meses e um prazo fechado: o fim decorre do inicio. Aceitar um fim
+    // digitado ao lado do prazo era ambiguidade virando dado divergente.
+    admin()->post(route('empresas.salvar'), [
+        'razao_social' => 'Vigente LTDA',
+        'cnpj' => '12.345.678/0001-95',
+        'email' => 'vigente@cliente.com.br',
+        'situacao' => 'ativo',
+        'vigencia_tipo' => '12_meses',
+        'contrato_inicio' => '2026-08-06',
+        'contrato_fim' => '2030-01-01',
+    ]);
+
+    $empresa = App\Models\Cliente::firstWhere('email', 'vigente@cliente.com.br');
+
+    expect($empresa->contrato_fim->toDateString())->toBe('2027-08-06')
+        ->and($empresa->carencia_ate)->toBeNull();
+});
+
+it('sem vigencia nao guarda data nenhuma', function () {
+    admin()->post(route('empresas.salvar'), [
+        'razao_social' => 'Aberta LTDA',
+        'cnpj' => '11.222.333/0001-81',
+        'email' => 'aberta@cliente.com.br',
+        'situacao' => 'ativo',
+        'vigencia_tipo' => 'sem_vigencia',
+        'contrato_fim' => '2030-01-01',
+        'carencia_ate' => '2030-01-01',
+    ]);
+
+    $empresa = App\Models\Cliente::firstWhere('email', 'aberta@cliente.com.br');
+
+    expect($empresa->contrato_fim)->toBeNull()
+        ->and($empresa->carencia_ate)->toBeNull();
+});
