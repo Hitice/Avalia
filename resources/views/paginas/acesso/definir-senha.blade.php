@@ -3,6 +3,14 @@
 @section('content')
     <div class="grade-viva flex min-h-screen items-center justify-center bg-white p-6 dark:bg-gray-900">
         <div class="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="mb-5">
+                <x-avalia.botao variante="secundario" tamanho="sm" :href="route('inicio')">
+                    <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Voltar
+                </x-avalia.botao>
+            </div>
             <x-avalia.logotipo :tamanho="32" one class="mb-6" />
 
             <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">Defina sua senha</h1>

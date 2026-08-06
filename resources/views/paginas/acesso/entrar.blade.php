@@ -25,13 +25,14 @@
             <div class="flex w-full flex-1 flex-col lg:w-2/5">
                 <div class="mx-auto flex w-full max-w-[25rem] flex-1 flex-col justify-center">
 
-                    <a href="{{ route('inicio') }}"
-                       class="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400">
-                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Página inicial
-                    </a>
+                    <div class="mb-8">
+                        <x-avalia.botao variante="secundario" tamanho="sm" :href="route('inicio')">
+                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            Voltar
+                        </x-avalia.botao>
+                    </div>
 
                     <div class="mb-8">
                         <h1 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
