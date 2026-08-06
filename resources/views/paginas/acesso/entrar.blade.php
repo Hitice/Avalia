@@ -220,7 +220,7 @@
 
                 {{-- Placa translucida atras da marca: separa o bloco da foto sem
                      esconde-la, com o mesmo raio dos cartoes do sistema. --}}
-                <div class="z-1 flex w-80 flex-col items-center rounded-3xl bg-white/10 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
+                <div class="z-1 flex w-[25rem] flex-col items-center rounded-3xl bg-white/25 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
                     <x-avalia.medidor :tamanho="120" por-nivel class="-mb-4" style="--nivel: 0.82" />
                     {{-- So o wordmark: o simbolo ja esta logo acima, em
                          tamanho grande, e repetir o gauge pequeno na logo
