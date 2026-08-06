@@ -98,7 +98,7 @@
                     </x-avalia.botao>
 
                     <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia') }}" target="_blank" rel="noopener noreferrer"
-                       class="botao botao-primario hidden sm:inline-flex">
+                       class="botao botao-rosa hidden sm:inline-flex">
                         <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm0 18.06h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.03-.2-.31a8.19 8.19 0 0 1-1.26-4.37c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Z"/>
                         </svg>
@@ -503,7 +503,7 @@
                                     </ul>
 
                                     <a href="{{ Suporte::whatsapp($pilar['titulo']) }}" target="_blank" rel="noopener noreferrer"
-                                       class="botao botao-primario mt-auto w-full" draggable="false">
+                                       class="botao botao-rosa mt-auto w-full" draggable="false">
                                         <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                                             <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Z"/>
                                         </svg>
