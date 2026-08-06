@@ -2,6 +2,18 @@
 
 @section('content')
     <div class="relative z-1 bg-white p-6 sm:p-0 dark:bg-gray-900">
+        {{-- Claro e escuro no canto superior esquerdo: esta tela nao tem
+             header, entao o interruptor mora solto na moldura. --}}
+        <button @click="$store.theme.toggle()" aria-label="Alternar tema"
+                class="fixed top-4 left-4 z-50 flex size-11 items-center justify-center rounded-lg border border-gray-200 bg-white/80 text-gray-500 backdrop-blur transition hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900/80 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+            <svg class="hidden size-5 dark:block" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="4"/>
+                <path stroke-linecap="round" d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/>
+            </svg>
+            <svg class="size-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+            </svg>
+        </button>
         <div class="relative flex h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900">
 
             {{-- Formulario --}}

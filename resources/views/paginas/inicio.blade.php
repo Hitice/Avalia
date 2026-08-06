@@ -60,7 +60,25 @@
 
 @section('content')
     <div class="min-h-screen bg-white text-gray-800 dark:bg-gray-900 dark:text-white/90"
-         x-data="{ aberto: null }"
+         x-data="{
+             aberto: null,
+             pilares: ['dados', 'fraude', 'preco'],
+             arrasto: 0,
+             inicioX: null,
+             idxPilar() { return Math.max(0, this.pilares.indexOf(this.aberto)) },
+             anteriorPilar() { this.aberto = this.pilares[(this.idxPilar() + 2) % 3] },
+             proximoPilar() { this.aberto = this.pilares[(this.idxPilar() + 1) % 3] },
+             comecaArrasto(e) { this.inicioX = e.clientX },
+             moveArrasto(e) { if (this.inicioX !== null) this.arrasto = e.clientX - this.inicioX },
+             soltaArrasto() {
+                 if (this.inicioX === null) return;
+                 const d = this.arrasto;
+                 this.arrasto = 0;
+                 this.inicioX = null;
+                 if (d < -60) this.proximoPilar();
+                 else if (d > 60) this.anteriorPilar();
+             },
+         }"
          x-init="@if (session('interesse_ok')) aberto = 'obrigado' @elseif ($errors->any()) aberto = 'campanha' @endif"
          @keydown.escape.window="aberto = null">
 
@@ -422,87 +440,82 @@
             </div>
         </footer>
 
-        {{-- Popups. Um so trilho para todos: fundo escurecido, cartao ao
-             centro, Esc ou clique fora fecham. --}}
-        @foreach ($pilares as $chave => $pilar)
-            <div x-cloak x-show="aberto === '{{ $chave }}'" x-transition.opacity.duration.500ms
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-                 @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="{{ $pilar['titulo'] }}">
-                @php
-                    // Vizinhos do pilar, para folhear sem fechar: as setinhas
-                    // levam ao anterior e ao proximo, em roda.
-                    $chaves = array_keys($pilares);
-                    $indice = array_search($chave, $chaves, true);
-                    $anterior = $chaves[($indice + count($chaves) - 1) % count($chaves)];
-                    $proximo = $chaves[($indice + 1) % count($chaves)];
-                @endphp
-                <div class="relative w-full max-w-4xl">
-                    {{-- Folhear entre os pilares, no mesmo padrao das setas do
-                         carrossel: chevron em degrade, fora do card. --}}
-                    <button type="button" @click="aberto = '{{ $anterior }}'" aria-label="Assunto anterior"
-                            class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
-                        <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    <button type="button" @click="aberto = '{{ $proximo }}'" aria-label="Próximo assunto"
-                            class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
-                        <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
+        {{-- Popup dos pilares: um overlay so, com os tres assuntos num trilho
+             que desliza. A altura e unica por construcao (os slides dividem a
+             mesma linha de flex), entao folhear nao muda o tamanho do card.
+             Setinha, arrasto de mouse ou dedo, Esc e clique fora. --}}
+        <div x-cloak x-show="pilares.includes(aberto)" x-transition.opacity.duration.500ms
+             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
+             @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Sobre a Avalia">
+            <div class="relative w-full max-w-4xl">
+                <button type="button" @click="anteriorPilar()" aria-label="Assunto anterior"
+                        class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
+                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button type="button" @click="proximoPilar()" aria-label="Próximo assunto"
+                        class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
+                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                <button type="button" @click="aberto = null" aria-label="Fechar"
+                        class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
+                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
 
-                    <button type="button" @click="aberto = null" aria-label="Fechar"
-                            class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
-                        <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                        </svg>
-                    </button>
+                <div class="entra-popup touch-pan-y overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg select-none dark:border-gray-700 dark:bg-gray-800"
+                     @pointerdown="comecaArrasto($event)" @pointermove="moveArrasto($event)"
+                     @pointerup="soltaArrasto()" @pointercancel="soltaArrasto()" @pointerleave="soltaArrasto()">
+                    <div class="flex items-stretch"
+                         :class="inicioX === null ? 'transition-transform duration-500 ease-out' : 'transition-none'"
+                         :style="`transform: translateX(calc(${-idxPilar() * 100}% + ${arrasto}px))`">
+                        @foreach ($pilares as $chave => $pilar)
+                            <div class="flex w-full shrink-0 flex-col">
+                                <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
+                                            <svg class="size-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $pilar['icone'] }}"/>
+                                            </svg>
+                                        </div>
+                                        <x-avalia.logotipo :tamanho="26" />
+                                    </div>
+                                    <h3 class="mt-5 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $pilar['titulo'] }}</h3>
+                                    <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{{ $pilar['detalhe'] }}</p>
+                                </div>
 
-                <div class="entra-popup w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                                <div class="flex flex-1 flex-col p-7">
+                                    <ul class="mb-7 grid gap-3 sm:grid-cols-2">
+                                        @foreach ($pilar['itens'] as $item)
+                                            <li class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+                                                <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
+                                                    <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
+                                                    </svg>
+                                                </span>
+                                                {{ $item }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
 
-                    {{-- Faixa de abertura em neutro: cinza meio transparente
-                         no claro, preto meio transparente no escuro, com a
-                         grade da marca por cima. --}}
-                    <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
-                        <div class="flex items-start justify-between">
-                            <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
-                                <svg class="size-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $pilar['icone'] }}"/>
-                                </svg>
-                            </div>
-                            <x-avalia.logotipo :tamanho="26" />
-                        </div>
-                        <h3 class="mt-5 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $pilar['titulo'] }}</h3>
-                        <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{{ $pilar['detalhe'] }}</p>
-                    </div>
-
-                    <div class="p-7">
-                        <ul class="grid gap-3 sm:grid-cols-2">
-                            @foreach ($pilar['itens'] as $item)
-                                <li class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
-                                    <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
-                                        <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
+                                    <a href="{{ Suporte::whatsapp($pilar['titulo']) }}" target="_blank" rel="noopener noreferrer"
+                                       class="botao botao-primario mt-auto w-full" draggable="false">
+                                        <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Z"/>
                                         </svg>
-                                    </span>
-                                    {{ $item }}
-                                </li>
-                            @endforeach
-                        </ul>
-
-                        <a href="{{ Suporte::whatsapp($pilar['titulo']) }}" target="_blank" rel="noopener noreferrer"
-                           class="botao botao-primario mt-7 w-full">
-                            <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Z"/>
-                            </svg>
-                            Falar com um consultor
-                        </a>
+                                        Falar com um consultor
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                </div>
                 </div>
             </div>
-        @endforeach
+        </div>
 
         {{-- O formulario da campanha. Os dados entram no nosso banco e a
              conversa comeca do nosso lado: nome e telefone sao dado pessoal e
