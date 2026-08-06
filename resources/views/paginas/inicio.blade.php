@@ -440,31 +440,22 @@
                     {{-- Folhear entre os pilares, no mesmo padrao das setas do
                          carrossel: chevron em degrade, fora do card. --}}
                     <button type="button" @click="aberto = '{{ $anterior }}'" aria-label="Assunto anterior"
-                            class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 transition hover:scale-125 sm:block">
-                        <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                            <defs><linearGradient id="nav-{{ $chave }}-e" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-                                <stop offset="0" stop-color="var(--color-brand-500)"/><stop offset="1" stop-color="var(--color-theme-pink-500)"/>
-                            </linearGradient></defs>
-                            <path stroke="url(#nav-{{ $chave }}-e)" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                            class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
+                        <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                         </svg>
                     </button>
                     <button type="button" @click="aberto = '{{ $proximo }}'" aria-label="Próximo assunto"
-                            class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 transition hover:scale-125 sm:block">
-                        <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                            <defs><linearGradient id="nav-{{ $chave }}-d" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-                                <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
-                            </linearGradient></defs>
-                            <path stroke="url(#nav-{{ $chave }}-d)" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
+                        <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
                     </button>
 
                     <button type="button" @click="aberto = null" aria-label="Fechar"
-                            class="absolute -top-10 right-0 z-10 transition hover:scale-125">
-                        <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                            <defs><linearGradient id="x-{{ $chave }}" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-                                <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
-                            </linearGradient></defs>
-                            <path stroke="url(#x-{{ $chave }})" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                            class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
+                        <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
                         </svg>
                     </button>
 
@@ -473,7 +464,7 @@
                     {{-- Faixa de abertura em neutro: cinza meio transparente
                          no claro, preto meio transparente no escuro, com a
                          grade da marca por cima. --}}
-                    <div class="grade-viva relative bg-gray-300/50 px-7 py-6 dark:bg-black/50">
+                    <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
                         <div class="flex items-start justify-between">
                             <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
                                 <svg class="size-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -521,12 +512,9 @@
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido de contato">
             <div class="relative w-full max-w-md">
                 <button type="button" @click="aberto = null" aria-label="Fechar"
-                        class="absolute -top-10 right-0 z-10 transition hover:scale-125">
-                    <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                        <defs><linearGradient id="x-form" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
-                            <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
-                        </linearGradient></defs>
-                        <path stroke="url(#x-form)" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                        class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
+                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
                     </svg>
                 </button>
 
