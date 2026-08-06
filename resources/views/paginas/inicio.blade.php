@@ -89,14 +89,51 @@
                     </ul>
                 </div>
 
-                {{-- O medidor da marca fazendo a leitura, com dois cartoes de
-                     resultado respirando ao lado. Nenhum numero inventado: os
-                     rotulos sao os mesmos que as telas reais usam. --}}
+                {{-- Uma sessao de consultas acontecendo: o medidor refaz a
+                     leitura a cada cliente do carrossel, e a pontuacao sai na
+                     cor de bureau, do rosa ao azul.
+
+                     Todo nome e ficticio e todo documento e mascarado, e o
+                     cartao diz "Simulação" de proposito: uma vitrine publica
+                     exibindo consulta que parecesse real seria exatamente o
+                     vazamento que o produto promete impedir. --}}
                 <div class="entra-suave relative mx-auto w-full max-w-md" style="animation-delay: 0.25s">
-                    <div class="cartao flex flex-col items-center gap-2 px-8 py-12">
-                        <x-avalia.medidor :tamanho="190" />
-                        <span class="rotulo-grupo">Análise de crédito</span>
-                        <span class="text-lg font-semibold">Risco avaliado em segundos</span>
+                    <div class="cartao relative flex flex-col items-center px-8 pt-10 pb-8">
+                        <span class="absolute top-4 right-4 rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-medium text-gray-400 dark:bg-white/5 dark:text-gray-500">
+                            Simulação
+                        </span>
+
+                        <x-avalia.medidor :tamanho="150" vivo />
+
+                        <div class="mt-6 h-px w-full bg-gray-100 dark:bg-gray-800"></div>
+
+                        <div class="relative mt-5 h-[92px] w-full" aria-hidden="true">
+                            @foreach ([
+                                ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
+                                ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
+                                ['tipo' => 'CNPJ', 'nome' => 'Reparo Tecnologia', 'doc' => '98.765.432/0001-**', 'pontos' => 823, 'faixa' => 82],
+                                ['tipo' => 'CPF', 'nome' => 'Helena Duarte', 'doc' => '***.157.204-**', 'pontos' => 597, 'faixa' => 60],
+                            ] as $i => $consulta)
+                                <div class="consulta-do-carrossel flex items-center justify-between gap-4"
+                                     style="animation-delay: {{ $i * 4 }}s">
+                                    <div class="min-w-0">
+                                        <span class="rounded-md px-1.5 py-0.5 text-[11px] font-semibold {{ $consulta['tipo'] === 'CPF' ? 'bg-theme-pink-500/10 text-theme-pink-500' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400' }}">
+                                            {{ $consulta['tipo'] }}
+                                        </span>
+                                        <p class="mt-1.5 truncate font-medium text-gray-800 dark:text-white/90">{{ $consulta['nome'] }}</p>
+                                        <p class="text-xs text-gray-400 tabular-nums dark:text-gray-500">{{ $consulta['doc'] }}</p>
+                                    </div>
+
+                                    <div class="shrink-0 text-right">
+                                        <span class="numero-bureau text-4xl font-semibold tabular-nums">{{ $consulta['pontos'] }}</span>
+                                        <span class="block text-[11px] text-gray-400 dark:text-gray-500">pontos</span>
+                                        <div class="mt-1.5 ml-auto h-1 w-20 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                                            <div class="barra-bureau h-full rounded-full" style="width: {{ $consulta['faixa'] }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
 
                     <div class="cartao flutua absolute -top-5 -right-3 flex items-center gap-2.5 px-4 py-3 shadow-theme-md sm:-right-8">

@@ -23,6 +23,22 @@ it('apresenta a Avalia com as duas saidas', function () {
         ->assertSee('Campanha de adesão');
 });
 
+it('marca o carrossel de consultas como simulacao e mascara os documentos', function () {
+    // A vitrine mostra consultas acontecendo, e por isso mesmo precisa dizer
+    // que e simulacao: pagina publica exibindo consulta que parecesse real
+    // seria exatamente o vazamento que o produto promete impedir.
+    $resposta = $this->get('/')->assertOk()
+        ->assertSee('Simulação')
+        ->assertSee('Casa Sul Materiais');
+
+    // Nenhum documento inteiro: todo CPF e CNPJ do carrossel leva mascara.
+    $html = $resposta->getContent();
+
+    expect(preg_match('/\d{3}\.\d{3}\.\d{3}-\d{2}/', $html))->toBe(0)
+        ->and($html)->toContain('***.')
+        ->toContain('/0001-**');
+});
+
 it('nao vaza fornecedor, preco nem numero interno', function () {
     $html = $this->get('/')->assertOk()->getContent();
 

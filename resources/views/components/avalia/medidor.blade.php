@@ -1,4 +1,9 @@
-@props(['tamanho' => 160])
+@props([
+    'tamanho' => 160,
+    // Uma leitura so (login) ou em ciclo, refazendo a leitura a cada consulta
+    // do carrossel (pagina inicial).
+    'vivo' => false,
+])
 
 {{-- O simbolo da marca em movimento: o ponteiro parte do fundo da escala e
      assenta na faixa alta, com o arco se desenhando junto. E a logo fazendo o
@@ -14,9 +19,10 @@
         class="text-gray-300 dark:text-gray-700" stroke-width="3" stroke-linecap="round" />
     {{-- Faixa atingida, desenhada durante a leitura --}}
     <path d="M4.5 22.5A11.5 11.5 0 0 1 16 11" stroke="currentColor"
-        class="text-brand-500 medidor-faixa" stroke-width="3" stroke-linecap="round" />
+        class="text-brand-500 {{ $vivo ? 'medidor-faixa-viva' : 'medidor-faixa' }}"
+        stroke-width="3" stroke-linecap="round" />
     {{-- Ponteiro, varrendo ate a leitura --}}
-    <g class="medidor-ponteiro">
+    <g class="{{ $vivo ? 'medidor-ponteiro-vivo' : 'medidor-ponteiro' }}">
         <path d="M16 22.5 22.3 14.6" stroke="currentColor" class="text-brand-500"
             stroke-width="3" stroke-linecap="round" />
     </g>
