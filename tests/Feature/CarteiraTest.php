@@ -128,9 +128,9 @@ it('nao abre catalogo, empresas nem financeiro pela carteira', function () {
 it('poe a carteira no menu do vendedor e esconde do admin', function () {
     [$vendedor] = carteira();
 
-    comoVendedor($vendedor)->get('/')->assertOk()->assertSee('href="/carteira"', false);
+    comoVendedor($vendedor)->get('/painel')->assertOk()->assertSee('href="/carteira"', false);
 
-    admin()->get('/')->assertOk()->assertDontSee('href="/carteira"', false);
+    admin()->get('/painel')->assertOk()->assertDontSee('href="/carteira"', false);
 });
 
 /*

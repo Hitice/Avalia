@@ -12,6 +12,7 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
+use App\Http\Controllers\InicioController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
@@ -29,6 +30,17 @@ use Illuminate\Support\Facades\Route;
 | aceita o guard `empresa`, e nenhuma rota da empresa aceita `staff`.
 |
 */
+
+/*
+ * A porta do dominio e uma apresentacao, nao o login.
+ *
+ * Quem digita o endereco sem estar logado e quase sempre alguem avaliando o
+ * produto: cliente indicado, contador do cliente, curioso. Cair direto num
+ * formulario de senha diz "isto nao e para voce". A pagina inicial diz o que a
+ * Avalia faz e para onde ir. Quem ja tem sessao nem a ve: segue para o proprio
+ * painel.
+ */
+Route::get('/', InicioController::class)->name('inicio');
 
 Route::middleware('guest:staff,empresa')->group(function () {
     Route::get('/entrar', [LoginController::class, 'mostrar'])->name('entrar');
@@ -66,7 +78,9 @@ Route::post('/webhooks/asaas', WebhookAsaasController::class)
 */
 
 Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
-    Route::get('/', PainelController::class)->name('painel');
+    // Em /painel, e nao em /: a raiz e a pagina publica de apresentacao, e o
+    // nome de rota continua o mesmo, entao nenhum redirect mudou.
+    Route::get('/painel', PainelController::class)->name('painel');
 
     // Empresas contratantes e o consumo delas. Consultas sao registradas pelas
     // integrações com os fornecedores, nunca manualmente pela gestão.

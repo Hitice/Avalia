@@ -59,18 +59,20 @@
     @mouseenter="if (!$store.sidebar.isExpanded) $store.sidebar.setHovered(true)"
     @mouseleave="$store.sidebar.setHovered(false)">
     <!-- Logo Section -->
-    <div class="-mx-5 mb-6 flex border-b border-gray-200 px-5 pt-8 pb-7 dark:border-gray-800"
+    {{-- pt-8 pb-7 sem borda, como o tema original. A borda e a margem extras
+         que entraram aqui desalinhavam este bloco da altura do cabecalho do
+         outro lado, e a linha divisoria aparecia em degrau. --}}
+    <div class="flex pt-8 pb-7"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
         'xl:justify-center' :
         'justify-start'">
-        {{-- A marca leva a porta de entrada de quem esta logado. Fixa em "/", o
-             cliente cai numa rota de gestao e e devolvido para o login. --}}
-        <a href="{{ auth('empresa')->check() ? route('empresa.painel') : '/' }}">
+        {{-- A marca leva a porta de entrada de quem esta logado. --}}
+        <a href="{{ auth('empresa')->check() ? route('empresa.painel') : route('painel') }}">
             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                <x-avalia.logotipo :tamanho="30" />
+                <x-avalia.logotipo :tamanho="40" />
             </span>
             <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)">
-                <x-avalia.logotipo :tamanho="30" somente-icone />
+                <x-avalia.logotipo :tamanho="40" somente-icone />
             </span>
 
         </a>

@@ -23,7 +23,7 @@ it('manda os cabecalhos de seguranca em toda resposta', function () {
 it('manda os cabecalhos tambem em redirecionamento e erro', function () {
     // Resposta de erro tambem renderiza HTML, e e onde um script injetado
     // teria mais chance de passar despercebido.
-    $redirecionamento = $this->get('/')->assertRedirect();
+    $redirecionamento = $this->get('/painel')->assertRedirect();
     $naoEncontrado = $this->get('/rota-que-nao-existe')->assertNotFound();
 
     expect($redirecionamento->headers->get('X-Frame-Options'))->toBe('DENY')

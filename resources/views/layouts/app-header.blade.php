@@ -49,8 +49,8 @@
             </button>
 
             <!-- Logo (mobile only) -->
-            <a href="/" class="xl:hidden">
-                <x-avalia.logotipo :tamanho="30" />
+            <a href="{{ auth('empresa')->check() ? route('empresa.painel') : route('painel') }}" class="xl:hidden">
+                <x-avalia.logotipo :tamanho="32" />
             </a>
 
             <!-- Application Menu Toggle (mobile only) -->

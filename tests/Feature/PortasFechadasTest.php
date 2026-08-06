@@ -23,6 +23,7 @@ uses(RefreshDatabase::class);
 
 /** Rotas que sao publicas de propósito, com a razao de cada uma. */
 const PORTAS_PUBLICAS = [
+    'inicio' => 'apresentacao publica; quem tem sessao e redirecionado para o proprio painel',
     'entrar' => 'formulario de acesso',
     'entrar.enviar' => 'envio do formulario de acesso',
     'token' => 'renova o token da tela de entrada, e nao devolve mais nada',

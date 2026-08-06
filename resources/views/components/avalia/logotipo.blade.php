@@ -1,6 +1,10 @@
 @props([
     'tamanho' => 32,
     'somenteIcone' => false,
+    // Sobre fundo escuro da marca o nome sai branco direto, sem depender do
+    // tema da pagina. Antes isso era um seletor arbitrario no ponto de uso,
+    // que quebrava calado se a estrutura interna daqui mudasse.
+    'claro' => false,
 ])
 
 {{--
@@ -29,7 +33,7 @@
     </svg>
 
     @unless ($somenteIcone)
-        <span class="text-[1.35rem] leading-none font-semibold tracking-tight text-gray-800 dark:text-white/90">
+        <span class="text-[1.35rem] leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : 'text-gray-800 dark:text-white/90' }}">
             Avalia
         </span>
     @endunless

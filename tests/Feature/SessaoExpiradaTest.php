@@ -73,14 +73,19 @@ it('devolve quem ja esta dentro para a propria pagina, nao para o login', functi
 */
 
 it('manda a empresa autenticada para a area dela, e nao para a gestao', function () {
-    // O padrao do Laravel manda todo mundo para "/", que aqui e a gestao. Com
-    // duas naturezas de conta isso vira laco: a empresa abre "/", o auth:staff
-    // recusa e manda para /entrar, o guest devolve para "/", sem fim.
+    // A raiz resolve pelo guard: empresa vai para a area dela, staff para a
+    // gestao, visitante ve a apresentacao. Antes a raiz ERA a gestao, e a
+    // empresa que a abrisse caia num laco entre o auth:staff e o guest.
     $empresa = App\Models\Cliente::factory()->create();
 
     $this->actingAs($empresa, 'empresa')
         ->withSession(['versao_empresa' => $empresa->sessao_versao])
         ->get('/')
+        ->assertRedirect(route('empresa.painel'));
+
+    $this->actingAs($empresa, 'empresa')
+        ->withSession(['versao_empresa' => $empresa->sessao_versao])
+        ->get('/painel')
         ->assertRedirect(route('entrar'));
 
     $this->actingAs($empresa, 'empresa')

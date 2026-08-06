@@ -8,9 +8,17 @@
             <div class="flex w-full flex-1 flex-col lg:w-1/2">
                 <div class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
 
+                    <a href="{{ route('inicio') }}"
+                       class="mb-8 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400">
+                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Página inicial
+                    </a>
+
                     <div class="mb-8">
                         <h1 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                            Gestão <span class="text-brand-500 font-bold">360°</span> Avalia
+                            Bem-vindo de volta
                         </h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             Entre com seu e-mail e senha.
@@ -115,16 +123,18 @@
                 </div>
             </div>
 
-            {{-- Lateral da marca --}}
-            <div class="bg-brand-950 relative hidden h-full w-full items-center lg:grid lg:w-1/2 dark:bg-white/5">
-                <div class="z-1 flex items-center justify-center">
-                    <x-common.common-grid-shape />
-                    <div class="flex max-w-xs flex-col items-center">
-                        <x-avalia.logotipo :tamanho="42" class="mb-5 [&>span:last-child]:text-white [&>span:last-child]:text-3xl" />
-                        <p class="text-center text-gray-400 dark:text-white/60">
-                            Segurança para suas melhores escolhas.
-                        </p>
-                    </div>
+            {{-- Lateral da marca: a mesma grade viva da pagina inicial, com o
+                 medidor fazendo a leitura. A logo e o slogan ancorados no
+                 centro, sem seletor arbitrario mexendo por dentro do
+                 componente. --}}
+            <div class="bg-brand-950 grade-viva-escura relative hidden h-full w-full items-center justify-center lg:flex lg:w-1/2 dark:bg-white/5">
+                <x-common.common-grid-shape />
+                <div class="z-1 flex max-w-xs flex-col items-center">
+                    <x-avalia.medidor :tamanho="120" class="mb-6" />
+                    <x-avalia.logotipo :tamanho="42" claro class="mb-4 [&>span:last-child]:text-3xl" />
+                    <p class="text-center text-gray-400 dark:text-white/60">
+                        Segurança para suas melhores escolhas.
+                    </p>
                 </div>
             </div>
         </div>

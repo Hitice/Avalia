@@ -12,7 +12,7 @@ class MenuHelper
     public static function getMainNavItems()
     {
         return [
-            ['icon' => 'dashboard', 'name' => 'Visão geral', 'path' => '/'],
+            ['icon' => 'dashboard', 'name' => 'Visão geral', 'path' => '/painel'],
             ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],

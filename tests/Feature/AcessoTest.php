@@ -132,7 +132,7 @@ it('deixa inadimplente entrar para poder regularizar, mas nao consultar', functi
 it('nao deixa empresa abrir a area de gestao', function () {
     $cliente = Cliente::factory()->create();
 
-    $this->actingAs($cliente, 'empresa')->get('/')->assertRedirect(route('entrar'));
+    $this->actingAs($cliente, 'empresa')->get('/painel')->assertRedirect(route('entrar'));
 });
 
 it('nao deixa staff abrir a area da empresa', function () {
@@ -141,8 +141,28 @@ it('nao deixa staff abrir a area da empresa', function () {
     $this->actingAs($staff, 'staff')->get('/empresa')->assertRedirect(route('entrar'));
 });
 
-it('manda visitante para a tela de entrada', function () {
-    $this->get('/')->assertRedirect(route('entrar'));
+it('mostra a apresentacao ao visitante em vez do login', function () {
+    // A raiz do dominio e a pagina publica: quem chega sem sessao ve o que a
+    // Avalia faz, com o login a um clique. Cair direto no formulario de senha
+    // dizia "isto nao e para voce" a quem estava avaliando o produto.
+    $this->get('/')->assertOk()
+        ->assertSee('Entrar')
+        ->assertSee('Quero contratar');
+});
+
+it('manda visitante do painel para a tela de entrada', function () {
+    $this->get('/painel')->assertRedirect(route('entrar'));
+});
+
+it('leva cada sessao da raiz para o proprio painel', function () {
+    $staff = Staff::factory()->admin()->create();
+    $this->actingAs($staff, 'staff')->get('/')->assertRedirect(route('painel'));
+
+    $this->flushSession();
+    app('auth')->forgetGuards();
+
+    $cliente = Cliente::factory()->create();
+    $this->actingAs($cliente, 'empresa')->get('/')->assertRedirect(route('empresa.painel'));
 });
 
 /*
@@ -155,11 +175,11 @@ it('derruba a sessao quando a versao muda', function () {
     $staff = Staff::factory()->admin()->create(['email' => 'rev@avalia.local']);
 
     $this->post('/entrar', ['email' => 'rev@avalia.local', 'senha' => 'senha-valida-123']);
-    $this->get('/')->assertOk();
+    $this->get('/painel')->assertOk();
 
     $staff->revogaSessoes();
 
-    $this->get('/')->assertRedirect(route('entrar'));
+    $this->get('/painel')->assertRedirect(route('entrar'));
     expect(auth('staff')->check())->toBeFalse();
 });
 
@@ -167,11 +187,11 @@ it('derruba a sessao quando a conta e desativada', function () {
     $staff = Staff::factory()->admin()->create(['email' => 'des@avalia.local']);
 
     $this->post('/entrar', ['email' => 'des@avalia.local', 'senha' => 'senha-valida-123']);
-    $this->get('/')->assertOk();
+    $this->get('/painel')->assertOk();
 
     $staff->update(['ativo' => false]);
 
-    $this->get('/')->assertRedirect(route('entrar'));
+    $this->get('/painel')->assertRedirect(route('entrar'));
 });
 
 it('sai e invalida a sessao', function () {
@@ -298,7 +318,7 @@ function voltaComLembranca(App\Contracts\ContaAutenticavel $conta, string $guard
     return test()->withCookie(
         auth($guarda)->getRecallerName(),
         $conta->getKey().'|'.$conta->getRememberToken().'|'.$conta->getAuthPassword(),
-    )->get($guarda === 'staff' ? '/' : '/empresa');
+    )->get($guarda === 'staff' ? '/painel' : '/empresa');
 }
 
 it('volta a entrar pelo cookie depois de a sessao expirar', function () {
@@ -365,6 +385,6 @@ it('revogar acesso invalida tambem o cookie de lembranca', function () {
     app('auth')->forgetGuards();
 
     $this->withCookie(auth('staff')->getRecallerName(), $cookie)
-        ->get('/')
+        ->get('/painel')
         ->assertRedirect(route('entrar'));
 });

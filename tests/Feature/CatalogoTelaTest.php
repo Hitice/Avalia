@@ -140,11 +140,11 @@ it('converte faixa para inteiro venha ela como for do banco', function () {
 it('mostra o catalogo no menu do admin e esconde do vendedor', function () {
     // Assercao no link, e nao na palavra: "Catálogo" tambem aparece no painel
     // de acompanhamento da construcao, que todo mundo ve.
-    admin()->get('/')->assertOk()->assertSee('href="/catalogo"', false);
+    admin()->get('/painel')->assertOk()->assertSee('href="/catalogo"', false);
 
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
-        ->get('/')
+        ->get('/painel')
         ->assertOk()
         ->assertDontSee('href="/catalogo"', false);
 });

@@ -446,3 +446,114 @@
     -webkit-appearance: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Pagina inicial.
+
+   A unica tela publica do sistema, e a unica com animacao. As pecas: a grade
+   de quadradinhos que e a textura da marca (a mesma do lado escuro do login),
+   celulas que acendem sobre ela, e o medidor da logo com o ponteiro varrendo
+   ate a leitura. Tudo em CSS, sem biblioteca: a pagina precisa parecer viva,
+   nao pesada.
+
+   Quem pede menos movimento recebe a versao parada: as animacoes inteiras
+   ficam atras de prefers-reduced-motion.
+   --------------------------------------------------------------------------- */
+
+/* Grade de quadradinhos. A cor sai de uma variavel para o modo escuro so
+   trocar a tinta, sem repetir o desenho. */
+@utility grade-viva {
+  --grade-linha: rgb(70 95 255 / 0.08);
+  background-image:
+    linear-gradient(to right, var(--grade-linha) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grade-linha) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.dark .grade-viva {
+  --grade-linha: rgb(117 146 255 / 0.12);
+}
+
+/* Grade sobre fundo escuro da marca, independente do tema. */
+@utility grade-viva-escura {
+  --grade-linha: rgb(255 255 255 / 0.07);
+  background-image:
+    linear-gradient(to right, var(--grade-linha) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grade-linha) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+/* Celula da grade que acende e apaga. A posicao e o atraso vem de estilo
+   inline, porque sao dados da composicao e nao do desenho. */
+@utility celula-viva {
+  position: absolute;
+  width: 41px;
+  height: 41px;
+  border-radius: 2px;
+  background-color: rgb(70 95 255 / 0.1);
+  animation: celula-acende 5.5s ease-in-out infinite;
+}
+
+.dark .celula-viva {
+  background-color: rgb(117 146 255 / 0.14);
+}
+
+@keyframes celula-acende {
+  0%, 100% { opacity: 0; }
+  12%      { opacity: 1; }
+  30%      { opacity: 0.35; }
+  46%      { opacity: 0; }
+}
+
+/* Entrada dos blocos do topo: sobe um passo e assenta. */
+@utility entra-suave {
+  opacity: 0;
+  animation: entra-suave 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes entra-suave {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* O medidor da marca em movimento: o ponteiro parte do fundo da escala,
+   passa do ponto e assenta na leitura. E a logo fazendo o que ela diz. */
+@utility medidor-ponteiro {
+  transform-origin: 16px 22.5px;
+  animation: medidor-le 2.2s cubic-bezier(0.34, 1.4, 0.64, 1) 0.4s both;
+}
+
+@keyframes medidor-le {
+  from { transform: rotate(-96deg); }
+  to   { transform: rotate(0deg); }
+}
+
+/* O arco da faixa atingida se desenha junto da leitura do ponteiro. */
+@utility medidor-faixa {
+  stroke-dasharray: 19;
+  animation: medidor-faixa 2.2s cubic-bezier(0.34, 1, 0.64, 1) 0.4s both;
+}
+
+@keyframes medidor-faixa {
+  from { stroke-dashoffset: 19; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Flutuacao curta dos cartoes soltos do topo. Amplitude pequena de proposito:
+   e respiracao, nao balanco. */
+@utility flutua {
+  animation: flutua 6s ease-in-out infinite;
+}
+
+@keyframes flutua {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celula-viva { animation: none; opacity: 0.4; }
+  .entra-suave { animation: none; opacity: 1; }
+  .medidor-ponteiro { animation: none; }
+  .medidor-faixa { animation: none; stroke-dashoffset: 0; }
+  .flutua { animation: none; }
+}
