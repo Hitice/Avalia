@@ -112,7 +112,7 @@
             </div>
             <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white dark:to-gray-900"></div>
 
-            <div class="relative mx-auto grid w-full max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
+            <div class="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-8 lg:grid-cols-2 lg:py-12">
                 <div>
                     <span class="entra-suave inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-600 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-400">
                         <span class="size-1.5 rounded-full bg-brand-500"></span>
@@ -147,7 +147,7 @@
                         </x-avalia.botao>
                     </div>
 
-                    <ul class="entra-suave mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 dark:text-gray-400"
+                    <ul class="entra-suave mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 dark:text-gray-400"
                         style="animation-delay: 0.4s">
                         <li class="flex items-center gap-2">
                             <svg class="size-4 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
@@ -177,30 +177,79 @@
                      que parecesse real seria exatamente o vazamento que o
                      produto promete impedir. --}}
                 {{-- O padding de cima e de baixo reserva a faixa onde os chips
-                     flutuam: fora da janela, nunca sobre o conteudo dela. Era o
-                     que acontecia com eles ancorados nos cantos do cartao. --}}
-                <div class="entra-suave relative mx-auto w-full max-w-md pt-14 pb-14" style="animation-delay: 0.25s">
-                    <div class="relative z-10 rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
-                        <div class="flex items-center justify-between border-b border-gray-100 px-6 py-3.5 dark:border-gray-700">
+                     flutuam: fora da janela, nunca sobre o conteudo dela.
+
+                     O carrossel e do Alpine, nao de relogio CSS: setinha
+                     clicada troca a consulta na hora e reinicia o compasso.
+                     Cada slide reaparece via display, o que reinicia as
+                     animacoes de contagem e barra sozinhas; o medidor e
+                     reiniciado a mao, porque vive fora dos slides.
+
+                     Vidro de volta: com os chips fora da janela, a
+                     translucidez sobre a grade viva e contraste, nao ruido. --}}
+                <div class="entra-suave relative mx-auto w-full max-w-[30rem] pt-12" style="animation-delay: 0.25s"
+                     x-data="{
+                         atual: 0,
+                         compasso: null,
+                         iniciar() {
+                             if (! window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                                 this.recomeca();
+                             }
+                         },
+                         recomeca() {
+                             clearInterval(this.compasso);
+                             this.compasso = setInterval(() => this.avanca(1, false), 4200);
+                         },
+                         avanca(passo, manual = true) {
+                             this.atual = (this.atual + passo + 4) % 4;
+                             this.leDeNovo();
+                             if (manual) this.recomeca();
+                         },
+                         vaiPara(indice) {
+                             this.atual = indice;
+                             this.leDeNovo();
+                             this.recomeca();
+                         },
+                         leDeNovo() {
+                             this.$refs.medidor.querySelectorAll('.medidor-ponteiro-vivo, .medidor-faixa-viva').forEach((el) => {
+                                 el.style.animation = 'none';
+                                 void el.offsetWidth;
+                                 el.style.animation = '';
+                             });
+                         },
+                     }" x-init="iniciar()">
+                    <div class="relative z-10 rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-theme-lg dark:border-gray-700 dark:bg-gray-800/70">
+                        <div class="border-b border-gray-100 px-6 py-3.5 dark:border-gray-700">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Painel de consultas</span>
-                            <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-medium text-gray-400 dark:bg-white/10 dark:text-gray-400">
-                                Simulação
-                            </span>
                         </div>
 
-                        <div class="flex flex-col items-center px-6 pt-6">
+                        <div class="flex flex-col items-center px-6 pt-6" x-ref="medidor">
                             <x-avalia.medidor :tamanho="140" vivo />
                         </div>
 
-                        <div class="relative mx-6 mt-4 h-[92px]" aria-hidden="true">
+                        {{-- Setinhas nas duas cores do numero: rosa volta,
+                             azul avanca. --}}
+                        <div class="relative mx-6 mt-4 h-[92px]">
+                            <button type="button" @click="avanca(-1)" aria-label="Consulta anterior"
+                                    class="absolute top-1/2 -left-3 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-theme-pink-500/30 bg-white/80 text-theme-pink-500 shadow-theme-xs transition hover:bg-theme-pink-500 hover:text-white dark:bg-gray-800/80">
+                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <button type="button" @click="avanca(1)" aria-label="Próxima consulta"
+                                    class="absolute top-1/2 -right-3 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-brand-500/30 bg-white/80 text-brand-500 shadow-theme-xs transition hover:bg-brand-500 hover:text-white dark:bg-gray-800/80">
+                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
                             @foreach ([
                                 ['tipo' => 'CNPJ', 'nome' => 'Casa Sul Materiais', 'doc' => '12.345.678/0001-**', 'pontos' => 782, 'faixa' => 78],
                                 ['tipo' => 'CPF', 'nome' => 'Marcelo Silveira', 'doc' => '***.482.916-**', 'pontos' => 645, 'faixa' => 64],
                                 ['tipo' => 'CNPJ', 'nome' => 'Reparo Tecnologia', 'doc' => '98.765.432/0001-**', 'pontos' => 823, 'faixa' => 82],
                                 ['tipo' => 'CPF', 'nome' => 'Helena Duarte', 'doc' => '***.157.204-**', 'pontos' => 597, 'faixa' => 60],
                             ] as $i => $consulta)
-                                <div class="consulta-do-carrossel flex items-center justify-between gap-4"
-                                     style="animation-delay: {{ $i * 4 }}s">
+                                <div x-cloak x-show="atual === {{ $i }}"
+                                     class="consulta-entra absolute inset-0 flex items-center justify-between gap-4 px-7">
                                     <div class="min-w-0">
                                         <span class="rounded-md px-1.5 py-0.5 text-[11px] font-semibold {{ $consulta['tipo'] === 'CPF' ? 'bg-theme-pink-500/10 text-theme-pink-500' : 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400' }}">
                                             {{ $consulta['tipo'] }}
@@ -211,20 +260,23 @@
 
                                     <div class="shrink-0 text-right">
                                         <span class="numero-conta text-4xl font-semibold tabular-nums"
-                                              style="--alvo: {{ $consulta['pontos'] }}; animation-delay: {{ $i * 4 }}s"></span>
+                                              style="--alvo: {{ $consulta['pontos'] }}"></span>
                                         <span class="block text-[11px] text-gray-400 dark:text-gray-500">pontos</span>
                                         <div class="mt-1.5 ml-auto h-1 w-20 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
                                             <div class="barra-bureau barra-cresce h-full rounded-full"
-                                                 style="width: {{ $consulta['faixa'] }}%; animation-delay: {{ $i * 4 }}s"></div>
+                                                 style="width: {{ $consulta['faixa'] }}%"></div>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
 
-                        <div class="mt-2 mb-4 flex items-center justify-center gap-1.5" aria-hidden="true">
+                        <div class="mt-2 mb-4 flex items-center justify-center gap-1.5">
                             @foreach (range(0, 3) as $ponto)
-                                <span class="ponto-do-carrossel" style="animation-delay: {{ $ponto * 4 }}s"></span>
+                                <button type="button" @click="vaiPara({{ $ponto }})"
+                                        aria-label="Ver consulta {{ $ponto + 1 }}"
+                                        class="size-1.5 rounded-full transition"
+                                        :class="atual === {{ $ponto }} ? 'scale-125 bg-brand-500' : 'bg-brand-500/20 hover:bg-brand-500/40'"></button>
                             @endforeach
                         </div>
 
@@ -242,15 +294,13 @@
                         </div>
                     </div>
 
-                    <div class="flutua absolute top-0 right-0 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-right-4 dark:border-gray-700 dark:bg-gray-800">
+                    <span class="absolute top-4 right-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-medium text-gray-400 dark:bg-white/10 dark:text-gray-400">
+                        Simulação
+                    </span>
+
+                    <div class="flutua absolute top-9 left-0 z-20 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-left-4 dark:border-gray-700 dark:bg-gray-800">
                         <span class="etiqueta etiqueta-sucesso">Concluída</span>
                         <span class="text-sm text-gray-600 dark:text-gray-300">Consulta de CNPJ</span>
-                    </div>
-
-                    <div class="flutua absolute bottom-0 left-0 flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-theme-md sm:-left-4 dark:border-gray-700 dark:bg-gray-800"
-                         style="animation-delay: 1.4s">
-                        <span class="etiqueta etiqueta-neutra">Registrada</span>
-                        <span class="text-sm text-gray-600 dark:text-gray-300">Finalidade declarada</span>
                     </div>
                 </div>
             </div>
@@ -258,7 +308,7 @@
 
         {{-- O que a empresa leva. O card e o convite; o popup, a conversa
              inteira. Preco de tabela continua atras do login. --}}
-        <section class="mx-auto w-full max-w-7xl px-6 py-14 lg:py-20">
+        <section class="mx-auto w-full max-w-7xl px-6 py-10 lg:py-14">
             <div class="grid gap-6 md:grid-cols-3">
                 @foreach ($pilares as $chave => $pilar)
                     <button type="button" @click="aberto = '{{ $chave }}'"

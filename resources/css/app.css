@@ -556,20 +556,16 @@
   display: none !important;
 }
 
-/* A barra de faixa cresce junto com a leitura do medidor, uma vez por
-   consulta do ciclo. Escala, e nao largura: anima sem relayout. */
+/* A barra de faixa cresce quando a consulta aparece. Escala, e nao largura:
+   anima sem relayout. */
 @utility barra-cresce {
   transform-origin: left;
-  animation: barra-cresce 16s ease-out infinite;
+  animation: barra-cresce 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
 }
 
 @keyframes barra-cresce {
-  0%       { transform: scaleX(0); }
-  4%       { transform: scaleX(0); }
-  12%      { transform: scaleX(1); }
-  22%      { transform: scaleX(1); }
-  25%      { transform: scaleX(0); }
-  100%     { transform: scaleX(0); }
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 /* O medidor em ciclo: refaz a leitura a cada consulta do carrossel. O ciclo
@@ -598,37 +594,16 @@
   100%     { stroke-dashoffset: 19; }
 }
 
-/* Uma consulta do carrossel do heroi: entra, segura enquanto o medidor le,
-   sai. Quatro por ciclo, o atraso de cada uma vem de estilo inline. */
-@utility consulta-do-carrossel {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  animation: consulta-passa 16s ease-in-out infinite;
+/* Uma consulta do carrossel: desliza ao aparecer. Quem decide qual aparece e
+   o Alpine, que tambem sabe de clique nas setinhas; o CSS so anima a entrada,
+   e por isso a animacao e de disparo unico. */
+@utility consulta-entra {
+  animation: consulta-entra 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes consulta-passa {
-  0%       { opacity: 0; transform: translateX(36px); }
-  3.5%     { opacity: 1; transform: translateX(0); }
-  21.5%    { opacity: 1; transform: translateX(0); }
-  25%      { opacity: 0; transform: translateX(-36px); }
-  100%     { opacity: 0; transform: translateX(-36px); }
-}
-
-/* Pontinho do carrossel: acende no quarto de ciclo da consulta dele. */
-@utility ponto-do-carrossel {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background-color: rgb(70 95 255 / 0.18);
-  animation: ponto-ativo 16s ease infinite;
-}
-
-@keyframes ponto-ativo {
-  0%       { background-color: var(--color-brand-500); transform: scale(1.25); }
-  22%      { background-color: var(--color-brand-500); transform: scale(1.25); }
-  26%      { background-color: rgb(70 95 255 / 0.18); transform: scale(1); }
-  100%     { background-color: rgb(70 95 255 / 0.18); transform: scale(1); }
+@keyframes consulta-entra {
+  from { opacity: 0; transform: translateX(36px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 /* A pontuacao com a cor de bureau, contando do zero ate o alvo enquanto o
@@ -647,7 +622,7 @@
 
 @utility numero-conta {
   counter-reset: pontos var(--pontos);
-  animation: pontos-sobem 16s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: pontos-sobem 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 
   &::after {
     content: counter(pontos);
@@ -659,10 +634,8 @@
 }
 
 @keyframes pontos-sobem {
-  0%, 4%    { --pontos: 0; }
-  14%       { --pontos: var(--alvo); }
-  22%       { --pontos: var(--alvo); }
-  25%, 100% { --pontos: 0; }
+  from { --pontos: 0; }
+  to   { --pontos: var(--alvo); }
 }
 
 @utility barra-bureau {
@@ -691,12 +664,10 @@
   .medidor-faixa-viva { animation: none; stroke-dashoffset: 0; }
   .flutua { animation: none; }
 
-  /* Sem movimento, o carrossel vira a primeira consulta parada. */
-  .consulta-do-carrossel { animation: none; }
+  /* Sem movimento: consulta ja no lugar, numero e barra no valor final. O
+     auto-avanco tambem para (o script le a mesma preferencia); as setinhas
+     continuam funcionando. */
+  .consulta-entra { animation: none; }
   .barra-cresce { animation: none; transform: scaleX(1); }
   .numero-conta { animation: none; --pontos: var(--alvo); }
-  .ponto-do-carrossel { animation: none; }
-  .ponto-do-carrossel:first-of-type { background-color: var(--color-brand-500); }
-  .consulta-do-carrossel ~ .consulta-do-carrossel { display: none; }
-  .consulta-do-carrossel:first-of-type { opacity: 1; }
 }
