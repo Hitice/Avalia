@@ -570,6 +570,18 @@ limite de uso, prioridade, estado e termo aplicável.
 O cálculo registra a campanha aplicada a cada venda ou consulta para que
 alterações futuras não mudem valores históricos.
 
+### A campanha na página pública
+
+A campanha vigente (ativa e dentro do período) veste o banner da página
+pública: o nome vira o selo e a oferta vira o texto do convite. Sem campanha
+vigente, o banner volta ao texto fixo. Encerrar é um clique na lista de
+campanhas, com efeito imediato lá fora, e a trilha registra quem encerrou.
+
+A regra dura da página pública vale também aqui, em execução e não só no
+teste: campanha cujo texto menciona preço, custo, margem ou nome de fornecedor
+não sobe para a vitrine, e o banner fica com o texto fixo. O texto é livre para
+a administração, mas a vitrine não publica o que a seção 7 manda guardar.
+
 ## 11. Atendimento e documentos
 
 ### Pedidos de contato da página pública
@@ -930,7 +942,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 435 testes.
+A suíte tem 441 testes.
 
 ### Convite de acesso e senha
 

@@ -475,9 +475,12 @@
                     @endforeach
                 </div>
 
+                {{-- A campanha vigente veste o banner; sem campanha, texto fixo.
+                     O controller so entrega campanha que passou no filtro da
+                     vitrine: preco e fornecedor nao sobem para a pagina publica. --}}
                 <span class="relative inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white/70 px-3 py-1 text-xs font-medium text-gray-700 dark:border-white/20 dark:bg-white/10 dark:text-white">
                     <span class="size-1.5 animate-pulse rounded-full bg-success-500"></span>
-                    Campanha de adesão aberta
+                    {{ $campanha->nome ?? 'Campanha de adesão aberta' }}
                 </span>
 
                 <h2 class="mx-auto mt-5 max-w-2xl text-3xl font-semibold text-gray-800 sm:text-4xl dark:text-white">
@@ -485,9 +488,7 @@
                 </h2>
 
                 <p class="mx-auto mt-4 max-w-xl text-gray-600 dark:text-gray-400">
-                    Novos clientes contam com condições especiais de adesão e uma
-                    proposta sob medida para o volume da sua empresa. Deixe seu contato
-                    e um consultor retorna ainda hoje.
+                    {{ $campanha->oferta ?? 'Novos clientes contam com condições especiais de adesão e uma proposta sob medida para o volume da sua empresa. Deixe seu contato e um consultor retorna ainda hoje.' }}
                 </p>
 
                 <button type="button" @click="aberto = 'campanha'"

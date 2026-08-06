@@ -35,4 +35,16 @@ class CampanhaController extends Controller
 
         return redirect()->route('campanhas.index')->with('ok', 'Campanha criada.');
     }
+
+    /**
+     * Liga e desliga sem editar: a campanha vigente aparece na pagina publica,
+     * entao encerrar precisa ser um clique, e nao um formulario.
+     */
+    public function alternar(Campanha $campanha)
+    {
+        $campanha->update(['ativa' => ! $campanha->ativa]);
+        Auditar::registrar($campanha->ativa ? 'campanha.reaberta' : 'campanha.encerrada', $campanha);
+
+        return back()->with('ok', $campanha->ativa ? 'Campanha reaberta.' : 'Campanha encerrada.');
+    }
 }

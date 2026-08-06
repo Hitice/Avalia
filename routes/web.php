@@ -198,6 +198,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::get('/', [CampanhaController::class, 'index'])->name('index');
         Route::get('/nova', [CampanhaController::class, 'criar'])->name('criar');
         Route::post('/', [CampanhaController::class, 'salvar'])->name('salvar');
+        // A vigente aparece na pagina publica: encerrar e um clique.
+        Route::post('/{campanha}/alternar', [CampanhaController::class, 'alternar'])->name('alternar');
     });
 
     // Catalogo mostra preco de venda, custo do fornecedor e margem. Vendedor

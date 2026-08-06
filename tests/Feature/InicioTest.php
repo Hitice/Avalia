@@ -66,6 +66,60 @@ it('recolhe o interesse da campanha por formulario, e nao por URL de conversa', 
         ->toContain(rawurlencode('Quero contratar a Avalia'));
 });
 
+it('veste o banner com a campanha vigente', function () {
+    App\Models\Campanha::create([
+        'nome' => 'Adesão de agosto',
+        'oferta' => 'Taxa de adesão facilitada para quem contratar até o fim do mês.',
+        'inicio' => today()->subDay(),
+        'fim' => today()->addDays(20),
+        'ativa' => true,
+    ]);
+
+    $this->get('/')->assertOk()
+        ->assertSee('Adesão de agosto')
+        ->assertSee('Taxa de adesão facilitada para quem contratar até o fim do mês.');
+});
+
+it('ignora campanha desligada ou fora do periodo', function () {
+    App\Models\Campanha::create([
+        'nome' => 'Campanha desligada',
+        'oferta' => 'Não deveria aparecer.',
+        'inicio' => today()->subDay(),
+        'fim' => null,
+        'ativa' => false,
+    ]);
+    App\Models\Campanha::create([
+        'nome' => 'Campanha encerrada',
+        'oferta' => 'Também não.',
+        'inicio' => today()->subMonths(2),
+        'fim' => today()->subMonth(),
+        'ativa' => true,
+    ]);
+
+    $this->get('/')->assertOk()
+        ->assertDontSee('Campanha desligada')
+        ->assertDontSee('Campanha encerrada')
+        ->assertSee('Campanha de adesão aberta');
+});
+
+it('segura fora da vitrine campanha cujo texto vaza preco ou fornecedor', function () {
+    // A regra da pagina publica precisa valer em execucao, nao so no teste:
+    // campanha e texto livre da administracao, e um "adesao por R$ 99" bem
+    // intencionado nao pode furar a vitrine.
+    App\Models\Campanha::create([
+        'nome' => 'Promoção de adesão',
+        'oferta' => 'Adesão por R$ 99 para novos clientes.',
+        'inicio' => today()->subDay(),
+        'fim' => null,
+        'ativa' => true,
+    ]);
+
+    $html = $this->get('/')->assertOk()->getContent();
+
+    expect($html)->not->toContain('R$')
+        ->toContain('Campanha de adesão aberta');
+});
+
 it('leva cada sessao para o proprio painel sem mostrar a apresentacao', function () {
     $staff = Staff::factory()->admin()->create();
     $this->actingAs($staff, 'staff')->get('/')->assertRedirect(route('painel'));

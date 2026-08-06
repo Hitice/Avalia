@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campanha;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -28,6 +29,14 @@ class InicioController extends Controller
             return redirect()->route('empresa.painel');
         }
 
-        return view('paginas.inicio');
+        // A campanha vigente veste o banner; sem campanha, o texto fixo. A
+        // primeira que passa no filtro da vitrine: texto com preco ou
+        // fornecedor nao sobe para a pagina publica.
+        return view('paginas.inicio', [
+            'campanha' => Campanha::vigente()
+                ->orderByDesc('inicio')
+                ->get()
+                ->first(fn (Campanha $c) => $c->seguraParaVitrine()),
+        ]);
     }
 }
