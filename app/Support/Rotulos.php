@@ -100,6 +100,9 @@ final class Rotulos
         'cobranca.criada' => 'Cobrança emitida',
         'cliente.inadimplente' => 'Empresa suspensa por débito',
         'empresa.removida' => 'Empresa removida',
+        'empresa.excluida' => 'Empresa excluída em definitivo',
+        'empresa.situacao' => 'Situação da empresa alterada',
+        'equipe.excluida' => 'Cadastro da equipe excluído em definitivo',
         'empresa.restaurada' => 'Empresa restaurada',
         'adesao.atualizada' => 'Adesão atualizada',
         'equipe.criada' => 'Pessoa cadastrada na equipe',
@@ -169,6 +172,8 @@ final class Rotulos
         'quantidade' => 'Quantidade',
         'parcelas' => 'Parcelas',
         'ate' => 'Até',
+        'de' => 'De',
+        'para' => 'Para',
         'ok' => 'Resultado',
     ];
 

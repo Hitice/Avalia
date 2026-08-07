@@ -205,8 +205,18 @@ class EmpresaController extends Controller
     {
         $this->soDaPropriaCarteira($empresa);
 
+        $situacaoAntes = $empresa->situacao;
         $empresa->update($this->comOsCamposQuePode($request->dados(), $empresa));
         $this->gravarAdesao($empresa, $request);
+
+        // Mudar situacao e decisao operacional (bloqueio, baixa, reativacao):
+        // entra na trilha com o antes e o depois, ja em lingua de gente.
+        if ($empresa->situacao !== $situacaoAntes) {
+            Auditar::registrar('empresa.situacao', $empresa, [
+                'de' => \App\Support\Rotulos::empresa($situacaoAntes),
+                'para' => \App\Support\Rotulos::empresa($empresa->situacao),
+            ]);
+        }
 
         // Situacao que fecha o acesso derruba a sessao aberta na hora, senao a
         // empresa continua consultando ate o cookie expirar.
@@ -256,6 +266,35 @@ class EmpresaController extends Controller
         return redirect()
             ->route('empresas.index')
             ->with('ok', "Empresa '{$removida->razao_social}' restaurada.");
+    }
+
+    /**
+     * Exclusao definitiva, so para empresa ja removida e sem historico.
+     *
+     * A regra da casa continua: onde ha historico (consulta, fatura, aceite)
+     * nao existe exclusao, existe desativacao. O que este botao resolve e o
+     * cadastro errado, de teste ou duplicado, que nunca operou e nao precisa
+     * viver para sempre na lista de removidas.
+     */
+    public function excluir(int $empresa)
+    {
+        $removida = Cliente::onlyTrashed()->findOrFail($empresa);
+
+        $temHistorico = $removida->faturas()->exists()
+            || $removida->consultas()->exists()
+            || $removida->aceitesDocumentos()->exists();
+
+        if ($temHistorico) {
+            return back()->with('erro', 'Esta empresa tem consultas, faturas ou aceites: o histórico é dela e não se apaga. Mantenha como removida.');
+        }
+
+        // O rotulo congelado na trilha e o que sobra depois do forceDelete.
+        Auditar::registrar('empresa.excluida', $removida, ['razao_social' => $removida->razao_social]);
+        $removida->operadores()->forceDelete();
+        $removida->forceDelete();
+
+        return redirect()->route('empresas.index', ['removidas' => 1])
+            ->with('ok', "Empresa '{$removida->razao_social}' excluída em definitivo.");
     }
 
     public function ficha(Cliente $empresa)

@@ -71,10 +71,21 @@
                             </td>
                             <td class="px-5 py-4 text-right">
                                 @if ($removidas)
-                                    <form method="POST" action="{{ route('empresas.restaurar', $empresa->id) }}">
-                                        @csrf
-                                        <x-avalia.botao variante="secundario" tamanho="sm">Restaurar</x-avalia.botao>
-                                    </form>
+                                    <div class="inline-flex items-center gap-2">
+                                        <form method="POST" action="{{ route('empresas.restaurar', $empresa->id) }}" class="inline">
+                                            @csrf
+                                            <x-avalia.botao variante="secundario" tamanho="sm">Restaurar</x-avalia.botao>
+                                        </form>
+                                        {{-- Definitivo, so sem historico: dois cliques de proposito. --}}
+                                        <form method="POST" action="{{ route('empresas.excluir', $empresa->id) }}" class="inline"
+                                              x-data="{ armado: false }"
+                                              @submit="if (! armado) { $event.preventDefault(); armado = true; setTimeout(() => armado = false, 3500) }">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-avalia.botao variante="secundario" tamanho="sm" x-show="! armado">Excluir de vez</x-avalia.botao>
+                                            <x-avalia.botao tamanho="sm" x-cloak x-show="armado">Confirmar exclusão</x-avalia.botao>
+                                        </form>
+                                    </div>
                                 @else
                                     <x-avalia.botao variante="secundario" tamanho="sm"
                                                     :href="route('empresas.ficha', $empresa)">Ficha</x-avalia.botao>

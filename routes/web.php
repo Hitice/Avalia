@@ -135,6 +135,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])
                 ->middleware('financeiro')->name('fechar');
             Route::post('/{empresa}/restaurar', [EmpresaController::class, 'restaurar'])->name('restaurar');
+            // Definitivo so para removida sem historico: cadastro de teste.
+            Route::delete('/{empresa}/excluir', [EmpresaController::class, 'excluir'])->name('excluir');
 
             // Operadores: as pessoas que consultam em nome da empresa, cada
             // uma com conta propria. So a administracao cria e desativa.
@@ -198,6 +200,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // para a pessoa. Restaurar desfaz.
         Route::delete('/{membro}', [EquipeController::class, 'remover'])->name('remover');
         Route::post('/{id}/restaurar', [EquipeController::class, 'restaurar'])->name('restaurar');
+        Route::delete('/{id}/excluir', [EquipeController::class, 'excluir'])->name('excluir');
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.

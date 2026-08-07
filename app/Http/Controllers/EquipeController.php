@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StaffRequest;
 use App\Mail\ConviteDeAcesso;
+use App\Models\Cliente;
 use App\Models\Staff;
 use App\Support\Auditar;
 use App\Support\Convite;
@@ -49,6 +50,31 @@ class EquipeController extends Controller
         Auditar::registrar('equipe.removida', $membro, $this->rastreavel($membro));
 
         return redirect()->route('equipe.index')->with('ok', "{$membro->nome} removido da equipe.");
+    }
+
+    /**
+     * Exclusao definitiva, so para quem ja foi removido e nunca operou.
+     *
+     * Vendedor com carteira ou fatura fica como removido para sempre: comissao
+     * e historico apontam para ele. O botao existe para o cadastro de teste ou
+     * duplicado.
+     */
+    public function excluir(int $id)
+    {
+        $removido = Staff::onlyTrashed()->findOrFail($id);
+
+        $temHistorico = Cliente::withTrashed()->where('vendedor_id', $removido->id)->exists()
+            || \App\Models\Fatura::where('vendedor_id', $removido->id)->exists()
+            || \App\Models\Auditoria::where('staff_id', $removido->id)->exists();
+
+        if ($temHistorico) {
+            return back()->with('erro', 'Esta pessoa tem carteira, faturas ou ações registradas: o histórico aponta para ela e não se apaga. Mantenha como removida.');
+        }
+
+        Auditar::registrar('equipe.excluida', $removido, ['email' => $removido->email]);
+        $removido->forceDelete();
+
+        return back()->with('ok', "Cadastro de '{$removido->nome}' excluído em definitivo.");
     }
 
     public function restaurar(int $id)
