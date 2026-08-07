@@ -395,6 +395,15 @@
         {{-- O que a empresa leva. O card e o convite; o popup, a conversa
              inteira. Preco de tabela continua atras do login. --}}
         <section class="mx-auto w-full max-w-[87rem] px-6 py-10 lg:py-14">
+            <div class="mb-8">
+                <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
+                    Inteligência de risco
+                </span>
+                <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">
+                    Soluções para diferentes decisões
+                </h2>
+            </div>
+
             <div class="grid gap-6 md:grid-cols-3">
                 @foreach ($pilares as $chave => $pilar)
                     <button type="button" @click="aberto = '{{ $chave }}'"
