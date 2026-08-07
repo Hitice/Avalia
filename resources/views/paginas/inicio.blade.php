@@ -31,17 +31,19 @@
             ],
             'icone' => 'M3 17l5-5 4 4 8-9M16 7h5v5',
         ],
-        'fraude' => [
-            'titulo' => 'Evite a fraude',
-            'resumo' => 'Confirme quem está do outro lado do negócio, do CPF ao veículo, antes de o prejuízo entrar pela porta.',
-            'detalhe' => 'O golpe chega bem vestido. O custo de conferir é o de uma consulta; o de não conferir é o prejuízo inteiro.',
+        // Publico proprio, separado do credito: quem compra e vende veiculo
+        // quer saber do carro, nao do score de ninguem.
+        'veicular' => [
+            'titulo' => 'Conheça o veículo',
+            'resumo' => 'Para quem compra e vende veículos: o histórico completo pela placa ou pelo chassi, antes de fechar negócio.',
+            'detalhe' => 'O carro chega bonito, o problema vem no documento. Leilão, sinistro e gravame aparecem na consulta antes de aparecerem no prejuízo.',
             'itens' => [
-                'Situação cadastral de CPF e CNPJ',
-                'Confirmação dos dados da empresa',
-                'Procedência veicular completa',
-                'Resposta antes de o negócio fechar',
+                'Passagem por leilão e sinistro',
+                'Gravame e restrição financeira',
+                'Histórico do documento e do chassi',
+                'Consulta pela placa ou pelo chassi',
             ],
-            'icone' => 'M12 3l7 3v5c0 4.5-3 8.6-7 10-4-1.4-7-5.5-7-10V6l7-3zM9.5 12l1.8 1.8 3.2-3.6',
+            'icone' => 'M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5M7.5 16h.01M16.5 16h.01',
         ],
         'preco' => [
             'titulo' => 'Pague pelo que usar',
@@ -64,7 +66,7 @@
          x-data="{
              aberto: null,
              rolou: false,
-             pilares: ['dados', 'fraude', 'preco'],
+             pilares: ['dados', 'veicular', 'preco'],
              arrasto: 0,
              inicioX: null,
              idxPilar() { return Math.max(0, this.pilares.indexOf(this.aberto)) },
@@ -199,8 +201,8 @@
                          que a Lei 12.414 e o art. 7, X, da LGPD sustentam. --}}
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Decidir crédito exige precisão. Score, restrições, protestos e
-                        procedência veicular numa única consulta.
+                        Decidir crédito exige precisão. Score, restrições e protestos
+                        numa única consulta.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
