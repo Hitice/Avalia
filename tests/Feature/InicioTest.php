@@ -32,7 +32,7 @@ it('vende pesquisa de score com o aviso de uso responsavel, sem termo nublado', 
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->toContain('Pesquisa de score')
-        ->toContain('vender a prazo')
+        ->toContain('venda a prazo')
         ->toContain('Lei 12.414/2011')
         ->toContain('não concede empréstimos')
         // As duas grafias (maiuscula e minuscula) caem na mesma rede.

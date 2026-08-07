@@ -188,8 +188,8 @@
 
                     <h1 class="entra-suave mt-5 text-4xl leading-tight font-semibold tracking-tight sm:text-5xl"
                         style="animation-delay: 0.1s">
-                        Venda a prazo com a<br>
-                        <span class="text-brand-500">decisão informada.</span>
+                        Venda a prazo<br>
+                        <span class="text-brand-500">de olhos abertos.</span>
                     </h1>
 
                     {{-- A promessa vende decisao, nao acesso a dado, e amarra a
@@ -198,8 +198,8 @@
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
                         Score, restrições e procedência veicular em um painel só. Em
-                        segundos, sua empresa sabe quem está do outro lado antes de
-                        vender a prazo. Informação nossa, decisão sua.
+                        segundos, você sabe quem está do outro lado do negócio e fecha
+                        o parcelado com mais confiança. A decisão é sempre sua.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
