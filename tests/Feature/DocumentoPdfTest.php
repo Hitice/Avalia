@@ -26,6 +26,35 @@ function documentoVigente(array $extra = []): DocumentoLegal
     ]);
 }
 
+it('recebe a empresa nos documentos enquanto ha aceite pendente', function () {
+    // O contrato e a primeira tela: o aceite nao espera a pessoa achar o menu.
+    $empresa = empresaComPlano(['email' => 'fin@pendente.com.br']);
+    $documento = documentoVigente();
+
+    $this->post('/entrar', ['email' => 'fin@pendente.com.br', 'senha' => 'senha-valida-123'])
+        ->assertRedirect(route('empresa.documentos'));
+
+    // Aceito o documento, a proxima entrada volta ao painel.
+    comoEmpresa($empresa)->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento));
+
+    $this->flushSession();
+    app('auth')->forgetGuards();
+
+    $this->post('/entrar', ['email' => 'fin@pendente.com.br', 'senha' => 'senha-valida-123'])
+        ->assertRedirect(route('empresa.painel'));
+});
+
+it('nao mostra o texto do documento na tela, so o PDF', function () {
+    // Uma leitura so: o PDF que fica de evidencia e o que se le e aceita.
+    // Texto na tela e PDF poderiam divergir aos olhos de quem aceita.
+    $empresa = empresaComPlano();
+    documentoVigente();
+
+    comoEmpresa($empresa)->get(route('empresa.documentos'))->assertOk()
+        ->assertSee('Ler documento (PDF)')
+        ->assertDontSee('A Avalia presta serviços de consulta à contratante.');
+});
+
 it('entrega o documento em PDF valido para a empresa', function () {
     $empresa = empresaComPlano();
     $documento = documentoVigente();

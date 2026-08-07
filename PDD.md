@@ -676,6 +676,13 @@ O que já está implementado desta seção:
 - **Comprovante de aceite em PDF**: quem aceitou, quando, de onde (IP e
   navegador), o hash aceito e a íntegra do texto, disponível para a empresa a
   qualquer momento depois do aceite.
+- **Uma leitura só, o PDF**: a tela de documentos lista e aponta para o PDF,
+  sem duplicar o texto inline. O que se lê é o mesmo arquivo que fica de
+  evidência, então não há como tela e evidência divergirem.
+- **O aceite é a porta de entrada**: empresa com documento obrigatório
+  pendente cai na tela de documentos ao entrar, antes de qualquer outro
+  destino. Consultar já era bloqueado sem aceite; agora a pendência também não
+  espera a pessoa achar o menu.
 
 ## 12. Painéis, indicadores e BI
 
@@ -959,7 +966,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 446 testes.
+A suíte tem 448 testes.
 
 ### Convite de acesso e senha
 

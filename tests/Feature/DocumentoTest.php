@@ -20,10 +20,12 @@ it('mostra o documento e preserva a prova do aceite da empresa', function () {
     ]);
 
     $sessao = $this->actingAs($cliente, 'empresa')->withSession(['versao_empresa' => $cliente->sessao_versao]);
+    // A leitura e o PDF, o mesmo arquivo que fica de evidencia: a tela lista
+    // e aponta, nao duplica o texto.
     $sessao->get(route('empresa.documentos'))
         ->assertOk()
         ->assertSee('Termo de confidencialidade')
-        ->assertSee('Texto do termo para leitura antes do aceite.');
+        ->assertSee(route('empresa.documentos.pdf', $documento));
 
     $sessao->post(route('empresa.documentos.aceitar', $documento), aceiteValido($documento))
         ->assertRedirect()

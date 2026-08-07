@@ -104,6 +104,12 @@ class LoginController extends Controller
 
         $conta->forceFill(['ultimo_acesso_em' => now()])->saveQuietly();
 
+        // Contrato pendente e a primeira tela, antes de qualquer destino
+        // guardado: o aceite nao espera a pessoa achar o menu Documentos.
+        if ($conta instanceof \App\Models\Cliente && ! $conta->documentosObrigatoriosAceitos()) {
+            return redirect()->route('empresa.documentos');
+        }
+
         return redirect()->intended($this->destinoDe($guarda));
     }
 

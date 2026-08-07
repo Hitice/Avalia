@@ -24,16 +24,15 @@
                             <div class="max-w-3xl">
                                 <p class="font-medium text-gray-800 dark:text-white/90">{{ $documento->titulo }}</p>
                                 <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Versão {{ $documento->versao }}</p>
-                                <details class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                    <summary class="cursor-pointer text-brand-600 dark:text-brand-400">Ler documento</summary>
-                                    <div class="mt-2 whitespace-pre-line">{{ $documento->conteudo }}</div>
-                                </details>
                             </div>
 
+                            {{-- Uma leitura so, o PDF: e o mesmo arquivo que
+                                 fica de evidencia, entao o que se le e o que
+                                 se aceita. --}}
                             <div class="flex items-center gap-2">
                                 <x-avalia.botao variante="secundario" tamanho="sm"
                                                 :href="route('empresa.documentos.pdf', $documento)" target="_blank">
-                                    PDF
+                                    Ler documento (PDF)
                                 </x-avalia.botao>
 
                                 @if (in_array($documento->id, $aceites, true))
