@@ -89,8 +89,10 @@
              sumia na pagina. --}}
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95 dark:shadow-[0_6px_18px_rgb(0_0_0/0.45)]">
             <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
-                <a href="{{ route('inicio') }}" aria-label="Início">
-                    <x-avalia.logotipo :tamanho="40" one />
+                {{-- flex no proprio link: ancora inline alinha por baseline
+                     e deixava a marca fora do prumo dos botoes. --}}
+                <a href="{{ route('inicio') }}" aria-label="Início" class="flex items-center">
+                    <x-avalia.logotipo :tamanho="44" texto="1.65rem" one />
                 </a>
 
                 <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14 min-[1550px]:pr-0">

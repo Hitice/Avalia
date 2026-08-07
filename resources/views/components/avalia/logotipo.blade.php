@@ -1,5 +1,8 @@
 @props([
     'tamanho' => 32,
+    // Tamanho do wordmark. Sem ele, vale o padrao fixo: mexer na proporcao
+    // global mudaria toda tela que ja usa a marca.
+    'texto' => null,
     'somenteIcone' => false,
     // Sobre fundo escuro da marca o nome sai branco direto, sem depender do
     // tema da pagina. Antes isso era um seletor arbitrario no ponto de uso,
@@ -42,7 +45,8 @@
              esse problema. --}}
         {{-- No lockup Avaliaone, a palavra Avalia sai no azul da marca sobre
              tema claro; no escuro continua clara para nao sumir no fundo. --}}
-        <span class="text-[1.35rem] leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : ($one ? 'text-brand-600 dark:text-white/90' : 'text-gray-800 dark:text-white/90') }}">
+        <span class="leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : ($one ? 'text-brand-600 dark:text-white/90' : 'text-gray-800 dark:text-white/90') }}"
+              style="font-size: {{ $texto ?? '1.35rem' }}">
             Avalia{{ '' }}<span class="{{ $one ? 'ml-1' : '' }} text-gray-300 dark:text-gray-400">{{ $one ? 'one' : '' }}</span>
         </span>
     @endunless
