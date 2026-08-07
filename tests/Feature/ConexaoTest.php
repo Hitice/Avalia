@@ -108,6 +108,51 @@ it('testa a conexao com o Asaas e grava o resultado', function () {
         ->and($conexao->testada_em)->not->toBeNull();
 });
 
+it('monta a URL da Boa Vista com o host do ambiente e o caminho do escopo', function () {
+    // O escopo E o endereco do endpoint, mas escrito sempre na forma de
+    // producao: o caminho sai dele e o host sai do ambiente escolhido.
+    Conexao::create([
+        'fornecedor' => 'boa-vista',
+        'ambiente' => 'sandbox',
+        'credenciais' => [
+            'client_id' => 'cliente',
+            'client_secret' => 'segredo',
+            'escopo_scpc' => 'https://api.equifax.com/business/scpc-gateway/v1',
+        ],
+        'ativa' => true,
+    ]);
+
+    $cliente = app(App\Services\BoaVistaClient::class);
+    $escopo = 'https://api.equifax.com/business/scpc-gateway/v1';
+
+    expect($cliente->url($escopo, '/reports'))
+        ->toBe('https://api.sandbox.equifax.com/business/scpc-gateway/v1/reports')
+        ->and($cliente->url($escopo))
+        ->toBe('https://api.sandbox.equifax.com/business/scpc-gateway/v1');
+});
+
+it('prova a credencial da Boa Vista pedindo token no OAuth', function () {
+    Conexao::create([
+        'fornecedor' => 'boa-vista',
+        'ambiente' => 'sandbox',
+        'credenciais' => [
+            'client_id' => 'cliente',
+            'client_secret' => 'segredo',
+            'escopo_scpc' => 'https://api.equifax.com/business/scpc-gateway/v1',
+        ],
+        'ativa' => true,
+    ]);
+
+    Http::fake(['api.sandbox.equifax.com/v2/oauth/token' => Http::response(['access_token' => 'tok', 'expires_in' => 3600])]);
+
+    admin()->post(route('conexoes.testar', 'boa-vista'))->assertSessionHas('ok');
+
+    // Basic no header e escopo no corpo, como o fornecedor documenta.
+    Http::assertSent(fn ($r) => str_starts_with($r->header('Authorization')[0] ?? '', 'Basic ')
+        && str_contains($r->body(), 'grant_type=client_credentials')
+        && str_contains(urldecode($r->body()), 'scpc-gateway'));
+});
+
 it('valida o webhook com o token guardado na conexao', function () {
     conexaoAsaas();
 

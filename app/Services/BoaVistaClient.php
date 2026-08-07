@@ -84,6 +84,34 @@ class BoaVistaClient
         }
     }
 
+    /**
+     * A URL de um recurso do produto.
+     *
+     * O escopo E o endereco do endpoint: o guia do fornecedor e explicito de
+     * que o token pedido com um escopo serve para chamar exatamente aquela
+     * URL. Entao o CAMINHO sai do escopo, e o HOST sai do ambiente escolhido,
+     * porque o escopo e sempre escrito na forma de producao mesmo no sandbox.
+     * Sobra para o operador informar so o recurso final, que e o que a
+     * referencia da API de cada produto documenta.
+     */
+    public function url(string $escopo, string $recurso = ''): string
+    {
+        $caminho = rtrim((string) parse_url($escopo, PHP_URL_PATH), '/');
+        $recurso = $recurso === '' ? '' : '/'.ltrim($recurso, '/');
+
+        return $this->base().$caminho.$recurso;
+    }
+
+    /** Consulta autenticada num recurso do produto, ja com o token do escopo. */
+    public function consultar(string $escopo, string $recurso, array $corpo): \Illuminate\Http\Client\Response
+    {
+        return Http::withToken($this->token($escopo))
+            ->acceptJson()
+            ->asJson()
+            ->timeout(30)
+            ->post($this->url($escopo, $recurso), $corpo);
+    }
+
     private function base(): string
     {
         return Conexao::urlBase('boa-vista') ?? 'https://api.sandbox.equifax.com';

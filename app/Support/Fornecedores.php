@@ -83,8 +83,8 @@ final class Fornecedores
                         'ajuda' => 'Copie da app no portal, em Equifax Boa Vista API SCPC. Termina em /business/scpc-gateway/v1.'],
                     ['chave' => 'escopo_relatorios', 'rotulo' => 'Escopo dos Relatórios', 'secreto' => false,
                         'ajuda' => 'Copie da app no portal, em Equifax Boa Vista API Reports. Termina em /business/reporting-orchestrator/v1.'],
-                    ['chave' => 'caminho_consulta', 'rotulo' => 'Caminho da consulta', 'secreto' => false,
-                        'ajuda' => 'O recurso depois do escopo, conforme a API Reference do seu contrato. Em branco, a conexão só valida a credencial.'],
+                    ['chave' => 'recurso_consulta', 'rotulo' => 'Recurso da consulta', 'secreto' => false,
+                        'ajuda' => 'Só o final, como /reports. O resto do endereço sai do escopo e do ambiente. Está na API Reference, dentro da página do produto.'],
                 ],
                 // Os tres ambientes do portal. A credencial e propria de cada
                 // um: a de sandbox nao vale em producao.
