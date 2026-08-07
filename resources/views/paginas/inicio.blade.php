@@ -60,8 +60,10 @@
 
 @section('content')
     <div class="min-h-screen bg-white text-gray-800 dark:bg-gray-900 dark:text-white/90"
+         @scroll.window.passive="rolou = window.scrollY > 80"
          x-data="{
              aberto: null,
+             rolou: false,
              pilares: ['dados', 'fraude', 'preco'],
              arrasto: 0,
              inicioX: null,
@@ -416,17 +418,23 @@
             </div>
         </section>
 
-        <div class="mx-auto -mt-2 flex w-full max-w-[87rem] justify-end px-6 pb-4">
-            <a href="#campanha" aria-label="Rolar até a campanha"
-               class="balanca transition hover:scale-125">
+        {{-- A seta de rolagem mora no primeiro ecra, fixa no rodape da
+             janela: indicador que so aparece depois de rolar nao indica nada.
+             Some na primeira rolagem, porque ja cumpriu o papel. O balanco
+             fica num span interno para a animacao nao brigar com o
+             translate-x do centro. --}}
+        <a href="#campanha" aria-label="Rolar até a campanha" x-cloak x-show="! rolou"
+           x-transition.opacity.duration.500ms
+           class="fixed bottom-5 left-1/2 z-40 -translate-x-1/2">
+            <span class="balanca block transition hover:scale-125">
                 <svg class="size-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
                     <defs><linearGradient id="seta-baixo" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse">
                         <stop offset="0" stop-color="var(--color-theme-pink-500)"/><stop offset="1" stop-color="var(--color-brand-500)"/>
                     </linearGradient></defs>
                     <path stroke="url(#seta-baixo)" stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                 </svg>
-            </a>
-        </div>
+            </span>
+        </a>
 
         {{-- Campanha de adesao: o convite direto, no fundo escuro da marca. --}}
         <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-16 lg:pb-24">
@@ -569,7 +577,10 @@
                     </svg>
                 </button>
 
-                <div class="entra-popup touch-pan-y select-none"
+                {{-- O recorte do trilho: sem ele o card vizinho fica inteiro
+                     visivel ao lado. A margem negativa com o mesmo padding
+                     preserva a sombra do card dentro da area recortada. --}}
+                <div class="entra-popup -m-6 touch-pan-y overflow-hidden p-6 select-none"
                      @pointerdown="comecaArrasto($event)" @pointermove="moveArrasto($event)"
                      @pointerup="soltaArrasto()" @pointercancel="soltaArrasto()" @pointerleave="soltaArrasto()">
                     <div class="flex items-stretch gap-8"
