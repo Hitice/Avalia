@@ -362,22 +362,17 @@ O administrador configura bases e produtos disponíveis. Vendedores acessam
 somente as bases liberadas a eles. O cliente consome serviços do plano sem saber
 qual base realizou a pesquisa.
 
-SCR e Veicular têm catálogo e permissões implementados desde já. A trava por
-serviço é operada na tela de Serviços: enquanto marcada, o serviço aparece no
-catálogo e pode ser precificado, mas não entra em plano nenhum.
+SCR e Veicular têm catálogo e permissões implementados desde já. Cada base é
+representada como serviço com código, descrição e preços por faixa, e o fornecedor
+de SCR será integrado por um conector dedicado quando estiver homologado.
 
-Os serviços de SCR estão liberados no catálogo, e o arranjo jurídico foi
-confirmado em 05/08/2026. Isso os torna vendáveis; **não** os torna consultáveis,
-porque o conector do fornecedor ainda não existe.
+O catálogo define os serviços de SCR e permite que sejam precificados. A execução
+das consultas depende da disponibilidade do conector e da homologação jurídica
+correspondente.
 
-Estar seguro de que se pode consultar é diferente de conseguir demonstrar, dois
-anos depois, que aquela consulta específica tinha autorização. O que se guarda
-não é a permissão de operar, é a **evidência de cada uso**. Por isso, quando o
-conector de SCR for construído, duas coisas são obrigatórias no próprio conector,
-e não na trava do catálogo:
-
-- **prova da autorização vinculada à consulta**, guardada junto dela;
-- **trilha específica** para consultas de SCR, separada da trilha geral.
+Para consultas de SCR, a autorização deve ser documentada e armazenada junto à
+consulta, e a trilha de auditoria deve ser claramente identificável para esse
+fluxo.
 
 O SCR recebe nome comercial mascarado.
 
@@ -1310,7 +1305,7 @@ contínua desde o primeiro dia.
 
 > Transcrito da tabela de crédito do fornecedor (`temp/`). Valores unitários
 > em reais, por faixa de consumo mínimo contratada. Provisórios até homologação
-> comercial. Serviços marcados com `*` dependem de liberação do SCR.
+> comercial.
 
 | Serviço | Sem mínimo | 75 | 200 | 500 | 900 | 1.500 | 5.000 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -1325,12 +1320,12 @@ contínua desde o primeiro dia.
 | Relatório Score Positivo + filtros - Base III | 9,93 | 9,44 | 8,97 | 8,52 | 8,09 | 7,69 | 6,94 |
 | Risco de Crédito Top PF/PJ + filtros - Base I | 20,95 | 19,69 | 18,51 | 17,40 | 16,36 | 15,38 | 13,59 |
 | Relatório Top PF/PJ + filtros - Base I e III | 28,57 | 27,43 | 26,33 | 25,28 | 24,27 | 23,30 | 21,25 |
-| Relatório Top + SCR Bacen - Base I e III * | 44,50 | 40,94 | 37,67 | 34,65 | 31,88 | 29,33 | 26,99 |
+| Relatório Top + SCR Bacen - Base I e III | 44,50 | 40,94 | 37,67 | 34,65 | 31,88 | 29,33 | 26,99 |
 | Maxi Top PF/PJ + score e filtros - Base I e II | 28,15 | 27,03 | 25,95 | 24,91 | 23,91 | 22,96 | 20,94 |
 | Relatório Prime Básica + cartórios e CCF Bacen - Base I, II e III | 26,70 | 25,10 | 23,59 | 22,18 | 20,85 | 19,60 | 17,09 |
 | Relatório Prime Completa + filtros - Base I, II e III | 37,05 | 35,20 | 33,44 | 31,77 | 30,18 | 28,67 | 25,60 |
-| Relatório Prime Completa + SCR Bacen - Base I, II e III * | 52,89 | 48,66 | 44,77 | 41,18 | 37,89 | 34,86 | 32,42 |
-| SCR Bacen + score PF/PJ * | 20,03 | 18,83 | 17,70 | 16,64 | 15,64 | 14,70 | 12,99 |
+| Relatório Prime Completa + SCR Bacen - Base I, II e III | 52,89 | 48,66 | 44,77 | 41,18 | 37,89 | 34,86 | 32,42 |
+| SCR Bacen + score PF/PJ | 20,03 | 18,83 | 17,70 | 16,64 | 15,64 | 14,70 | 12,99 |
 | Cadastro especial PF - endereço, telefone, e-mail, trabalho, renda | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
 | Cadastro especial PJ - dados da empresa, sócios, regime fiscal, faturamento | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
 | Telefones por CPF/CNPJ | 1,11 | 1,00 | 0,90 | 0,81 | 0,73 | 0,66 | 0,53 |
