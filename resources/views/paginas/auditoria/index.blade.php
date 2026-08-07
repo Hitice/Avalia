@@ -1,36 +1,14 @@
 @extends('layouts.app', ['title' => 'Auditoria'])
 
 @php
-    use App\Support\Dinheiro;
-
-    $rotulosAcao = [
-        'fatura.fechada' => 'Fatura fechada',
-        'fatura.liquidada' => 'Pagamento confirmado',
-        'cliente.inadimplente' => 'Empresa marcada como inadimplente',
-        'documento.aceito' => 'Documento aceito',
-    ];
-    $rotulosEntidade = [
-        App\Models\Fatura::class => 'Fatura',
-        App\Models\Cliente::class => 'Empresa',
-        App\Models\DocumentoLegal::class => 'Documento',
-    ];
-    $rotulosDetalhe = [
-        'competencia' => 'Período',
-        'total_cents' => 'Valor da fatura',
-        'franquia_cents' => 'Valor incluído na franquia',
-        'comissao_liberada_cents' => 'Comissão liberada',
-        'fatura_id' => 'Fatura',
-        'cliente_id' => 'Empresa',
-        'versao' => 'Versão',
-        'hash_conteudo' => 'Comprovante do conteúdo',
-    ];
+    use App\Support\Rotulos;
 @endphp
 
 @section('content')
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Auditoria</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Quem fez o quê, quando. A trilha não pode ser alterada por nenhuma tela.
+            Histórico das ações feitas na plataforma.
         </p>
     </div>
 
@@ -41,7 +19,7 @@
 
             @foreach ($acoes as $opcao)
                 <a href="{{ route('auditoria', ['acao' => $opcao]) }}"
-                   class="segmento {{ $acao === $opcao ? 'segmento-ativo' : 'segmento-inativo' }}">{{ $rotulosAcao[$opcao] ?? 'Outras ações' }}</a>
+                   class="segmento {{ $acao === $opcao ? 'segmento-ativo' : 'segmento-inativo' }}">{{ Rotulos::acao($opcao) }}</a>
             @endforeach
         </div>
     @endif
@@ -54,7 +32,7 @@
                         <th class="px-5 py-3 text-left font-medium">Data e hora</th>
                         <th class="px-5 py-3 text-left font-medium">Responsável</th>
                         <th class="px-5 py-3 text-left font-medium">Atividade</th>
-                        <th class="px-5 py-3 text-left font-medium">O que foi alterado</th>
+                        <th class="px-5 py-3 text-left font-medium">Sobre</th>
                         <th class="px-5 py-3 text-left font-medium">Detalhes</th>
                     </tr>
                 </thead>
@@ -73,25 +51,25 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-left">
-                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $rotulosAcao[$registro->acao] ?? 'Ação registrada' }}</span>
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ Rotulos::acao($registro->acao) }}</span>
                             </td>
-                            <td class="px-5 py-4 text-left text-xs text-gray-500 dark:text-gray-400">
-                                {{ $rotulosEntidade[$registro->entidade_tipo] ?? 'Registro' }}
-                                @if ($registro->entidade_id) #{{ $registro->entidade_id }} @endif
+                            <td class="px-5 py-4 text-left text-sm text-gray-700 dark:text-gray-300">
+                                {{-- O nome congelado no registro; tipo e numero como reserva
+                                     para as linhas anteriores a existencia do rotulo. --}}
+                                @if ($registro->entidade_rotulo)
+                                    {{ $registro->entidade_rotulo }}
+                                    <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                                        {{ Rotulos::entidadeAuditada($registro->entidade_tipo) }}
+                                    </span>
+                                @elseif ($registro->entidade_tipo)
+                                    {{ Rotulos::entidadeAuditada($registro->entidade_tipo) }}@if ($registro->entidade_id) nº {{ $registro->entidade_id }}@endif
+                                @endif
                             </td>
                             <td class="px-5 py-4 text-left text-xs text-gray-500 dark:text-gray-400">
                                 @foreach ((array) $registro->dados as $chave => $valor)
                                     <span class="mr-3 whitespace-nowrap">
-                                        {{ $rotulosDetalhe[$chave] ?? 'Informação' }}:
-                                        <span class="text-gray-700 dark:text-gray-300">
-                                            @if ($chave === 'hash_conteudo')
-                                                Registrado
-                                            @elseif (str_ends_with($chave, '_cents'))
-                                                {{ Dinheiro::brl((int) $valor) }}
-                                            @else
-                                                {{ is_scalar($valor) ? $valor : json_encode($valor) }}
-                                            @endif
-                                        </span>
+                                        {{ Rotulos::detalheAuditado($chave) }}:
+                                        <span class="text-gray-700 dark:text-gray-300">{{ Rotulos::valorAuditado($chave, $valor) }}</span>
                                     </span>
                                 @endforeach
                             </td>

@@ -320,6 +320,13 @@
   @apply mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300;
 }
 
+/* Rotulo de opcao com caixa (checkbox ou radio). Sem cor propria o texto
+   herda a cor do corpo, que no tema escuro e escura: e o bug do texto
+   ilegivel que ja aconteceu uma vez e tem teste para nao voltar. */
+@utility rotulo-opcao {
+  @apply flex cursor-pointer items-center gap-2 text-sm text-gray-700 select-none dark:text-gray-300;
+}
+
 @utility ajuda-campo {
   @apply mt-1.5 block text-xs text-gray-500 dark:text-gray-400;
 }

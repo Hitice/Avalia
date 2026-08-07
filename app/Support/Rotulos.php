@@ -79,4 +79,140 @@ final class Rotulos
 
         return number_format($milissegundos / 1000, 1, ',', '.').' s';
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Trilha de auditoria
+    |--------------------------------------------------------------------------
+    |
+    | A trilha grava chaves de codigo (fatura.liquidada, total_cents) e quem le
+    | e o administrador. Toda acao registrada TEM que ter nome aqui: um teste
+    | varre o codigo e derruba a suite quando alguem registra acao nova sem
+    | rotulo, porque "Acao registrada" nao explica nada a ninguem.
+    |
+    */
+
+    /** @var array<string, string> */
+    private const ACOES = [
+        'fatura.fechada' => 'Fatura emitida',
+        'fatura.liquidada' => 'Pagamento confirmado',
+        'fatura.estornada' => 'Pagamento estornado',
+        'cobranca.criada' => 'Cobrança emitida',
+        'cliente.inadimplente' => 'Empresa suspensa por débito',
+        'empresa.removida' => 'Empresa removida',
+        'empresa.restaurada' => 'Empresa restaurada',
+        'adesao.atualizada' => 'Adesão atualizada',
+        'equipe.criada' => 'Pessoa cadastrada na equipe',
+        'equipe.alterada' => 'Cadastro da equipe alterado',
+        'equipe.removida' => 'Pessoa removida da equipe',
+        'equipe.restaurada' => 'Pessoa restaurada na equipe',
+        'equipe.convite_enviado' => 'Redefinição de senha enviada',
+        'acesso.senha_definida' => 'Senha definida pelo dono da conta',
+        'documento.publicado' => 'Documento publicado',
+        'documento.aceito' => 'Documento aceito',
+        'consulta.sucesso' => 'Consulta concluída',
+        'consulta.falha' => 'Consulta não concluída',
+        'consulta.expurgada' => 'Resposta apagada no prazo de retenção',
+        'campanha.criada' => 'Campanha criada',
+        'campanha.encerrada' => 'Campanha encerrada',
+        'campanha.reaberta' => 'Campanha reaberta',
+        'interessado.atendido' => 'Pedido de contato atendido',
+        'conexao.atualizada' => 'Conexão atualizada',
+        'conexao.ativada' => 'Conexão ativada',
+        'conexao.desativada' => 'Conexão desativada',
+        'conexao.testada' => 'Conexão testada',
+    ];
+
+    /** @var array<class-string, string> */
+    private const ENTIDADES = [
+        \App\Models\Fatura::class => 'Fatura',
+        \App\Models\Cliente::class => 'Empresa',
+        \App\Models\Staff::class => 'Equipe',
+        \App\Models\DocumentoLegal::class => 'Documento',
+        \App\Models\AceiteDocumento::class => 'Aceite',
+        \App\Models\Consulta::class => 'Consulta',
+        \App\Models\Campanha::class => 'Campanha',
+        \App\Models\CobrancaAsaas::class => 'Cobrança',
+        \App\Models\Adesao::class => 'Adesão',
+        \App\Models\Interessado::class => 'Pedido de contato',
+        \App\Models\Conexao::class => 'Conexão',
+    ];
+
+    /** @var array<string, string> */
+    private const DETALHES = [
+        'competencia' => 'Período',
+        'total_cents' => 'Valor da fatura',
+        'valor_cents' => 'Valor',
+        'franquia_cents' => 'Valor incluído na franquia',
+        'comissao_liberada_cents' => 'Comissão liberada',
+        'comissao_recolhida_cents' => 'Comissão recolhida',
+        'fatura_id' => 'Fatura',
+        'cliente_id' => 'Empresa',
+        'razao_social' => 'Empresa',
+        'versao' => 'Versão',
+        'hash_conteudo' => 'Comprovante do conteúdo',
+        'origem' => 'Origem',
+        'motivo' => 'Motivo',
+        'servico' => 'Serviço',
+        'servicos' => 'Serviços',
+        'clientes' => 'Empresas',
+        'finalidade' => 'Finalidade',
+        'fornecedor' => 'Fornecedor',
+        'campos' => 'Campos alterados',
+        'email' => 'E-mail',
+        'guarda' => 'Tipo de conta',
+        'tipo' => 'Tipo',
+        'quantidade' => 'Quantidade',
+        'parcelas' => 'Parcelas',
+        'ate' => 'Até',
+        'ok' => 'Resultado',
+    ];
+
+    public static function acao(?string $acao): string
+    {
+        // O reserva humaniza a chave em vez de esconder o assunto: melhor a
+        // tela dizer "consulta expurgada" cru do que "Acao registrada".
+        return self::ACOES[$acao] ?? ucfirst(str_replace(['.', '_'], ' ', (string) $acao));
+    }
+
+    public static function acoesDaTrilha(): array
+    {
+        return self::ACOES;
+    }
+
+    public static function entidadeAuditada(?string $classe): string
+    {
+        return self::ENTIDADES[$classe] ?? 'Registro';
+    }
+
+    public static function detalheAuditado(string $chave): string
+    {
+        return self::DETALHES[$chave] ?? ucfirst(str_replace('_', ' ', $chave));
+    }
+
+    /** O valor de um detalhe da trilha, legivel: dinheiro, sim/nao, listas. */
+    public static function valorAuditado(string $chave, mixed $valor): string
+    {
+        if ($chave === 'hash_conteudo') {
+            return 'registrado';
+        }
+
+        if ($chave === 'guarda') {
+            return $valor === 'staff' ? 'Equipe' : 'Empresa';
+        }
+
+        if (str_ends_with($chave, '_cents')) {
+            return Dinheiro::brl((int) $valor);
+        }
+
+        if (is_bool($valor)) {
+            return $valor ? 'Sim' : 'Não';
+        }
+
+        if (is_array($valor)) {
+            return implode(', ', array_map(strval(...), $valor));
+        }
+
+        return (string) $valor;
+    }
 }

@@ -19,6 +19,7 @@ final class Auditar
             'acao' => $acao,
             'entidade_tipo' => $entidade ? $entidade::class : null,
             'entidade_id' => $entidade?->getKey(),
+            'entidade_rotulo' => self::rotuloDe($entidade),
             'dados' => $dados,
             'ip_address' => $request?->ip(),
             'user_agent' => $request?->userAgent(),
@@ -42,6 +43,42 @@ final class Auditar
         ]);
 
         return $registro;
+    }
+
+    /**
+     * O nome da entidade, congelado no momento do registro.
+     *
+     * "Empresa #1" nao diz nada a quem le, e resolver o nome na leitura
+     * falharia para registro de coisa ja removida. Nunca entra dado pessoal de
+     * consumidor consultado: a trilha vive para sempre, e o documento
+     * consultado tem prazo de retencao. Falha aqui nao pode derrubar a acao
+     * de negocio que pediu o registro, dai o try/catch largo.
+     *
+     * Fica FORA do resumo encadeado: os registros antigos nao tem o campo, e
+     * inclui-lo quebraria a corrente de tudo que ja foi escrito.
+     */
+    private static function rotuloDe(?Model $entidade): ?string
+    {
+        try {
+            $rotulo = match (true) {
+                $entidade instanceof \App\Models\Cliente => $entidade->razao_social,
+                $entidade instanceof \App\Models\Staff => $entidade->nome,
+                $entidade instanceof \App\Models\DocumentoLegal => $entidade->titulo,
+                $entidade instanceof \App\Models\Campanha => $entidade->nome,
+                $entidade instanceof \App\Models\Interessado => $entidade->empresa,
+                $entidade instanceof \App\Models\Fatura => trim(($entidade->cliente?->razao_social ?? '').' · '.$entidade->competenciaRotulo(), ' ·'),
+                $entidade instanceof \App\Models\CobrancaAsaas => $entidade->fatura?->cliente?->razao_social,
+                $entidade instanceof \App\Models\Consulta => $entidade->servico?->nome,
+                $entidade instanceof \App\Models\Adesao => $entidade->cliente?->razao_social,
+                $entidade instanceof \App\Models\AceiteDocumento => $entidade->documento?->titulo,
+                $entidade instanceof \App\Models\Conexao => \App\Support\Fornecedores::todos()[$entidade->fornecedor]['nome'] ?? $entidade->fornecedor,
+                default => null,
+            };
+
+            return $rotulo !== null ? mb_substr($rotulo, 0, 150) : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**

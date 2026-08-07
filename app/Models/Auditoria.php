@@ -14,7 +14,7 @@ class Auditoria extends Model
     protected $table = 'auditoria';
 
     protected $fillable = [
-        'staff_id', 'acao', 'entidade_tipo', 'entidade_id', 'dados',
+        'staff_id', 'acao', 'entidade_tipo', 'entidade_id', 'entidade_rotulo', 'dados',
         'ip_address', 'user_agent', 'ocorreu_em', 'resumo_anterior', 'resumo',
     ];
 
