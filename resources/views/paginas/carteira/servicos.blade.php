@@ -50,7 +50,7 @@
                                     @endif
                                 </td>
                                 @foreach ($planos as $plano)
-                                    @php $preco = $precos->get($plano->catalogo_id.':'.$plano->consumo_minimo_cents.':'.$servico->id); @endphp
+                                    @php $preco = $precos->get($plano->catalogo_id.':'.$plano->faixaDePrecoCents().':'.$servico->id); @endphp
                                     <td class="px-4 py-4 text-right tabular-nums {{ $preco ? 'text-gray-800 dark:text-white/90' : 'text-gray-400 dark:text-gray-600' }}">
                                         {{ $preco ? Dinheiro::brl($preco->preco_cents) : 'não incluso' }}
                                     </td>

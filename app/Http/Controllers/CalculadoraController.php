@@ -37,7 +37,9 @@ class CalculadoraController extends Controller
 
         // Sem consumo informado, o cenario neutro e o cliente que consome
         // exatamente o minimo: e o que a proposta promete.
-        $consumo = Dinheiro::paraCentavos($request->query('consumo')) ?? $faixa;
+        $consumo = Dinheiro::paraCentavos($request->query('consumo'))
+            ?? Dinheiro::paraCentavos($request->query('minimo'))
+            ?? $faixa;
 
         // O custo sai do proprio catalogo e nao se digita: custo e preco de
         // venda sao fixos na tabela, entao a proporcao entre eles ja esta
@@ -48,9 +50,13 @@ class CalculadoraController extends Controller
         $adesao = Dinheiro::paraCentavos($request->query('adesao')) ?? 0;
         $parcelas = max(1, (int) $request->query('parcelas', 1));
 
+        // O minimo negociado pode ser livre (plano flexivel): a faixa escolhe
+        // a tabela de precos e o custo, o minimo so o piso de cobranca.
+        $minimo = Dinheiro::paraCentavos($request->query('minimo')) ?? $faixa;
+
         $mes = Simulacao::mensal(
             consumoCents: $consumo,
-            consumoMinimoCents: $faixa,
+            consumoMinimoCents: $minimo,
             mensalidadeCents: $mensalidade,
             custoSobreVendaBps: $custoBps ?? 0,
             impostoBps: $catalogo?->imposto_bps ?? 0,
@@ -64,6 +70,7 @@ class CalculadoraController extends Controller
             'mes' => $mes,
             'adesao' => Simulacao::adesaoDoMes($adesao, $parcelas),
             'entrada' => [
+                'minimo' => $minimo,
                 'consumo' => $consumo,
                 'mensalidade' => $mensalidade,
                 'custo_bps' => $custoBps,

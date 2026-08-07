@@ -173,9 +173,13 @@ class CarteiraController extends Controller
         $adesao = Dinheiro::paraCentavos($pedido->query('adesao')) ?? 0;
         $parcelas = max(1, (int) $pedido->query('parcelas', 1));
 
+        // O minimo negociado pode ser livre (plano flexivel): a faixa escolhe
+        // a tabela de precos e o custo, o minimo so o piso de cobranca.
+        $minimo = Dinheiro::paraCentavos($pedido->query('minimo')) ?? $faixa;
+
         $mes = Simulacao::mensal(
             consumoCents: $consumo,
-            consumoMinimoCents: $faixa,
+            consumoMinimoCents: $minimo,
             mensalidadeCents: $mensalidade,
             custoSobreVendaBps: $catalogo?->custoSobreVendaBps($faixa) ?? 0,
             impostoBps: $catalogo?->imposto_bps ?? 0,
@@ -200,6 +204,7 @@ class CarteiraController extends Controller
             'adesaoDoVendedor' => Simulacao::adesaoDoMes($adesao, $parcelas)['vendedor_cents'],
             'pctComissao' => Comissao::pct($vendedor->comissao_pct ?? null),
             'entrada' => [
+                'minimo' => $minimo,
                 'consumo' => $consumo,
                 'mensalidade' => $mensalidade,
                 'adesao' => $adesao,

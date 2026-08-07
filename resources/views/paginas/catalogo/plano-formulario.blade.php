@@ -32,11 +32,7 @@
 
     <div class="cartao p-6">
         <form method="POST"
-              action="{{ $plano->exists ? route('catalogo.planos.atualizar', $plano) : route('catalogo.planos.salvar') }}"
-              x-data="{
-                  faixas: {{ Js::from($opcoesFaixa) }},
-                  faixa: '{{ old('consumo_minimo', Dinheiro::numero($plano->consumo_minimo_cents ?? 0)) }}',
-              }">
+              action="{{ $plano->exists ? route('catalogo.planos.atualizar', $plano) : route('catalogo.planos.salvar') }}">
             @csrf
             @if ($plano->exists)
                 @method('PUT')
@@ -56,17 +52,37 @@
                     @error('descricao') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
+                {{-- O minimo e piso de cobranca e vale qualquer numero que o
+                     comercial negociar. Quem precisa existir no catalogo e a
+                     tabela de precos, no campo ao lado. --}}
                 <div>
                     <label for="consumo_minimo" class="{{ $rotulo }}">Consumo mínimo</label>
-                    <select id="consumo_minimo" name="consumo_minimo" class="{{ $campo }}" x-model="faixa" required>
-                        <template x-for="f in faixas" :key="f.valor">
-                            <option :value="f.valor" x-text="f.rotulo"></option>
-                        </template>
-                    </select>
+                    <input id="consumo_minimo" name="consumo_minimo" type="text" inputmode="decimal" class="{{ $campo }}"
+                           value="{{ old('consumo_minimo', Dinheiro::numero($plano->consumo_minimo_cents ?? 0)) }}" required>
                     <span class="ajuda-campo">
-                        Define a faixa de preços e a alíquota de comissão.
+                        Piso de cobrança do mês, em qualquer valor negociado.
                     </span>
                     @error('consumo_minimo') <span class="{{ $erro }}">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- A bonificacao que fecha venda: minimo de 500 lendo a
+                     tabela de 1.000. Em branco, vale a tabela do proprio
+                     minimo, que ai precisa coincidir com uma faixa. --}}
+                <div>
+                    <label for="faixa_preco" class="{{ $rotulo }}">Tabela de preços</label>
+                    <select id="faixa_preco" name="faixa_preco" class="{{ $campo }}">
+                        <option value="">A da faixa do consumo mínimo</option>
+                        @foreach ($opcoesFaixa as $opcao)
+                            <option value="{{ $opcao['valor'] }}"
+                                    @selected(old('faixa_preco', $plano->faixa_preco_cents ? Dinheiro::numero($plano->faixa_preco_cents) : '') === $opcao['valor'])>
+                                Tabela de {{ $opcao['rotulo'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span class="ajuda-campo">
+                        Bonificação comercial: o cliente assume um mínimo menor e leva os preços de uma faixa maior.
+                    </span>
+                    @error('faixa_preco') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
                 <div>

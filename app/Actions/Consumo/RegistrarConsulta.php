@@ -45,7 +45,7 @@ class RegistrarConsulta
         $preco = $cliente->plano->catalogo
             ?->precos()
             ->where('servico_id', $servico->id)
-            ->where('consumo_minimo_cents', $cliente->plano->consumo_minimo_cents)
+            ->where('consumo_minimo_cents', $cliente->plano->faixaDePrecoCents())
             ->first();
 
         if (! $preco) {

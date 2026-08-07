@@ -1196,6 +1196,12 @@ Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
     lado a lado em /carteira/servicos, com o número de atendimento por serviço
     ("consulta 7" se dita ao telefone), descrição e nenhum custo. O número
     nasce sequencial, é imutável e nunca se reusa.
+22. ~~Plano flexível com bonificação de faixa.~~ Feito: o consumo mínimo é
+    piso de cobrança com valor livre (R$ 1.350 se o comercial quiser), e a
+    tabela de preços pode ser negociada separada, de faixa maior (assume 500,
+    leva os preços de 1.000). Toda consulta lê a faixa de preço negociada; a
+    fatura cobra o maior entre o consumo e o mínimo livre. Os dois simuladores
+    (administração e vendedor) aceitam o mínimo negociado.
 
 ### Segurança de baixo custo e alto retorno
 

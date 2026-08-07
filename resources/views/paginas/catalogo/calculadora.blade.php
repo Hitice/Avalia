@@ -26,7 +26,7 @@
             <div class="cartao p-6">
                 <form method="GET" action="{{ route('catalogo.calculadora') }}" class="grid gap-5">
                     <div>
-                        <label for="faixa" class="rotulo-campo">Faixa contratada</label>
+                        <label for="faixa" class="rotulo-campo">Tabela de preços</label>
                         <select id="faixa" name="faixa" class="campo">
                             @foreach ($faixas as $opcao)
                                 <option value="{{ Dinheiro::numero($opcao) }}" @selected($opcao === $faixa)>
@@ -34,6 +34,13 @@
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div>
+                        <label for="minimo" class="rotulo-campo">Consumo mínimo negociado</label>
+                        <input id="minimo" name="minimo" type="text" inputmode="decimal" class="campo"
+                               value="{{ Dinheiro::numero($entrada['minimo']) }}">
+                        <span class="ajuda-campo">Piso de cobrança, em qualquer valor. A tabela acima define preço e custo.</span>
                     </div>
 
                     <div>

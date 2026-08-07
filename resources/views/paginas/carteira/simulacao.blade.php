@@ -24,7 +24,7 @@
         <form method="GET" action="{{ route('carteira.simulacao') }}" class="cartao mb-6 p-6">
             <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                    <label for="faixa" class="rotulo-campo">Faixa de consumo</label>
+                    <label for="faixa" class="rotulo-campo">Tabela de preços</label>
                     <select id="faixa" name="faixa" class="campo">
                         @foreach ($faixas as $opcao)
                             <option value="{{ $reais($opcao) }}" @selected($opcao === $faixa)>{{ Dinheiro::faixa($opcao) }}</option>
@@ -43,6 +43,13 @@
                     <label for="consumo" class="rotulo-campo">Consumo estimado no mês</label>
                     <input id="consumo" name="consumo" type="text" class="campo"
                            inputmode="decimal" value="{{ $reais($entrada['consumo']) }}">
+                </div>
+
+                <div>
+                    <label for="minimo" class="rotulo-campo">Consumo mínimo negociado</label>
+                    <input id="minimo" name="minimo" type="text" class="campo"
+                           inputmode="decimal" value="{{ $reais($entrada['minimo']) }}">
+                    <span class="ajuda-campo">Piso de cobrança em qualquer valor; a tabela acima define os preços.</span>
                     <span class="ajuda-campo">Abaixo do mínimo, a empresa paga o mínimo.</span>
                 </div>
 

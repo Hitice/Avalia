@@ -71,7 +71,7 @@ class PlanoController extends Controller
             'franquias' => $plano->franquias()->pluck('quantidade', 'servico_id'),
             // Preco da faixa do plano, numa consulta so em vez de uma por linha.
             'precos' => $plano->catalogo->precos()
-                ->where('consumo_minimo_cents', $plano->consumo_minimo_cents)
+                ->where('consumo_minimo_cents', $plano->faixaDePrecoCents())
                 ->pluck('preco_cents', 'servico_id'),
         ]);
     }

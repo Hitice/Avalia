@@ -28,6 +28,7 @@ class PlanoRequest extends FormRequest
         $this->merge([
             'mensalidade_cents' => Dinheiro::paraCentavos($this->input('mensalidade')),
             'consumo_minimo_cents' => Dinheiro::paraCentavos($this->input('consumo_minimo')),
+            'faixa_preco_cents' => Dinheiro::paraCentavos($this->input('faixa_preco')),
             'ativo' => $this->boolean('ativo'),
         ]);
     }
@@ -42,24 +43,33 @@ class PlanoRequest extends FormRequest
             'descricao' => ['nullable', 'string', 'max:500'],
             'mensalidade_cents' => ['required', 'integer', 'min:0'],
             'consumo_minimo_cents' => ['required', 'integer', 'min:0'],
+            'faixa_preco_cents' => ['nullable', 'integer', 'min:0'],
             'ativo' => ['boolean'],
         ];
     }
 
     /**
-     * O consumo minimo tem que ser uma das faixas do catalogo.
+     * A faixa de PRECO tem que ser uma das colunas do catalogo.
      *
-     * Sem isso da para salvar um plano de R$ 300 num catalogo com faixas de
-     * 75/200/500: nenhuma consulta acharia coluna de preco, e o erro so
-     * apareceria na hora de faturar.
+     * E ela que toda consulta le. Sem esta trava daria para salvar um plano
+     * lendo a coluna de R$ 300 num catalogo que so tem 75/200/500: nenhuma
+     * consulta acharia preco, e o erro so apareceria na hora de faturar.
+     *
+     * O consumo minimo em si e livre (R$ 1.350 se o comercial quiser): ele e
+     * piso de cobranca. Sem faixa negociada, a coluna lida e a do minimo, e
+     * ai o minimo precisa coincidir com uma faixa.
      */
     public function withValidator(Validator $validador): void
     {
         $validador->after(function (Validator $validador) {
             $catalogo = Catalogo::vigente();
 
+            $negociada = $this->input('faixa_preco_cents') !== null;
+            $campo = $negociada ? 'faixa_preco' : 'consumo_minimo';
+            $faixaDePreco = $this->input('faixa_preco_cents') ?? $this->input('consumo_minimo_cents');
+
             if (! $catalogo) {
-                $validador->errors()->add('consumo_minimo', 'Nao ha catalogo cadastrado.');
+                $validador->errors()->add($campo, 'Nao ha catalogo cadastrado.');
 
                 return;
             }
@@ -67,14 +77,16 @@ class PlanoRequest extends FormRequest
             $faixas = $catalogo->faixas();
 
             if ($faixas === []) {
-                $validador->errors()->add('consumo_minimo', 'O catalogo ainda nao tem preco nenhum.');
+                $validador->errors()->add($campo, 'O catalogo ainda nao tem preco nenhum.');
 
                 return;
             }
 
-            if (! in_array($this->input('consumo_minimo_cents'), $faixas, true)) {
-                $validador->errors()->add('consumo_minimo', sprintf(
-                    'Faixa inexistente no catalogo. Disponiveis: %s.',
+            if (! in_array($faixaDePreco, $faixas, true)) {
+                $validador->errors()->add($campo, sprintf(
+                    $negociada
+                        ? 'Tabela de preços inexistente no catálogo. Disponíveis: %s.'
+                        : 'O mínimo não coincide com uma faixa de preços. Escolha a tabela no campo ao lado, ou use um destes valores: %s.',
                     implode(', ', array_map(
                         fn (int $faixa) => $faixa === 0 ? 'sem minimo' : Dinheiro::brl($faixa),
                         $faixas,
@@ -89,6 +101,7 @@ class PlanoRequest extends FormRequest
         return [
             'mensalidade_cents' => 'mensalidade',
             'consumo_minimo_cents' => 'consumo minimo',
+            'faixa_preco_cents' => 'tabela de precos',
         ];
     }
 }

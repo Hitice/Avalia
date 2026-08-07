@@ -27,7 +27,8 @@ class Plano extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'catalogo_id', 'nome', 'descricao', 'mensalidade_cents', 'consumo_minimo_cents', 'ativo',
+        'catalogo_id', 'nome', 'descricao', 'mensalidade_cents', 'consumo_minimo_cents',
+        'faixa_preco_cents', 'ativo',
     ];
 
     protected function casts(): array
@@ -36,6 +37,7 @@ class Plano extends Model
             'catalogo_id' => 'integer',
             'mensalidade_cents' => 'integer',
             'consumo_minimo_cents' => 'integer',
+            'faixa_preco_cents' => 'integer',
             'ativo' => 'boolean',
         ];
     }
@@ -57,14 +59,27 @@ class Plano extends Model
     }
 
     /**
-     * O consumo minimo contratado tem que ser uma das faixas da versao.
+     * A coluna de precos que este plano le.
      *
-     * Um plano de R$ 300 numa versao que so tem 75/200/500 nao acha coluna de
-     * preco: toda consulta sairia sem valor e a fatura fecharia errada.
+     * Por padrao e a faixa do proprio consumo minimo. Negociada uma faixa
+     * separada (minimo de 500 com tabela de 1.000), e ela que vale para toda
+     * consulta, e o minimo vira so o piso de cobranca, com valor livre.
+     */
+    public function faixaDePrecoCents(): int
+    {
+        return $this->faixa_preco_cents ?? $this->consumo_minimo_cents;
+    }
+
+    /**
+     * A faixa de PRECO tem que existir no catalogo.
+     *
+     * Um plano lendo a coluna de R$ 300 numa versao que so tem 75/200/500 nao
+     * acha preco: toda consulta sairia sem valor e a fatura fecharia errada.
+     * O consumo minimo em si e livre, porque e piso de cobranca, nao coluna.
      */
     public function faixaValida(): bool
     {
-        return in_array($this->consumo_minimo_cents, $this->catalogo->faixas(), true);
+        return in_array($this->faixaDePrecoCents(), $this->catalogo->faixas(), true);
     }
 
     public function podeVender(): bool
@@ -75,7 +90,7 @@ class Plano extends Model
     /** Preco de um servico na faixa deste plano, ou null se nao ha. */
     public function precoDe(string $codigo): ?int
     {
-        return $this->catalogo->precoDe($codigo, $this->consumo_minimo_cents);
+        return $this->catalogo->precoDe($codigo, $this->faixaDePrecoCents());
     }
 
     /** Consultas incluidas na mensalidade para um servico. Sem franquia = 0. */
@@ -98,7 +113,7 @@ class Plano extends Model
             ->disponiveis()
             ->whereHas('precos', fn ($q) => $q
                 ->where('catalogo_id', $this->catalogo_id)
-                ->where('consumo_minimo_cents', $this->consumo_minimo_cents))
+                ->where('consumo_minimo_cents', $this->faixaDePrecoCents()))
             ->orderBy('nome')
             ->get();
     }
