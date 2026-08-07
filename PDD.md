@@ -1238,6 +1238,89 @@ storage/logs/cron-batida.txt) e o aquecimento de 5 em 5 minutos mitiga a
 partida fria da hospedagem compartilhada, que era a causa do "logout lento":
 medição quente não passa de 0,7 s em nenhuma rota.
 
+## 18c. O que falta ao administrador
+
+Levantamento feito varrendo rota a rota, controller a controller. Está aqui e
+não no chat porque é plano de trabalho, não conversa.
+
+### Diretivas: a lacuna mais ampla
+
+Hoje **um único parâmetro é configurável pela tela**, a alíquota de imposto.
+Todo o resto da política comercial e operacional é constante em código, e mudar
+qualquer uma exige publicar versão nova:
+
+| Regra | Valor fixo hoje | Onde |
+|---|---|---|
+| Dia do vencimento | 10 | `Fatura::DIA_VENCIMENTO` |
+| Tolerância até suspender consultas | 10 dias | `Fatura::DIAS_ATE_BLOQUEIO` |
+| Aviso antes do vencimento | 3 dias | `AvisarVencimentoProximo` |
+| Retenção da resposta do bureau | 180 dias | `Consulta::DIAS_DE_RETENCAO` |
+| Teto diário de consultas por empresa | 500 | `Consulta::LIMITE_DIARIO` |
+| Teto diário de demonstrações por vendedor | 10 | `Consulta::LIMITE_DIARIO_DEMONSTRACAO` |
+| Janela anti cobrança dupla | 120 s | `Consulta::SEGUNDOS_SEM_REPETIR` |
+| Validade do convite de acesso | 48 h | `Convite::HORAS_DE_VALIDADE` |
+| Comissão padrão e teto | 10% e 50% | `Comissao` |
+| Alerta de cliente que parou de usar | 30 dias | `Alertas::DIAS_SEM_CONSULTAR` |
+
+Para uma operação que negocia contrato a contrato, isso é rígido demais. O
+desenho certo é uma tela de **Diretivas** com esses valores, mais a distinção
+entre o que é **padrão da casa** e o que é **exceção por contrato** (teto
+diário, por exemplo, faz muito mais sentido por empresa do que global).
+
+Ressalva importante: retenção e validade de convite não são preferência
+comercial, são compromisso legal e de segurança. Ficam na tela como leitura e
+com trava de faixa, não como campo livre.
+
+### Financeiro
+
+- **Emitir a fatura fora do calendário**, para uma empresa específica, existe
+  (fechar competência na ficha) mas não há **cancelar fatura emitida por
+  engano**: hoje só existe estornar pagamento, que é outra coisa.
+- **Nota fiscal** não existe em lugar nenhum: nem emissão, nem anexo, nem
+  segunda via. O cliente vê o boleto, não o documento fiscal.
+- **Conciliação** entre o que o provedor diz ter recebido e o que a Avalia
+  registrou não tem tela; existe só o comando de conferência diária.
+- **Alertas de divergência** (webhook sem cobrança correspondente, cobrança sem
+  identificador no provedor, falha do fechamento) só vão para log.
+- **Repasse de comissão** não tem registro: o painel diz quanto pagar, e o
+  pagamento acontece fora, sem baixa. Falta marcar "repassado em".
+
+### Manutenção de empresas e vendedores
+
+O CRUD está completo (criar, editar, situação, remover, restaurar, excluir sem
+histórico, convite, operadores). O que falta é de outra natureza:
+
+- **Transferir carteira** de um vendedor para outro, em lote. Hoje é empresa a
+  empresa, na edição de cada uma. Vendedor que sai da empresa é exatamente o
+  momento em que isso é preciso, e é o pior momento para fazer à mão.
+- **Histórico do relacionamento** na ficha da empresa: quando mudou de plano,
+  de vendedor, de situação. A trilha tem os dados; falta a leitura por empresa.
+- **Anotação livre** na ficha, para o que a operação combinou por fora.
+- **Reenviar convite ao operador** existe; **trocar o e-mail** dele não.
+
+### Gestão do sistema
+
+- **Saúde das integrações** numa tela: última consulta bem-sucedida por
+  fornecedor, tempo de resposta, taxa de falha. Hoje só existe o teste manual
+  em Conexões e a contagem de falhas do painel.
+- **Fila de e-mails que falharam**: o envio falha, registra no log e não avisa
+  ninguém. Um convite que não chega é uma conta que não entra.
+- **Restauração de backup**: o comando existe e foi testado, mas não há tela
+  nem registro de quando a última cópia saiu e se o envio deu certo.
+- **Exportar dados de uma empresa** (LGPD, direito do titular e portabilidade)
+  não existe.
+- **Encerrar a conta de uma empresa com expurgo** também não: hoje "inativo" é
+  o fim da linha, sem o descarte que a LGPD prevê.
+
+### Ordem sugerida
+
+1. Diretivas configuráveis (destrava negociação comercial sem deploy).
+2. Alertas de divergência financeira e fila de e-mail falho (dinheiro e acesso
+   que somem em silêncio).
+3. Transferência de carteira e histórico na ficha (operação do dia a dia).
+4. Nota fiscal e conciliação (dependem de decisão fiscal e de contrato).
+5. Exportação e expurgo por titular (LGPD, antes do primeiro pedido real).
+
 ## 19. Backlog priorizado
 
 O que falta, na ordem em que atrapalha. A régua é operação enxuta: o que exige
