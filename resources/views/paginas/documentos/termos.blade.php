@@ -1,12 +1,11 @@
-@extends('layouts.app', ['title' => 'Documentos'])
+@extends('layouts.app', ['title' => 'Termos'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Documentos e aceites</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $empresa->razao_social }}</p>
-        </div>
-        <x-avalia.ajuda assunto="Documentos">Falar com a Avalia</x-avalia.ajuda>
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Termos da equipe</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Documentos do seu trabalho como vendedor. Os que exigem aceite destravam as demonstrações.
+        </p>
     </div>
 
     @if (session('ok'))
@@ -21,9 +20,7 @@
 
     @if ($documentos->isEmpty())
         <div class="cartao p-6">
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-                Solicite à sua equipe comercial os documentos aplicáveis à sua empresa.
-            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-300">Nenhum termo publicado para a equipe.</p>
         </div>
     @else
         <div class="cartao overflow-hidden">
@@ -41,29 +38,13 @@
                                 @if ($aceito)
                                     <span class="etiqueta etiqueta-sucesso">Aceito</span>
                                 @elseif (! $documento->exige_aceite)
-                                    {{-- Material de apoio: leitura livre, sem aceite. --}}
                                     <span class="etiqueta etiqueta-neutra">Leitura e apoio</span>
                                 @else
                                     <span class="etiqueta etiqueta-alerta">Aguardando aceite</span>
                                 @endif
 
-                                {{-- A leitura abre em popup com rolagem vigiada e o
-                                     aceite destrava no fim, como termo de aparelho
-                                     novo. O PDF continua sendo o arquivo de evidencia. --}}
                                 <x-avalia.leitor-termo :documento="$documento" :aceito="$aceito"
-                                    :acao="route('empresa.documentos.aceitar', $documento)" />
-
-                                <x-avalia.botao variante="secundario" tamanho="sm"
-                                                :href="route('empresa.documentos.pdf', $documento)" target="_blank">
-                                    PDF
-                                </x-avalia.botao>
-
-                                @if ($aceito)
-                                    <x-avalia.botao variante="secundario" tamanho="sm"
-                                                    :href="route('empresa.documentos.comprovante', $documento)" target="_blank">
-                                        Comprovante
-                                    </x-avalia.botao>
-                                @endif
+                                    :acao="route('termos.aceitar', $documento)" />
                             </div>
                         </div>
                     </li>

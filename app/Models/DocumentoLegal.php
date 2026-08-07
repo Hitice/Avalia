@@ -13,11 +13,23 @@ class DocumentoLegal extends Model
 
     protected $table = 'documentos';
 
-    protected $fillable = ['titulo', 'tipo', 'versao', 'conteudo', 'exige_aceite', 'ativo'];
+    protected $fillable = [
+        'titulo', 'tipo', 'versao', 'conteudo', 'exige_aceite', 'ativo',
+        'para_empresa', 'para_operador', 'para_vendedor',
+    ];
 
     protected function casts(): array
     {
-        return ['exige_aceite' => 'boolean', 'ativo' => 'boolean'];
+        return [
+            'exige_aceite' => 'boolean', 'ativo' => 'boolean',
+            'para_empresa' => 'boolean', 'para_operador' => 'boolean', 'para_vendedor' => 'boolean',
+        ];
+    }
+
+    /** Documentos ativos de um publico: empresa, operador ou vendedor. */
+    public function scopePara($consulta, string $publico)
+    {
+        return $consulta->where('ativo', true)->where('para_'.$publico, true);
     }
 
     public function aceites(): HasMany

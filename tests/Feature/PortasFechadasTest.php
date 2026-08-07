@@ -143,6 +143,8 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
         // Ficha da empresa da carteira: preco de venda, nada interno, e o
         // controller confere que a empresa e do vendedor logado.
         'carteira.empresa',
+        // Termos da equipe: e exatamente para o vendedor ler e aceitar.
+        'termos', 'termos.aceitar',
         'painel', 'sair', 'empresas.criar', 'empresas.salvar',
         'empresas.editar', 'empresas.atualizar', 'empresas.remover', 'empresas.convite'];
 

@@ -170,8 +170,14 @@ class AreaClienteController extends Controller
 
         return view('paginas.empresa.documentos', [
             'empresa' => $empresa,
-            'documentos' => DocumentoLegal::query()->where('ativo', true)->orderBy('titulo')->get(),
-            'aceites' => $empresa->aceitesDocumentos()->pluck('documento_id')->all(),
+            'documentos' => DocumentoLegal::query()
+                ->para(Operador::daSessao() ? 'operador' : 'empresa')
+                ->orderBy('titulo')->get(),
+            // O "Aceito" e da identidade da sessao: o aceite da master nao
+            // marca o do operador, nem o contrario.
+            'aceites' => $empresa->aceitesDocumentos()
+                ->where('operador_id', Operador::daSessao()?->id)
+                ->pluck('documento_id')->all(),
         ]);
     }
 
@@ -347,7 +353,7 @@ class AreaClienteController extends Controller
             ->pluck('documento_id')->all();
 
         return DocumentoLegal::query()
-            ->where('ativo', true)
+            ->para(Operador::daSessao() ? 'operador' : 'empresa')
             ->where('exige_aceite', true)
             ->whereNotIn('id', $aceitos)
             ->orderBy('titulo')

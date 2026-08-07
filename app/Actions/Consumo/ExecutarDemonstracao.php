@@ -32,6 +32,11 @@ class ExecutarDemonstracao
     {
         $documento = preg_replace('/\D/', '', $documento) ?? '';
 
+        // A ciencia dos termos vale tambem para quem demonstra.
+        if (! $vendedor->aceitouObrigatorios()) {
+            return ['erro' => 'Existem termos aguardando o seu aceite.', 'consulta' => null];
+        }
+
         if (! $servico->disponivel()) {
             return ['erro' => "O serviço {$servico->nome} não está liberado para consulta.", 'consulta' => null];
         }

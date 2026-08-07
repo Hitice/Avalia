@@ -81,7 +81,7 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     /** Documentos obrigatórios ativos precisam estar aceitos antes da consulta. */
     public function documentosObrigatoriosAceitos(): bool
     {
-        $obrigatorios = DocumentoLegal::query()->where('ativo', true)->where('exige_aceite', true)->pluck('id');
+        $obrigatorios = DocumentoLegal::query()->para('empresa')->where('exige_aceite', true)->pluck('id');
 
         // So o aceite da conta master vale como contrato: a ciencia de um
         // operador nao substitui a assinatura de quem responde pela empresa.

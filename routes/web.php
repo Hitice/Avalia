@@ -208,6 +208,11 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
 
+    // Termos da equipe: o vendedor le e aceita aqui, com a mesma robustez do
+    // aceite da empresa. Sem `admin`: e exatamente para o vendedor.
+    Route::get('/termos', [DocumentoController::class, 'termos'])->name('termos');
+    Route::post('/termos/{documento}/aceite', [DocumentoController::class, 'aceitarTermo'])->name('termos.aceitar');
+
     Route::middleware('admin')->prefix('documentos')->name('documentos.')->group(function () {
         Route::get('/', [DocumentoController::class, 'index'])->name('index');
         Route::get('/novo', [DocumentoController::class, 'criar'])->name('criar');

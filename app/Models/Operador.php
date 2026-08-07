@@ -72,7 +72,7 @@ class Operador extends Model implements ContaAutenticavel
     /** Ciencia dos termos obrigatorios, declarada por ESTE operador. */
     public function aceitouObrigatorios(): bool
     {
-        $obrigatorios = DocumentoLegal::query()->where('ativo', true)->where('exige_aceite', true)->pluck('id');
+        $obrigatorios = DocumentoLegal::query()->para('operador')->where('exige_aceite', true)->pluck('id');
 
         return $obrigatorios->isEmpty()
             || AceiteDocumento::where('operador_id', $this->id)

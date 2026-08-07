@@ -21,6 +21,7 @@ class MenuHelper
             ['icon' => 'tables', 'name' => 'Consultas', 'path' => '/carteira/consultas', 'papeis' => ['vendedor']],
             ['icon' => 'pages', 'name' => 'Serviços', 'path' => '/carteira/servicos', 'papeis' => ['vendedor']],
             ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/carteira/simulacao', 'papeis' => ['vendedor']],
+            ['icon' => 'documento', 'name' => 'Termos', 'path' => '/termos', 'papeis' => ['vendedor']],
 
             ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],

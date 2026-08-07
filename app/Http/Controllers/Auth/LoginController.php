@@ -150,6 +150,11 @@ class LoginController extends Controller
             return redirect()->route('empresa.documentos');
         }
 
+        // O mesmo vale para o vendedor com termo da equipe pendente.
+        if ($conta instanceof \App\Models\Staff && ! $conta->aceitouObrigatorios()) {
+            return redirect()->route('termos');
+        }
+
         return redirect()->intended($this->destinoDe($guarda));
     }
 

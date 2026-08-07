@@ -691,9 +691,17 @@ O que já está implementado desta seção:
 - **Comprovante de aceite em PDF**: quem aceitou, quando, de onde (IP e
   navegador), o hash aceito e a íntegra do texto, disponível para a empresa a
   qualquer momento depois do aceite.
-- **Uma leitura só, o PDF**: a tela de documentos lista e aponta para o PDF,
-  sem duplicar o texto inline. O que se lê é o mesmo arquivo que fica de
-  evidência, então não há como tela e evidência divergirem.
+- **Leitura em popup com aceite no fim**: o texto abre num popup com rolagem
+  vigiada e o aceite só destrava quando a leitura chega ao fim, como termo de
+  aparelho novo. O texto exibido é o mesmo que gera o PDF de evidência, e o
+  hash fecha a janela entre ler e aceitar. Documento de apoio abre o mesmo
+  leitor, sem formulário.
+- **Público por documento**: a administração define quem cada documento
+  alcança (empresa master, operadores, vendedores) e se exige aceite ou é
+  leitura e apoio. Cada público só responde pelos próprios termos: termo de
+  vendedor não trava empresa, e vice-versa. O vendedor tem a tela Termos, cai
+  nela ao entrar com aceite pendente e não demonstra antes de aceitar; o
+  aceite dele entra na mesma tabela de evidências, com identificação própria.
 - **O aceite é a porta de entrada**: empresa com documento obrigatório
   pendente cai na tela de documentos ao entrar, antes de qualquer outro
   destino. Consultar já era bloqueado sem aceite; agora a pendência também não

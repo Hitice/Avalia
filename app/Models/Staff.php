@@ -97,6 +97,24 @@ class Staff extends Authenticatable implements ContaAutenticavel
      * "manter conectado" voltaria a entrar depois de ter o acesso revogado, e
      * a revogacao seria so aparente.
      */
+    /**
+     * Ciencia dos termos do vendedor. So o papel vendedor tem gate: quem
+     * administra e quem publica os proprios documentos.
+     */
+    public function aceitouObrigatorios(): bool
+    {
+        if ($this->papel !== 'vendedor') {
+            return true;
+        }
+
+        $obrigatorios = DocumentoLegal::query()->para('vendedor')->where('exige_aceite', true)->pluck('id');
+
+        return $obrigatorios->isEmpty()
+            || AceiteDocumento::where('staff_id', $this->id)
+                ->whereIn('documento_id', $obrigatorios)
+                ->count() === $obrigatorios->count();
+    }
+
     public function revogaSessoes(): void
     {
         $this->increment('sessao_versao');

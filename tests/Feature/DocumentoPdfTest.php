@@ -44,15 +44,17 @@ it('recebe a empresa nos documentos enquanto ha aceite pendente', function () {
         ->assertRedirect(route('empresa.painel'));
 });
 
-it('nao mostra o texto do documento na tela, so o PDF', function () {
-    // Uma leitura so: o PDF que fica de evidencia e o que se le e aceita.
-    // Texto na tela e PDF poderiam divergir aos olhos de quem aceita.
+it('abre a leitura no popup com o aceite destravando no fim', function () {
+    // Como termo de aparelho novo: o texto abre em popup com rolagem vigiada
+    // e o aceite so destrava no fim da leitura. O texto exibido e o mesmo que
+    // gera o PDF, e o hash fecha a janela entre ler e aceitar.
     $empresa = empresaComPlano();
     documentoVigente();
 
     comoEmpresa($empresa)->get(route('empresa.documentos'))->assertOk()
-        ->assertSee('Ler documento (PDF)')
-        ->assertDontSee('A Avalia presta serviços de consulta à contratante.');
+        ->assertSee('Ler e aceitar')
+        ->assertSee('Role até o fim para aceitar')
+        ->assertSee('A Avalia presta serviços de consulta à contratante.');
 });
 
 it('entrega o documento em PDF valido para a empresa', function () {
