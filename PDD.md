@@ -584,6 +584,23 @@ a administração, mas a vitrine não publica o que a seção 7 manda guardar.
 
 ## 11. Atendimento e documentos
 
+### O que a página pública pode prometer
+
+A comunicação vende decisão, e não acesso a dado: "análise de crédito",
+"avaliar clientes", "decidir com segurança", sempre amarrado a uma transação do
+próprio contratante ("antes de vender a prazo"). É o vocabulário que a base
+legal sustenta: a Lei 12.414/2011 define o consulente pela finalidade permitida
+e responsabiliza solidariamente toda a cadeia (art. 16), e a LGPD só dispensa
+consentimento na base de proteção ao crédito (art. 7º, X) quando a finalidade é
+essa. Nunca prometer "consulte qualquer pessoa", "descubra tudo sobre alguém"
+ou acesso a dado fora de uma decisão de negócio.
+
+O rodapé carrega o aviso de uso responsável, padrão do mercado: consultas
+exclusivamente para análise de crédito e risco em negócios do próprio
+contratante, vedado o repasse. Marca de fornecedor continua proibida na página
+(seção 7); citar bureaus, mesmo genericamente, só com contrato de distribuição
+que autorize. Um teste trava o vocabulário e o aviso.
+
 ### Pedidos de contato da página pública
 
 O formulário da campanha na página pública grava o interessado no nosso banco
@@ -942,7 +959,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 441 testes.
+A suíte tem 446 testes.
 
 ### Convite de acesso e senha
 
@@ -1105,8 +1122,13 @@ Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
     fatura como vencida, o cliente recebe o aviso com a data limite antes da
     suspensão. A transição acontece uma vez por fatura, então o aviso também.
 16. Limite de requisição nas consultas e limite diário por empresa.
-17. **Preço visível antes de consultar** e **quanto falta para o mínimo**, no
-    portal. Os dados já existem no banco.
+17. ~~**Preço visível antes de consultar** e **quanto falta para o mínimo**.~~
+    Feitos, com a composição da fatura junto: o preço e a franquia restante
+    aparecem no formulário de consulta, o painel mostra quanto falta para o
+    mínimo (pela mesma conta do fechamento, extraída para ApurarCompetencia), e
+    cada fatura abre a própria composição linha a linha. De quebra, a extração
+    consertou um erro real: consulta falhada ocupava vaga de franquia e
+    empurrava consulta boa para o excedente cobrado.
 18. Reemissão de cobrança quando a criação no provedor falha.
 19. Painel do vendedor separado do painel do administrador.
 20. Glossário e nomenclatura aplicados às telas (seção 18).

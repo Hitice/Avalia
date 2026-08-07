@@ -55,6 +55,30 @@ it('fecha a competencia de quem esta inadimplente', function () {
     expect(app(FecharCompetenciasVencidas::class)(new DateTimeImmutable('2026-08-15')))->toBe(1);
 });
 
+it('nao deixa consulta falhada ocupar vaga de franquia', function () {
+    // A promessa da tela e "nao concluida, sem cobranca", e isso inclui nao
+    // ocupar vaga: uma falha contada na quantidade empurraria uma consulta boa
+    // para o excedente cobrado.
+    $empresa = empresaComPlano();
+    $servico = App\Models\Servico::firstWhere('codigo', 'scpc-bvs');
+    $empresa->plano->franquias()->create(['servico_id' => $servico->id, 'quantidade' => 2]);
+
+    $julho = new DateTimeImmutable('2026-07-10');
+    App\Models\Consulta::factory()->falha()->em($julho)
+        ->create(['cliente_id' => $empresa->id, 'servico_id' => $servico->id]);
+    App\Models\Consulta::factory()->em($julho->modify('+1 day'))
+        ->create(['cliente_id' => $empresa->id, 'servico_id' => $servico->id]);
+    App\Models\Consulta::factory()->em($julho->modify('+2 days'))
+        ->create(['cliente_id' => $empresa->id, 'servico_id' => $servico->id]);
+
+    $fatura = app(FecharCompetencia::class)($empresa, '2026-07')['fatura'];
+
+    // As duas boas cabem na franquia de 2; a falha nao conta em nada.
+    expect($fatura->consumo_excedente_cents)->toBe(0)
+        ->and($fatura->franquia_cents)->toBe(648)
+        ->and($fatura->itens()->sole()->quantidade)->toBe(2);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Vencimento e bloqueio

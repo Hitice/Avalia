@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Mail;
  */
 class FecharCompetencia
 {
+    public function __construct(private readonly ApurarCompetencia $apurar) {}
+
     /** @return array{erro: string|null, fatura: Fatura|null} */
     public function __invoke(Cliente $cliente, string $competencia): array
     {
@@ -41,45 +43,16 @@ class FecharCompetencia
         $plano = $cliente->plano;
         $catalogo = $plano->catalogo;
 
-        $consultas = Consulta::where('cliente_id', $cliente->id)
-            ->where('competencia', $competencia)
-            ->get();
-
-        $franquias = $plano->franquias()->pluck('quantidade', 'servico_id');
-        $itens = [];
-        $bruto = 0;
-        $franquia = 0;
-        $excedente = 0;
-
-        // A franquia é aplicada serviço a serviço e em quantidade. Fazê-la
-        // sobre a soma em reais permitiria que um serviço barato cobrisse um
-        // caro, contrariando o que foi contratado.
-        foreach ($consultas->groupBy('servico_id') as $servicoId => $grupo) {
-            $grupo = $grupo->sortBy('id')->values();
-            $quantidade = $grupo->count();
-            $incluidas = min($quantidade, (int) ($franquias[$servicoId] ?? 0));
-            $valorBruto = (int) $grupo->sum('preco_cents');
-            $valorFranquia = (int) $grupo->take($incluidas)->sum('preco_cents');
-            $valorExcedente = (int) $grupo->skip($incluidas)->sum('preco_cents');
-
-            $bruto += $valorBruto;
-            $franquia += $valorFranquia;
-            $excedente += $valorExcedente;
-            $itens[] = [
-                'servico_id' => $servicoId,
-                'servico_nome' => $grupo->first()->servico?->nome ?? 'Serviço',
-                'quantidade' => $quantidade,
-                'quantidade_franquia' => $incluidas,
-                'quantidade_excedente' => $quantidade - $incluidas,
-                'valor_bruto_cents' => $valorBruto,
-                'valor_franquia_cents' => $valorFranquia,
-                'valor_excedente_cents' => $valorExcedente,
-                'custo_cents' => (int) $grupo->sum('custo_cents'),
-            ];
-        }
+        // A conta do mes vive em ApurarCompetencia, que o painel do cliente
+        // tambem le: a tela e a fatura tem que fechar no centavo.
+        $apurado = ($this->apurar)($cliente, $competencia);
+        $itens = $apurado['itens'];
+        $bruto = $apurado['bruto'];
+        $franquia = $apurado['franquia'];
+        $excedente = $apurado['excedente'];
 
         $realizado = $excedente;
-        $custo = (int) $consultas->sum('custo_cents');
+        $custo = $apurado['custo'];
 
         // O minimo e piso de cobranca: o cliente paga o maior entre o que
         // consumiu e o que contratou, mas so custa o que consultou de fato.

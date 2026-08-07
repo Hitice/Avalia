@@ -43,6 +43,16 @@
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Consumo do mês</span>
             <span class="mt-1 block font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($consumoCents) }}</span>
+            {{-- O minimo compara com o que passa da franquia, a mesma conta do
+                 fechamento. Surpresa de fatura minima e evitavel: a regua fica
+                 aqui, antes de a fatura existir. --}}
+            @if ($faltaMinimoCents !== null)
+                @if ($faltaMinimoCents > 0)
+                    <span class="ajuda-campo">Faltam {{ Dinheiro::brl($faltaMinimoCents) }} para o consumo mínimo do plano.</span>
+                @else
+                    <span class="ajuda-campo">Consumo mínimo do plano atingido.</span>
+                @endif
+            @endif
         </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Faturas em aberto</span>

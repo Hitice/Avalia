@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Consumo\ApurarCompetencia;
 use App\Actions\Consumo\ExecutarConsulta;
 use App\Actions\Documentos\RegistrarAceiteDocumento;
 use App\Models\AceiteDocumento;
 use App\Models\Consulta;
 use App\Models\DocumentoLegal;
 use App\Models\Servico;
+use App\Support\Dinheiro;
 use App\Support\DocumentoPdf;
 use App\Support\FiltroConsultas;
 use Illuminate\Http\Request;
@@ -55,6 +57,16 @@ class AreaClienteController extends Controller
             ->where('situacao', Consulta::SUCESSO)
             ->sum('preco_cents');
 
+        // Quanto falta para o consumo minimo, pela mesma conta do fechamento:
+        // o que conta para o minimo e o excedente da franquia, nao o bruto.
+        // Surpresa de fatura minima e a reclamacao mais evitavel que existe.
+        $faltaMinimoCents = null;
+
+        if ($plano && $plano->consumo_minimo_cents > 0) {
+            $apurado = app(ApurarCompetencia::class)($empresa, $competencia);
+            $faltaMinimoCents = max(0, $plano->consumo_minimo_cents - $apurado['excedente']);
+        }
+
         $emAberto = $empresa->faturas()
             ->with('cobrancaAsaas')
             ->where('situacao_pagamento', '!=', 'liquidado')
@@ -70,7 +82,7 @@ class AreaClienteController extends Controller
             ->get();
 
         return view('paginas.empresa.painel', compact(
-            'empresa', 'competencia', 'plano', 'uso', 'consumoCents', 'emAberto', 'pendentes', 'ultimas',
+            'empresa', 'competencia', 'plano', 'uso', 'consumoCents', 'faltaMinimoCents', 'emAberto', 'pendentes', 'ultimas',
         ));
     }
 
@@ -78,10 +90,38 @@ class AreaClienteController extends Controller
     public function consultar()
     {
         $empresa = auth('empresa')->user();
+        $plano = $empresa->plano;
+        $servicos = $plano?->servicosDisponiveis() ?? collect();
+
+        // Consultas concluidas do mes por servico: e o que ocupa franquia.
+        $uso = $empresa->consultas()
+            ->where('competencia', Consulta::competenciaDe())
+            ->where('situacao', Consulta::SUCESSO)
+            ->selectRaw('servico_id, count(*) as quantidade')
+            ->groupBy('servico_id')
+            ->pluck('quantidade', 'servico_id');
+
+        // O preco de cada servico vai junto do nome: ninguem deveria descobrir
+        // o valor da consulta na fatura. A franquia aparece quando existe.
+        $precos = $servicos->mapWithKeys(function ($servico) use ($plano, $uso) {
+            $franquia = $plano->franquiaDe($servico->codigo);
+            $usadas = (int) ($uso[$servico->id] ?? 0);
+
+            $texto = 'Valor por consulta: '.Dinheiro::brl((int) $plano->precoDe($servico->codigo));
+
+            if ($franquia > 0) {
+                $texto .= $usadas < $franquia
+                    ? ' · '.($franquia - $usadas).' de '.$franquia.' consultas da franquia ainda incluídas na mensalidade'
+                    : ' · As '.$franquia.' consultas da franquia deste mês já foram usadas';
+            }
+
+            return [$servico->id => $texto];
+        });
 
         return view('paginas.empresa.consultar', [
             'empresa' => $empresa,
-            'servicos' => $empresa->plano?->servicosDisponiveis() ?? collect(),
+            'servicos' => $servicos,
+            'precos' => $precos,
             'pendentes' => $this->documentosPendentes($empresa),
         ]);
     }
@@ -115,7 +155,9 @@ class AreaClienteController extends Controller
 
         return view('paginas.empresa.faturas', [
             'empresa' => $empresa,
-            'faturas' => $empresa->faturas()->with('cobrancaAsaas')
+            // Os itens vao junto: a fatura precisa se explicar linha a linha
+            // sem chamado ao atendimento. Custo e margem nao existem aqui.
+            'faturas' => $empresa->faturas()->with('cobrancaAsaas', 'itens')
                 ->orderByDesc('competencia')->paginate(self::POR_PAGINA),
         ]);
     }

@@ -23,6 +23,19 @@ it('apresenta a Avalia com as duas saidas', function () {
         ->assertSee('Campanha de adesão');
 });
 
+it('vende decisao amarrada a finalidade legitima, com o aviso de uso responsavel', function () {
+    // O vocabulario da pagina e juridico antes de ser comercial: consulta
+    // amarrada a negocio do proprio contratante (Lei 12.414 e LGPD art. 7, X)
+    // e o aviso de uso responsavel que todo o mercado carrega. Prometer
+    // "consulte qualquer pessoa" e o que este teste impede.
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('Análise de crédito')
+        ->assertSee('antes de vender a prazo')
+        ->assertSee('Lei 12.414/2011')
+        ->assertSee('exclusivamente à análise de crédito e de risco');
+});
+
 it('marca o carrossel de consultas como simulacao e mascara os documentos', function () {
     // A vitrine mostra consultas acontecendo, e por isso mesmo precisa dizer
     // que e simulacao: pagina publica exibindo consulta que parecesse real

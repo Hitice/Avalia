@@ -36,15 +36,18 @@
             <form method="POST" action="{{ route('empresa.consultas.executar') }}" class="grid gap-5 sm:grid-cols-2">
                 @csrf
 
-                <div>
+                <div x-data="{ escolhido: '{{ old('servico_id', $servicos->first()?->id) }}', precos: {{ Illuminate\Support\Js::from($precos) }} }">
                     <label for="servico_id" class="rotulo-campo">Serviço</label>
-                    <select id="servico_id" name="servico_id" class="campo" required>
+                    <select id="servico_id" name="servico_id" class="campo" required x-model="escolhido">
                         @foreach ($servicos as $servico)
                             <option value="{{ $servico->id }}" @selected(old('servico_id') == $servico->id)>
                                 {{ $servico->nome }}
                             </option>
                         @endforeach
                     </select>
+                    {{-- O preco antes do clique: ninguem deveria descobrir o
+                         valor da consulta na fatura. --}}
+                    <span class="ajuda-campo" x-show="precos[escolhido]" x-text="precos[escolhido]"></span>
                 </div>
 
                 <div>

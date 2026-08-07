@@ -48,6 +48,50 @@ it('nao leva custo, lucro nem margem para o portal do cliente', function () {
     }
 });
 
+it('mostra no painel quanto falta para o consumo minimo', function () {
+    // Surpresa de fatura minima e a reclamacao mais evitavel: a regua fica no
+    // painel, antes de a fatura existir. Sem consulta nenhuma, falta o minimo
+    // inteiro.
+    $empresa = empresaComPlano();
+
+    comoEmpresa($empresa)->get(route('empresa.painel'))->assertOk()
+        ->assertSee("Faltam R$\u{00A0}900,00 para o consumo mínimo do plano.", false);
+});
+
+it('mostra o preco do servico antes de consultar', function () {
+    // Ninguem deveria descobrir o valor da consulta na fatura.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+    $empresa->plano->franquias()->create(['servico_id' => $servico->id, 'quantidade' => 10]);
+
+    app(RegistrarConsulta::class)($empresa, $servico, 4);
+
+    $precos = comoEmpresa($empresa)->get(route('empresa.consultar'))->assertOk()
+        ->viewData('precos');
+
+    expect($precos[$servico->id])->toContain('Valor por consulta')
+        ->toContain("R$\u{00A0}3,24")
+        ->toContain('6 de 10 consultas da franquia');
+});
+
+it('abre a composicao da fatura sem custo nem margem', function () {
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    // Fecha a competencia em que as consultas caem, senao a fatura sai vazia.
+    app(RegistrarConsulta::class)($empresa, $servico, 2);
+    app(FecharCompetencia::class)($empresa, App\Models\Consulta::competenciaDe());
+
+    $html = comoEmpresa($empresa)->get(route('empresa.faturas'))->assertOk()->getContent();
+
+    // A fatura se explica linha a linha: servico consumido e o complemento
+    // que fecha a conta no minimo contratado.
+    expect($html)->toContain($servico->nome)
+        ->toContain('2 consultas')
+        ->toContain('Complemento até o consumo mínimo contratado')
+        ->not->toContain('Custo');
+});
+
 it('mostra a cada empresa so as faturas dela', function () {
     $minha = empresaComPlano();
     $alheia = empresaComPlano();

@@ -190,10 +190,14 @@
                         <span class="text-brand-500">decisão certa.</span>
                     </h1>
 
+                    {{-- A promessa vende decisao, nao acesso a dado, e amarra a
+                         consulta a uma venda do proprio cliente: e o vocabulario
+                         que a Lei 12.414 e o art. 7, X, da LGPD sustentam. --}}
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Crédito e consulta veicular em um só lugar. Sua empresa consulta
-                        antes de vender, acompanha o consumo e obtém mais segurança na operação.
+                        Análise de crédito e consulta veicular em um só lugar. Sua empresa
+                        avalia clientes antes de vender a prazo, acompanha o consumo e
+                        decide com mais segurança.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
@@ -512,6 +516,15 @@
         </a>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
+            {{-- O aviso de uso responsavel que todo o mercado carrega: a
+                 consulta serve a decisao de negocio do proprio contratante,
+                 e e isso que a base legal cobre. --}}
+            <p class="mx-auto w-full max-w-[87rem] px-6 pt-8 text-xs text-gray-400 dark:text-gray-500">
+                As consultas destinam-se exclusivamente à análise de crédito e de risco em
+                negócios do próprio contratante, nos termos da Lei 12.414/2011 e do
+                art. 7º, X, da Lei 13.709/2018 (LGPD). É vedado o repasse das informações
+                ou seu uso para qualquer outra finalidade.
+            </p>
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="28" one />
