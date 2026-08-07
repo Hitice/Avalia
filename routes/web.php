@@ -9,6 +9,7 @@ use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
@@ -192,6 +193,15 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::get('/novo', [DocumentoController::class, 'criar'])->name('criar');
         Route::get('/{documento}/pdf', [DocumentoController::class, 'pdf'])->name('pdf');
         Route::post('/', [DocumentoController::class, 'salvar'])->name('salvar');
+    });
+
+    // Credenciais dos servicos externos, criptografadas no banco: trocar uma
+    // chave de API nao pode depender de acesso SSH ao servidor.
+    Route::middleware('admin')->prefix('conexoes')->name('conexoes.')->group(function () {
+        Route::get('/', [ConexaoController::class, 'index'])->name('index');
+        Route::put('/{fornecedor}', [ConexaoController::class, 'atualizar'])->name('atualizar');
+        Route::post('/{fornecedor}/alternar', [ConexaoController::class, 'alternar'])->name('alternar');
+        Route::post('/{fornecedor}/testar', [ConexaoController::class, 'testar'])->name('testar');
     });
 
     Route::middleware('admin')->prefix('campanhas')->name('campanhas.')->group(function () {

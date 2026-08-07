@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Actions\Financeiro\RegistrarLiquidacao;
 use App\Models\CobrancaAsaas;
 use App\Models\EventoAsaas;
+use App\Services\AsaasClient;
 use Illuminate\Http\Request;
 
 class WebhookAsaasController extends Controller
 {
-    public function __invoke(Request $request, RegistrarLiquidacao $liquidar)
+    public function __invoke(Request $request, RegistrarLiquidacao $liquidar, AsaasClient $asaas)
     {
-        $token = (string) config('services.asaas.webhook_token');
+        // O token vem da tela de Conexoes (com o .env de reserva): o mesmo
+        // cofre que guarda a chave da API guarda o segredo do webhook.
+        $token = $asaas->tokenDoWebhook();
         abort_unless($token !== '' && hash_equals($token, (string) $request->header('asaas-access-token')), 403);
 
         $payload = $request->all();

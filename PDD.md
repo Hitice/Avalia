@@ -684,6 +684,35 @@ O que já está implementado desta seção:
   destino. Consultar já era bloqueado sem aceite; agora a pendência também não
   espera a pessoa achar o menu.
 
+### A trilha fala a língua de quem lê
+
+A tela de Auditoria traduz tudo: ação, entidade e detalhes têm nome de negócio
+em Rotulos, num lugar só, e um teste varre o código e derruba a suíte quando
+alguém registra ação nova sem rótulo. O registro congela o nome da entidade no
+momento em que é escrito (a razão social, o título do documento), então a
+linha se explica sozinha mesmo depois de a entidade ser removida. Nome de
+consumidor consultado nunca entra no congelado: a trilha vive para sempre e o
+dado pessoal tem prazo.
+
+### Conexões com serviços externos
+
+As credenciais de cobrança, bureaus e consulta veicular vivem no módulo
+Conexões da administração, criptografadas com a chave da aplicação, e não no
+.env: na hospedagem compartilhada o .env só se edita por SSH, e trocar uma
+chave de API não pode depender de acesso ao servidor. O .env segue como
+reserva. Campo secreto nunca volta para a tela (em branco na edição significa
+manter), a trilha registra quais campos mudaram e nunca o valor, e o teste de
+conexão grava carimbo com o resultado. A chave e a URL andam juntas: o
+ambiente da conexão (produção ou homologação) escolhe as duas de uma vez.
+
+Fornecedores suportados e o caminho de cada um: Asaas (cobrança, API key +
+token de webhook, sandbox próprio), Serasa Experian (OAuth2 com client id e
+secret), SPC Brasil (operador e senha da CDL, SOAP, exige IP brasileiro),
+Equifax | Boa Vista (OAuth2, portal de desenvolvedor com sandbox), consulta
+veicular (token do contrato) e SCR (via instituição autorizada pelo BACEN, com
+consentimento do titular em toda consulta). Conector real de bureau entra no
+mapa do container lendo credencial daqui; sem conexão ativa, vale o simulado.
+
 ## 12. Painéis, indicadores e BI
 
 ### Um painel por trabalho, e não um painel filtrado
@@ -966,7 +995,7 @@ formatação), `Margem` (imposto, lucro, comissão, piso e preço alvo), `Comiss
 (CNPJ, incluindo o alfanumérico) e `Planilha` (xlsx sem dependência externa).
 Regra de negócio que grava vive em `app/Actions`.
 
-A suíte tem 448 testes.
+A suíte tem 460 testes.
 
 ### Convite de acesso e senha
 
