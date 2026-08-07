@@ -103,7 +103,7 @@ class ConexaoController extends Controller
      * "Funcionava as 14h de ontem" e informacao de diagnostico: o carimbo fica
      * na tela para o operador saber quando a conexao foi conferida por ultimo.
      */
-    public function testar(string $fornecedor, AsaasClient $asaas)
+    public function testar(string $fornecedor, AsaasClient $asaas, \App\Services\BoaVistaClient $boaVista)
     {
         abort_unless(Fornecedores::existe($fornecedor), 404);
 
@@ -115,6 +115,7 @@ class ConexaoController extends Controller
 
         [$ok, $detalhe] = match ($fornecedor) {
             'asaas' => $asaas->testar(),
+            'boa-vista' => $boaVista->testar(),
             default => [null, 'Este fornecedor ainda não tem teste automático: a primeira consulta real fará a prova.'],
         };
 

@@ -47,7 +47,11 @@
                             <select class="campo" id="ambiente-{{ $slug }}" name="ambiente">
                                 @foreach ($definicao['ambientes'] as $ambiente => $url)
                                     <option value="{{ $ambiente }}" @selected(($conexao->ambiente ?? 'homologacao') === $ambiente)>
-                                        {{ $ambiente === 'producao' ? 'Produção' : 'Homologação (teste)' }}
+                                        @switch($ambiente)
+                                            @case('producao') Produção @break
+                                            @case('sandbox') Sandbox (livre, sem custo) @break
+                                            @default Homologação (teste)
+                                        @endswitch
                                     </option>
                                 @endforeach
                             </select>

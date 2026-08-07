@@ -72,12 +72,26 @@ final class Fornecedores
             'boa-vista' => [
                 'nome' => 'Equifax | Boa Vista',
                 'categoria' => 'Bureau de crédito',
-                'descricao' => 'Consultas SCPC e família ACERTA (cadastro, restritivos, score). Portal de desenvolvedor com sandbox.',
+                'descricao' => 'Consultas SCPC e relatórios (cadastro, restritivos, score). O portal do desenvolvedor tem sandbox aberto, com credenciais próprias por ambiente.',
                 'doc' => 'https://developer.equifax.com/products/apiproducts/equifax-boa-vista-api-scpc',
                 'campos' => [
                     ['chave' => 'client_id', 'rotulo' => 'Client ID', 'secreto' => false],
                     ['chave' => 'client_secret', 'rotulo' => 'Client Secret', 'secreto' => true],
-                    ['chave' => 'base_url', 'rotulo' => 'URL do serviço', 'secreto' => false],
+                    // Os dois escopos que o portal mostra na app, um por
+                    // produto: cada token vale para um escopo so.
+                    ['chave' => 'escopo_scpc', 'rotulo' => 'Escopo do SCPC', 'secreto' => false,
+                        'ajuda' => 'Copie da app no portal, em Equifax Boa Vista API SCPC. Termina em /business/scpc-gateway/v1.'],
+                    ['chave' => 'escopo_relatorios', 'rotulo' => 'Escopo dos Relatórios', 'secreto' => false,
+                        'ajuda' => 'Copie da app no portal, em Equifax Boa Vista API Reports. Termina em /business/reporting-orchestrator/v1.'],
+                    ['chave' => 'caminho_consulta', 'rotulo' => 'Caminho da consulta', 'secreto' => false,
+                        'ajuda' => 'O recurso depois do escopo, conforme a API Reference do seu contrato. Em branco, a conexão só valida a credencial.'],
+                ],
+                // Os tres ambientes do portal. A credencial e propria de cada
+                // um: a de sandbox nao vale em producao.
+                'ambientes' => [
+                    'producao' => 'https://api.equifax.com',
+                    'homologacao' => 'https://api.uat.equifax.com',
+                    'sandbox' => 'https://api.sandbox.equifax.com',
                 ],
             ],
 
