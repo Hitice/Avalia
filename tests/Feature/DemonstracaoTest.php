@@ -56,6 +56,65 @@ it('desconta o custo das demonstracoes da comissao a receber', function () {
         ->and($resposta->viewData('aReceber'))->toBe($fatura->comissao_cents - 300);
 });
 
+it('mostra a mesma comissao no painel do admin e na carteira do vendedor', function () {
+    // Duas telas com numeros diferentes para o mesmo repasse e erro de
+    // pagamento esperando acontecer: o painel mostrava o bruto e a carteira
+    // ja mostrava o liquido das demonstracoes.
+    [$vendedor, $empresa] = carteira();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    app(App\Actions\Consumo\RegistrarConsulta::class)($empresa, $servico, 10);
+    $fatura = app(App\Actions\Consumo\FecharCompetencia::class)($empresa, Consulta::competenciaDe())['fatura'];
+    app(App\Actions\Financeiro\RegistrarLiquidacao::class)($fatura);
+
+    comoVendedor($vendedor)->post(route('carteira.consultar.executar'), [
+        'servico_id' => $servico->id, 'documento' => DOC_DEMO_OK,
+    ]);
+
+    $naCarteira = comoVendedor($vendedor)->get(route('carteira'))->assertOk()->viewData('aReceber');
+    $noPainel = admin()->get(route('painel'))->assertOk()->viewData('comissaoPorVendedor')
+        ->firstWhere('nome', $vendedor->nome);
+
+    expect($noPainel['cents'])->toBe($naCarteira)
+        ->and($noPainel['demonstracoes'])->toBe(150)
+        ->and($naCarteira)->toBe($fatura->comissao_cents - 150);
+});
+
+it('avisa no painel quando as rotinas automaticas nao rodam', function () {
+    // O cron falha calado. Sem batida, o painel diz que nunca rodou.
+    $batida = storage_path('logs/cron-batida.txt');
+    @unlink($batida);
+
+    admin()->get(route('painel'))->assertOk()
+        ->assertSee('ainda não rodaram nesta instalação');
+
+    // Batida velha e pior que ausencia: rodava e parou.
+    file_put_contents($batida, 'x');
+    touch($batida, now()->subHour()->getTimestamp());
+
+    admin()->get(route('painel'))->assertOk()
+        ->assertSee('não rodam há mais de 10 minutos');
+
+    // Batida fresca, nenhum aviso.
+    touch($batida, now()->getTimestamp());
+
+    admin()->get(route('painel'))->assertOk()
+        ->assertDontSee('rotinas automáticas não rodam');
+
+    @unlink($batida);
+});
+
+it('mostra a margem do periodo no painel', function () {
+    // Consumo e custo estavam os dois na tela e a subtracao ficava na cabeca.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    app(App\Actions\Consumo\RegistrarConsulta::class)($empresa, $servico, 4);
+
+    // 4 x (R$ 3,24 de preco - R$ 1,50 de custo) = R$ 6,96.
+    expect(admin()->get(route('painel'))->assertOk()->viewData('margemCents'))->toBe(696);
+});
+
 it('respeita o teto diario de demonstracoes', function () {
     [$vendedor] = carteira();
     $servico = Servico::firstWhere('codigo', 'scpc-bvs');

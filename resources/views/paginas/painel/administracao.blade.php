@@ -18,6 +18,9 @@
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Consultas no período</span>
             <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $consultas }}</span>
+            @if ($falhas > 0)
+                <span class="ajuda-campo">{{ $falhas }} não {{ $falhas === 1 ? 'concluída' : 'concluídas' }}, sem cobrança.</span>
+            @endif
         </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Consumo do período</span>
@@ -28,6 +31,13 @@
             <span class="rotulo-grupo block">Custo do fornecedor</span>
             <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($custoCents) }}</span>
             <span class="ajuda-campo">Do consumo deste período.</span>
+        </div>
+        <div class="cartao p-5">
+            <span class="rotulo-grupo block">Margem do período</span>
+            <span class="mt-1 block text-2xl font-semibold tabular-nums {{ $margemCents >= 0 ? 'text-success-600 dark:text-success-400' : 'text-error-600 dark:text-error-400' }}">
+                {{ Dinheiro::brl($margemCents) }}
+            </span>
+            <span class="ajuda-campo">Consumo menos custo, antes de imposto e comissão.</span>
         </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">A receber</span>
@@ -41,7 +51,22 @@
     </div>
 
     @if (session('ok'))
-        <div class="aviso aviso-sucesso mb-6">{{ session('ok') }}</div>
+        <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>
+    @endif
+
+    {{-- O cron falha calado: fatura para de vencer, backup para de sair e
+         ninguem fica sabendo. O aviso mora na primeira tela que a
+         administracao abre. --}}
+    @if ($rotinasOk === false)
+        <div class="aviso aviso-erro mb-6">
+            As rotinas automáticas não rodam há mais de 10 minutos. Fechamento de fatura,
+            cobrança e cópia do banco dependem delas. Confira o agendador no painel da hospedagem.
+        </div>
+    @elseif ($rotinasOk === null)
+        <div class="aviso aviso-alerta mb-6">
+            As rotinas automáticas ainda não rodaram nesta instalação. Configure o agendador
+            para que fechamento de fatura, cobrança e cópia do banco aconteçam sozinhos.
+        </div>
     @endif
 
     {{-- Pedidos de contato da pagina publica. Lead esfria em horas, entao a
@@ -131,22 +156,26 @@
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão liberada por vendedor</h2>
-                <p class="ajuda-campo mt-1">Faturas já liquidadas pelas empresas.</p>
+                <p class="ajuda-campo mt-1">Faturas já liquidadas, menos o custo das demonstrações de cada vendedor.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[24rem]">
                     <thead class="tabela-cabecalho"><tr>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Vendedor</th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Demonstrações</th>
                         <th scope="col" class="px-5 py-3 text-right font-medium">A repassar</th>
                     </tr></thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @forelse ($comissaoPorVendedor as $linha)
                             <tr>
                                 <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $linha['nome'] }}</td>
+                                <td class="px-5 py-4 text-right tabular-nums text-gray-500 dark:text-gray-400">
+                                    {{ $linha['demonstracoes'] > 0 ? '- '.Dinheiro::brl($linha['demonstracoes']) : '-' }}
+                                </td>
                                 <td class="px-5 py-4 text-right tabular-nums">{{ Dinheiro::brl($linha['cents']) }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="2" class="tabela-vazia">Nenhuma comissão liberada até agora.</td></tr>
+                            <tr><td colspan="3" class="tabela-vazia">Nenhuma comissão liberada até agora.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

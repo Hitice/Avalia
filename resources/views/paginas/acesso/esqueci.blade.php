@@ -20,7 +20,7 @@
             </p>
 
             @if (session('ok'))
-                <div class="aviso aviso-sucesso mt-5">{{ session('ok') }}</div>
+                <div class="aviso aviso-ok mt-5">{{ session('ok') }}</div>
             @endif
 
             <form method="POST" action="{{ route('senha.esqueci.enviar') }}" class="mt-6 space-y-5">

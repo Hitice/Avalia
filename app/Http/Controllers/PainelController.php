@@ -59,14 +59,45 @@ class PainelController extends Controller
             'aReceber' => (int) Fatura::whereIn('situacao_pagamento', [Fatura::PAGAMENTO_PENDENTE, Fatura::PAGAMENTO_VENCIDO])->sum('total_cents'),
             'vencido' => (int) Fatura::where('situacao_pagamento', Fatura::PAGAMENTO_VENCIDO)->sum('total_cents'),
 
+            // O numero que faltava: consumo menos custo. Estavam os dois lados
+            // na tela e a subtracao ficava na cabeca de quem olhava.
+            'margemCents' => (int) (clone $doMes)->where('situacao', Consulta::SUCESSO)->sum('preco_cents')
+                - (int) (clone $doMes)->where('situacao', Consulta::SUCESSO)->sum('custo_cents'),
+
+            // Consulta que nao completou nao custa nem cobra, mas muita falha
+            // e fornecedor degradando, e isso so aparece se estiver na tela.
+            'falhas' => (clone $doMes)->where('situacao', Consulta::FALHA)->count(),
+
             'aCaminhoDaSuspensao' => Alertas::aCaminhoDaSuspensao(Fatura::query()),
             'comissaoPorVendedor' => $this->comissaoPorVendedor(),
+
+            // Saude do agendador. O cron falha em silencio absoluto: nada
+            // quebra, nada aparece, so deixa de acontecer. A batida por minuto
+            // vira um aviso na primeira tela em vez de uma descoberta tardia.
+            'rotinasOk' => $this->rotinasVivas(),
 
             // Pedidos de contato da pagina publica. Aparecem aqui, e nao numa
             // tela propria: lead esfria em horas, e o painel e a tela que o
             // administrador abre primeiro.
             'interessados' => Interessado::aguardando()->latest()->limit(6)->get(),
         ]);
+    }
+
+    /**
+     * O agendador bateu nos ultimos 10 minutos?
+     *
+     * Null quando nem o arquivo existe (cron nunca rodou nesta instalacao).
+     * A folga de 10 minutos absorve atraso de fila sem gerar alarme falso.
+     */
+    private function rotinasVivas(): ?bool
+    {
+        $arquivo = storage_path('logs/cron-batida.txt');
+
+        if (! is_file($arquivo)) {
+            return null;
+        }
+
+        return filemtime($arquivo) > now()->subMinutes(10)->getTimestamp();
     }
 
     /** Minha carteira esta bem? Quem parou de usar e quem vou perder. */
@@ -96,13 +127,18 @@ class PainelController extends Controller
     }
 
     /**
-     * Comissao liberada, aberta por vendedor.
+     * Comissao liberada, aberta por vendedor, ja com as demonstracoes fora.
      *
      * O total sozinho nao serve para pagar ninguem: o repasse e por pessoa, e
      * fechar a soma sem saber de quem e cada parte e o que faz o financeiro
      * abrir o Financeiro e somar a mao todo mes.
      *
-     * @return \Illuminate\Support\Collection<int, array{nome: string, cents: int}>
+     * O desconto das demonstracoes acontece AQUI tambem, e nao so na carteira:
+     * a tela do vendedor ja mostrava o liquido, e o painel mostrava o bruto.
+     * Duas telas com numeros diferentes para o mesmo repasse e erro de
+     * pagamento esperando acontecer.
+     *
+     * @return \Illuminate\Support\Collection<int, array{nome: string, cents: int, demonstracoes: int}>
      */
     private function comissaoPorVendedor(): \Illuminate\Support\Collection
     {
@@ -113,10 +149,22 @@ class PainelController extends Controller
             ->groupBy('vendedor_id')
             ->pluck('cents', 'vendedor_id');
 
-        $nomes = Staff::whereIn('id', $totais->keys())->pluck('nome', 'id');
+        $demonstracoes = Consulta::query()
+            ->whereNotNull('vendedor_id')
+            ->where('situacao', Consulta::SUCESSO)
+            ->selectRaw('vendedor_id, sum(custo_cents) as cents')
+            ->groupBy('vendedor_id')
+            ->pluck('cents', 'vendedor_id');
 
-        return $totais
-            ->map(fn ($cents, $id) => ['nome' => $nomes[$id] ?? 'Vendedor removido', 'cents' => (int) $cents])
+        $nomes = Staff::whereIn('id', $totais->keys()->merge($demonstracoes->keys())->unique())->pluck('nome', 'id');
+
+        return $nomes
+            ->map(fn ($nome, $id) => [
+                'nome' => $nome,
+                'demonstracoes' => (int) ($demonstracoes[$id] ?? 0),
+                'cents' => max(0, (int) ($totais[$id] ?? 0) - (int) ($demonstracoes[$id] ?? 0)),
+            ])
+            ->filter(fn ($linha) => $linha['cents'] > 0 || $linha['demonstracoes'] > 0)
             ->sortByDesc('cents')
             ->values();
     }
