@@ -136,6 +136,10 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
     // O vendedor abre a carteira e o cadastro de empresa da carteira dele.
     // O resto da gestao mostra custo, margem ou dinheiro de terceiros.
     $doVendedor = ['carteira', 'carteira.consultas', 'carteira.servicos', 'carteira.simulacao',
+        // Demonstracao: consulta do vendedor no proprio ambiente, com teto e
+        // custo descontado da comissao dele.
+        'carteira.consultar', 'carteira.consultar.executar',
+        'carteira.demonstracoes.ver', 'carteira.demonstracoes.pdf',
         'painel', 'sair', 'empresas.criar', 'empresas.salvar',
         'empresas.editar', 'empresas.atualizar', 'empresas.remover', 'empresas.convite'];
 

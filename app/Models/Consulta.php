@@ -39,6 +39,9 @@ class Consulta extends Model
     /** Teto diario de consultas por empresa, enquanto nao houver um por contrato. */
     public const LIMITE_DIARIO = 500;
 
+    /** Teto diario de demonstracoes por vendedor: argumento de venda, nao operacao. */
+    public const LIMITE_DIARIO_DEMONSTRACAO = 10;
+
     /**
      * A finalidade declarada de toda consulta do portal.
      *
@@ -50,7 +53,7 @@ class Consulta extends Model
     public const FINALIDADE_PADRAO = 'Pesquisa de score de crédito, conforme os termos aceitos';
 
     protected $fillable = [
-        'cliente_id', 'servico_id', 'operador_id', 'competencia', 'preco_cents', 'custo_cents',
+        'cliente_id', 'servico_id', 'operador_id', 'vendedor_id', 'competencia', 'preco_cents', 'custo_cents',
         'documento', 'finalidade', 'solicitante', 'situacao',
         'referencia_externa', 'duracao_ms', 'resposta', 'expurgada_em', 'expurgar_em',
     ];
@@ -89,6 +92,11 @@ class Consulta extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    public function vendedor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'vendedor_id');
     }
 
     public function servico(): BelongsTo

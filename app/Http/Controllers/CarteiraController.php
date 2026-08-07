@@ -51,6 +51,11 @@ class CarteiraController extends Controller
 
         $competencia = Consulta::competenciaDe();
 
+        $demonstracoes = (int) Consulta::query()
+            ->where('vendedor_id', $vendedor->id)
+            ->where('situacao', Consulta::SUCESSO)
+            ->sum('custo_cents');
+
         return view('paginas.carteira.index', [
             'vendedor' => $vendedor,
             'empresas' => $empresas,
@@ -64,8 +69,11 @@ class CarteiraController extends Controller
                 ->selectRaw('cliente_id, sum(preco_cents) as total')
                 ->groupBy('cliente_id')
                 ->pluck('total', 'cliente_id'),
-            'aReceber' => (int) $faturas->whereNotNull('comissao_liberada_em')->sum('comissao_cents'),
+            'aReceber' => max(0, (int) $faturas->whereNotNull('comissao_liberada_em')->sum('comissao_cents') - $demonstracoes),
             'aConfirmar' => (int) $faturas->whereNull('comissao_liberada_em')->sum('comissao_cents'),
+            // O custo das demonstracoes sai da comissao (regra do negocio); a
+            // propria consulta e o registro do desconto.
+            'demonstracoes' => $demonstracoes,
         ]);
     }
 
@@ -84,10 +92,11 @@ class CarteiraController extends Controller
 
         // O recorte vem do vinculo da empresa com o vendedor, nao da URL: sem
         // esta subconsulta, filtro nenhum impediria ver a carteira alheia.
-        $daCarteira = Consulta::query()->whereIn(
-            'cliente_id',
-            Cliente::query()->where('vendedor_id', $vendedor->id)->select('id'),
-        );
+        $daCarteira = Consulta::query()->where(fn ($q) => $q
+            ->whereIn('cliente_id', Cliente::query()->where('vendedor_id', $vendedor->id)->select('id'))
+            // As demonstracoes dele entram na mesma lista: sao consultas da
+            // carteira tanto quanto as dos clientes.
+            ->orWhere('vendedor_id', $vendedor->id));
 
         $filtradas = FiltroConsultas::aplicar($daCarteira, $pedido);
 
@@ -136,6 +145,76 @@ class CarteiraController extends Controller
             'planos' => $planos,
             'servicos' => $servicos,
             'precos' => $precos,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demonstracao
+    |--------------------------------------------------------------------------
+    |
+    | A consulta que fecha venda: o vendedor consulta o CNPJ do prospect no
+    | proprio ambiente e mostra o resultado na hora, sem entrar em login de
+    | cliente. Preco zero, custo real descontado da comissao dele (regra do
+    | negocio), teto diario proprio.
+    |
+    */
+
+    public function consultar()
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $usadasHoje = Consulta::query()
+            ->where('vendedor_id', $vendedor->id)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        return view('paginas.carteira.consultar', [
+            'vendedor' => $vendedor,
+            'servicos' => Servico::query()->disponiveis()->orderBy('numero')->get(),
+            'restantes' => max(0, Consulta::LIMITE_DIARIO_DEMONSTRACAO - $usadasHoje),
+        ]);
+    }
+
+    public function executarDemonstracao(Request $pedido, \App\Actions\Consumo\ExecutarDemonstracao $demonstrar)
+    {
+        $dados = $pedido->validate([
+            'servico_id' => ['required', 'integer'],
+            'documento' => ['required', 'string', 'min:11', 'max:20'],
+        ], [
+            'documento.min' => 'Informe um CPF ou CNPJ completo.',
+        ]);
+
+        $resultado = $demonstrar(
+            Auth::guard('staff')->user(),
+            Servico::findOrFail($dados['servico_id']),
+            $dados['documento'],
+        );
+
+        if ($resultado['erro']) {
+            return back()->withInput()->with('erro', $resultado['erro']);
+        }
+
+        return redirect()->route('carteira.demonstracoes.ver', $resultado['consulta']);
+    }
+
+    /** O resultado, so para o vendedor que consultou. */
+    public function verDemonstracao(Consulta $consulta)
+    {
+        abort_unless($consulta->vendedor_id === Auth::guard('staff')->id(), 403);
+
+        return view('paginas.carteira.consulta', ['consulta' => $consulta->load('servico')]);
+    }
+
+    /** O PDF compartilhavel: arquivo em mao, nunca dado pessoal em URL. */
+    public function demonstracaoPdf(Consulta $consulta)
+    {
+        abort_unless($consulta->vendedor_id === Auth::guard('staff')->id(), 403);
+        abort_unless($consulta->deuCerto() && ! $consulta->expurgada(), 404);
+
+        return response(\App\Support\ConsultaPdf::resultado($consulta), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
         ]);
     }
 

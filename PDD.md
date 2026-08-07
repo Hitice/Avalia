@@ -607,6 +607,18 @@ mede qual porta converte, e a trilha de auditoria guarda quem atendeu. O
 vendedor não vê nem atende a fila: lead ainda não tem carteira, e distribuí-lo
 é decisão da administração.
 
+### Demonstração pelo vendedor
+
+O vendedor consulta no próprio ambiente (aba Consultar da carteira) para
+mostrar o resultado ao prospect na hora, sem entrar em login de cliente.
+Ninguém é cobrado: preço zero, e o custo real fica congelado na consulta e sai
+da comissão a receber do vendedor, que é a regra definida pelo negócio
+(desconto pelo preço de custo). A própria consulta é o registro do desconto.
+Teto de 10 demonstrações por dia por vendedor, falha não desconta nada, e o
+resultado só sai da tela em PDF com documento mascarado: nunca dado pessoal em
+URL. A demonstração nunca entra no fechamento de competência de empresa
+nenhuma.
+
 ### Simulador do cliente
 
 O portal tem a aba Simulador: a empresa digita quantas consultas de cada

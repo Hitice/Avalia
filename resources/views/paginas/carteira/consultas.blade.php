@@ -43,7 +43,7 @@
                     @forelse ($consultas as $consulta)
                         <tr>
                             <td class="px-5 py-4 text-left whitespace-nowrap text-gray-600 dark:text-gray-300">{{ $consulta->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $consulta->cliente->razao_social }}</td>
+                            <td class="px-5 py-4 text-left text-gray-800 dark:text-white/90">{{ $consulta->cliente->razao_social ?? 'Demonstração minha' }}</td>
                             <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $consulta->servico->nome }}</td>
                             <td class="px-5 py-4 text-left">
                                 <span class="etiqueta {{ $consulta->deuCerto() ? 'etiqueta-sucesso' : 'etiqueta-erro' }}">

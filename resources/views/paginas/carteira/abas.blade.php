@@ -8,6 +8,7 @@
     :itens="[
         'carteira' => ['rotulo' => 'Empresas', 'url' => route('carteira')],
         'carteira/consultas' => ['rotulo' => 'Consultas', 'url' => route('carteira.consultas')],
+        'carteira/consultar' => ['rotulo' => 'Consultar', 'url' => route('carteira.consultar')],
         'carteira/servicos' => ['rotulo' => 'Serviços', 'url' => route('carteira.servicos')],
         'carteira/simulacao' => ['rotulo' => 'Simulação', 'url' => route('carteira.simulacao')],
     ]" />

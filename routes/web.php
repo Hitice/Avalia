@@ -161,6 +161,15 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::prefix('carteira')->group(function () {
         Route::get('/', [CarteiraController::class, 'index'])->name('carteira');
         Route::get('/consultas', [CarteiraController::class, 'consultas'])->name('carteira.consultas');
+
+        // Demonstracao: a consulta que fecha venda, no ambiente do vendedor.
+        // Preco zero, custo descontado da comissao, teto diario proprio.
+        Route::get('/consultar', [CarteiraController::class, 'consultar'])->name('carteira.consultar');
+        Route::post('/consultar', [CarteiraController::class, 'executarDemonstracao'])
+            ->middleware('throttle:15,1')
+            ->name('carteira.consultar.executar');
+        Route::get('/demonstracoes/{consulta}', [CarteiraController::class, 'verDemonstracao'])->name('carteira.demonstracoes.ver');
+        Route::get('/demonstracoes/{consulta}/pdf', [CarteiraController::class, 'demonstracaoPdf'])->name('carteira.demonstracoes.pdf');
         Route::get('/servicos', [CarteiraController::class, 'servicos'])->name('carteira.servicos');
         Route::get('/simulacao', [CarteiraController::class, 'simulacao'])->name('carteira.simulacao');
     });

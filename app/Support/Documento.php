@@ -65,6 +65,24 @@ final class Documento
     }
 
     /** 12345678000195 -> "12.345.678/0001-95" */
+    /**
+     * Documento com o miolo escondido, para tela e PDF compartilhavel.
+     *
+     * Mostra o comeco e o fim, que bastam para a pessoa reconhecer o proprio
+     * numero, e esconde o resto: o arquivo circula, e documento inteiro em
+     * arquivo que circula e dado pessoal fora de controle.
+     */
+    public static function mascarar(?string $entrada): string
+    {
+        $digitos = preg_replace('/\D/', '', (string) $entrada) ?? '';
+
+        if (strlen($digitos) < 6) {
+            return $digitos === '' ? '' : str_repeat('*', strlen($digitos));
+        }
+
+        return substr($digitos, 0, 3).str_repeat('*', strlen($digitos) - 5).substr($digitos, -2);
+    }
+
     public static function formatarCnpj(?string $entrada): string
     {
         $cnpj = self::normalizarCnpj($entrada);
