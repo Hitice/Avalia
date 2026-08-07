@@ -195,9 +195,9 @@
                          que a Lei 12.414 e o art. 7, X, da LGPD sustentam. --}}
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Pesquisa de score e consulta veicular em um só lugar. Sua empresa
-                        vê a pontuação e o histórico público de quem negocia antes de
-                        vender a prazo. A informação é nossa entrega; a decisão é sempre sua.
+                        Score, restrições e procedência veicular em um painel só. Em
+                        segundos, sua empresa sabe quem está do outro lado antes de
+                        vender a prazo. Informação nossa, decisão sua.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
