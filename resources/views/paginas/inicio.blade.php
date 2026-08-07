@@ -200,9 +200,7 @@
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
                         Decidir crédito exige precisão. Score, restrições, protestos e
-                        procedência veicular numa única consulta, pelo CPF, CNPJ ou placa,
-                        com resposta em segundos: menos inadimplência, menos fraude e a
-                        decisão sempre na sua mão.
+                        procedência veicular numa única consulta.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
