@@ -31,6 +31,27 @@
 
     @include('paginas.catalogo.avisos')
 
+    {{-- Rever o resultado guardado nao custa nada: o dado ja esta aqui e
+         ninguem paga o fornecedor de novo. O que custa e perguntar de novo,
+         e a tela diz isso com todas as letras, com a data do que esta sendo
+         lido, para ninguem confundir dado antigo com dado de hoje. --}}
+    @if ($consulta->deuCerto() && ! $consulta->expurgada())
+        <div class="aviso {{ $consulta->created_at->isToday() ? 'aviso-ok' : 'aviso-alerta' }} mb-6 flex flex-wrap items-center justify-between gap-3">
+            <span>
+                @if ($consulta->created_at->isToday())
+                    Resultado desta consulta, sem custo adicional para rever.
+                @else
+                    Você está vendo o resultado de {{ $consulta->created_at->format('d/m/Y') }}.
+                    A situação pode ter mudado desde então.
+                @endif
+            </span>
+
+            <x-avalia.botao variante="secundario" tamanho="sm" :href="route('empresa.consultar')">
+                Consultar novamente
+            </x-avalia.botao>
+        </div>
+    @endif
+
     @if ($consulta->expurgada())
         <div class="aviso aviso-alerta mb-6">
             O resultado desta consulta foi apagado após o prazo de retenção de

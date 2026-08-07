@@ -114,6 +114,28 @@ it('simula a fatura do mes com a mesma conta do fechamento', function () {
         ->and(App\Models\Consulta::count())->toBe(0);
 });
 
+it('rever o resultado guardado nao custa nada, e diz de quando ele e', function () {
+    // O dado ja esta aqui: reexibir nao paga fornecedor nenhum. O que custa e
+    // perguntar de novo, e a tela precisa deixar isso claro para ninguem
+    // confundir resultado antigo com situacao de hoje.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    app(RegistrarConsulta::class)($empresa, $servico, 1);
+    $consulta = App\Models\Consulta::sole();
+
+    comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta))->assertOk()
+        ->assertSee('sem custo adicional para rever')
+        ->assertSee('Consultar novamente');
+
+    // Resultado de outro dia avisa que a situacao pode ter mudado.
+    $consulta->forceFill(['created_at' => now()->subDays(10)])->save();
+
+    comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta))->assertOk()
+        ->assertSee('A situação pode ter mudado')
+        ->assertSee($consulta->created_at->format('d/m/Y'));
+});
+
 it('mostra a cada empresa so as faturas dela', function () {
     $minha = empresaComPlano();
     $alheia = empresaComPlano();

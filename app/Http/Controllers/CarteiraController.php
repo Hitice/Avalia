@@ -237,7 +237,7 @@ class CarteiraController extends Controller
         abort_unless($consulta->vendedor_id === Auth::guard('staff')->id(), 403);
         abort_unless($consulta->deuCerto() && ! $consulta->expurgada(), 404);
 
-        return response(\App\Support\ConsultaPdf::resultado($consulta), 200, [
+        return response(\App\Support\ConsultaPdf::resultado($consulta, Auth::guard('staff')->user()->nome), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
         ]);

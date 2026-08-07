@@ -694,6 +694,16 @@ O que já está implementado desta seção:
   leitura, e o hash do texto que estava na tela, conferido no ato. Se o
   documento mudou entre a leitura e o clique, o aceite é recusado e a pessoa
   relê a versão vigente.
+- **Rever o resultado guardado não custa nada.** O dado já está no nosso
+  banco: reexibir não paga fornecedor nenhum, e o que custa é perguntar de
+  novo. A tela do resultado diz de quando ele é, avisa que a situação pode ter
+  mudado quando não é do dia, e oferece consultar de novo. O mercado se divide
+  aqui (as datatechs cobram toda chamada; as plataformas liberam a releitura),
+  e a distinção certa não é "mesmo dia", é **releitura do que está guardado
+  contra nova pergunta ao fornecedor**.
+- **PDF de resultado carimba quem emitiu**, em todas as páginas, junto do
+  protocolo. É o que o mercado faz com marca d'água do responsável: arquivo
+  vaza, e o vazado precisa apontar para quem o gerou.
 - **Comprovante de aceite em PDF**: quem aceitou, quando, de onde (IP e
   navegador), o hash aceito e a íntegra do texto, disponível para a empresa a
   qualquer momento depois do aceite.
