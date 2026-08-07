@@ -230,7 +230,9 @@
 
                 {{-- Placa quase solida (10% de transparencia): com mais, a foto
                      atras engolia a marca. --}}
-                <div class="z-1 flex w-[25rem] flex-col items-center rounded-3xl bg-white/90 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
+                {{-- scale em vez de remedir cada parte: 15% maior com todas as
+                     proporcoes internas intactas. --}}
+                <div class="z-1 flex w-[25rem] scale-[1.15] flex-col items-center rounded-3xl bg-white/90 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
                     <x-avalia.medidor :tamanho="120" por-nivel class="-mb-4" style="--nivel: 0.82" />
                     {{-- So o wordmark, no padrao da marca sobre fundo claro:
                          Avalia azul, one cinza. O branco de antes servia a
