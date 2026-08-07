@@ -55,7 +55,7 @@ class SenhaController extends Controller
 
     private function contaValida(Request $pedido, string $guarda, int $id): object
     {
-        abort_unless(in_array($guarda, ['staff', 'empresa'], true), 404);
+        abort_unless(in_array($guarda, ['staff', 'empresa', 'operador'], true), 404);
 
         $conta = Convite::conta($guarda, $id);
 

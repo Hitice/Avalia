@@ -66,6 +66,7 @@ final class Auditar
                 $entidade instanceof \App\Models\DocumentoLegal => $entidade->titulo,
                 $entidade instanceof \App\Models\Campanha => $entidade->nome,
                 $entidade instanceof \App\Models\Interessado => $entidade->empresa,
+                $entidade instanceof \App\Models\Operador => $entidade->nome,
                 $entidade instanceof \App\Models\Fatura => trim(($entidade->cliente?->razao_social ?? '').' · '.$entidade->competenciaRotulo(), ' ·'),
                 $entidade instanceof \App\Models\CobrancaAsaas => $entidade->fatura?->cliente?->razao_social,
                 $entidade instanceof \App\Models\Consulta => $entidade->servico?->nome,

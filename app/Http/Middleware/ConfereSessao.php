@@ -61,6 +61,26 @@ class ConfereSessao
                 ->with('erro', 'Sua sessao foi encerrada. Entre novamente.');
         }
 
+        // Sessao aberta por operador: a pessoa tambem precisa continuar valida.
+        // Desativar o operador derruba a sessao dele na hora, sem tocar na
+        // conta master nem nos outros operadores da mesma empresa.
+        if ($guarda === 'empresa' && ($idOperador = $request->session()->get('operador_id'))) {
+            $operador = \App\Models\Operador::find($idOperador);
+
+            if (! $operador
+                || $request->session()->get('versao_operador') !== $operador->sessao_versao
+                || ! $operador->podeEntrar()
+                || $operador->cliente_id !== $conta->id) {
+                Auth::guard($guarda)->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()
+                    ->route('entrar')
+                    ->with('erro', 'Sua sessao foi encerrada. Entre novamente.');
+            }
+        }
+
         return $next($request);
     }
 }

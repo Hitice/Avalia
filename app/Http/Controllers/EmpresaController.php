@@ -121,6 +121,86 @@ class EmpresaController extends Controller
             ->with('erro', $aviso);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Operadores da empresa
+    |--------------------------------------------------------------------------
+    |
+    | As pessoas que consultam em nome da empresa, cada uma com conta propria:
+    | dez atendentes num login so e "quem consultou?" sem resposta. So a
+    | administracao cria e desativa, e a senha nasce aleatoria com convite.
+    |
+    */
+
+    public function operadorSalvar(Request $pedido, Cliente $empresa)
+    {
+        $dados = $pedido->validate([
+            'nome' => ['required', 'string', 'min:5', 'max:150'],
+            // Unico nas tres tabelas: a porta de entrada e uma so, e o mesmo
+            // e-mail em duas contas tornaria o login ambiguo.
+            'email' => ['required', 'email', 'max:150', 'unique:operadores,email', 'unique:clientes,email', 'unique:staff,email'],
+        ], [
+            'email.unique' => 'Este e-mail já tem um acesso.',
+        ], ['nome' => 'nome', 'email' => 'e-mail']);
+
+        $operador = $empresa->operadores()->create($dados + ['senha' => Str::password(40), 'ativo' => true]);
+        Auditar::registrar('operador.criado', $operador, ['cliente_id' => $empresa->id, 'email' => $operador->email]);
+
+        $aviso = $this->enviaConviteDoOperador($operador, $empresa);
+
+        return back()
+            ->with('ok', $aviso ? null : "Operador '{$operador->nome}' criado. Convite de acesso enviado por e-mail.")
+            ->with('erro', $aviso);
+    }
+
+    public function operadorConvite(Cliente $empresa, \App\Models\Operador $operador)
+    {
+        abort_unless($operador->cliente_id === $empresa->id, 404);
+
+        $aviso = $this->enviaConviteDoOperador($operador, $empresa);
+
+        return back()
+            ->with('ok', $aviso ? null : "Convite de redefinição enviado para {$operador->email}.")
+            ->with('erro', $aviso);
+    }
+
+    public function operadorAlternar(Cliente $empresa, \App\Models\Operador $operador)
+    {
+        abort_unless($operador->cliente_id === $empresa->id, 404);
+
+        $operador->update(['ativo' => ! $operador->ativo]);
+
+        // Desativar derruba a sessao aberta na hora: acesso desligado que
+        // continua operando ate o cookie expirar nao e acesso desligado.
+        if (! $operador->ativo) {
+            $operador->revogaSessoes();
+        }
+
+        Auditar::registrar($operador->ativo ? 'operador.reativado' : 'operador.desativado', $operador, ['cliente_id' => $empresa->id]);
+
+        return back()->with('ok', $operador->ativo
+            ? "Acesso de {$operador->nome} reativado."
+            : "Acesso de {$operador->nome} desativado.");
+    }
+
+    private function enviaConviteDoOperador(\App\Models\Operador $operador, Cliente $empresa): ?string
+    {
+        try {
+            Mail::to($operador->email)->send(new ConviteDeAcesso(
+                $operador->nome,
+                Convite::link($operador, 'operador'),
+                ehEmpresa: true,
+                operadorDe: $empresa->razao_social,
+            ));
+
+            return null;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return 'O convite por e-mail não pôde ser enviado. Use o botão de reenvio.';
+        }
+    }
+
     public function atualizar(EmpresaRequest $request, Cliente $empresa)
     {
         $this->soDaPropriaCarteira($empresa);

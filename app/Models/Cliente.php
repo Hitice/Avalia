@@ -53,6 +53,11 @@ class Cliente extends Authenticatable implements ContaAutenticavel
         return $this->belongsTo(Staff::class, 'vendedor_id');
     }
 
+    public function operadores(): HasMany
+    {
+        return $this->hasMany(Operador::class);
+    }
+
     public function consultas(): HasMany
     {
         return $this->hasMany(Consulta::class);
@@ -78,8 +83,11 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     {
         $obrigatorios = DocumentoLegal::query()->where('ativo', true)->where('exige_aceite', true)->pluck('id');
 
+        // So o aceite da conta master vale como contrato: a ciencia de um
+        // operador nao substitui a assinatura de quem responde pela empresa.
         return $obrigatorios->isEmpty()
-            || $this->aceitesDocumentos()->whereIn('documento_id', $obrigatorios)->count() === $obrigatorios->count();
+            || $this->aceitesDocumentos()->whereNull('operador_id')
+                ->whereIn('documento_id', $obrigatorios)->count() === $obrigatorios->count();
     }
 
     public function cnpjRotulo(): string

@@ -208,4 +208,69 @@
             </div>
         </form>
     </div>
+
+    @if ($empresa->exists && $ehAdmin)
+        {{-- Cada pessoa que consulta tem conta propria: e a resposta de LGPD
+             para "quem consultou este documento". A senha nasce aleatoria e o
+             convite por e-mail leva o link para a pessoa definir a dela. --}}
+        <div class="cartao mt-6 p-6 lg:p-8">
+            <h2 class="font-medium text-gray-800 dark:text-white/90">Operadores</h2>
+            <p class="ajuda-campo mt-1">
+                Pessoas da empresa que fazem consultas, cada uma com o próprio acesso e histórico.
+                Cada operador aceita os termos no primeiro acesso.
+            </p>
+
+            @if ($empresa->operadores->isNotEmpty())
+                <div class="mt-5 overflow-x-auto">
+                    <table class="tabela min-w-[36rem]">
+                        <thead class="tabela-cabecalho"><tr>
+                            <th scope="col" class="px-5 py-3 text-left font-medium">Nome</th>
+                            <th scope="col" class="px-5 py-3 text-left font-medium">E-mail</th>
+                            <th scope="col" class="px-5 py-3 text-left font-medium">Situação</th>
+                            <th scope="col" class="px-5 py-3 text-right font-medium"><span class="sr-only">Ações</span></th>
+                        </tr></thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @foreach ($empresa->operadores as $operador)
+                                <tr>
+                                    <td class="px-5 py-4 text-left font-medium text-gray-800 dark:text-white/90">{{ $operador->nome }}</td>
+                                    <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">{{ $operador->email }}</td>
+                                    <td class="px-5 py-4 text-left">
+                                        <span class="etiqueta {{ $operador->ativo ? 'etiqueta-sucesso' : 'etiqueta-neutra' }}">
+                                            {{ $operador->ativo ? 'Ativo' : 'Desativado' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-4 text-right whitespace-nowrap">
+                                        <form method="POST" action="{{ route('empresas.operadores.convite', [$empresa, $operador]) }}" class="inline">
+                                            @csrf
+                                            <x-avalia.botao variante="secundario" tamanho="sm">Reenviar convite</x-avalia.botao>
+                                        </form>
+                                        <form method="POST" action="{{ route('empresas.operadores.alternar', [$empresa, $operador]) }}" class="inline">
+                                            @csrf
+                                            <x-avalia.botao variante="secundario" tamanho="sm">{{ $operador->ativo ? 'Desativar' : 'Reativar' }}</x-avalia.botao>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('empresas.operadores.salvar', $empresa) }}"
+                  class="mt-5 flex flex-wrap items-end gap-4 border-t border-gray-100 pt-5 dark:border-gray-800">
+                @csrf
+                <div class="min-w-56 grow sm:max-w-xs">
+                    <label for="operador-nome" class="rotulo-campo">Nome</label>
+                    <input id="operador-nome" name="nome" type="text" class="campo" required minlength="5" maxlength="150">
+                </div>
+                <div class="min-w-56 grow sm:max-w-xs">
+                    <label for="operador-email" class="rotulo-campo">E-mail</label>
+                    <input id="operador-email" name="email" type="email" class="campo" required maxlength="150">
+                </div>
+                <x-avalia.botao tamanho="sm">Criar operador</x-avalia.botao>
+            </form>
+            @error('nome') <span class="erro-campo mt-2 block">{{ $message }}</span> @enderror
+            @error('email') <span class="erro-campo mt-2 block">{{ $message }}</span> @enderror
+        </div>
+    @endif
 @endsection

@@ -1015,6 +1015,24 @@ edição gera um convite novo. O vendedor só reenvia para empresa da própria
 carteira. Falha de envio não desfaz cadastro e não passa em silêncio: a tela
 avisa e o botão de reenvio resolve.
 
+### Operadores por empresa
+
+Cada pessoa que consulta em nome da empresa tem conta própria, criada pela
+administração na tela da empresa: nome, e-mail único no sistema, senha
+definida pelo convite e histórico individual. É a resposta de LGPD para "quem
+consultou este documento": a consulta grava o operador que clicou, com nome, e
+o solicitante é preenchido sozinho.
+
+O operador entra pela mesma porta de sempre; quem abre a sessão da área é a
+empresa dele, com a pessoa marcada na sessão e revalidada a cada requisição:
+desativar um operador derruba a sessão dele na hora, sem tocar na conta master
+nem nos outros operadores. Sem "manter conectado" para operador, porque o
+cookie de lembrança restauraria a sessão sem a marca da pessoa.
+
+O aceite também é por pessoa: o operador declara a própria ciência dos termos
+no primeiro acesso, com o próprio checkbox, e ela não substitui o aceite
+contratual da conta master, que continua sendo o que vale como contrato.
+
 Quem esqueceu a senha não depende de ninguém: a página "Esqueci minha senha"
 (`/esqueci`, com link na tela de entrada) recebe o e-mail e dispara o mesmo
 convite. A resposta na tela é idêntica exista ou não a conta, para o formulário

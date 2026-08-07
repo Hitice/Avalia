@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Cliente;
+use App\Models\Operador;
 use App\Models\Staff;
 use Illuminate\Support\Facades\URL;
 
@@ -44,12 +45,13 @@ final class Convite
         return substr(hash('sha256', (string) $conta->senha), 0, 12);
     }
 
-    /** @return Staff|Cliente|null */
+    /** @return Staff|Cliente|Operador|null */
     public static function conta(string $guarda, int $id): ?object
     {
         return match ($guarda) {
             'staff' => Staff::find($id),
             'empresa' => Cliente::find($id),
+            'operador' => Operador::find($id),
             default => null,
         };
     }

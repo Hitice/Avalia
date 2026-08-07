@@ -8,6 +8,7 @@ use App\Actions\Documentos\RegistrarAceiteDocumento;
 use App\Models\AceiteDocumento;
 use App\Models\Consulta;
 use App\Models\DocumentoLegal;
+use App\Models\Operador;
 use App\Models\Servico;
 use App\Support\Dinheiro;
 use App\Support\DocumentoPdf;
@@ -199,7 +200,8 @@ class AreaClienteController extends Controller
         $servico = Servico::findOrFail($dados['servico_id']);
 
         $resultado = $consultar(
-            $empresa, $servico, $dados['documento'], $dados['finalidade'], $dados['solicitante'] ?? null,
+            $empresa, $servico, $dados['documento'], $dados['finalidade'],
+            $dados['solicitante'] ?? null, Operador::daSessao(),
         );
 
         if ($resultado['erro']) {
@@ -244,7 +246,9 @@ class AreaClienteController extends Controller
             return back()->with('erro', 'O documento foi atualizado desde a sua leitura. Releia a versão vigente antes de aceitar.');
         }
 
-        $registrar(auth('empresa')->user(), $documento, $dados['responsavel']);
+        // Quem esta aceitando: a conta master registra o aceite contratual,
+        // o operador registra a propria ciencia. Uma linha por identidade.
+        $registrar(auth('empresa')->user(), $documento, $dados['responsavel'], Operador::daSessao());
 
         return back()->with('ok', 'Aceite registrado. O comprovante em PDF já está disponível.');
     }
@@ -268,6 +272,7 @@ class AreaClienteController extends Controller
     {
         $aceite = AceiteDocumento::where('documento_id', $documento->id)
             ->where('cliente_id', auth('empresa')->id())
+            ->where('operador_id', Operador::daSessao()?->id)
             ->firstOrFail();
 
         return response(DocumentoPdf::comprovante($aceite), 200, [
@@ -285,7 +290,11 @@ class AreaClienteController extends Controller
      */
     private function documentosPendentes($empresa)
     {
-        $aceitos = $empresa->aceitesDocumentos()->pluck('documento_id')->all();
+        // Pendencia e da identidade da sessao: a master responde pelo aceite
+        // contratual, cada operador pela propria ciencia.
+        $aceitos = $empresa->aceitesDocumentos()
+            ->where('operador_id', Operador::daSessao()?->id)
+            ->pluck('documento_id')->all();
 
         return DocumentoLegal::query()
             ->where('ativo', true)

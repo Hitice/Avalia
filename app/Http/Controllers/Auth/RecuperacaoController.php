@@ -38,7 +38,8 @@ class RecuperacaoController extends Controller
                 Mail::to($conta->email)->send(new ConviteDeAcesso(
                     $conta->nome ?? ($conta->responsavel_nome ?: $conta->razao_social),
                     Convite::link($conta, $guarda),
-                    ehEmpresa: $guarda === 'empresa',
+                    ehEmpresa: $guarda !== 'staff',
+                    operadorDe: $guarda === 'operador' ? $conta->cliente?->razao_social : null,
                 ));
             } catch (\Throwable $e) {
                 // Falha de envio nao pode virar resposta diferente: seria o
@@ -50,7 +51,7 @@ class RecuperacaoController extends Controller
         return back()->with('ok', 'Se este e-mail estiver cadastrado, o link de redefinição foi enviado. Ele vale por '.Convite::HORAS_DE_VALIDADE.' horas.');
     }
 
-    /** @return array{0: Staff|Cliente|null, 1: string} */
+    /** @return array{0: Staff|Cliente|\App\Models\Operador|null, 1: string} */
     private function contaPor(string $email): array
     {
         $staff = Staff::where('email', $email)->where('ativo', true)->first();
@@ -63,6 +64,12 @@ class RecuperacaoController extends Controller
 
         if ($empresa && $empresa->podeEntrar()) {
             return [$empresa, 'empresa'];
+        }
+
+        $operador = \App\Models\Operador::where('email', $email)->first();
+
+        if ($operador && $operador->podeEntrar()) {
+            return [$operador, 'operador'];
         }
 
         return [null, ''];

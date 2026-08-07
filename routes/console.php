@@ -8,6 +8,20 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+/*
+ * Batida do cron: prova viva de que o agendador esta rodando.
+ *
+ * O cron falha em silencio absoluto: nada quebra, nada aparece, so deixa de
+ * acontecer. Este arquivo com carimbo de minuto em minuto e o jeito de
+ * qualquer diagnostico (ou qualquer pessoa por SSH) responder na hora "o cron
+ * esta vivo?" olhando uma linha.
+ */
+Schedule::call(function () {
+    file_put_contents(storage_path('logs/cron-batida.txt'), now()->toDateTimeString());
+})
+    ->name('cron:batida')
+    ->everyMinute();
+
 // Vencer e bloquear dependem da passagem do tempo, e não de alguém agir: sem
 // esta rotina diária, uma fatura só mudaria de situação no dia em que alguém
 // abrisse a tela.

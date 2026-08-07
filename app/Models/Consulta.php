@@ -40,7 +40,7 @@ class Consulta extends Model
     public const LIMITE_DIARIO = 500;
 
     protected $fillable = [
-        'cliente_id', 'servico_id', 'competencia', 'preco_cents', 'custo_cents',
+        'cliente_id', 'servico_id', 'operador_id', 'competencia', 'preco_cents', 'custo_cents',
         'documento', 'finalidade', 'solicitante', 'situacao',
         'referencia_externa', 'duracao_ms', 'resposta', 'expurgada_em', 'expurgar_em',
     ];

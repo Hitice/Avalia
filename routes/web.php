@@ -135,6 +135,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])
                 ->middleware('financeiro')->name('fechar');
             Route::post('/{empresa}/restaurar', [EmpresaController::class, 'restaurar'])->name('restaurar');
+
+            // Operadores: as pessoas que consultam em nome da empresa, cada
+            // uma com conta propria. So a administracao cria e desativa.
+            Route::post('/{empresa}/operadores', [EmpresaController::class, 'operadorSalvar'])->name('operadores.salvar');
+            Route::post('/{empresa}/operadores/{operador}/convite', [EmpresaController::class, 'operadorConvite'])->name('operadores.convite');
+            Route::post('/{empresa}/operadores/{operador}/alternar', [EmpresaController::class, 'operadorAlternar'])->name('operadores.alternar');
         });
     });
 

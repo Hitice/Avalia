@@ -117,6 +117,9 @@ final class Rotulos
         'campanha.encerrada' => 'Campanha encerrada',
         'campanha.reaberta' => 'Campanha reaberta',
         'interessado.atendido' => 'Pedido de contato atendido',
+        'operador.criado' => 'Operador criado para a empresa',
+        'operador.desativado' => 'Acesso de operador desativado',
+        'operador.reativado' => 'Acesso de operador reativado',
         'conexao.atualizada' => 'Conexão atualizada',
         'conexao.ativada' => 'Conexão ativada',
         'conexao.desativada' => 'Conexão desativada',
@@ -136,6 +139,7 @@ final class Rotulos
         \App\Models\Adesao::class => 'Adesão',
         \App\Models\Interessado::class => 'Pedido de contato',
         \App\Models\Conexao::class => 'Conexão',
+        \App\Models\Operador::class => 'Operador',
     ];
 
     /** @var array<string, string> */

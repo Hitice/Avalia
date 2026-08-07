@@ -20,6 +20,7 @@ class ConviteDeAcesso extends Mailable
         public string $nome,
         public string $link,
         public bool $ehEmpresa = false,
+        public ?string $operadorDe = null,
     ) {}
 
     public function envelope(): Envelope

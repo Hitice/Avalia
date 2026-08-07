@@ -67,6 +67,14 @@ class LoginController extends Controller
             return $this->concluiEntrada($request, $guarda, $conta);
         }
 
+        // Operador: mesma porta, mas quem abre a sessao da area e a EMPRESA
+        // dele, com a pessoa marcada na sessao. Sem "manter conectado" de
+        // proposito: o cookie de lembranca restauraria a sessao sem a marca e
+        // o operador viraria a conta master em silencio.
+        if ($resposta = $this->entrarComoOperador($request, $dados)) {
+            return $resposta;
+        }
+
         $this->protecao->falhou($dados['email'], $request);
 
         // Mensagem unica para senha errada e conta inexistente: dizer qual dos
@@ -88,6 +96,38 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('entrar');
+    }
+
+    private function entrarComoOperador(Request $request, array $dados): ?RedirectResponse
+    {
+        $operador = \App\Models\Operador::where('email', $dados['email'])->first();
+
+        if (! $operador || ! \Illuminate\Support\Facades\Hash::check($dados['senha'], $operador->senha)) {
+            return null;
+        }
+
+        if (! $operador->podeEntrar()) {
+            throw ValidationException::withMessages([
+                'email' => $operador->motivoSuspensao() ?? 'Esta conta esta desativada.',
+            ]);
+        }
+
+        $this->protecao->acertou($operador->email, $request);
+        Auth::guard('empresa')->login($operador->cliente);
+        $request->session()->regenerate();
+        $request->session()->put('versao_empresa', $operador->cliente->sessao_versao);
+        $request->session()->put('operador_id', $operador->id);
+        $request->session()->put('versao_operador', $operador->sessao_versao);
+
+        $operador->forceFill(['ultimo_acesso_em' => now()])->saveQuietly();
+
+        // A ciencia dos termos e por pessoa: operador sem o proprio aceite
+        // comeca pelos documentos, como a conta master comecaria.
+        if (! $operador->aceitouObrigatorios()) {
+            return redirect()->route('empresa.documentos');
+        }
+
+        return redirect()->route('empresa.painel');
     }
 
     /** Fixa a sessao no estado atual da conta e manda para a area certa. */

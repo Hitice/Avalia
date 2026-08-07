@@ -3,7 +3,12 @@
 @section('titulo', 'Seu acesso à Avalia')
 
 @section('conteudo')
-    @if ($ehEmpresa)
+    @if ($operadorDe)
+        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia.</p>
+        <p style="margin:0 0 12px 0;">
+            Seu acesso às consultas de {{ $operadorDe }} foi criado. Para começar, defina a sua senha:
+        </p>
+    @elseif ($ehEmpresa)
         <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia.</p>
         <p style="margin:0 0 12px 0;">
             O acesso da sua empresa foi criado. Para começar a consultar, defina a sua senha:

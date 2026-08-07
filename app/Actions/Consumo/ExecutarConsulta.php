@@ -36,7 +36,14 @@ class ExecutarConsulta
         string $documento,
         string $finalidade,
         ?string $solicitante = null,
+        ?\App\Models\Operador $operador = null,
     ): array {
+        // A ciencia dos termos e por pessoa: o operador declara a dele antes
+        // da primeira consulta, alem do aceite contratual da empresa.
+        if ($operador && ! $operador->aceitouObrigatorios()) {
+            return $this->recusa('Existem documentos aguardando o seu aceite.');
+        }
+
         $documento = preg_replace('/\D/', '', $documento) ?? '';
 
         if (! $cliente->podeConsultar()) {
@@ -123,10 +130,13 @@ class ExecutarConsulta
         $consulta = DB::transaction(fn () => Consulta::create([
             'cliente_id' => $cliente->id,
             'servico_id' => $servico->id,
+            // Quem clicou, com nome: e a resposta de LGPD para "quem consultou
+            // este documento", por pessoa e nao por empresa.
+            'operador_id' => $operador?->id,
             'competencia' => $competencia,
             'documento' => $documento,
             'finalidade' => $finalidade,
-            'solicitante' => $solicitante,
+            'solicitante' => $solicitante ?? $operador?->nome,
             'situacao' => $resposta->sucesso ? Consulta::SUCESSO : Consulta::FALHA,
             'referencia_externa' => $resposta->referenciaExterna,
             'duracao_ms' => $resposta->duracaoMs,
