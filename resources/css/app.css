@@ -190,6 +190,37 @@
   body {
     @apply relative font-normal font-outfit z-1 bg-gray-50;
   }
+
+  /* Barra de rolagem segue o tema no escopo inteiro. O navegador desenha a
+     barra nativa branca por padrao, e no tema escuro ela vira uma regua
+     acesa dentro de cada tabela. Fina e discreta nos dois temas; o par
+     webkit cobre os navegadores sem as propriedades padrao. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-300) transparent;
+  }
+
+  .dark * {
+    scrollbar-color: var(--color-gray-700) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: var(--color-gray-300);
+  }
+
+  .dark *::-webkit-scrollbar-thumb {
+    background-color: var(--color-gray-700);
+  }
 }
 
 @utility menu-item {
