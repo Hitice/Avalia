@@ -47,8 +47,12 @@ final class Fornecedores
                 'campos' => [
                     ['chave' => 'client_id', 'rotulo' => 'Client ID', 'secreto' => false],
                     ['chave' => 'client_secret', 'rotulo' => 'Client Secret', 'secreto' => true],
-                    ['chave' => 'base_url', 'rotulo' => 'URL do serviço', 'secreto' => false,
-                        'ajuda' => 'A URL indicada no contrato. Homologação e produção têm credenciais separadas.'],
+                ],
+                // URLs oficiais do portal do desenvolvedor: a chave e o
+                // endereco andam juntos, e homologacao tem credencial propria.
+                'ambientes' => [
+                    'producao' => 'https://api.serasaexperian.com.br',
+                    'homologacao' => 'https://uat-api.serasaexperian.com.br',
                 ],
             ],
 

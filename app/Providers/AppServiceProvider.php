@@ -25,9 +25,22 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Contracts\ConectorBureau::class, function () {
             $conectores = [
                 'simulado' => \App\Services\Conectores\ConectorSimulado::class,
+                'serasa' => \App\Services\Conectores\ConectorSerasa::class,
             ];
 
-            $escolhido = (string) config('services.bureau.conector', 'simulado');
+            // Config manda (e o que os testes e a homologacao usam); sem
+            // config, vale a primeira conexao de bureau ATIVA na tela de
+            // Conexoes; sem nenhuma, o simulado responde.
+            $escolhido = (string) config('services.bureau.conector', '');
+
+            if ($escolhido === '') {
+                foreach (['serasa', 'quod', 'boa-vista', 'spc'] as $fornecedor) {
+                    if (isset($conectores[$fornecedor]) && \App\Models\Conexao::ativaDe($fornecedor)) {
+                        $escolhido = $fornecedor;
+                        break;
+                    }
+                }
+            }
 
             return $this->app->make($conectores[$escolhido] ?? $conectores['simulado']);
         });

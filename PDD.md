@@ -734,6 +734,20 @@ manter), a trilha registra quais campos mudaram e nunca o valor, e o teste de
 conexão grava carimbo com o resultado. A chave e a URL andam juntas: o
 ambiente da conexão (produção ou homologação) escolhe as duas de uma vez.
 
+O primeiro conector real existe: o da Serasa Experian, escrito sobre o
+swagger e o manual oficiais do portal do desenvolvedor (token de 1 hora via
+client-identities/login com Basic, relatório via GET com o documento no header
+X-Document-Id e o produto no query reportName, PF e PJ em endpoints próprios).
+Cada serviço do catálogo declara o "relatório no fornecedor" (ex.:
+RELATORIO_AVANCADO_PF); sem ele a consulta real não sai e a tela explica. A
+resposta é traduzida para o laudo canônico (score com o modelo dele, negativos
+com contagens e valores), porque cada fornecedor entrega uma coisa e a tela só
+fala uma língua; bloco que não veio aparece como não incluído, nunca como zero
+fingindo dado. O container escolhe o conector pela primeira conexão de bureau
+ativa na tela (Serasa, Quod, Boa Vista, SPC, nesta ordem); sem nenhuma, o
+simulado responde. Falha do fornecedor nunca vira exceção: vira mensagem que o
+operador entende, na tabela de erros do manual.
+
 Fornecedores suportados e o caminho de cada um: Asaas (cobrança, API key +
 token de webhook, sandbox próprio), Serasa Experian (OAuth2 com client id e
 secret), SPC Brasil (operador e senha da CDL, SOAP, exige IP brasileiro),

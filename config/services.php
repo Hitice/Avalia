@@ -47,7 +47,10 @@ return [
      * como simulada.
      */
     'bureau' => [
-        'conector' => env('BUREAU_CONECTOR', 'simulado'),
+        // Vazio deixa a tela de Conexoes decidir: a primeira conexao de
+        // bureau ativa escolhe o conector, e sem nenhuma vale o simulado.
+        // Definir BUREAU_CONECTOR forca um valor, o que serve a homologacao.
+        'conector' => env('BUREAU_CONECTOR', ''),
     ],
 
     /*

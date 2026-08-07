@@ -76,6 +76,18 @@
                 </div>
 
                 <div>
+                    <label for="codigo_fornecedor" class="{{ $rotulo }}">Relatório no fornecedor</label>
+                    <input id="codigo_fornecedor" name="codigo_fornecedor" type="text" class="{{ $campo }}"
+                           value="{{ old('codigo_fornecedor', $servico->codigo_fornecedor) }}"
+                           placeholder="RELATORIO_AVANCADO_PF">
+                    <span class="ajuda-campo">
+                        O nome do produto no contrato do bureau. Sem ele, a consulta real
+                        não sai e a tela explica o motivo.
+                    </span>
+                    @error('codigo_fornecedor') <span class="{{ $erro }}">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
                     <label for="categoria" class="{{ $rotulo }}">Categoria</label>
                     <select id="categoria" name="categoria" class="{{ $campo }}" required>
                         @foreach (\App\Enums\Categoria::rotulos() as $chave => $nome)
