@@ -77,6 +77,18 @@ final class Fornecedores
                 ],
             ],
 
+            'quod' => [
+                'nome' => 'Quod',
+                'categoria' => 'Bureau de crédito',
+                'descricao' => 'Bureau criado pelos grandes bancos. Consultas de crédito PF e PJ com dado direto da fonte, no contrato da Avalia.',
+                'doc' => 'https://www.quod.com.br',
+                'campos' => [
+                    ['chave' => 'client_id', 'rotulo' => 'Client ID', 'secreto' => false],
+                    ['chave' => 'client_secret', 'rotulo' => 'Client Secret', 'secreto' => true],
+                    ['chave' => 'base_url', 'rotulo' => 'URL do serviço', 'secreto' => false],
+                ],
+            ],
+
             'veicular' => [
                 'nome' => 'Consulta veicular',
                 'categoria' => 'Veicular',

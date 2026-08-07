@@ -1161,6 +1161,12 @@ O que não avança por código, na ordem em que destrava receita:
 1. **Credenciais de bureau de crédito** (contrato da Avalia): com elas se
    escreve o conector real e a consulta deixa de ser simulada. A tela de
    Conexões já guarda as credenciais; o conector entra no mapa do container.
+   Recomendação do comercial: começar por **Boa Vista e Quod, direto da
+   fonte**, que trabalham com mensalidade fixa e dado sem intermediário; a
+   Serasa tende a vir depois. Contrato de mensalidade fixa muda a natureza do
+   custo: o custo unitário do catálogo vira rateio estimado (mensalidade
+   dividida pelo volume), e a margem real do mês depende do volume consumido,
+   o que a conferência mensal precisa acompanhar.
 2. **Consulta veicular**: mesmo caso, com o fornecedor do contrato.
 3. **SCR**: exige instituição autorizada pelo BACEN e consentimento do titular
    por consulta; o conector nasce com prova de autorização vinculada e trilha
