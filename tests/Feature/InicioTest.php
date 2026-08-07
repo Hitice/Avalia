@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
 it('apresenta a Avalia com as duas saidas', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('Venda a prazo')
+        ->assertSee('Avalie o risco')
         ->assertSee('Quero contratar')
         ->assertSee('Já sou cliente')
         ->assertSee('Campanha de adesão');
