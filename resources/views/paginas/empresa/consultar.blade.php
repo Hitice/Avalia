@@ -30,7 +30,7 @@
         <div class="cartao p-6">
             <p class="ajuda-campo mb-5">
                 Cada consulta registra quem consultou e a finalidade declarada no aceite dos
-                termos: análise de crédito e risco em negócio próprio.
+                termos: pesquisa de score de crédito.
             </p>
 
             <form method="POST" action="{{ route('empresa.consultas.executar') }}" class="grid gap-5 sm:grid-cols-2">
@@ -40,8 +40,10 @@
                     <label for="servico_id" class="rotulo-campo">Serviço</label>
                     <select id="servico_id" name="servico_id" class="campo" required x-model="escolhido">
                         @foreach ($servicos as $servico)
+                            {{-- O numero na frente e o mesmo do atendimento:
+                                 "faz a consulta 7" vira achar o 7 na lista. --}}
                             <option value="{{ $servico->id }}" @selected(old('servico_id') == $servico->id)>
-                                {{ $servico->nome }}
+                                {{ $servico->numero }} · {{ $servico->nome }}
                             </option>
                         @endforeach
                     </select>

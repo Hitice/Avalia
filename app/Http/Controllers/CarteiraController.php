@@ -108,30 +108,33 @@ class CarteiraController extends Controller
      * preco e sempre o do catalogo vigente, entao ninguem vende pelo valor do
      * reajuste passado.
      */
-    public function servicos(Request $pedido)
+    public function servicos()
     {
         $vendedor = Auth::guard('staff')->user();
 
+        // Todas as faixas lado a lado, e nao uma por vez: comparar "quanto
+        // custa a consulta 7 no plano de 200 e no de 900" era abrir a tela
+        // duas vezes e anotar. A coluna e o plano, a linha e o servico.
         $planos = Plano::query()->where('ativo', true)->orderBy('consumo_minimo_cents')->get();
-        $plano = $planos->firstWhere('id', (int) $pedido->query('plano')) ?? $planos->first();
 
-        $disponiveis = $plano?->servicosDisponiveis() ?? collect();
+        $servicos = \App\Models\Servico::query()
+            ->disponiveis()
+            ->orderBy('numero')
+            ->get();
 
         // O `select` e explicito e nao traz `custo_cents`: a coluna existe na
         // mesma linha do preco, e um dia alguem faz um `@foreach` sobre os
         // atributos. Nao carregar e mais firme do que lembrar de nao imprimir.
-        $precos = $plano === null ? collect() : Preco::query()
-            ->select('servico_id', 'preco_cents')
-            ->where('catalogo_id', $plano->catalogo_id)
-            ->where('consumo_minimo_cents', $plano->consumo_minimo_cents)
-            ->whereIn('servico_id', $disponiveis->pluck('id'))
-            ->pluck('preco_cents', 'servico_id');
+        $precos = Preco::query()
+            ->select('servico_id', 'catalogo_id', 'consumo_minimo_cents', 'preco_cents')
+            ->whereIn('servico_id', $servicos->pluck('id'))
+            ->get()
+            ->keyBy(fn ($p) => $p->catalogo_id.':'.$p->consumo_minimo_cents.':'.$p->servico_id);
 
         return view('paginas.carteira.servicos', [
             'vendedor' => $vendedor,
             'planos' => $planos,
-            'plano' => $plano,
-            'servicos' => $disponiveis,
+            'servicos' => $servicos,
             'precos' => $precos,
         ]);
     }

@@ -825,12 +825,12 @@ acesso, retenção e criptografia quando aplicável.
   ou envio de e-mail desligado.
 - Expurgar resposta de bureau conforme a retenção da seção 5, preservando metadados fiscais e auditoria.
 - Cada consulta deve ter finalidade e responsável rastreáveis. A finalidade é a
-  declarada no aceite dos termos (análise de crédito e risco em negócio
-  próprio), gravada automaticamente em toda consulta; ninguém a digita, porque
-  campo digitado a cada clique vira formalidade vazia. O responsável é quem
-  está logado: o operador com nome, ou a conta master. O formulário de
-  consulta pede dois campos (serviço e documento) e mostra descrição e preço
-  do serviço antes do clique.
+  declarada no aceite dos termos (pesquisa de score de crédito), gravada
+  automaticamente em toda consulta; ninguém a digita, porque campo digitado a
+  cada clique vira formalidade vazia. O responsável é quem está logado: o
+  operador com nome, ou a conta master. O formulário de consulta pede dois
+  campos (serviço e documento) e mostra descrição e preço do serviço antes do
+  clique.
 - Auditoria não pode impedir a operação principal caso a gravação falhe.
 
 ## 15. Entrega por fases
@@ -1192,6 +1192,10 @@ Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
 18. Reemissão de cobrança quando a criação no provedor falha.
 19. Painel do vendedor separado do painel do administrador.
 20. Glossário e nomenclatura aplicados às telas (seção 18).
+21. ~~Tabela de preços consolidada para o vendedor.~~ Feita: todas as faixas
+    lado a lado em /carteira/servicos, com o número de atendimento por serviço
+    ("consulta 7" se dita ao telefone), descrição e nenhum custo. O número
+    nasce sequencial, é imutável e nunca se reusa.
 
 ### Segurança de baixo custo e alto retorno
 

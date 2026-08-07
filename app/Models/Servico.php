@@ -20,6 +20,18 @@ class Servico extends Model
 
     protected $fillable = ['codigo', 'nome', 'categoria', 'descricao', 'ativo', 'exige_liberacao'];
 
+    /**
+     * O numero de atendimento nasce sozinho, sequencial, e nunca se reusa:
+     * o max() inclui servico desativado, entao numero de servico morto nao
+     * renasce apontando para outro produto.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $servico) {
+            $servico->numero ??= ((int) static::query()->max('numero')) + 1;
+        });
+    }
+
     protected function casts(): array
     {
         return [

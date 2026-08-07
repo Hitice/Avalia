@@ -21,6 +21,7 @@
             <table class="tabela min-w-[44rem]">
                 <thead class="tabela-cabecalho">
                     <tr>
+                        <th class="px-4 py-3 text-right font-medium">Nº</th>
                         <th class="px-5 py-3 text-left font-medium">Serviço</th>
                         <th class="px-5 py-3 text-left font-medium">Categoria</th>
                         <th class="px-5 py-3 text-left font-medium">Situação</th>
@@ -30,6 +31,8 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($servicos as $servico)
                         <tr>
+                            {{-- O numero de atendimento: "consulta 7" se dita ao telefone. --}}
+                            <td class="px-4 py-4 text-right font-medium tabular-nums text-gray-500 dark:text-gray-400">{{ $servico->numero }}</td>
                             <td class="px-5 py-4 text-left">
                                 <span class="flex items-center gap-1.5 font-medium text-gray-800 dark:text-white/90">
                                     {{ $servico->nome }}
@@ -64,7 +67,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="tabela-vazia">
+                            <td colspan="5" class="tabela-vazia">
                                 Nenhum serviço cadastrado.
                             </td>
                         </tr>

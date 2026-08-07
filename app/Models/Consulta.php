@@ -42,12 +42,12 @@ class Consulta extends Model
     /**
      * A finalidade declarada de toda consulta do portal.
      *
-     * E a mesma declarada no aceite dos termos: analise de credito e risco em
-     * negocio do proprio contratante. Digitar a finalidade a cada consulta
-     * virou formalidade vazia na pratica; a declaracao vinculante e a do
-     * aceite, e cada consulta a referencia.
+     * Definida pelo negocio: pesquisa de score de credito, amarrada ao aceite
+     * dos termos. Digitar a finalidade a cada consulta virou formalidade
+     * vazia; a declaracao vinculante e a do aceite, e cada consulta a
+     * referencia.
      */
-    public const FINALIDADE_PADRAO = 'Análise de crédito e risco em negócio próprio, conforme os termos aceitos';
+    public const FINALIDADE_PADRAO = 'Pesquisa de score de crédito, conforme os termos aceitos';
 
     protected $fillable = [
         'cliente_id', 'servico_id', 'operador_id', 'competencia', 'preco_cents', 'custo_cents',

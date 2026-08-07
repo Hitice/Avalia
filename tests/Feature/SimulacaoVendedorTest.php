@@ -62,10 +62,46 @@ it('mostra ao vendedor o preco de venda dos servicos e nenhum custo', function (
 
     $custo = Preco::first()->custo_cents;
 
-    expect($resposta->viewData('precos')->first())->toBe(324)
+    expect($resposta->viewData('precos')->first()->preco_cents)->toBe(324)
         ->and($custo)->toBe(150);
 
     // O custo esta cadastrado e nao sai na tela. O `select` do controller nem o
     // carrega, entao nao ha atributo a imprimir por descuido.
     $resposta->assertSee(Dinheiro::brl(324))->assertDontSee(Dinheiro::brl(150));
+});
+
+it('mostra todas as faixas lado a lado com o numero do servico', function () {
+    // A comparacao que o vendedor faz ao telefone, sem trocar de tela: a
+    // coluna e o plano, a linha e o servico, e o numero se dita ("consulta 7").
+    [$vendedor, , $servico] = carteira();
+
+    $catalogo = App\Models\Catalogo::first();
+    App\Models\Plano::factory()->consumoMinimo(200)->create([
+        'catalogo_id' => $catalogo->id,
+        'nome' => 'Plano Entrada',
+        'mensalidade_cents' => 4_990,
+    ]);
+    $catalogo->precos()->create([
+        'servico_id' => $servico->id,
+        'consumo_minimo_cents' => 20_000,
+        'preco_cents' => 410,
+        'custo_cents' => 150,
+    ]);
+
+    $html = comoVendedor($vendedor)->get(route('carteira.servicos'))->assertOk()->getContent();
+
+    // As duas faixas na mesma tela, e o numero de atendimento na linha.
+    expect($html)->toContain(Dinheiro::brl(324))
+        ->toContain(Dinheiro::brl(410))
+        ->toContain('Plano Entrada')
+        ->and(App\Models\Servico::firstWhere('codigo', 'scpc-bvs')->numero)->not->toBeNull();
+});
+
+it('da numero sequencial e nunca reusado a servico novo', function () {
+    carteira();
+
+    $maior = (int) App\Models\Servico::max('numero');
+    $novo = App\Models\Servico::factory()->create();
+
+    expect($novo->numero)->toBe($maior + 1);
 });
