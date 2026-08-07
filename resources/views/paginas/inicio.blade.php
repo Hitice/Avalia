@@ -446,7 +446,7 @@
         </a>
 
         {{-- Campanha de adesao: o convite direto, no fundo escuro da marca. --}}
-        <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-16 lg:pb-24">
+        <section id="campanha" class="mx-auto w-full max-w-[87rem] scroll-mt-24 px-6 pb-8 lg:pb-10">
             {{-- O banner mede a si mesmo como o heroi: azulejos inteiros, e as
                  celulas acesas no canto inferior direito caem exatamente na
                  grade. --}}
@@ -536,17 +536,15 @@
              do rodape: e nota legal, nao assinatura. As citacoes conferem:
              Lei 12.414/2011 e o Cadastro Positivo, e o art. 7, inciso X, da
              Lei 13.709/2018 e a base legal de protecao ao credito da LGPD. --}}
-        <p class="mx-auto w-full max-w-3xl px-6 pb-12 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
-            As informações fornecidas pela Avalia apoiam decisões de negócio do próprio
-            contratante, na finalidade de proteção ao crédito prevista na Lei nº 12.414/2011
-            e no art. 7º, inciso X, da Lei nº 13.709/2018 (LGPD).
-            A Avalia não concede empréstimos, não garante aprovação de crédito e não
-            decide em nome de seus clientes. As informações são confidenciais: não podem
-            ser repassadas nem usadas para outra finalidade.
+        {{-- Duas linhas: a base legal numa, a delimitacao do que a Avalia nao
+             faz na outra. --}}
+        <p class="mx-auto w-full max-w-6xl px-6 pb-5 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+            Informações destinadas a decisões de negócio do próprio contratante, na finalidade de proteção ao crédito (Lei nº 12.414/2011 e art. 7º, X, da LGPD).<br>
+            A Avalia não concede empréstimos, não garante aprovação de crédito nem decide por seus clientes. Informações confidenciais, vedado o repasse.
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="28" one />
                 </a>
