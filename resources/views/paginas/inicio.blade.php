@@ -197,9 +197,9 @@
                          que a Lei 12.414 e o art. 7, X, da LGPD sustentam. --}}
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Score, restrições e procedência veicular em um painel só. Em
-                        segundos, você sabe quem está do outro lado do negócio e fecha
-                        o parcelado com mais confiança. A decisão é sempre sua.
+                        Score, restrições e procedência veicular num painel só. Você
+                        consulta em segundos, vê com quem está negociando e vende a
+                        prazo com mais confiança.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
