@@ -17,7 +17,8 @@ class CampanhaController extends Controller
 
     public function criar()
     {
-        return view('paginas.campanhas.formulario', ['clientes' => Cliente::orderBy('razao_social')->get(), 'servicos' => Servico::where('ativo', true)->orderBy('nome')->get()]);
+        return view('paginas.campanhas.formulario', [
+            'campanha' => new Campanha, 'clientes' => Cliente::orderBy('razao_social')->get(), 'servicos' => Servico::where('ativo', true)->orderBy('nome')->get()]);
     }
 
     public function salvar(Request $request)
@@ -34,6 +35,38 @@ class CampanhaController extends Controller
         Auditar::registrar('campanha.criada', $campanha, ['clientes' => count($dados['clientes'] ?? []), 'servicos' => count($dados['servicos'] ?? [])]);
 
         return redirect()->route('campanhas.index')->with('ok', 'Campanha criada.');
+    }
+
+    public function editar(Campanha $campanha)
+    {
+        return view('paginas.campanhas.formulario', [
+            'campanha' => $campanha->load('clientes', 'servicos'),
+            'clientes' => Cliente::orderBy('razao_social')->get(),
+            'servicos' => Servico::where('ativo', true)->orderBy('nome')->get(),
+        ]);
+    }
+
+    /**
+     * Corrige o texto sem criar campanha nova.
+     *
+     * A vigente veste a pagina publica: erro de digitacao ali precisa de
+     * conserto, e nao de uma duplicata que deixa a antiga viva no historico.
+     */
+    public function atualizar(Request $request, Campanha $campanha)
+    {
+        $dados = $request->validate([
+            'nome' => ['required', 'string', 'max:150'], 'oferta' => ['required', 'string'],
+            'inicio' => ['required', 'date'], 'fim' => ['nullable', 'date', 'after_or_equal:inicio'],
+            'clientes' => ['array'], 'clientes.*' => ['integer', 'exists:clientes,id'],
+            'servicos' => ['array'], 'servicos.*' => ['integer', 'exists:servicos,id'],
+        ]);
+
+        $campanha->update($dados);
+        $campanha->clientes()->sync($dados['clientes'] ?? []);
+        $campanha->servicos()->sync($dados['servicos'] ?? []);
+        Auditar::registrar('campanha.alterada', $campanha);
+
+        return redirect()->route('campanhas.index')->with('ok', 'Campanha atualizada.');
     }
 
     /**

@@ -18,6 +18,7 @@ use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\PainelController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ServicoController;
@@ -93,6 +94,20 @@ Route::middleware(['signed', 'throttle:10,1'])->group(function () {
 Route::post('/sair', [LoginController::class, 'sair'])
     ->name('sair')
     ->middleware('auth:staff,empresa');
+
+/*
+ * A propria conta. Fora dos dois grupos de area porque serve aos dois: staff,
+ * empresa e operador trocam a senha no mesmo lugar, com a mesma regra.
+ */
+// Os dois `sessao` juntos de proposito: cada um confere o proprio guard e
+// deixa passar quando ele nao esta autenticado. Sem eles, sessao ja revogada
+// ainda trocaria a senha da conta, que e o oposto do que este modulo serve.
+Route::middleware(['auth:staff,empresa', 'sessao:staff', 'sessao:empresa'])->group(function () {
+    Route::get('/minha-conta', [PerfilController::class, 'mostrar'])->name('perfil');
+    Route::post('/minha-conta/senha', [PerfilController::class, 'salvarSenha'])
+        ->middleware('throttle:10,1')
+        ->name('perfil.senha');
+});
 
 Route::post('/webhooks/asaas', WebhookAsaasController::class)
     ->middleware('throttle:120,1')
@@ -185,6 +200,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::get('/', [FinanceiroController::class, 'index'])->name('index');
         Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
         Route::post('/{fatura}/estornar', [FinanceiroController::class, 'estornar'])->name('estornar');
+        // Emitir de novo quando a criacao no provedor falhou: sem isto, fatura
+        // sem boleto so se resolvia no banco de dados.
+        Route::post('/{fatura}/cobranca', [FinanceiroController::class, 'emitirCobranca'])->name('cobranca');
     });
 
     // Quem trabalha na Avalia. E aqui que se define a comissao de cada
@@ -207,6 +225,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
+    // Conferir a corrente da trilha: a funcao existia so no console.
+    Route::post('/auditoria/conferir', [AuditoriaController::class, 'conferir'])
+        ->middleware('admin')->name('auditoria.conferir');
 
     // Termos da equipe: o vendedor le e aceita aqui, com a mesma robustez do
     // aceite da empresa. Sem `admin`: e exatamente para o vendedor.
@@ -218,6 +239,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::get('/novo', [DocumentoController::class, 'criar'])->name('criar');
         Route::get('/{documento}/pdf', [DocumentoController::class, 'pdf'])->name('pdf');
         Route::post('/', [DocumentoController::class, 'salvar'])->name('salvar');
+        // Tirar de circulacao sem publicar versao nova: documento publicado
+        // por engano nao tinha botao nenhum.
+        Route::post('/{documento}/alternar', [DocumentoController::class, 'alternar'])->name('alternar');
     });
 
     // Credenciais dos servicos externos, criptografadas no banco: trocar uma
@@ -235,6 +259,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/', [CampanhaController::class, 'salvar'])->name('salvar');
         // A vigente aparece na pagina publica: encerrar e um clique.
         Route::post('/{campanha}/alternar', [CampanhaController::class, 'alternar'])->name('alternar');
+        // Corrigir texto sem criar campanha nova. A vigente aparece na pagina
+        // publica: erro de digitacao ali precisa de conserto, nao de duplicata.
+        Route::get('/{campanha}/editar', [CampanhaController::class, 'editar'])->name('editar');
+        Route::put('/{campanha}', [CampanhaController::class, 'atualizar'])->name('atualizar');
     });
 
     // Catalogo mostra preco de venda, custo do fornecedor e margem. Vendedor

@@ -75,6 +75,27 @@ class DocumentoController extends Controller
         return back()->with('ok', 'Aceite registrado.');
     }
 
+    /**
+     * Tira de circulacao, ou devolve.
+     *
+     * Publicar versao nova ja desativa a anterior do mesmo tipo, mas nao havia
+     * como simplesmente retirar um documento publicado por engano. Aceite
+     * antigo continua valendo e apontando para o texto aceito: desativar muda
+     * o que se exige daqui em diante, nao reescreve o passado.
+     */
+    public function alternar(DocumentoLegal $documento)
+    {
+        $documento->update(['ativo' => ! $documento->ativo]);
+        Auditar::registrar($documento->ativo ? 'documento.publicado' : 'documento.retirado', $documento, [
+            'tipo' => $documento->tipo,
+            'versao' => $documento->versao,
+        ]);
+
+        return back()->with('ok', $documento->ativo
+            ? 'Documento publicado de novo.'
+            : 'Documento retirado de circulação. Os aceites já registrados continuam válidos.');
+    }
+
     public function index()
     {
         return view('paginas.documentos.index', ['documentos' => DocumentoLegal::orderBy('tipo')->orderByDesc('created_at')->get()]);

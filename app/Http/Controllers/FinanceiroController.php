@@ -103,6 +103,37 @@ class FinanceiroController extends Controller
     }
 
     /** @return array<string, int> */
+    /**
+     * Emite (ou reemite) a cobranca de uma fatura no provedor.
+     *
+     * O fechamento ja tenta criar a cobranca e engole a falha de proposito,
+     * para nao derrubar a competencia inteira por causa do provedor fora do ar.
+     * O que faltava era o caminho de volta: sem este botao, fatura sem boleto
+     * so se resolvia no banco de dados.
+     */
+    public function emitirCobranca(Fatura $fatura, \App\Actions\Financeiro\CriarCobrancaAsaas $criar)
+    {
+        if ($fatura->estaLiquidada()) {
+            return back()->with('erro', 'Esta fatura já está paga.');
+        }
+
+        if ($fatura->cobrancaAsaas?->asaas_charge_id) {
+            return back()->with('erro', 'Esta fatura já tem cobrança emitida no provedor.');
+        }
+
+        try {
+            $cobranca = $criar($fatura);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('erro', 'O provedor de cobrança não respondeu. Tente de novo em instantes.');
+        }
+
+        return back()->with($cobranca->asaas_charge_id ? 'ok' : 'erro', $cobranca->asaas_charge_id
+            ? 'Cobrança emitida no provedor.'
+            : 'A conexão de cobrança não está configurada e ativa. Confira em Conexões.');
+    }
+
     private function totais(): array
     {
         $soma = fn (array $situacoes) => (int) Fatura::whereIn('situacao_pagamento', $situacoes)->sum('total_cents');

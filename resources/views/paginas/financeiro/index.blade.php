@@ -136,6 +136,18 @@
                                         </form>
                                     </div>
                                 @else
+                                    {{-- Fatura sem cobranca no provedor: o fechamento tentou e
+                                         nao conseguiu, e sem este botao o boleto so nasceria
+                                         mexendo no banco de dados. --}}
+                                    @unless ($fatura->cobrancaAsaas?->asaas_charge_id)
+                                        <form method="POST" action="{{ route('financeiro.cobranca', $fatura) }}" class="mr-2 inline">
+                                            @csrf
+                                            <x-avalia.botao variante="secundario" tamanho="sm" title="Emitir a cobrança no provedor">
+                                                Emitir cobrança
+                                            </x-avalia.botao>
+                                        </form>
+                                    @endunless
+
                                     {{-- A justificativa e obrigatoria porque esta e a unica porta
                                          pela qual dinheiro e dado como recebido sem ter entrado, e
                                          ela libera a comissao do vendedor na mesma hora. --}}

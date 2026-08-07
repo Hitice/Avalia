@@ -44,6 +44,16 @@
             </span>
         </div>
 
+        <a href="{{ route('perfil') }}"
+           class="text-theme-sm group flex w-full items-center gap-3 rounded-lg px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+            <svg class="size-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                 fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect x="5" y="10.5" width="14" height="9.5" rx="2"/>
+                <path stroke-linecap="round" d="M8.5 10.5V7.75a3.5 3.5 0 1 1 7 0v2.75"/>
+            </svg>
+            Minha conta
+        </a>
+
         {{-- Sair e POST com CSRF, nunca link. Logout por GET pode ser disparado
              por uma imagem numa pagina de terceiro e derrubar a sessao sozinho. --}}
         <form method="POST" action="{{ route('sair') }}" class="border-t border-gray-200 pt-3 dark:border-gray-800">

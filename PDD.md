@@ -733,6 +733,21 @@ linha se explica sozinha mesmo depois de a entidade ser removida. Nome de
 consumidor consultado nunca entra no congelado: a trilha vive para sempre e o
 dado pessoal tem prazo.
 
+### O que o administrador opera pela tela
+
+Cada conta troca a própria senha em Minha conta, exigindo a senha atual mesmo
+com a sessão aberta (sessão esquecida em máquina compartilhada não pode virar
+troca de dono) e derrubando as outras sessões da conta, menos a de quem trocou.
+Vale para equipe, empresa e operador.
+
+Fechamentos do módulo administrativo: reemissão de cobrança quando a criação no
+provedor falhou (o fechamento engole a falha para não derrubar a competência,
+e este é o caminho de volta); conferência da corrente da trilha por botão, que
+antes só existia no console; retirada de documento de circulação sem publicar
+versão nova, preservando os aceites já registrados; e edição de campanha, que
+é o texto que veste a página pública e por isso precisa de conserto, não de
+duplicata.
+
 ### Conexões com serviços externos
 
 As credenciais de cobrança, bureaus e consulta veicular vivem no módulo

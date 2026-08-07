@@ -5,12 +5,30 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Auditoria</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Histórico das ações feitas na plataforma.
-        </p>
+    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Auditoria</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Histórico das ações feitas na plataforma.
+            </p>
+        </div>
+
+        {{-- Cada registro carrega o resumo do anterior: alterar uma linha no
+             meio quebra a conferencia de todas as seguintes. O botao responde
+             "esta trilha foi mexida?", que e a pergunta de quem a entrega a
+             alguem de fora. --}}
+        <form method="POST" action="{{ route('auditoria.conferir') }}">
+            @csrf
+            <x-avalia.botao variante="secundario" tamanho="sm">Conferir integridade</x-avalia.botao>
+        </form>
     </div>
+
+    @if (session('ok'))
+        <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>
+    @endif
+    @if (session('erro'))
+        <div class="aviso aviso-erro mb-6">{{ session('erro') }}</div>
+    @endif
 
     @if ($acoes->isNotEmpty())
         <div class="mb-6 flex flex-wrap gap-2">
