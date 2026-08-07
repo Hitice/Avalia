@@ -108,7 +108,8 @@ class AreaClienteController extends Controller
             $franquia = $plano->franquiaDe($servico->codigo);
             $usadas = (int) ($uso[$servico->id] ?? 0);
 
-            $texto = 'Valor por consulta: '.Dinheiro::brl((int) $plano->precoDe($servico->codigo));
+            $texto = ($servico->descricao ? $servico->descricao.' · ' : '')
+                .'Valor por consulta: '.Dinheiro::brl((int) $plano->precoDe($servico->codigo));
 
             if ($franquia > 0) {
                 $texto .= $usadas < $franquia
@@ -189,19 +190,20 @@ class AreaClienteController extends Controller
         $dados = $request->validate([
             'servico_id' => ['required', 'integer'],
             'documento' => ['required', 'string', 'min:11', 'max:20'],
-            'finalidade' => ['required', 'string', 'min:10', 'max:120'],
-            'solicitante' => ['nullable', 'string', 'max:150'],
         ], [
             'documento.min' => 'Informe um CPF ou CNPJ completo.',
-            'finalidade.required' => 'Diga para que a consulta sera usada.',
-            'finalidade.min' => 'Descreva a finalidade com mais detalhe.',
         ]);
 
         $servico = Servico::findOrFail($dados['servico_id']);
 
+        // Finalidade e solicitante nao se digitam mais: a finalidade vinculante
+        // e a declarada no aceite dos termos, gravada em toda consulta, e o
+        // solicitante e quem esta logado. Formulario de dois campos.
+        $operador = Operador::daSessao();
+
         $resultado = $consultar(
-            $empresa, $servico, $dados['documento'], $dados['finalidade'],
-            $dados['solicitante'] ?? null, Operador::daSessao(),
+            $empresa, $servico, $dados['documento'], Consulta::FINALIDADE_PADRAO,
+            $operador?->nome ?? ($empresa->responsavel_nome ?: null), $operador,
         );
 
         if ($resultado['erro']) {

@@ -255,18 +255,20 @@ it('consulta pelo portal e mostra o resultado', function () {
         ->assertSee($consulta->referencia_externa);
 });
 
-it('exige finalidade declarada para consultar', function () {
-    // Sem finalidade nao ha base legal, e o campo em branco tornaria a
-    // exigencia do PDD uma formalidade vazia.
-    $empresa = empresaComPlano();
+it('grava em toda consulta a finalidade declarada nos termos', function () {
+    // Ninguem digita finalidade: a declaracao vinculante e a do aceite, e cada
+    // consulta a referencia. O solicitante e quem esta logado.
+    $empresa = empresaComPlano(['responsavel_nome' => 'Marta Responsável']);
 
     comoEmpresa($empresa)->post(route('empresa.consultas.executar'), [
         'servico_id' => Servico::firstWhere('codigo', 'scpc-bvs')->id,
         'documento' => DOC_OK,
-        'finalidade' => '',
-    ])->assertSessionHasErrors('finalidade');
+    ])->assertRedirect();
 
-    expect(Consulta::count())->toBe(0);
+    $consulta = Consulta::sole();
+
+    expect($consulta->finalidade)->toBe(Consulta::FINALIDADE_PADRAO)
+        ->and($consulta->solicitante)->toBe('Marta Responsável');
 });
 
 it('nao deixa uma empresa abrir a consulta de outra', function () {

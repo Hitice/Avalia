@@ -18,7 +18,7 @@ class Servico extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['codigo', 'nome', 'categoria', 'ativo', 'exige_liberacao'];
+    protected $fillable = ['codigo', 'nome', 'categoria', 'descricao', 'ativo', 'exige_liberacao'];
 
     protected function casts(): array
     {

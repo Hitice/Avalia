@@ -48,6 +48,7 @@ class ServicoRequest extends FormRequest
     {
         $regras = [
             'nome' => ['required', 'string', 'max:150'],
+            'descricao' => ['nullable', 'string', 'max:300'],
             'categoria' => ['required', Rule::in(Categoria::valores())],
             'ativo' => ['boolean'],
             'exige_liberacao' => ['boolean'],

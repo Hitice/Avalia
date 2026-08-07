@@ -45,6 +45,17 @@
                     @error('nome') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
+                <div class="sm:col-span-2">
+                    <label for="descricao" class="{{ $rotulo }}">O que a consulta devolve</label>
+                    <textarea id="descricao" name="descricao" class="{{ $campo }}" rows="2"
+                              maxlength="300">{{ old('descricao', $servico->descricao) }}</textarea>
+                    <span class="ajuda-campo">
+                        Aparece para o cliente no formulário de consulta, junto do preço. Uma frase
+                        do que vem no resultado, sem citar fornecedor.
+                    </span>
+                    @error('descricao') <span class="{{ $erro }}">{{ $message }}</span> @enderror
+                </div>
+
                 <div>
                     <label for="codigo" class="{{ $rotulo }}">Código</label>
                     @if ($servico->exists)

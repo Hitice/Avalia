@@ -58,10 +58,12 @@ it('mostra no painel quanto falta para o consumo minimo', function () {
         ->assertSee("Faltam R$\u{00A0}900,00 para o consumo mínimo do plano.", false);
 });
 
-it('mostra o preco do servico antes de consultar', function () {
-    // Ninguem deveria descobrir o valor da consulta na fatura.
+it('mostra preco e descricao do servico antes de consultar', function () {
+    // Ninguem deveria descobrir o valor da consulta na fatura, nem contratar
+    // sem saber o que a consulta devolve.
     $empresa = empresaComPlano();
     $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+    $servico->update(['descricao' => 'Restrições, protestos e score do documento consultado.']);
     $empresa->plano->franquias()->create(['servico_id' => $servico->id, 'quantidade' => 10]);
 
     app(RegistrarConsulta::class)($empresa, $servico, 4);
@@ -69,7 +71,8 @@ it('mostra o preco do servico antes de consultar', function () {
     $precos = comoEmpresa($empresa)->get(route('empresa.consultar'))->assertOk()
         ->viewData('precos');
 
-    expect($precos[$servico->id])->toContain('Valor por consulta')
+    expect($precos[$servico->id])->toContain('Restrições, protestos e score')
+        ->toContain('Valor por consulta')
         ->toContain("R$\u{00A0}3,24")
         ->toContain('6 de 10 consultas da franquia');
 });

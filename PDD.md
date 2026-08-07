@@ -824,7 +824,13 @@ acesso, retenção e criptografia quando aplicável.
   subir com depurador ligado, cookie fora de HTTPS, raiz do servidor em `public`
   ou envio de e-mail desligado.
 - Expurgar resposta de bureau conforme a retenção da seção 5, preservando metadados fiscais e auditoria.
-- Cada consulta deve ter finalidade e responsável rastreáveis.
+- Cada consulta deve ter finalidade e responsável rastreáveis. A finalidade é a
+  declarada no aceite dos termos (análise de crédito e risco em negócio
+  próprio), gravada automaticamente em toda consulta; ninguém a digita, porque
+  campo digitado a cada clique vira formalidade vazia. O responsável é quem
+  está logado: o operador com nome, ou a conta master. O formulário de
+  consulta pede dois campos (serviço e documento) e mostra descrição e preço
+  do serviço antes do clique.
 - Auditoria não pode impedir a operação principal caso a gravação falhe.
 
 ## 15. Entrega por fases

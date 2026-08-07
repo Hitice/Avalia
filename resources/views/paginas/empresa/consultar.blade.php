@@ -29,8 +29,8 @@
     @else
         <div class="cartao p-6">
             <p class="ajuda-campo mb-5">
-                A finalidade fica registrada junto da consulta. Ela é o que sustenta o uso do dado
-                se alguém perguntar depois por que aquele documento foi consultado.
+                Cada consulta registra quem consultou e a finalidade declarada no aceite dos
+                termos: análise de crédito e risco em negócio próprio.
             </p>
 
             <form method="POST" action="{{ route('empresa.consultas.executar') }}" class="grid gap-5 sm:grid-cols-2">
@@ -55,21 +55,6 @@
                     <input id="documento" name="documento" type="text" class="campo" required
                            inputmode="numeric" value="{{ old('documento') }}">
                     @error('documento') <span class="erro-campo">{{ $message }}</span> @enderror
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label for="finalidade" class="rotulo-campo">Finalidade</label>
-                    <input id="finalidade" name="finalidade" type="text" class="campo" required
-                           maxlength="120" value="{{ old('finalidade') }}"
-                           placeholder="Análise de crédito para venda a prazo">
-                    @error('finalidade') <span class="erro-campo">{{ $message }}</span> @enderror
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label for="solicitante" class="rotulo-campo">Quem está solicitando</label>
-                    <input id="solicitante" name="solicitante" type="text" class="campo"
-                           maxlength="150" value="{{ old('solicitante') }}">
-                    <span class="ajuda-campo">Opcional, e útil quando várias pessoas usam o mesmo acesso.</span>
                 </div>
 
                 <div class="sm:col-span-2">
