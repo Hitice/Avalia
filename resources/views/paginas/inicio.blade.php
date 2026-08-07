@@ -532,18 +532,20 @@
             </svg>
         </a>
 
+        {{-- O aviso de uso responsavel fecha o conteudo, centralizado e fora
+             do rodape: e nota legal, nao assinatura. As citacoes conferem:
+             Lei 12.414/2011 e o Cadastro Positivo, e o art. 7, inciso X, da
+             Lei 13.709/2018 e a base legal de protecao ao credito da LGPD. --}}
+        <p class="mx-auto w-full max-w-3xl px-6 pb-12 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+            As informações fornecidas pela Avalia apoiam decisões de negócio do próprio
+            contratante, na finalidade de proteção ao crédito prevista na Lei nº 12.414/2011
+            e no art. 7º, inciso X, da Lei nº 13.709/2018 (LGPD). A Avalia não concede
+            empréstimos, não garante aprovação de crédito e não decide em nome de seus
+            clientes. As informações são confidenciais: não podem ser repassadas nem
+            usadas para outra finalidade.
+        </p>
+
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            {{-- O aviso de uso responsavel que todo o mercado carrega: a
-                 consulta serve a decisao de negocio do proprio contratante,
-                 e e isso que a base legal cobre. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pt-8 text-xs text-gray-400 dark:text-gray-500">
-                As informações fornecidas destinam-se exclusivamente a apoiar decisões de
-                negócio do próprio contratante, na finalidade de pesquisa de score e
-                proteção ao crédito prevista na Lei 12.414/2011 e no art. 7º, X, da
-                Lei 13.709/2018 (LGPD). A Avalia não concede empréstimos, não garante
-                aprovação de crédito e não decide em nome de seus clientes. É vedado o
-                repasse das informações ou seu uso para qualquer outra finalidade.
-            </p>
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="28" one />

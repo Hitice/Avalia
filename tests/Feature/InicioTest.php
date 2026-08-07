@@ -33,7 +33,7 @@ it('vende pesquisa de score com o aviso de uso responsavel, sem termo nublado', 
 
     expect($html)->toContain('Pesquisa de score')
         ->toContain('venda a prazo')
-        ->toContain('Lei 12.414/2011')
+        ->toContain('Lei nº 12.414/2011')
         ->toContain('não concede empréstimos')
         // As duas grafias (maiuscula e minuscula) caem na mesma rede.
         ->not->toContain('nálise de crédito')
