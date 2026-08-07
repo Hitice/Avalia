@@ -17,9 +17,9 @@
     @include('paginas.catalogo.avisos')
 
     <div class="overflow-hidden cartao">
-        <div class="overflow-x-auto">
+        <div class="tabela-rolagem">
             <table class="tabela min-w-[44rem]">
-                <thead class="tabela-cabecalho">
+                <thead class="tabela-cabecalho tabela-cabecalho-fixo">
                     <tr>
                         <th class="px-4 py-3 text-right font-medium">Nº</th>
                         <th class="px-5 py-3 text-left font-medium">Serviço</th>

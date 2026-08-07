@@ -278,6 +278,9 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
         Route::get('/consultas', [AreaClienteController::class, 'consultas'])->name('consultas');
         Route::get('/faturas', [AreaClienteController::class, 'faturas'])->name('faturas');
 
+        // Simulador da fatura: GET, nada gravado, o cenario vira link.
+        Route::get('/simulador', [AreaClienteController::class, 'simulador'])->name('simulador');
+
         Route::get('/documentos', [AreaClienteController::class, 'documentos'])->name('documentos');
         Route::post('/documentos/{documento}/aceite', [AreaClienteController::class, 'aceitar'])->name('documentos.aceitar');
         Route::get('/documentos/{documento}/pdf', [AreaClienteController::class, 'documentoPdf'])->name('documentos.pdf');

@@ -607,6 +607,14 @@ mede qual porta converte, e a trilha de auditoria guarda quem atendeu. O
 vendedor não vê nem atende a fila: lead ainda não tem carteira, e distribuí-lo
 é decisão da administração.
 
+### Simulador do cliente
+
+O portal tem a aba Simulador: a empresa digita quantas consultas de cada
+serviço pretende fazer e vê a fatura estimada com a mesma conta do fechamento
+(franquia por serviço em quantidade, excedente contra o mínimo, mensalidade no
+total). Leitura pura, nada é gravado, o cenário vai por GET e vira link. Como
+em toda a área do cliente, custo, margem e comissão não existem na tela.
+
 ### Atendimento
 
 O portal do cliente oferece acesso direto ao SAC pelo WhatsApp +55 34 99117-6599.

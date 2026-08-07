@@ -37,9 +37,9 @@ it('nao leva custo, lucro nem margem para o portal do cliente', function () {
     $empresa = empresaComPlano();
     app(FecharCompetencia::class)($empresa, '2026-07');
 
-    // Varre as cinco telas, e nao so o painel: a area do cliente deixou de ser
+    // Varre todas as telas, e nao so o painel: a area do cliente deixou de ser
     // uma pagina unica, e vazamento aparece justamente na tela nova.
-    foreach (['painel', 'consultar', 'consultas', 'faturas', 'documentos'] as $tela) {
+    foreach (['painel', 'consultar', 'consultas', 'faturas', 'simulador', 'documentos'] as $tela) {
         $html = comoEmpresa($empresa)->get(route('empresa.'.$tela))->assertOk()->getContent();
 
         expect($html)->not->toContain('Custo do fornecedor')
@@ -93,6 +93,25 @@ it('abre a composicao da fatura sem custo nem margem', function () {
         ->toContain('2 consultas')
         ->toContain('Complemento até o consumo mínimo contratado')
         ->not->toContain('Custo');
+});
+
+it('simula a fatura do mes com a mesma conta do fechamento', function () {
+    // Franquia nao soma, excedente compara com o minimo, total = mensalidade
+    // mais o maior dos dois. A simulacao e leitura pura: nada e gravado.
+    $empresa = empresaComPlano();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+    $empresa->plano->franquias()->create(['servico_id' => $servico->id, 'quantidade' => 10]);
+
+    // 100 consultas a R$ 3,24: 10 na franquia, 90 excedentes = R$ 291,60.
+    // Abaixo do minimo de R$ 900, entao o mes sai pelo piso + mensalidade.
+    $resposta = comoEmpresa($empresa)
+        ->get(route('empresa.simulador', ['q' => [$servico->id => 100]]))
+        ->assertOk();
+
+    expect($resposta->viewData('excedente'))->toBe(29_160)
+        ->and($resposta->viewData('faturado'))->toBe(90_000)
+        ->and($resposta->viewData('total'))->toBe(97_990)
+        ->and(App\Models\Consulta::count())->toBe(0);
 });
 
 it('mostra a cada empresa so as faturas dela', function () {

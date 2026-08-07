@@ -215,6 +215,54 @@ class AreaClienteController extends Controller
             ->with('ok', 'Consulta concluída.');
     }
 
+    /**
+     * Simulador da fatura: quantas consultas de cada servico, quanto sai o mes.
+     *
+     * A mesma matematica do fechamento (franquia por servico em quantidade,
+     * excedente contra o minimo), aplicada a um cenario digitado. Nada e
+     * gravado e tudo vai por GET: o cenario vira link. Custo, margem e
+     * comissao nao existem aqui, como em toda a area do cliente.
+     */
+    public function simulador(Request $pedido)
+    {
+        $empresa = auth('empresa')->user();
+        $plano = $empresa->plano;
+        $servicos = $plano?->servicosDisponiveis() ?? collect();
+
+        $quantidades = collect($pedido->query('q', []))
+            ->map(fn ($q) => max(0, min(1_000_000, (int) $q)));
+
+        $linhas = $servicos->map(function ($servico) use ($plano, $quantidades) {
+            $quantidade = (int) ($quantidades[$servico->id] ?? 0);
+            $franquia = $plano->franquiaDe($servico->codigo);
+            $preco = (int) $plano->precoDe($servico->codigo);
+            $excedentes = max(0, $quantidade - $franquia);
+
+            return [
+                'servico' => $servico,
+                'quantidade' => $quantidade,
+                'preco_cents' => $preco,
+                'franquia' => $franquia,
+                'na_franquia' => min($quantidade, $franquia),
+                'excedente_cents' => $excedentes * $preco,
+            ];
+        });
+
+        $excedente = (int) $linhas->sum('excedente_cents');
+        $minimo = (int) ($plano->consumo_minimo_cents ?? 0);
+        $faturado = max($excedente, $minimo);
+
+        return view('paginas.empresa.simulador', [
+            'empresa' => $empresa,
+            'plano' => $plano,
+            'linhas' => $linhas,
+            'excedente' => $excedente,
+            'minimo' => $minimo,
+            'faturado' => $faturado,
+            'total' => (int) ($plano->mensalidade_cents ?? 0) + $faturado,
+        ]);
+    }
+
     /** O resultado de uma consulta, so para quem a pediu. */
     public function verConsulta(Consulta $consulta)
     {

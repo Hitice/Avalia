@@ -15,9 +15,9 @@
     </div>
 
     <div class="cartao overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="tabela-rolagem">
             <table class="tabela min-w-[40rem]">
-                <thead class="tabela-cabecalho"><tr>
+                <thead class="tabela-cabecalho tabela-cabecalho-fixo"><tr>
                     <th scope="col" class="px-5 py-3 text-left font-medium">Período</th>
                     <th scope="col" class="px-5 py-3 text-left font-medium">Situação</th>
                     <th scope="col" class="px-5 py-3 text-right font-medium">Mensalidade</th>

@@ -25,9 +25,9 @@
     @endif
 
     <div class="cartao overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="tabela-rolagem">
             <table class="tabela min-w-[52rem]">
-                <thead class="tabela-cabecalho">
+                <thead class="tabela-cabecalho tabela-cabecalho-fixo">
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Data e hora</th>
                         <th class="px-5 py-3 text-left font-medium">Responsável</th>
