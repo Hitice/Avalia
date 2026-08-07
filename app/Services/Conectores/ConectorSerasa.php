@@ -110,6 +110,13 @@ class ConectorSerasa implements ConectorBureau
     /**
      * Traducao do payload da Serasa para o laudo canonico da tela.
      *
+     * A ORDEM dos blocos e a do mercado, nao a do payload: resumo de decisao
+     * no topo (score), depois identidade, depois as restricoes da mais grave
+     * para a menos (pendencia comercial, bancaria, protesto, cheque), e por
+     * fim o contexto. E a ordem do relatorio classico do fornecedor, com a
+     * camada de decisao promovida para cima como os produtos novos fazem:
+     * quem le decide nos primeiros cinco segundos, e o resto e prova.
+     *
      * So entram numeros que vieram: bloco ausente vira "nao incluido nesta
      * consulta" na tela, nunca zero fingindo dado.
      */
@@ -117,12 +124,8 @@ class ConectorSerasa implements ConectorBureau
     {
         $laudo = ['laudo' => 1, 'fornecido_em' => now()->toIso8601String()];
 
-        if ($cadastro = $relatorio['registration'] ?? null) {
-            $laudo['nome'] = $cadastro['consumerName'] ?? $cadastro['companyName'] ?? null;
-            $laudo['situacao_cadastral'] = $cadastro['statusRegistration'] ?? null;
-        }
-
-        // O score diz QUAL score e: modelos diferentes nao se comparam.
+        // 1. Decisao primeiro. O score diz QUAL score e: modelos diferentes
+        // nao se comparam, e omitir o modelo faz o numero mentir.
         $score = $relatorio['score'] ?? $features['score'] ?? null;
 
         if ($score) {
@@ -132,14 +135,25 @@ class ConectorSerasa implements ConectorBureau
             $laudo['probabilidade_de_inadimplencia'] = $score['defaultRate'] ?? null;
         }
 
+        // 2. Identidade.
+        if ($cadastro = $relatorio['registration'] ?? null) {
+            $laudo['nome'] = $cadastro['consumerName'] ?? $cadastro['companyName'] ?? null;
+            $laudo['situacao_cadastral'] = $cadastro['statusRegistration'] ?? null;
+        }
+
+        // 3. Restricoes, da mais grave para a menos.
         if ($negativos = $relatorio['negativeData'] ?? null) {
-            $laudo['pendencias_pefin'] = $negativos['pefin']['summary']['count'] ?? 0;
-            $laudo['valor_pefin_cents'] = (int) round(($negativos['pefin']['summary']['balance'] ?? 0) * 100);
-            $laudo['pendencias_refin'] = $negativos['refin']['summary']['count'] ?? 0;
+            $laudo['pendencias_comerciais'] = $negativos['pefin']['summary']['count'] ?? 0;
+            $laudo['valor_pendencias_comerciais_cents'] = (int) round(($negativos['pefin']['summary']['balance'] ?? 0) * 100);
+            $laudo['pendencias_bancarias'] = $negativos['refin']['summary']['count'] ?? 0;
+            $laudo['valor_pendencias_bancarias_cents'] = (int) round(($negativos['refin']['summary']['balance'] ?? 0) * 100);
             $laudo['protestos'] = $negativos['notary']['summary']['count'] ?? 0;
             $laudo['cheques_sem_fundo'] = $negativos['check']['summary']['count'] ?? 0;
         }
 
+        // 4. Contexto. Quantas vezes o documento foi consultado e' leitura de
+        // mercado: consulta demais sinaliza busca por credito em varios
+        // lugares, consulta de menos sinaliza inatividade.
         if ($consultas = $relatorio['facts']['inquirySummary'] ?? null) {
             $laudo['consultas_recentes'] = $consultas['quantityLastThirtyDays']
                 ?? $consultas['quantity'] ?? null;

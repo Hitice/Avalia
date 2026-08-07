@@ -744,6 +744,21 @@ manter), a trilha registra quais campos mudaram e nunca o valor, e o teste de
 conexão grava carimbo com o resultado. A chave e a URL andam juntas: o
 ambiente da conexão (produção ou homologação) escolhe as duas de uma vez.
 
+O laudo canônico tem ordem fixa, e ela é a do mercado: resumo de decisão no
+topo (score, sempre com o modelo dele, porque modelos diferentes não se
+comparam), depois identidade, depois as restrições da mais grave para a menos
+(pendência comercial, bancária, protesto, cheque) e por fim o contexto de
+consultas recentes. É a ordem do relatório clássico do fornecedor, com a
+camada de decisão promovida para cima como os produtos novos fazem: quem lê
+decide nos primeiros segundos, o resto é prova.
+
+Uma constatação estratégica do levantamento de mercado: **distribuidor
+autorizado não ganha portal próprio do bureau.** Ele tem sistema próprio para
+negativação e faturamento, mas a consulta em si joga o cliente no portal
+oficial do fornecedor. O espaço que a Avalia ocupa é exatamente esse, e as
+funções que o mercado não publica em lugar nenhum (preço por cliente, markup,
+comissão apurada por transação, carteira do vendedor) já existem aqui.
+
 O primeiro conector real existe: o da Serasa Experian, escrito sobre o
 swagger e o manual oficiais do portal do desenvolvedor (token de 1 hora via
 client-identities/login com Basic, relatório via GET com o documento no header

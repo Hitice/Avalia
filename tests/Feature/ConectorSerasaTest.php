@@ -54,9 +54,14 @@ it('consulta o relatorio e traduz a resposta para o laudo', function () {
     expect($resposta->sucesso)->toBeTrue()
         ->and($resposta->dados['score'])->toBe(712)
         ->and($resposta->dados['modelo_do_score'])->toBe('HSPN')
-        ->and($resposta->dados['pendencias_pefin'])->toBe(2)
-        ->and($resposta->dados['valor_pefin_cents'])->toBe(153_450)
+        ->and($resposta->dados['pendencias_comerciais'])->toBe(2)
+        ->and($resposta->dados['valor_pendencias_comerciais_cents'])->toBe(153_450)
         ->and($resposta->dados['protestos'])->toBe(1);
+
+    // A ordem e a do mercado: decisao no topo, identidade, restricoes da mais
+    // grave para a menos. A tela le o laudo na ordem em que ele vem.
+    expect(array_slice(array_keys($resposta->dados), 2, 3))
+        ->toBe(['score', 'modelo_do_score', 'faixa_do_score']);
 
     // O desenho oficial: Basic no login, documento no header, produto no query.
     Http::assertSent(fn ($r) => str_contains($r->url(), 'client-identities/login')
