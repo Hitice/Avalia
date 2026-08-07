@@ -23,17 +23,22 @@ it('apresenta a Avalia com as duas saidas', function () {
         ->assertSee('Campanha de adesão');
 });
 
-it('vende decisao amarrada a finalidade legitima, com o aviso de uso responsavel', function () {
-    // O vocabulario da pagina e juridico antes de ser comercial: consulta
-    // amarrada a negocio do proprio contratante (Lei 12.414 e LGPD art. 7, X)
-    // e o aviso de uso responsavel que todo o mercado carrega. Prometer
-    // "consulte qualquer pessoa" e o que este teste impede.
-    $this->get('/')
-        ->assertOk()
-        ->assertSee('Análise de crédito')
-        ->assertSee('antes de vender a prazo')
-        ->assertSee('Lei 12.414/2011')
-        ->assertSee('exclusivamente à análise de crédito e de risco');
+it('vende pesquisa de score com o aviso de uso responsavel, sem termo nublado', function () {
+    // O vocabulario da pagina e juridico antes de ser comercial. A Avalia nao
+    // empresta, nao garante credito e nao e bureau: "analise de credito" e
+    // "consulta de credito" sao promessas juridicamente nubladas e ficam
+    // banidas; o que se vende e pesquisa de score amarrada a negocio do
+    // proprio contratante, com a decisao declarada como sendo do cliente.
+    $html = $this->get('/')->assertOk()->getContent();
+
+    expect($html)->toContain('Pesquisa de score')
+        ->toContain('vender a prazo')
+        ->toContain('Lei 12.414/2011')
+        ->toContain('não concede empréstimos')
+        // As duas grafias (maiuscula e minuscula) caem na mesma rede.
+        ->not->toContain('nálise de crédito')
+        ->not->toContain('onsulta de crédito')
+        ->not->toContain('onsultas de crédito');
 });
 
 it('marca o carrossel de consultas como simulacao e mascara os documentos', function () {

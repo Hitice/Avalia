@@ -581,14 +581,20 @@ a administração, mas a vitrine não publica o que a seção 7 manda guardar.
 
 ### O que a página pública pode prometer
 
-A comunicação vende decisão, e não acesso a dado: "análise de crédito",
-"avaliar clientes", "decidir com segurança", sempre amarrado a uma transação do
-próprio contratante ("antes de vender a prazo"). É o vocabulário que a base
-legal sustenta: a Lei 12.414/2011 define o consulente pela finalidade permitida
-e responsabiliza solidariamente toda a cadeia (art. 16), e a LGPD só dispensa
-consentimento na base de proteção ao crédito (art. 7º, X) quando a finalidade é
-essa. Nunca prometer "consulte qualquer pessoa", "descubra tudo sobre alguém"
-ou acesso a dado fora de uma decisão de negócio.
+A comunicação vende informação para decisão, e não acesso a dado nem serviço
+financeiro: "pesquisa de score", "pontuação e histórico público", "a decisão é
+sempre sua", sempre amarrado a uma transação do próprio contratante ("antes de
+vender a prazo"). Termos juridicamente nublados são banidos da página e da
+vitrine de campanha, com teste: "análise de crédito" e "consulta de crédito"
+sugerem atividade de bureau ou de concessão, e "empréstimo" e garantia de
+aprovação sugerem serviço financeiro que a Avalia não presta. O rodapé declara
+expressamente que a Avalia não concede empréstimos, não garante aprovação e
+não decide em nome do contratante. É o vocabulário que a base legal sustenta:
+a Lei 12.414/2011 define o consulente pela finalidade permitida e
+responsabiliza solidariamente toda a cadeia (art. 16), e a LGPD só dispensa
+consentimento na base de proteção ao crédito (art. 7º, X) quando a finalidade
+é essa. Nunca prometer "consulte qualquer pessoa", "descubra tudo sobre
+alguém" ou acesso a dado fora de uma decisão de negócio.
 
 O rodapé carrega o aviso de uso responsável, padrão do mercado: consultas
 exclusivamente para análise de crédito e risco em negócios do próprio

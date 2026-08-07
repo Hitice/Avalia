@@ -1,4 +1,4 @@
-@extends('layouts.fullscreen-layout', ['title' => 'Consultas de crédito para empresas'])
+@extends('layouts.fullscreen-layout', ['title' => 'Pesquisa de score para empresas'])
 
 @php
     use App\Support\Suporte;
@@ -21,13 +21,13 @@
     $pilares = [
         'dados' => [
             'titulo' => 'Decida com dados',
-            'resumo' => 'Consulte crédito e cadastro antes de fechar a venda a prazo. O resultado chega em segundos, direto no painel.',
-            'detalhe' => 'Antes de parcelar, sua equipe consulta o CPF ou o CNPJ e recebe a leitura de risco na hora. Sem instalação: é abrir o painel e consultar.',
+            'resumo' => 'Pesquise o score e os dados públicos antes de fechar a venda a prazo. O resultado chega em segundos, direto no painel.',
+            'detalhe' => 'Antes de parcelar, sua equipe pesquisa o CPF ou o CNPJ e recebe a pontuação e o histórico na hora. A Avalia entrega a informação; a decisão de vender é sempre da sua empresa.',
             'itens' => [
-                'Consulta de CPF e CNPJ com pontuação',
-                'Restrições e histórico de mercado',
-                'Finalidade e responsável registrados',
-                'Resultado em segundos, direto no painel',
+                'Pontuação de score na versão mais recente do modelo',
+                'Tendência e estabilidade do comportamento ao longo do tempo',
+                'Restrições e histórico público de mercado',
+                'Finalidade e responsável registrados em cada pesquisa',
             ],
             'icone' => 'M3 17l5-5 4 4 8-9M16 7h5v5',
         ],
@@ -181,13 +181,13 @@
                 <div>
                     <span class="entra-suave inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-600 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-400">
                         <span class="size-1.5 rounded-full bg-brand-500"></span>
-                        Consultas de crédito para empresas
+                        Pesquisa de score para empresas
                     </span>
 
                     <h1 class="entra-suave mt-5 text-4xl leading-tight font-semibold tracking-tight sm:text-5xl"
                         style="animation-delay: 0.1s">
                         Venda a prazo com a<br>
-                        <span class="text-brand-500">decisão certa.</span>
+                        <span class="text-brand-500">decisão informada.</span>
                     </h1>
 
                     {{-- A promessa vende decisao, nao acesso a dado, e amarra a
@@ -195,9 +195,9 @@
                          que a Lei 12.414 e o art. 7, X, da LGPD sustentam. --}}
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Análise de crédito e consulta veicular em um só lugar. Sua empresa
-                        avalia clientes antes de vender a prazo, acompanha o consumo e
-                        decide com mais segurança.
+                        Pesquisa de score e consulta veicular em um só lugar. Sua empresa
+                        vê a pontuação e o histórico público de quem negocia antes de
+                        vender a prazo. A informação é nossa entrega; a decisão é sempre sua.
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
@@ -520,10 +520,12 @@
                  consulta serve a decisao de negocio do proprio contratante,
                  e e isso que a base legal cobre. --}}
             <p class="mx-auto w-full max-w-[87rem] px-6 pt-8 text-xs text-gray-400 dark:text-gray-500">
-                As consultas destinam-se exclusivamente à análise de crédito e de risco em
-                negócios do próprio contratante, nos termos da Lei 12.414/2011 e do
-                art. 7º, X, da Lei 13.709/2018 (LGPD). É vedado o repasse das informações
-                ou seu uso para qualquer outra finalidade.
+                As informações fornecidas destinam-se exclusivamente a apoiar decisões de
+                negócio do próprio contratante, na finalidade de pesquisa de score e
+                proteção ao crédito prevista na Lei 12.414/2011 e no art. 7º, X, da
+                Lei 13.709/2018 (LGPD). A Avalia não concede empréstimos, não garante
+                aprovação de crédito e não decide em nome de seus clientes. É vedado o
+                repasse das informações ou seu uso para qualquer outra finalidade.
             </p>
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-8 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">

@@ -38,7 +38,9 @@ class Campanha extends Model
             return false;
         }
 
-        return preg_match('/\b(boa vista|equifax|spc|serasa|custo|margem|lucro)\b/iu', $texto) !== 1;
+        // Alem de fornecedor e numero interno, os termos juridicamente
+        // nublados: a Avalia nao promete analise nem concessao de credito.
+        return preg_match('/\b(boa vista|equifax|spc|serasa|custo|margem|lucro)\b|an[aá]lise de cr[eé]dito|consulta de cr[eé]dito|empr[eé]stimo/iu', $texto) !== 1;
     }
 
     public function clientes(): BelongsToMany
