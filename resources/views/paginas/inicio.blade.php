@@ -539,10 +539,10 @@
         <p class="mx-auto w-full max-w-3xl px-6 pb-12 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
             As informações fornecidas pela Avalia apoiam decisões de negócio do próprio
             contratante, na finalidade de proteção ao crédito prevista na Lei nº 12.414/2011
-            e no art. 7º, inciso X, da Lei nº 13.709/2018 (LGPD). A Avalia não concede
-            empréstimos, não garante aprovação de crédito e não decide em nome de seus
-            clientes. As informações são confidenciais: não podem ser repassadas nem
-            usadas para outra finalidade.
+            e no art. 7º, inciso X, da Lei nº 13.709/2018 (LGPD).
+            A Avalia não concede empréstimos, não garante aprovação de crédito e não
+            decide em nome de seus clientes. As informações são confidenciais: não podem
+            ser repassadas nem usadas para outra finalidade.
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
