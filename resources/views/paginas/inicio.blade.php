@@ -190,8 +190,8 @@
 
                     <h1 class="entra-suave mt-5 text-4xl leading-tight font-semibold tracking-tight sm:text-5xl"
                         style="animation-delay: 0.1s">
-                        Venda a prazo para quem<br>
-                        <span class="text-brand-500">vale o risco.</span>
+                        Avalie o risco com<br>
+                        <span class="text-brand-500">inteligência de mercado.</span>
                     </h1>
 
                     {{-- A promessa vende decisao, nao acesso a dado, e amarra a
@@ -199,9 +199,9 @@
                          que a Lei 12.414 e o art. 7, X, da LGPD sustentam. --}}
                     <p class="entra-suave mt-5 max-w-lg text-lg text-gray-500 dark:text-gray-400"
                        style="animation-delay: 0.2s">
-                        Score, restrições, protestos e procedência veicular numa única
-                        consulta, pelo CPF, CNPJ ou placa. Resposta em segundos: menos
-                        inadimplência, menos fraude e mais negócio bom fechado, com a
+                        Decidir crédito exige precisão. Score, restrições, protestos e
+                        procedência veicular numa única consulta, pelo CPF, CNPJ ou placa,
+                        com resposta em segundos: menos inadimplência, menos fraude e a
                         decisão sempre na sua mão.
                     </p>
 
