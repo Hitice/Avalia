@@ -140,6 +140,9 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
         // custo descontado da comissao dele.
         'carteira.consultar', 'carteira.consultar.executar',
         'carteira.demonstracoes.ver', 'carteira.demonstracoes.pdf',
+        // Ficha da empresa da carteira: preco de venda, nada interno, e o
+        // controller confere que a empresa e do vendedor logado.
+        'carteira.empresa',
         'painel', 'sair', 'empresas.criar', 'empresas.salvar',
         'empresas.editar', 'empresas.atualizar', 'empresas.remover', 'empresas.convite'];
 

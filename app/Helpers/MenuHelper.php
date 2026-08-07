@@ -13,9 +13,17 @@ class MenuHelper
     {
         return [
             ['icon' => 'dashboard', 'name' => 'Visão geral', 'path' => '/painel'],
+
+            // Modulos do vendedor, um a um na lateral: a aba escondida dentro
+            // de Carteira era o modulo que ninguem achava.
+            ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],
+            ['icon' => 'consulta', 'name' => 'Consultar', 'path' => '/carteira/consultar', 'papeis' => ['vendedor']],
+            ['icon' => 'tables', 'name' => 'Consultas', 'path' => '/carteira/consultas', 'papeis' => ['vendedor']],
+            ['icon' => 'pages', 'name' => 'Serviços', 'path' => '/carteira/servicos', 'papeis' => ['vendedor']],
+            ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/carteira/simulacao', 'papeis' => ['vendedor']],
+
             ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
-            ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],

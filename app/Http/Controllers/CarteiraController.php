@@ -148,6 +148,31 @@ class CarteiraController extends Controller
         ]);
     }
 
+    /**
+     * A ficha de uma empresa da carteira, na visao do vendedor.
+     *
+     * Tudo que ele precisa para a conversa com o cliente: contato, plano,
+     * consumo do mes e faturas pelo preco de venda. Custo, lucro e margem nao
+     * existem aqui; a ficha completa com numeros internos e a da administracao.
+     */
+    public function empresa(Cliente $empresa)
+    {
+        abort_unless($empresa->vendedor_id === Auth::guard('staff')->id(), 403);
+
+        $competencia = Consulta::competenciaDe();
+
+        return view('paginas.carteira.empresa', [
+            'empresa' => $empresa->load('plano'),
+            'competencia' => $competencia,
+            'consumo' => (int) $empresa->consultas()
+                ->where('competencia', $competencia)
+                ->where('situacao', Consulta::SUCESSO)
+                ->sum('preco_cents'),
+            'quantidade' => $empresa->consultas()->where('competencia', $competencia)->count(),
+            'faturas' => $empresa->faturas()->orderByDesc('competencia')->limit(12)->get(),
+        ]);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Demonstracao

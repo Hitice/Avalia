@@ -129,7 +129,7 @@ no catálogo versionado, nunca no código.
 | Bloqueio por atraso | 10 dias após o vencimento | Na prática, dia 20. Bloqueia consultas; o login continua liberado para regularizar. |
 | Vigência do contrato | escolhida pelo vendedor | Sem vigência; 12 meses; 24 meses; ou 3 meses de carência especial para teste, seguidos de 12 ou 24 meses. |
 | Imposto sobre a venda | 13,50% | Alíquota apurada da Avalia, confirmada em 05/08/2026. Substitui a estimativa anterior de 8,60%, que era a faixa inicial do Simples. Incide sobre a nota cheia, antes de qualquer outro desconto. |
-| Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. |
+| Retenção da resposta do bureau | 180 dias | Metadados fiscais e auditoria são preservados. O registro da consulta (quem, quando, qual documento, finalidade) é permanente, o que cobre com folga a obrigação de informar as consultas dos últimos 12 meses; só o conteúdo da resposta expira. |
 
 Todos os valores financeiros são inteiros em centavos, do banco até a tela. Não
 se usa ponto flutuante em nenhuma etapa de cálculo, armazenamento ou exibição.
@@ -1140,6 +1140,30 @@ nome na tela muda conforme quem lê.
 - **Jargão financeiro fica na administração.** "Liquidado" não vai para o portal
   do cliente nem para a carteira.
 
+## 18b. Dependências externas em aberto
+
+O que não avança por código, na ordem em que destrava receita:
+
+1. **Credenciais de bureau de crédito** (contrato da Avalia): com elas se
+   escreve o conector real e a consulta deixa de ser simulada. A tela de
+   Conexões já guarda as credenciais; o conector entra no mapa do container.
+2. **Consulta veicular**: mesmo caso, com o fornecedor do contrato.
+3. **SCR**: exige instituição autorizada pelo BACEN e consentimento do titular
+   por consulta; o conector nasce com prova de autorização vinculada e trilha
+   própria.
+4. **Asaas**: conta configurada e conferida em produção pela tela de Conexões
+   (chave, webhook e teste). Falta só o ciclo real completo acontecer no
+   primeiro fechamento.
+5. **Uso de marca de bureau no site**: nenhum contrato autoriza hoje; a página
+   pública segue sem nomes.
+6. **Lista de finalidades da consulta Serasa**: aguardando o material para
+   incorporar ao formulário e aos termos.
+
+Do lado da operação, o cron do hPanel está ativo (batida por minuto em
+storage/logs/cron-batida.txt) e o aquecimento de 5 em 5 minutos mitiga a
+partida fria da hospedagem compartilhada, que era a causa do "logout lento":
+medição quente não passa de 0,7 s em nenhuma rota.
+
 ## 19. Backlog priorizado
 
 O que falta, na ordem em que atrapalha. A régua é operação enxuta: o que exige
@@ -1205,7 +1229,17 @@ Sem isto, a operação depende de alguém atender chamado no lugar do sistema.
     consertou um erro real: consulta falhada ocupava vaga de franquia e
     empurrava consulta boa para o excedente cobrado.
 18. Reemissão de cobrança quando a criação no provedor falha.
-19. Painel do vendedor separado do painel do administrador.
+19. ~~Painel do vendedor separado do painel do administrador.~~ Feito, e a
+    lateral também: cada módulo do vendedor (Carteira, Consultar, Consultas,
+    Serviços, Simulação) é um item próprio no menu, com ícone.
+19b. ~~Ficha da empresa para o vendedor.~~ Feita: contato, plano, consumo do
+    mês e faturas pelo preço de venda, sem custo, lucro nem margem, acessível
+    pelo nome da empresa na carteira.
+19c. ~~Demonstração pelo vendedor.~~ Feita (seção 11): preço zero, custo
+    descontado da comissão, PDF mascarado para compartilhar.
+19d. ~~Exclusão definitiva guardada.~~ Feita: só cadastro removido e sem
+    histórico; mudança de situação de empresa entra na trilha com antes e
+    depois.
 20. Glossário e nomenclatura aplicados às telas (seção 18).
 21. ~~Tabela de preços consolidada para o vendedor.~~ Feita: todas as faixas
     lado a lado em /carteira/servicos, com o número de atendimento por serviço

@@ -22,6 +22,25 @@ Schedule::call(function () {
     ->name('cron:batida')
     ->everyMinute();
 
+/*
+ * Aquecimento do servidor web.
+ *
+ * Na hospedagem compartilhada o LiteSpeed derruba o processo PHP depois de
+ * minutos ocioso, e o primeiro clique seguinte paga 3 a 5 segundos de
+ * subida; era o "logout lento" relatado, que a medicao quente nao reproduzia
+ * (tudo abaixo de 0,7 s). O toque de 5 em 5 minutos mantem o processo de pe.
+ * Falha aqui e silencio: aquecimento nao pode virar alerta.
+ */
+Schedule::call(function () {
+    try {
+        \Illuminate\Support\Facades\Http::timeout(10)->get(config('app.url'));
+    } catch (\Throwable) {
+        // Sem log: o proximo toque tenta de novo.
+    }
+})
+    ->name('site:aquecer')
+    ->everyFiveMinutes();
+
 // Vencer e bloquear dependem da passagem do tempo, e não de alguém agir: sem
 // esta rotina diária, uma fatura só mudaria de situação no dia em que alguém
 // abrisse a tela.

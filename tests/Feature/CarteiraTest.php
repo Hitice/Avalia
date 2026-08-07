@@ -37,6 +37,31 @@ it('nao mostra empresa de outra carteira', function () {
         ->assertDontSee('Empresa de Outro LTDA');
 });
 
+it('abre a ficha da empresa da carteira sem custo nem margem', function () {
+    [$vendedor, $empresa, $servico] = carteira();
+
+    app(RegistrarConsulta::class)($empresa, $servico, 3);
+    app(FecharCompetencia::class)($empresa, '2026-07');
+
+    $html = comoVendedor($vendedor)->get(route('carteira.empresa', $empresa))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)->toContain($empresa->razao_social)
+        ->not->toContain('Custo')
+        ->not->toContain('Lucro')
+        ->not->toContain('Margem');
+});
+
+it('nao abre a ficha de empresa de outra carteira', function () {
+    [$vendedor] = carteira();
+    $alheia = Cliente::factory()->create([
+        'vendedor_id' => Staff::factory()->create(['papel' => 'vendedor'])->id,
+    ]);
+
+    comoVendedor($vendedor)->get(route('carteira.empresa', $alheia))->assertForbidden();
+});
+
 it('nao leva custo, lucro nem margem para a tela do vendedor', function () {
     // Sao numeros internos: a carteira e tela separada justamente para nao
     // depender de um `@if` para nao vazar.

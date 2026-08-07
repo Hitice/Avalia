@@ -64,7 +64,8 @@
                     @forelse ($empresas as $empresa)
                         <tr>
                             <td class="px-5 py-4 text-left">
-                                <span class="font-medium text-gray-800 dark:text-white/90">{{ $empresa->razao_social }}</span>
+                                <a class="font-medium text-gray-800 hover:text-brand-600 dark:text-white/90 dark:hover:text-brand-400"
+                                   href="{{ route('carteira.empresa', $empresa) }}">{{ $empresa->razao_social }}</a>
                                 <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
                                     {{ $empresa->cnpjRotulo() }}
                                 </span>

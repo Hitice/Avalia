@@ -171,6 +171,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             ->middleware('throttle:15,1')
             ->name('carteira.consultar.executar');
         Route::get('/demonstracoes/{consulta}', [CarteiraController::class, 'verDemonstracao'])->name('carteira.demonstracoes.ver');
+        // Ficha da empresa na visao do vendedor: preco de venda, nada interno.
+        Route::get('/empresas/{empresa}', [CarteiraController::class, 'empresa'])->name('carteira.empresa');
         Route::get('/demonstracoes/{consulta}/pdf', [CarteiraController::class, 'demonstracaoPdf'])->name('carteira.demonstracoes.pdf');
         Route::get('/servicos', [CarteiraController::class, 'servicos'])->name('carteira.servicos');
         Route::get('/simulacao', [CarteiraController::class, 'simulacao'])->name('carteira.simulacao');
