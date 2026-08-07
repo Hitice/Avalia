@@ -29,3 +29,4 @@ Thumbs.db
 # Copias do banco. Contem dado de cliente e hash de senha: nunca vao para o repositorio.
 /backup
 public/images/*.STL
+public/images/*.pdf
