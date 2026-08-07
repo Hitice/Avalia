@@ -19,20 +19,23 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
             </svg>
         </button>
+        {{-- Voltar no canto superior direito, espelhando o interruptor de tema
+             que mora no esquerdo: os dois controles de moldura nos cantos, e o
+             miolo so com o formulario. --}}
+        <div class="fixed top-4 right-4 z-50">
+            <x-avalia.botao variante="secundario" tamanho="sm" :href="route('inicio')">
+                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Voltar
+            </x-avalia.botao>
+        </div>
+
         <div class="relative flex h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900">
 
             {{-- Formulario --}}
             <div class="flex w-full flex-1 flex-col lg:w-2/5">
                 <div class="mx-auto flex w-full max-w-[25rem] flex-1 flex-col justify-center">
-
-                    <div class="mb-8">
-                        <x-avalia.botao variante="secundario" tamanho="sm" :href="route('inicio')">
-                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                            </svg>
-                            Voltar
-                        </x-avalia.botao>
-                    </div>
 
                     <div class="mb-8">
                         <h1 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -227,7 +230,9 @@
 
                 {{-- Placa translucida atras da marca: separa o bloco da foto sem
                      esconde-la, com o mesmo raio dos cartoes do sistema. --}}
-                <div class="z-1 flex w-[25rem] flex-col items-center rounded-3xl bg-white/25 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
+                {{-- Placa quase solida (10% de transparencia): com mais, a foto
+                     atras engolia a marca. --}}
+                <div class="z-1 flex w-[25rem] flex-col items-center rounded-3xl bg-white/90 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
                     <x-avalia.medidor :tamanho="120" por-nivel class="-mb-4" style="--nivel: 0.82" />
                     {{-- So o wordmark: o simbolo ja esta logo acima, em
                          tamanho grande, e repetir o gauge pequeno na logo
