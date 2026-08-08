@@ -117,17 +117,22 @@ class Fatura extends Model
     }
 
     /**
-     * Para onde levar quem quer pagar esta fatura.
+     * Para onde levar quem abre a fatura pelo e-mail.
      *
-     * A pagina do provedor abre boleto, Pix e cartao de uma vez e nao pede
-     * login: e um clique a menos entre o e-mail e o pagamento, e o cliente que
-     * nao lembra a senha nao trava justamente na hora de pagar. Sem cobranca
-     * emitida, o portal responde igual: melhor uma tela que explica do que um
-     * botao que nao abre nada.
+     * Em ordem: o boleto em PDF, que e o que a pessoa espera ver e o que ela
+     * anexa ao pagamento; a pagina do provedor, que abre boleto, Pix e cartao;
+     * e por ultimo o portal. Nenhum dos dois primeiros pede login, e cliente
+     * que nao lembra a senha nao pode travar justamente na hora de pagar.
+     *
+     * O portal fica por ultimo, e nao de fora: melhor uma tela que explica a
+     * situacao do que um botao que nao abre nada.
      */
     public function linkDePagamento(): string
     {
-        return $this->cobrancaAsaas?->invoice_url ?: route('empresa.faturas');
+        $cobranca = $this->cobrancaAsaas;
+
+        return $cobranca?->bank_slip_url
+            ?: ($cobranca?->invoice_url ?: route('empresa.faturas'));
     }
 
     public function estaLiquidada(): bool

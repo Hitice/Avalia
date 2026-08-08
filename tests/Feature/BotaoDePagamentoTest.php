@@ -9,12 +9,12 @@ uses(RefreshDatabase::class);
 /**
  * Para onde o e-mail de cobranca leva.
  *
- * O botao tem que abrir a pagina de pagamento do provedor, com boleto, Pix e
- * cartao e sem pedir login: mandar o cliente para uma tela de senha na hora de
- * pagar e perder pagamento. Quando a cobranca nao foi emitida, o portal
- * responde, porque botao que nao abre nada e pior que uma tela que explica.
+ * O botao abre o boleto em PDF, que e o que a pessoa espera ver e o que ela
+ * anexa ao pagamento. Sem boleto, a pagina de pagamento do provedor; sem
+ * cobranca nenhuma, o portal. Nenhum dos dois primeiros pede login: mandar o
+ * cliente para uma tela de senha na hora de pagar e perder pagamento.
  */
-function faturaParaPagar(?string $url): Fatura
+function faturaParaPagar(?string $url, ?string $boleto = null): Fatura
 {
     $empresa = empresaComPlano();
 
@@ -30,21 +30,29 @@ function faturaParaPagar(?string $url): Fatura
     if ($url !== null) {
         CobrancaAsaas::updateOrCreate(
             ['fatura_id' => $fatura->id],
-            ['cliente_id' => $empresa->id, 'asaas_charge_id' => 'pay_teste', 'invoice_url' => $url],
+            ['cliente_id' => $empresa->id, 'asaas_charge_id' => 'pay_teste',
+                'invoice_url' => $url, 'bank_slip_url' => $boleto],
         );
     }
 
     return $fatura->fresh();
 }
 
-it('abre a fatura do provedor quando a cobranca esta emitida', function () {
-    $fatura = faturaParaPagar('https://www.asaas.com/i/abc123');
+it('abre o boleto em PDF quando o provedor devolveu um', function () {
+    $fatura = faturaParaPagar('https://www.asaas.com/i/abc123', 'https://www.asaas.com/b/pdf/abc123');
 
     $corpo = (new App\Mail\FaturaEmitida($fatura))->render();
 
-    expect($corpo)->toContain('https://www.asaas.com/i/abc123')
-        ->and($corpo)->toContain('Pagar minha fatura')
+    expect($corpo)->toContain('https://www.asaas.com/b/pdf/abc123')
+        ->and($corpo)->toContain('Ver minha fatura')
         ->and($corpo)->not->toContain(route('empresa.faturas'));
+});
+
+it('cai na pagina de pagamento quando ainda nao ha boleto', function () {
+    $fatura = faturaParaPagar('https://www.asaas.com/i/abc123');
+
+    expect((new App\Mail\FaturaEmitida($fatura))->render())
+        ->toContain('https://www.asaas.com/i/abc123');
 });
 
 it('cai no portal quando a cobranca nao foi emitida', function () {
@@ -57,7 +65,7 @@ it('cai no portal quando a cobranca nao foi emitida', function () {
 });
 
 it('leva ao pagamento em todos os e-mails que cobram', function () {
-    $fatura = faturaParaPagar('https://www.asaas.com/i/abc123');
+    $fatura = faturaParaPagar('https://www.asaas.com/i/abc123', 'https://www.asaas.com/b/pdf/abc123');
 
     $emails = [
         new App\Mail\FaturaEmitida($fatura),
@@ -67,6 +75,6 @@ it('leva ao pagamento em todos os e-mails que cobram', function () {
     ];
 
     foreach ($emails as $email) {
-        expect($email->render())->toContain('https://www.asaas.com/i/abc123');
+        expect($email->render())->toContain('https://www.asaas.com/b/pdf/abc123');
     }
 });
