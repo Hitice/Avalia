@@ -19,7 +19,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $consulta->servico->nome }}</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Demonstração em {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
+                Consultado em {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
                 @if ($consulta->referencia_externa)
                     · protocolo {{ $consulta->referencia_externa }}
                 @endif
@@ -30,7 +30,7 @@
             {{-- O unico jeito aprovado de o resultado sair da tela: arquivo em
                  mao, nunca dado pessoal em URL de conversa. --}}
             <x-avalia.botao variante="secundario" tamanho="sm" :href="route('carteira.demonstracoes.pdf', $consulta)">
-                Baixar PDF para o cliente
+                Baixar PDF
             </x-avalia.botao>
         @endif
     </div>

@@ -82,7 +82,8 @@
                            placeholder="RELATORIO_AVANCADO_PF">
                     <span class="ajuda-campo">
                         O nome do produto no contrato do bureau. Sem ele, a consulta real
-                        não sai e a tela explica o motivo.
+                        não sai e a tela explica o motivo. Exemplos: RELATORIO_AVANCADO_PF,
+                        ACERTA_COMPLETO_POSITIVO, SCPC_NET_PJ, SCORE_PF.
                     </span>
                     @error('codigo_fornecedor') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>

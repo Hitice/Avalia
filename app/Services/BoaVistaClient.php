@@ -102,10 +102,16 @@ class BoaVistaClient
         return $this->base().$caminho.$recurso;
     }
 
-    /** Consulta autenticada num recurso do produto, ja com o token do escopo. */
-    public function consultar(string $escopo, string $recurso, array $corpo): \Illuminate\Http\Client\Response
+    /**
+     * Consulta autenticada num recurso do produto, ja com o token do escopo.
+     *
+     * Os cabecalhos extras existem porque o orquestrador exige `app` e
+     * `secondaryCode` em toda consulta, e os dois vem do contrato.
+     */
+    public function consultar(string $escopo, string $recurso, array $corpo, array $cabecalhos = []): \Illuminate\Http\Client\Response
     {
         return Http::withToken($this->token($escopo))
+            ->withHeaders($cabecalhos)
             ->acceptJson()
             ->asJson()
             ->timeout(30)

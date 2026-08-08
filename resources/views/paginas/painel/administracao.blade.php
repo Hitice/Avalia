@@ -30,7 +30,15 @@
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Custo do fornecedor</span>
             <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($custoCents) }}</span>
-            <span class="ajuda-campo">Do consumo deste período.</span>
+            {{-- Consulta que a casa faz nao tem receita do outro lado, entao sai
+                 inteira da margem. Ver o pedaco separado evita procurar buraco
+                 no preco quando o buraco esta no consumo interno. --}}
+            <span class="ajuda-campo">
+                Tudo que foi consultado no período.
+                @if ($custoProprioCents > 0)
+                    {{ Dinheiro::brl($custoProprioCents) }} em consultas da casa, sem receita.
+                @endif
+            </span>
         </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Margem do período</span>

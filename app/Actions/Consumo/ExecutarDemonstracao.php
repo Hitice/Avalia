@@ -10,27 +10,53 @@ use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
 /**
- * A consulta de demonstracao do vendedor.
+ * A consulta que a propria casa faz, sem cliente do outro lado.
  *
- * Ninguem e cobrado: preco zero para o cliente que nem existe ainda, e o custo
- * real congelado na linha, porque a Avalia paga o fornecedor do mesmo jeito. O
- * custo sai da comissao a receber do vendedor (regra do negocio), entao a
- * propria consulta e o registro do desconto: nao ha segunda tabela para
- * divergir da primeira.
+ * Sao duas situacoes com o mesmo mecanismo e regras de dinheiro diferentes:
  *
- * O teto diario e mais apertado que o do cliente: demonstracao e argumento de
- * venda, nao operacao.
+ * - Vendedor demonstrando: preco zero, e o custo real sai da comissao a receber
+ *   dele. A propria consulta e o registro do desconto, entao nao ha segunda
+ *   tabela para divergir da primeira. Teto diario apertado, porque demonstracao
+ *   e argumento de venda.
+ *
+ * - Administracao consultando a trabalho: preco zero e custo da operacao. Nao
+ *   ha comissao de onde descontar, entao o custo entra no custo do periodo e
+ *   reduz a margem no fechamento, e nada mais.
+ *
+ * Nos dois casos ninguem e cobrado e o custo do fornecedor fica congelado na
+ * linha: a Avalia paga o fornecedor do mesmo jeito.
  */
 class ExecutarDemonstracao
 {
     public const FINALIDADE = 'Demonstração comercial, pesquisa de score de crédito';
 
+    public const FINALIDADE_OPERACAO = 'Conferência interna, pesquisa de score de crédito';
+
     public function __construct(private readonly ConectorBureau $conector) {}
+
+    /** Quantas consultas proprias esta conta ainda pode fazer hoje. */
+    public static function restantes(Staff $conta): int
+    {
+        $hoje = Consulta::query()
+            ->where('vendedor_id', $conta->id)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        return max(0, self::teto($conta) - $hoje);
+    }
+
+    public static function teto(Staff $conta): int
+    {
+        return $conta->ehAdmin() ? Consulta::LIMITE_DIARIO_OPERACAO : Consulta::LIMITE_DIARIO_DEMONSTRACAO;
+    }
 
     /** @return array{erro: string|null, consulta: Consulta|null} */
     public function __invoke(Staff $vendedor, Servico $servico, string $documento): array
     {
         $documento = preg_replace('/\D/', '', $documento) ?? '';
+        $daCasa = $vendedor->ehAdmin();
+        $finalidade = $daCasa ? self::FINALIDADE_OPERACAO : self::FINALIDADE;
+        $teto = self::teto($vendedor);
 
         // A ciencia dos termos vale tambem para quem demonstra.
         if (! $vendedor->aceitouObrigatorios()) {
@@ -46,11 +72,11 @@ class ExecutarDemonstracao
             ->whereDate('created_at', now()->toDateString())
             ->count();
 
-        if ($hoje >= Consulta::LIMITE_DIARIO_DEMONSTRACAO) {
-            return ['erro' => sprintf(
-                'Limite de %d demonstrações por dia atingido. Fale com a administração.',
-                Consulta::LIMITE_DIARIO_DEMONSTRACAO,
-            ), 'consulta' => null];
+        if ($hoje >= $teto) {
+            return ['erro' => $daCasa
+                ? sprintf('Limite de %d consultas por dia atingido.', $teto)
+                : sprintf('Limite de %d demonstrações por dia atingido. Fale com a administração.', $teto),
+                'consulta' => null];
         }
 
         // Clique repetido devolve a mesma consulta, como no portal do cliente:
@@ -75,7 +101,7 @@ class ExecutarDemonstracao
             ->where('servico_id', $servico->id)
             ->value('custo_cents');
 
-        $resposta = $this->conector->consultar($servico, $documento, self::FINALIDADE);
+        $resposta = $this->conector->consultar($servico, $documento, $finalidade);
 
         $consulta = DB::transaction(fn () => Consulta::create([
             'cliente_id' => null,
@@ -83,7 +109,7 @@ class ExecutarDemonstracao
             'servico_id' => $servico->id,
             'competencia' => Consulta::competenciaDe(),
             'documento' => $documento,
-            'finalidade' => self::FINALIDADE,
+            'finalidade' => $finalidade,
             'solicitante' => $vendedor->nome,
             'situacao' => $resposta->sucesso ? Consulta::SUCESSO : Consulta::FALHA,
             'referencia_externa' => $resposta->referenciaExterna,
@@ -91,7 +117,8 @@ class ExecutarDemonstracao
             'resposta' => $resposta->sucesso ? $resposta->dados : ['erro' => $resposta->erro],
 
             // Preco zero: ninguem e cobrado. Custo congelado: e o que sai da
-            // comissao do vendedor, e falha nao custa nada.
+            // comissao do vendedor, ou o custo que a casa assume quando quem
+            // consulta e a administracao. Falha nao custa nada.
             'preco_cents' => 0,
             'custo_cents' => $resposta->sucesso ? $custo : 0,
 
@@ -100,8 +127,8 @@ class ExecutarDemonstracao
 
         Auditar::registrar('consulta.'.$consulta->situacao, $consulta, [
             'servico' => $servico->codigo,
-            'finalidade' => self::FINALIDADE,
-            'origem' => 'demonstracao',
+            'finalidade' => $finalidade,
+            'origem' => $daCasa ? 'operacao' : 'demonstracao',
             'fornecedor' => $this->conector->nome(),
         ]);
 

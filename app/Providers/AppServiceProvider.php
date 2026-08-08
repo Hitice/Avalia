@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
             $conectores = [
                 'simulado' => \App\Services\Conectores\ConectorSimulado::class,
                 'serasa' => \App\Services\Conectores\ConectorSerasa::class,
+                'boa-vista' => \App\Services\Conectores\ConectorBoaVista::class,
             ];
 
             // Config manda (e o que os testes e a homologacao usam); sem

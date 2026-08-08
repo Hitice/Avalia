@@ -17,7 +17,10 @@ class MenuHelper
             // Modulos do vendedor, um a um na lateral: a aba escondida dentro
             // de Carteira era o modulo que ninguem achava.
             ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],
-            ['icon' => 'consulta', 'name' => 'Consultar', 'path' => '/carteira/consultar', 'papeis' => ['vendedor']],
+            // Consultar serve aos dois papeis: o vendedor demonstra, a
+            // administracao consulta a trabalho. A regra de dinheiro difere
+            // (um desconta comissao, o outro e custo da casa), a tela nao.
+            ['icon' => 'consulta', 'name' => 'Consultar', 'path' => '/carteira/consultar'],
             ['icon' => 'tables', 'name' => 'Consultas', 'path' => '/carteira/consultas', 'papeis' => ['vendedor']],
             ['icon' => 'pages', 'name' => 'Serviços', 'path' => '/carteira/servicos', 'papeis' => ['vendedor']],
             ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/carteira/simulacao', 'papeis' => ['vendedor']],

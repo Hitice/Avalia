@@ -68,6 +68,14 @@ class PainelController extends Controller
             // e fornecedor degradando, e isso so aparece se estiver na tela.
             'falhas' => (clone $doMes)->where('situacao', Consulta::FALHA)->count(),
 
+            // O que a casa consultou por conta propria (demonstracao de
+            // vendedor e consulta da administracao): custo sem receita, entao
+            // sai da margem e merece numero proprio.
+            'custoProprioCents' => (int) (clone $doMes)
+                ->whereNotNull('vendedor_id')
+                ->where('situacao', Consulta::SUCESSO)
+                ->sum('custo_cents'),
+
             'aCaminhoDaSuspensao' => Alertas::aCaminhoDaSuspensao(Fatura::query()),
             'comissaoPorVendedor' => $this->comissaoPorVendedor(),
 
@@ -138,7 +146,7 @@ class PainelController extends Controller
      * Duas telas com numeros diferentes para o mesmo repasse e erro de
      * pagamento esperando acontecer.
      *
-     * @return \Illuminate\Support\Collection<int, array{nome: string, cents: int, demonstracoes: int}>
+     * @return \Illuminate\Support\Collection<int, array{id: int, nome: string, cents: int, demonstracoes: int}>
      */
     private function comissaoPorVendedor(): \Illuminate\Support\Collection
     {
@@ -149,8 +157,11 @@ class PainelController extends Controller
             ->groupBy('vendedor_id')
             ->pluck('cents', 'vendedor_id');
 
+        // So demonstracao de VENDEDOR desconta comissao. A consulta que o
+        // administrador faz e custo da operacao e nao tem comissao de onde
+        // sair: ela ja aparece no custo do periodo, e e la que ela pesa.
         $demonstracoes = Consulta::query()
-            ->whereNotNull('vendedor_id')
+            ->whereIn('vendedor_id', Staff::query()->where('papel', 'vendedor')->select('id'))
             ->where('situacao', Consulta::SUCESSO)
             ->selectRaw('vendedor_id, sum(custo_cents) as cents')
             ->groupBy('vendedor_id')
@@ -160,6 +171,7 @@ class PainelController extends Controller
 
         return $nomes
             ->map(fn ($nome, $id) => [
+                'id' => $id,
                 'nome' => $nome,
                 'demonstracoes' => (int) ($demonstracoes[$id] ?? 0),
                 'cents' => max(0, (int) ($totais[$id] ?? 0) - (int) ($demonstracoes[$id] ?? 0)),

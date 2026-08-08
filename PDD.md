@@ -404,10 +404,38 @@ autorização vinculados à consulta; não deve simular orientação jurídica.
 
 ### Boa Vista/Equifax
 
-A integração já mapeada usa OAuth2 client_credentials com Basic Auth e requer os
-cabeçalhos app e secondaryCode. O caminho conhecido é
-/business/reporting-orchestrator/v1/consulta. O Orchestrator não está publicado
-no sandbox; payload e resposta devem ser validados em ambiente de teste homologado.
+Conector implementado, escrito sobre a API Reference do portal do desenvolvedor.
+A autenticação é OAuth2 client_credentials com Basic Auth em POST /v2/oauth/token,
+e o escopo é o próprio endereço do produto: o caminho sai do escopo e o host sai
+do ambiente (produção, homologação ou sandbox), então trocar de ambiente é trocar
+a conexão, e não o código.
+
+A consulta é um endpoint só, POST /business/reporting-orchestrator/v1/consulta,
+com os cabeçalhos app e secondaryCode que vêm do contrato. Quem decide o que
+volta é o produto informado no corpo, e o produto é o campo "relatório no
+fornecedor" do serviço no catálogo (SCPC_NET_PF, ACERTA_COMPLETO_POSITIVO,
+DEFINE_RISCO_POSITIVO, SCORE_PJ e os demais). Ampliar o portfólio é cadastro de
+serviço, não desenvolvimento.
+
+A tradução para o laudo canônico busca as chaves pelo nome, em qualquer
+profundidade, e não por caminho fixo. O motivo é concreto: cada produto do
+orquestrador devolve um recorte diferente, e um caminho fixo quebraria a cada
+produto novo. O que o mapa ainda não reconhece vai inteiro para "informações
+adicionais", então nada se perde enquanto o mapa amadurece com resposta real em
+vez de suposição.
+
+### O SCPC não é uma segunda API de consulta
+
+Vale registrar porque custou tempo. A SCPC Gateway API da Equifax, apesar do
+nome parecido, é a API de negativação: ela inclui, altera e baixa dívidas em
+nome do credor (debts-person, debts-business, orders). Não serve para consultar
+ninguém. Quem consulta é o orquestrador de relatórios.
+
+Os 43 códigos oficiais de motivo de baixa estão em `App\Support\MotivoBaixa`,
+agrupados por como se usam na prática: baixa de rotina (pagamento, acordo,
+quitação, decurso de prazo), correção de cadastro e casos excepcionais. Eles são
+a base do módulo de negativação, que continua dependendo de decisão comercial e
+de contrato, não de tecnologia.
 
 CPF e CNPJ são validados no servidor. O CNPJ alfanumérico segue a RFB 2.229/2024.
 
@@ -624,6 +652,24 @@ Teto de 10 demonstrações por dia por vendedor, falha não desconta nada, e o
 resultado só sai da tela em PDF com documento mascarado: nunca dado pessoal em
 URL. A demonstração nunca entra no fechamento de competência de empresa
 nenhuma.
+
+### Consulta pela administração
+
+A administração também consulta, e pela mesma tela do vendedor. A diferença é
+inteira de dinheiro: não existe comissão de onde descontar o custo, então o
+custo do fornecedor simplesmente entra no custo do período e reduz a margem no
+fechamento. Nada mais acontece: nenhuma empresa é cobrada, nenhum vendedor tem
+comissão mexida, e a consulta não entra em fatura nenhuma.
+
+O teto diário é maior que o do vendedor (50 contra 10) porque a natureza é
+outra: demonstração é argumento de venda, consulta da administração é trabalho
+(conferir um cliente, reproduzir uma reclamação, validar um fornecedor novo).
+Teto continua existindo, porque toda consulta custa dinheiro ao fornecedor.
+
+O painel mostra o pedaço separado: "tudo que foi consultado no período" e,
+quando houver, quanto disso foi consulta da casa sem receita do outro lado. Ver
+esse número separado evita procurar buraco no preço quando o buraco está no
+consumo interno.
 
 ### Simulador do cliente
 

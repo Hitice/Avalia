@@ -2,10 +2,14 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha carteira</h1>
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+            {{ $vendedor->ehAdmin() ? 'Consultar' : 'Minha carteira' }}
+        </h1>
     </div>
 
-    @include('paginas.carteira.abas')
+    @unless ($vendedor->ehAdmin())
+        @include('paginas.carteira.abas')
+    @endunless
 
     @if (session('erro'))
         <div class="aviso aviso-erro mb-6">{{ session('erro') }}</div>
@@ -13,9 +17,14 @@
 
     <div class="cartao p-6">
         <p class="ajuda-campo mb-5">
-            Demonstração para fechar venda: consulte o documento do seu prospect e mostre o
-            resultado na hora. Ninguém é cobrado; o custo da consulta sai da sua comissão.
-            Você ainda tem {{ $restantes }} {{ $restantes === 1 ? 'demonstração' : 'demonstrações' }} hoje.
+            @if ($vendedor->ehAdmin())
+                Consulta da operação: nenhuma empresa é cobrada e o custo do fornecedor entra
+                no custo do período, sem comissão.
+            @else
+                Demonstração para fechar venda: consulte o documento do seu prospect e mostre o
+                resultado na hora. Ninguém é cobrado; o custo da consulta sai da sua comissão.
+            @endif
+            Você ainda tem {{ $restantes }} {{ $restantes === 1 ? 'consulta' : 'consultas' }} hoje.
         </p>
 
         <form method="POST" action="{{ route('carteira.consultar.executar') }}" class="grid gap-5 sm:grid-cols-2">
@@ -40,7 +49,7 @@
             </div>
 
             <div class="sm:col-span-2">
-                <x-avalia.botao>Consultar para demonstrar</x-avalia.botao>
+                <x-avalia.botao>{{ $vendedor->ehAdmin() ? 'Consultar' : 'Consultar para demonstrar' }}</x-avalia.botao>
             </div>
         </form>
     </div>

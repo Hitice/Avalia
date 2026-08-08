@@ -43,6 +43,16 @@ class Consulta extends Model
     public const LIMITE_DIARIO_DEMONSTRACAO = 10;
 
     /**
+     * Teto da consulta feita pela administracao.
+     *
+     * Mais alto que o do vendedor porque a natureza e outra: demonstracao e
+     * argumento de venda, consulta da administracao e trabalho (conferir um
+     * cliente, reproduzir uma reclamacao, validar um fornecedor novo). Continua
+     * havendo teto, porque toda consulta custa dinheiro ao fornecedor.
+     */
+    public const LIMITE_DIARIO_OPERACAO = 50;
+
+    /**
      * A finalidade declarada de toda consulta do portal.
      *
      * Definida pelo negocio: pesquisa de score de credito, amarrada ao aceite

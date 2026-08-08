@@ -72,7 +72,7 @@ final class Fornecedores
             'boa-vista' => [
                 'nome' => 'Equifax | Boa Vista',
                 'categoria' => 'Bureau de crédito',
-                'descricao' => 'Consultas SCPC e relatórios (cadastro, restritivos, score). O portal do desenvolvedor tem sandbox aberto, com credenciais próprias por ambiente.',
+                'descricao' => 'Relatórios de crédito PF e PJ (SCPC Net, Acerta, Define, Score) pelo orquestrador, e o SCPC como módulo de negativação. Sandbox aberto, com credenciais próprias por ambiente.',
                 'doc' => 'https://developer.equifax.com/products/apiproducts/equifax-boa-vista-api-scpc',
                 'campos' => [
                     ['chave' => 'client_id', 'rotulo' => 'Client ID', 'secreto' => false],
@@ -83,8 +83,12 @@ final class Fornecedores
                         'ajuda' => 'Copie da app no portal, em Equifax Boa Vista API SCPC. Termina em /business/scpc-gateway/v1.'],
                     ['chave' => 'escopo_relatorios', 'rotulo' => 'Escopo dos Relatórios', 'secreto' => false,
                         'ajuda' => 'Copie da app no portal, em Equifax Boa Vista API Reports. Termina em /business/reporting-orchestrator/v1.'],
-                    ['chave' => 'recurso_consulta', 'rotulo' => 'Recurso da consulta', 'secreto' => false,
-                        'ajuda' => 'Só o final, como /reports. O resto do endereço sai do escopo e do ambiente. Está na API Reference, dentro da página do produto.'],
+                    ['chave' => 'app', 'rotulo' => 'Cabeçalho app', 'secreto' => false,
+                        'ajuda' => 'Exigido em toda consulta pelo orquestrador. Em branco, vale API.'],
+                    ['chave' => 'codigo_secundario', 'rotulo' => 'Código secundário', 'secreto' => false,
+                        'ajuda' => 'O secondaryCode do seu contrato. Em branco, vale 00000000.'],
+                    ['chave' => 'tipo_credito', 'rotulo' => 'Tipo de crédito', 'secreto' => false,
+                        'ajuda' => 'Modalidade enviada na consulta. Em branco, vale CD (crédito direto).'],
                 ],
                 // Os tres ambientes do portal. A credencial e propria de cada
                 // um: a de sandbox nao vale em producao.

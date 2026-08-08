@@ -178,10 +178,10 @@ class CarteiraController extends Controller
     | Demonstracao
     |--------------------------------------------------------------------------
     |
-    | A consulta que fecha venda: o vendedor consulta o CNPJ do prospect no
-    | proprio ambiente e mostra o resultado na hora, sem entrar em login de
-    | cliente. Preco zero, custo real descontado da comissao dele (regra do
-    | negocio), teto diario proprio.
+    | A consulta que a casa faz sem cliente do outro lado. Para o vendedor, e a
+    | demonstracao que fecha venda: preco zero e custo descontado da comissao
+    | dele. Para a administracao, e consulta a trabalho: preco zero e custo da
+    | operacao, sem comissao de onde descontar. Teto diario proprio nos dois.
     |
     */
 
@@ -189,15 +189,10 @@ class CarteiraController extends Controller
     {
         $vendedor = Auth::guard('staff')->user();
 
-        $usadasHoje = Consulta::query()
-            ->where('vendedor_id', $vendedor->id)
-            ->whereDate('created_at', now()->toDateString())
-            ->count();
-
         return view('paginas.carteira.consultar', [
             'vendedor' => $vendedor,
             'servicos' => Servico::query()->disponiveis()->orderBy('numero')->get(),
-            'restantes' => max(0, Consulta::LIMITE_DIARIO_DEMONSTRACAO - $usadasHoje),
+            'restantes' => \App\Actions\Consumo\ExecutarDemonstracao::restantes($vendedor),
         ]);
     }
 
