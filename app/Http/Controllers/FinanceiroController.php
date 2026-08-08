@@ -102,7 +102,12 @@ class FinanceiroController extends Controller
         ));
     }
 
-    /** @return array<string, int> */
+    /** O mesmo demonstrativo que o cliente baixa, para o atendimento. */
+    public function demonstrativo(Fatura $fatura)
+    {
+        return \App\Support\FaturaPdf::resposta($fatura->load('itens', 'cliente'));
+    }
+
     /**
      * Emite (ou reemite) a cobranca de uma fatura no provedor.
      *
@@ -111,12 +116,6 @@ class FinanceiroController extends Controller
      * O que faltava era o caminho de volta: sem este botao, fatura sem boleto
      * so se resolvia no banco de dados.
      */
-    /** O mesmo demonstrativo que o cliente baixa, para o atendimento. */
-    public function demonstrativo(Fatura $fatura)
-    {
-        return \App\Support\FaturaPdf::resposta($fatura->load('itens', 'cliente'));
-    }
-
     public function emitirCobranca(Fatura $fatura, \App\Actions\Financeiro\CriarCobrancaAsaas $criar)
     {
         if ($fatura->estaLiquidada()) {
@@ -132,7 +131,9 @@ class FinanceiroController extends Controller
         } catch (\Throwable $e) {
             report($e);
 
-            return back()->with('erro', 'O provedor de cobrança não respondeu. Tente de novo em instantes.');
+            // A recusa do provedor vira texto na tela: "nao respondeu" mandava
+            // o atendimento procurar no log um erro que a resposta explicava.
+            return back()->with('erro', 'O provedor de cobrança recusou: '.$e->getMessage());
         }
 
         return back()->with($cobranca->asaas_charge_id ? 'ok' : 'erro', $cobranca->asaas_charge_id

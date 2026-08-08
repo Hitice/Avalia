@@ -97,6 +97,7 @@ final class Rotulos
         'fatura.fechada' => 'Fatura emitida',
         'fatura.liquidada' => 'Pagamento confirmado',
         'fatura.estornada' => 'Pagamento estornado',
+        'fatura.segunda_via' => 'Segunda via da fatura pedida',
         'cobranca.criada' => 'Cobrança emitida',
         'cliente.inadimplente' => 'Empresa suspensa por débito',
         'empresa.removida' => 'Empresa removida',

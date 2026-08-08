@@ -331,6 +331,12 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
         // O demonstrativo em arquivo: quem paga costuma ser outra pessoa, e
         // essa pessoa pede um PDF para anexar ao pagamento.
         Route::get('/faturas/{fatura}/pdf', [AreaClienteController::class, 'faturaPdf'])->name('faturas.pdf');
+        // Primeira e segunda via pela mesma porta: se a cobranca ainda nao
+        // existe no provedor, ela nasce aqui; se existe, o link e renovado.
+        // Sem isto, boleto perdido virava chamado no atendimento.
+        Route::post('/faturas/{fatura}/boleto', [AreaClienteController::class, 'boleto'])
+            ->middleware('throttle:10,1')
+            ->name('faturas.boleto');
 
         // Simulador da fatura: GET, nada gravado, o cenario vira link.
         Route::get('/simulador', [AreaClienteController::class, 'simulador'])->name('simulador');

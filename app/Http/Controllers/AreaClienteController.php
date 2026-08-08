@@ -10,6 +10,7 @@ use App\Models\Consulta;
 use App\Models\DocumentoLegal;
 use App\Models\Operador;
 use App\Models\Servico;
+use App\Support\Auditar;
 use App\Support\Dinheiro;
 use App\Support\DocumentoPdf;
 use App\Support\FiltroConsultas;
@@ -275,6 +276,40 @@ class AreaClienteController extends Controller
         abort_unless($consulta->cliente_id === auth('empresa')->id(), 403);
 
         return view('paginas.empresa.consulta', ['consulta' => $consulta->load('servico')]);
+    }
+
+    /**
+     * A via de pagamento da fatura, primeira ou segunda.
+     *
+     * Uma porta so para os dois casos, porque para quem paga e o mesmo pedido:
+     * "me da o boleto". Se a cobranca ainda nao existe no provedor (a criacao
+     * no fechamento pode ter falhado), ela nasce agora; se existe, os links sao
+     * renovados antes de mandar, porque link de boleto expira e o cliente que
+     * clica num link morto liga para o atendimento.
+     */
+    public function boleto(\App\Models\Fatura $fatura, \App\Actions\Financeiro\CriarCobrancaAsaas $criar)
+    {
+        abort_unless($fatura->cliente_id === auth('empresa')->id(), 403);
+
+        if ($fatura->estaLiquidada()) {
+            return back()->with('erro', 'Esta fatura já está paga.');
+        }
+
+        try {
+            $cobranca = $criar($fatura);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('erro', 'Não foi possível gerar a via agora. Fale com a Avalia.');
+        }
+
+        if (! $cobranca->invoice_url) {
+            return back()->with('erro', 'A via de pagamento ainda não está disponível. Fale com a Avalia.');
+        }
+
+        Auditar::registrar('fatura.segunda_via', $fatura);
+
+        return redirect()->away($cobranca->invoice_url);
     }
 
     /** O demonstrativo da fatura em PDF, para conferir, imprimir e arquivar. */

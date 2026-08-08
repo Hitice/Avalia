@@ -76,13 +76,25 @@
                             <td class="px-5 py-4 text-right tabular-nums">{{ $fatura->vencimento()->format('d/m/Y') }}</td>
                             <td class="px-5 py-4 text-right">
                                 <div class="flex flex-col items-end gap-1">
-                                    @if (! $fatura->estaLiquidada() && $fatura->cobrancaAsaas?->invoice_url)
-                                        <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
-                                           href="{{ $fatura->cobrancaAsaas->invoice_url }}" target="_blank" rel="noopener noreferrer">Pagar fatura</a>
-                                    @elseif (! $fatura->estaLiquidada())
-                                        <span class="text-sm text-gray-500 dark:text-gray-400">Solicite a segunda via ao atendimento</span>
-                                    @else
+                                    @if ($fatura->estaLiquidada())
                                         <span class="text-sm text-gray-500 dark:text-gray-400">Paga</span>
+                                    @else
+                                        {{-- Uma porta para primeira e segunda via: para quem
+                                             paga e o mesmo pedido, e o link renova sozinho
+                                             antes de abrir. --}}
+                                        <form method="POST" action="{{ route('empresa.faturas.boleto', $fatura) }}">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400">
+                                                {{ $fatura->cobrancaAsaas?->invoice_url ? 'Pagar fatura' : 'Gerar boleto' }}
+                                            </button>
+                                        </form>
+
+                                        @if ($fatura->cobrancaAsaas?->bank_slip_url)
+                                            <a class="text-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400"
+                                               href="{{ $fatura->cobrancaAsaas->bank_slip_url }}"
+                                               target="_blank" rel="noopener noreferrer">Boleto em PDF</a>
+                                        @endif
                                     @endif
 
                                     {{-- O demonstrativo vale para toda fatura, paga ou nao:

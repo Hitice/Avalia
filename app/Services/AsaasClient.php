@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Conexao;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -23,12 +24,46 @@ class AsaasClient
 
     public function criarCliente(array $dados): array
     {
-        return $this->http()->post('/customers', $dados)->throw()->json();
+        return $this->enviar('/customers', $dados);
     }
 
     public function criarCobranca(array $dados): array
     {
-        return $this->http()->post('/payments', $dados)->throw()->json();
+        return $this->enviar('/payments', $dados);
+    }
+
+    /** Os dados atuais de uma cobranca, para reemitir link e boleto. */
+    public function cobranca(string $id): array
+    {
+        $resposta = $this->http()->get('/payments/'.$id);
+
+        return $resposta->successful() ? ($resposta->json() ?? []) : [];
+    }
+
+    /**
+     * POST que transforma recusa do provedor em mensagem legivel.
+     *
+     * O `throw()` seco perdia justamente a parte util: o Asaas responde 400 com
+     * a lista de erros e a descricao de cada um, e sem ela o log so dizia
+     * "status code 400". Custou uma investigacao inteira descobrir que faltava
+     * o cliente no corpo, coisa que a resposta dizia com todas as letras.
+     */
+    private function enviar(string $recurso, array $dados): array
+    {
+        $resposta = $this->http()->post($recurso, $dados);
+
+        if ($resposta->successful()) {
+            return $resposta->json() ?? [];
+        }
+
+        $descricoes = collect($resposta->json('errors') ?? [])
+            ->pluck('description')
+            ->filter()
+            ->implode(' ');
+
+        throw new \RuntimeException($descricoes !== ''
+            ? $descricoes
+            : 'O provedor de cobrança respondeu com erro '.$resposta->status().'.');
     }
 
     /**
@@ -78,6 +113,13 @@ class AsaasClient
                 'User-Agent' => 'Avalia',
             ])
             ->timeout(15)
-            ->retry(2, 500);
+            // Repete so quando a conexao nao chegou a acontecer, e sem lancar.
+            //
+            // Duas razoes, e as duas custaram caro. Repetir por causa da
+            // RESPOSTA do provedor num POST arrisca criar a mesma cobranca
+            // duas vezes, que e o pior erro possivel aqui. E o `throw` embutido
+            // do retry engolia o corpo da resposta antes de alguem poder ler o
+            // motivo da recusa, deixando no log so "status code 400".
+            ->retry(2, 500, fn ($e) => $e instanceof ConnectionException, false);
     }
 }
