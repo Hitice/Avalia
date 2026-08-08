@@ -46,9 +46,18 @@
                 @endif
             </span>
 
-            <x-avalia.botao variante="secundario" tamanho="sm" :href="route('empresa.consultar')">
-                Consultar novamente
-            </x-avalia.botao>
+            <div class="flex flex-wrap gap-2">
+                {{-- O resultado sai daqui em arquivo, nunca em captura de tela:
+                     o PDF leva protocolo, documento mascarado e o carimbo de
+                     quem emitiu. --}}
+                <x-avalia.botao variante="secundario" tamanho="sm" :href="route('empresa.consultas.pdf', $consulta)">
+                    Baixar PDF
+                </x-avalia.botao>
+
+                <x-avalia.botao variante="secundario" tamanho="sm" :href="route('empresa.consultar')">
+                    Consultar novamente
+                </x-avalia.botao>
+            </div>
         </div>
     @endif
 

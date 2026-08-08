@@ -105,6 +105,31 @@ class Fatura extends Model
         return $this->hasOne(CobrancaAsaas::class);
     }
 
+    /**
+     * Se a cobranca no provedor existe e tem pagina de pagamento.
+     *
+     * Nem sempre existe: a emissao pode ter falhado no fechamento, e a fatura
+     * interna continua valida enquanto alguem reemite pela tela.
+     */
+    public function cobrancaEmitida(): bool
+    {
+        return (bool) $this->cobrancaAsaas?->invoice_url;
+    }
+
+    /**
+     * Para onde levar quem quer pagar esta fatura.
+     *
+     * A pagina do provedor abre boleto, Pix e cartao de uma vez e nao pede
+     * login: e um clique a menos entre o e-mail e o pagamento, e o cliente que
+     * nao lembra a senha nao trava justamente na hora de pagar. Sem cobranca
+     * emitida, o portal responde igual: melhor uma tela que explica do que um
+     * botao que nao abre nada.
+     */
+    public function linkDePagamento(): string
+    {
+        return $this->cobrancaAsaas?->invoice_url ?: route('empresa.faturas');
+    }
+
     public function estaLiquidada(): bool
     {
         return $this->situacao_pagamento === self::PAGAMENTO_LIQUIDADO;

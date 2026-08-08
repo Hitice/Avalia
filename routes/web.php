@@ -340,4 +340,8 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
             ->middleware('throttle:30,1')
             ->name('consultas.executar');
         Route::get('/consultas/{consulta}', [AreaClienteController::class, 'verConsulta'])->name('consultas.ver');
+        // O resultado em arquivo: o cliente arquiva, anexa ao processo dele ou
+        // manda para quem decide. Sem isto ele resolvia na captura de tela, que
+        // nao tem protocolo nem carimbo de quem emitiu.
+        Route::get('/consultas/{consulta}/pdf', [AreaClienteController::class, 'consultaPdf'])->name('consultas.pdf');
     });

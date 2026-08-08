@@ -278,6 +278,27 @@ class AreaClienteController extends Controller
     }
 
     /**
+     * O resultado em PDF, para a empresa arquivar ou anexar.
+     *
+     * Mesmo arquivo que o vendedor emite, e pelo mesmo motivo: e o unico jeito
+     * aprovado de o resultado sair da tela, com protocolo no rodape, documento
+     * mascarado e carimbo de quem emitiu. Consulta expurgada nao vira arquivo:
+     * o conteudo ja nao existe mais.
+     */
+    public function consultaPdf(Consulta $consulta)
+    {
+        abort_unless($consulta->cliente_id === auth('empresa')->id(), 403);
+        abort_unless($consulta->deuCerto() && ! $consulta->expurgada(), 404);
+
+        $empresa = auth('empresa')->user();
+
+        return response(\App\Support\ConsultaPdf::resultado($consulta, $empresa->razao_social), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
+        ]);
+    }
+
+    /**
      * O aceite deixa de ser um clique e vira evidencia.
      *
      * Tres exigencias: o nome de quem aceita (a conta e da empresa, mas quem

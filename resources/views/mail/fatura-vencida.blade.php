@@ -16,5 +16,5 @@
         Se o pagamento já foi feito, desconsidere este aviso.
     </p>
 
-    @include('mail.botao', ['url' => route('empresa.faturas'), 'rotulo' => 'Ver minha fatura'])
+    @include('mail.botao-fatura')
 @endsection

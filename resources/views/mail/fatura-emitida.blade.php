@@ -6,7 +6,12 @@
     <p style="margin:0 0 12px 0;">Olá, {{ $nome }}.</p>
     <p style="margin:0 0 12px 0;">
         A fatura da sua empresa referente a <strong>{{ $fatura->competenciaRotulo() }}</strong>
-        já está disponível no portal.
+        já está disponível.
+        @if ($fatura->cobrancaEmitida())
+            O botão abaixo abre a página de pagamento, com boleto, Pix e cartão.
+        @else
+            Você pode acompanhá-la no portal.
+        @endif
     </p>
 
     {{-- A tabelinha diz o essencial: quanto e ate quando. A composicao
@@ -23,5 +28,5 @@
         </tr>
     </table>
 
-    @include('mail.botao', ['url' => route('empresa.faturas'), 'rotulo' => 'Ver minha fatura'])
+    @include('mail.botao-fatura')
 @endsection
