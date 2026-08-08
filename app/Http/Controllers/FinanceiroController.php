@@ -111,6 +111,12 @@ class FinanceiroController extends Controller
      * O que faltava era o caminho de volta: sem este botao, fatura sem boleto
      * so se resolvia no banco de dados.
      */
+    /** O mesmo demonstrativo que o cliente baixa, para o atendimento. */
+    public function demonstrativo(Fatura $fatura)
+    {
+        return \App\Support\FaturaPdf::resposta($fatura->load('itens', 'cliente'));
+    }
+
     public function emitirCobranca(Fatura $fatura, \App\Actions\Financeiro\CriarCobrancaAsaas $criar)
     {
         if ($fatura->estaLiquidada()) {

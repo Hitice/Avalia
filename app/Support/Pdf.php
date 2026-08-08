@@ -96,6 +96,61 @@ final class Pdf
         return $this;
     }
 
+    /**
+     * Rotulo a esquerda e valor encostado na margem direita, na mesma linha.
+     *
+     * E o unico formato de tabela que este gerador conhece, e existe porque
+     * documento de dinheiro se le pela coluna de valores: rotulo e valor no
+     * mesmo paragrafo obrigam quem confere a procurar o numero no meio do
+     * texto. Rotulo comprido quebra e o valor acompanha a primeira linha.
+     */
+    public function linha(string $rotulo, string $valor, bool $destaque = false): static
+    {
+        $tamanho = $destaque ? 11.5 : 10.5;
+        $cinza = $destaque ? 0.11 : 0.3;
+        $entrelinha = $tamanho * 1.45;
+
+        // O valor tem prioridade: o rotulo quebra no espaco que sobrar dele.
+        $larguraValor = $this->largura($valor, $tamanho, $destaque);
+        $larguraRotulo = self::LARGURA - 2 * self::MARGEM - $larguraValor - 18;
+
+        $linhas = $this->quebrar($rotulo, $tamanho, false, max(60.0, $larguraRotulo));
+
+        foreach ($linhas as $i => $texto) {
+            if ($this->y - $entrelinha < self::MARGEM + self::RODAPE_ALTURA) {
+                $this->fecharPagina();
+                $this->y = self::ALTURA - self::MARGEM;
+            }
+
+            $this->y -= $entrelinha;
+            $this->texto($texto, self::MARGEM, $tamanho, $destaque, $cinza);
+
+            // O valor sai uma vez so, alinhado a direita na primeira linha.
+            if ($i === 0) {
+                $this->texto(
+                    $valor,
+                    self::LARGURA - self::MARGEM - $larguraValor,
+                    $tamanho, $destaque, $cinza,
+                );
+            }
+        }
+
+        return $this;
+    }
+
+    /** Risco horizontal fino, para fechar um bloco de valores. */
+    public function divisoria(): static
+    {
+        $this->y -= 6;
+        $this->atual .= sprintf(
+            "0.82 0.82 0.82 RG 0.6 w %.2F %.2F m %.2F %.2F l S\n",
+            self::MARGEM, $this->y, self::LARGURA - self::MARGEM, $this->y,
+        );
+        $this->y -= 2;
+
+        return $this;
+    }
+
     public function espaco(float $pontos): static
     {
         $this->y -= $pontos;
@@ -169,13 +224,18 @@ final class Pdf
             }
 
             $this->y -= $entrelinha;
-            $fonte = $negrito ? 'F2' : 'F1';
-            $this->atual .= sprintf(
-                "BT /%s %.2F Tf %.2F %.2F %.2F rg %.2F %.2F Td (%s) Tj ET\n",
-                $fonte, $tamanho, $cinza, $cinza, $cinza, self::MARGEM, $this->y,
-                $this->escapar($linha),
-            );
+            $this->texto($linha, self::MARGEM, $tamanho, $negrito, $cinza);
         }
+    }
+
+    /** Um pedaco de texto numa posicao horizontal, na altura corrente. */
+    private function texto(string $texto, float $x, float $tamanho, bool $negrito, float $cinza): void
+    {
+        $this->atual .= sprintf(
+            "BT /%s %.2F Tf %.2F %.2F %.2F rg %.2F %.2F Td (%s) Tj ET\n",
+            $negrito ? 'F2' : 'F1', $tamanho, $cinza, $cinza, $cinza, $x, $this->y,
+            $this->escapar($texto),
+        );
     }
 
     /** @return list<string> */

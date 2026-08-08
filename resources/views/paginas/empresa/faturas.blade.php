@@ -75,14 +75,22 @@
                             <td class="px-5 py-4 text-right tabular-nums font-medium text-gray-800 dark:text-white/90">{{ $fatura->totalRotulo() }}</td>
                             <td class="px-5 py-4 text-right tabular-nums">{{ $fatura->vencimento()->format('d/m/Y') }}</td>
                             <td class="px-5 py-4 text-right">
-                                @if (! $fatura->estaLiquidada() && $fatura->cobrancaAsaas?->invoice_url)
-                                    <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
-                                       href="{{ $fatura->cobrancaAsaas->invoice_url }}" target="_blank" rel="noopener noreferrer">Pagar fatura</a>
-                                @elseif (! $fatura->estaLiquidada())
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">Solicite a segunda via ao atendimento</span>
-                                @else
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">Paga</span>
-                                @endif
+                                <div class="flex flex-col items-end gap-1">
+                                    @if (! $fatura->estaLiquidada() && $fatura->cobrancaAsaas?->invoice_url)
+                                        <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400"
+                                           href="{{ $fatura->cobrancaAsaas->invoice_url }}" target="_blank" rel="noopener noreferrer">Pagar fatura</a>
+                                    @elseif (! $fatura->estaLiquidada())
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Solicite a segunda via ao atendimento</span>
+                                    @else
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Paga</span>
+                                    @endif
+
+                                    {{-- O demonstrativo vale para toda fatura, paga ou nao:
+                                         quem confere o pagamento depois precisa do mesmo
+                                         papel que quem pagou. --}}
+                                    <a class="text-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400"
+                                       href="{{ route('empresa.faturas.pdf', $fatura) }}">Baixar demonstrativo</a>
+                                </div>
                             </td>
                         </tr>
                     @empty

@@ -277,6 +277,14 @@ class AreaClienteController extends Controller
         return view('paginas.empresa.consulta', ['consulta' => $consulta->load('servico')]);
     }
 
+    /** O demonstrativo da fatura em PDF, para conferir, imprimir e arquivar. */
+    public function faturaPdf(\App\Models\Fatura $fatura)
+    {
+        abort_unless($fatura->cliente_id === auth('empresa')->id(), 403);
+
+        return \App\Support\FaturaPdf::resposta($fatura->load('itens', 'cliente'));
+    }
+
     /**
      * O resultado em PDF, para a empresa arquivar ou anexar.
      *

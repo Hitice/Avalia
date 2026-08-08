@@ -203,6 +203,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // Emitir de novo quando a criacao no provedor falhou: sem isto, fatura
         // sem boleto so se resolvia no banco de dados.
         Route::post('/{fatura}/cobranca', [FinanceiroController::class, 'emitirCobranca'])->name('cobranca');
+        // O mesmo demonstrativo que o cliente baixa. Igual de proposito: o
+        // atendimento discute o arquivo que o cliente esta olhando, e nao uma
+        // segunda versao dos mesmos numeros.
+        Route::get('/{fatura}/pdf', [FinanceiroController::class, 'demonstrativo'])->name('pdf');
     });
 
     // Quem trabalha na Avalia. E aqui que se define a comissao de cada
@@ -324,6 +328,9 @@ Route::middleware(['auth:empresa', 'sessao:empresa'])
         Route::get('/consultar', [AreaClienteController::class, 'consultar'])->name('consultar');
         Route::get('/consultas', [AreaClienteController::class, 'consultas'])->name('consultas');
         Route::get('/faturas', [AreaClienteController::class, 'faturas'])->name('faturas');
+        // O demonstrativo em arquivo: quem paga costuma ser outra pessoa, e
+        // essa pessoa pede um PDF para anexar ao pagamento.
+        Route::get('/faturas/{fatura}/pdf', [AreaClienteController::class, 'faturaPdf'])->name('faturas.pdf');
 
         // Simulador da fatura: GET, nada gravado, o cenario vira link.
         Route::get('/simulador', [AreaClienteController::class, 'simulador'])->name('simulador');

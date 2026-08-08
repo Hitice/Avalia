@@ -104,6 +104,11 @@
                                 {{ $fatura->vencimento()->format('d/m/Y') }}
                             </td>
                             <td class="px-5 py-4 text-right">
+                                {{-- O mesmo demonstrativo que o cliente baixa. Quando ele
+                                     liga com uma dúvida, os dois olham o mesmo papel. --}}
+                                <a class="mr-2 text-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400"
+                                   href="{{ route('financeiro.pdf', $fatura) }}" title="Baixar o demonstrativo da fatura">PDF</a>
+
                                 @if ($fatura->estaLiquidada())
                                     {{-- Pagamento desfeito acontece: chargeback, Pix devolvido,
                                          boleto baixado por engano. Sem este caminho a correcao
