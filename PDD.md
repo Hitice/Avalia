@@ -1250,7 +1250,7 @@ nome na tela muda conforme quem lê.
 
 | Conceito | No código | Para a administração | Para o vendedor | Para a empresa |
 | --- | --- | --- | --- | --- |
-| Empresa contratante | `Cliente` | Empresa | Cliente da carteira | (ela mesma) |
+| Empresa contratante | `Cliente` | Cliente | Cliente da carteira | (ela mesma) |
 | Fatura paga | `liquidado` | Paga | Comissão liberada | Paga |
 | Fatura em aberto | `pendente` | Em aberto | Aguardando pagamento | Em aberto |
 | Fatura vencida | `vencido` | Vencida | Vencida | Em atraso |
@@ -1260,9 +1260,17 @@ nome na tela muda conforme quem lê.
 
 ### Decisões de nomenclatura
 
-- **Empresa** é o nome na tela; `Cliente` é o nome no código. A rota `/empresas`
-  segue a tela. Não usar "cliente" em texto de administração para não confundir
-  com o consumidor final consultado.
+- **Cliente** é o nome na tela da administração, e `Cliente` também é o nome no
+  código. A decisão anterior era o contrário: a tela dizia "Empresa" para não
+  confundir com o consumidor final consultado. Na prática a confusão não
+  aconteceu, e o preço da escolha era alto: o vendedor já chamava os dele de
+  "clientes da carteira", então a mesma pessoa tinha dois nomes conforme quem
+  abria a tela. Quem é consultado nunca é chamado de cliente em lugar nenhum;
+  é "documento consultado" ou "titular".
+- **A rota continua `/empresas`.** O nome na tela pode mudar quando o
+  vocabulário do negócio muda; endereço salvo no navegador de alguém, não. Onde
+  o texto fala da natureza jurídica e não do papel comercial, "empresa"
+  continua certo: "as empresas que contratam a Avalia".
 - **Valor interno nunca aparece na tela.** `liquidado`, `pendente` e `sucesso` são
   chaves de banco, e o operador não deve aprender o vocabulário do esquema. A
   tradução vive em `App\Support\Rotulos`, em um lugar só: a mesma situação aparece

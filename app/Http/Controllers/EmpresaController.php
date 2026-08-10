@@ -17,6 +17,7 @@ use App\Support\Dinheiro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * As empresas contratantes e o consumo delas.
@@ -40,16 +41,49 @@ class EmpresaController extends Controller
 {
     public function index(Request $request)
     {
-        $removidas = $request->boolean('removidas');
+        $escolha = \App\Support\FiltroClientes::escolhido($request);
 
         return view('paginas.empresas.index', [
-            'empresas' => Cliente::with(['plano', 'vendedor'])
-                ->when($removidas, fn ($q) => $q->onlyTrashed())
-                ->orderBy('razao_social')
-                ->get(),
-            'removidas' => $removidas,
+            'empresas' => $this->carteiraFiltrada($request)->get(),
+            'escolha' => $escolha,
+            'removidas' => $escolha['removidas'],
             'quantidadeRemovidas' => Cliente::onlyTrashed()->count(),
+            'vendedores' => Staff::where('papel', 'vendedor')->orderBy('nome')->get(),
+            'planos' => \App\Models\Plano::orderBy('consumo_minimo_cents')->get(),
         ]);
+    }
+
+    /**
+     * A mesma carteira que a tela mostra, numa planilha.
+     *
+     * Exporta o recorte do filtro, e nao a base inteira: quem clica em exportar
+     * acabou de montar um recorte na tela, e receber outra coisa obriga a
+     * refazer o filtro no Excel.
+     *
+     * Fica na trilha porque e dado cadastral de terceiro saindo do sistema em
+     * arquivo. Quem exportou e quando responde a pergunta que a LGPD faz.
+     */
+    public function exportar(Request $request, \App\Actions\Planilha\MontarPlanilhaClientes $montar): StreamedResponse
+    {
+        $clientes = $this->carteiraFiltrada($request)->get();
+        $conteudo = $montar($clientes);
+
+        Auditar::registrar('clientes.exportados', null, ['clientes' => $clientes->count()]);
+
+        return response()->streamDownload(
+            fn () => print $conteudo,
+            'avalia-clientes-'.now()->format('Y-m-d').'.xlsx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        );
+    }
+
+    /** Um lugar so decide o recorte, para tela e planilha nunca divergirem. */
+    private function carteiraFiltrada(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        $consulta = Cliente::with(['plano', 'vendedor'])
+            ->when($request->boolean('removidas'), fn ($q) => $q->onlyTrashed());
+
+        return \App\Support\FiltroClientes::aplicar($consulta, $request)->orderBy('razao_social');
     }
 
     public function criar()

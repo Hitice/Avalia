@@ -10,7 +10,20 @@ use App\Support\Planilha;
 use Illuminate\Support\Collection;
 
 /**
- * Monta a planilha do modulo: catalogo, planos e servicos em tres abas.
+ * Monta a planilha do modulo, com as mesmas abas que a tela tem.
+ *
+ * A tela de Tabelas mostra o mesmo catalogo sob tres visoes (preco de venda,
+ * custo do fornecedor, margem) e a planilha passa a espelhar isso: quem abre o
+ * arquivo procura o que acabou de ver, e uma unica aba misturando tudo obrigava
+ * a remontar a leitura no Excel.
+ *
+ * A aba de preco de venda vem primeiro e continua sendo a que a importacao le,
+ * porque e nela que se reprecifica. As de custo e margem sao leitura: escrever
+ * margem a mao nao faz sentido, ela e consequencia do preco.
+ *
+ * Os parametros ganham aba propria porque toda a coluna de margem depende
+ * deles. Numero de margem sem o imposto e o alvo que o produziram nao se
+ * confere: quem recebe a planilha por e-mail nao tem a tela ao lado.
  *
  * Uma planilha so, e nao um arquivo por tela: quem negocia preco com o
  * fornecedor precisa ver custo, catalogo e plano lado a lado.
@@ -27,8 +40,15 @@ class MontarPlanilha
 {
     public function __invoke(): string
     {
+        $catalogo = Catalogo::vigente();
+
         return Planilha::xlsx([
-            'Catalogo' => $this->catalogo(Catalogo::vigente()),
+            // A primeira aba e a que a importacao le. Mexer nessa ordem sem
+            // olhar o ImportarPlanilha quebra a volta em silencio.
+            'Preco de venda' => $this->catalogo($catalogo),
+            'Custo do fornecedor' => $this->custos($catalogo),
+            'Margem' => $this->margens($catalogo),
+            'Parametros' => $this->parametros($catalogo),
             'Planos' => $this->planos(),
             'Servicos' => $this->servicos(),
         ]);
@@ -85,12 +105,14 @@ class MontarPlanilha
         }
 
         $faixas = $catalogo->faixas();
-        $comissao = $catalogo->comissaoBps();
 
+        // Custo fica junto porque a importacao grava os dois de uma vez: quem
+        // renegocia com o fornecedor mexe no custo e no preco na mesma linha.
+        // As colunas de margem sairam daqui e viraram aba, para o arquivo ter
+        // a mesma divisao da tela.
         $cabecalho = array_merge(
             ['Código', 'Serviço', 'Categoria', 'Situação', 'Custo'],
             array_map(self::tituloDaFaixa(...), $faixas),
-            ['Margem menor faixa (%)', 'Margem maior faixa (%)'],
         );
 
         $linhas = $catalogo->precos()
@@ -98,13 +120,9 @@ class MontarPlanilha
             ->whereHas('servico', fn ($q) => $q->where('ativo', true))
             ->get()
             ->groupBy('servico_id')
-            ->map(function (Collection $precos) use ($faixas, $catalogo, $comissao) {
+            ->map(function (Collection $precos) use ($faixas) {
                 $servico = $precos->first()->servico;
                 $porFaixa = $precos->keyBy('consumo_minimo_cents');
-
-                $margem = fn (int $faixa) => ($p = $porFaixa->get($faixa))
-                    ? Margem::pct($p->preco_cents, $p->custo_cents, $catalogo->imposto_bps, $comissao)
-                    : null;
 
                 return array_merge(
                     [
@@ -115,13 +133,166 @@ class MontarPlanilha
                         self::reais($precos->first()->custo_cents),
                     ],
                     array_map(fn (int $f) => self::reais($porFaixa->get($f)?->preco_cents), $faixas),
-                    [$margem($faixas[0] ?? 0), $margem($faixas[count($faixas) - 1] ?? 0)],
                 );
             })
             ->values()
             ->all();
 
         return [$cabecalho, $linhas];
+    }
+
+    /**
+     * A aba de custo: o que a Avalia paga e quanto disso ocupa cada faixa.
+     *
+     * A porcentagem existe porque o custo em reais nao diz nada sozinho. Custo
+     * de R$ 1,50 e barato num servico de R$ 6,00 e insustentavel num de R$ 1,80,
+     * e e essa proporcao que se leva para negociar com o fornecedor.
+     *
+     * @return array{0: list<string>, 1: list<list<string|int|float|null>>}
+     */
+    private function custos(?Catalogo $catalogo): array
+    {
+        if (! $catalogo) {
+            return [['Código'], []];
+        }
+
+        $faixas = $catalogo->faixas();
+
+        $cabecalho = array_merge(
+            ['Código', 'Serviço', 'Categoria', 'Custo'],
+            array_map(fn (int $f) => self::tituloDaFaixa($f).' (% do preço)', $faixas),
+        );
+
+        $linhas = $this->porServico($catalogo, function (Servico $servico, Collection $porFaixa) use ($faixas) {
+            $custo = $porFaixa->first()->custo_cents;
+
+            return array_merge(
+                [$servico->codigo, $servico->nome, $servico->rotuloCategoria(), self::reais($custo)],
+                array_map(function (int $f) use ($porFaixa, $custo) {
+                    $preco = $porFaixa->get($f)?->preco_cents;
+
+                    return $custo === null || ! $preco ? null : round($custo * 100 / $preco, 1);
+                }, $faixas),
+            );
+        });
+
+        return [$cabecalho, $linhas];
+    }
+
+    /**
+     * A aba de margem: o que sobra em cada faixa, e quanto falta para o alvo.
+     *
+     * A coluna do alvo vai ao lado de proposito. Margem sozinha e um numero que
+     * cada leitor compara com um alvo diferente, guardado na cabeca de quem
+     * definiu; com o alvo na linha, a conversa e sobre a diferenca.
+     *
+     * @return array{0: list<string>, 1: list<list<string|int|float|null>>}
+     */
+    private function margens(?Catalogo $catalogo): array
+    {
+        if (! $catalogo) {
+            return [['Código'], []];
+        }
+
+        $faixas = $catalogo->faixas();
+        $comissao = $catalogo->comissaoBps();
+        $alvos = $catalogo->margemAlvoPorFaixa($faixas);
+
+        $cabecalho = array_merge(
+            ['Código', 'Serviço', 'Categoria'],
+            array_map(fn (int $f) => self::tituloDaFaixa($f).' (%)', $faixas),
+            ['Abaixo do alvo'],
+        );
+
+        $linhas = $this->porServico($catalogo, function (Servico $servico, Collection $porFaixa) use ($faixas, $catalogo, $comissao, $alvos) {
+            $pct = fn (int $f) => ($p = $porFaixa->get($f))
+                ? Margem::pct($p->preco_cents, $p->custo_cents, $catalogo->imposto_bps, $comissao)
+                : null;
+
+            $furadas = 0;
+
+            foreach ($faixas as $faixa) {
+                $atual = $pct($faixa);
+
+                if ($atual !== null && $atual < ($alvos[$faixa] ?? 0) / 100) {
+                    $furadas++;
+                }
+            }
+
+            return array_merge(
+                [$servico->codigo, $servico->nome, $servico->rotuloCategoria()],
+                array_map($pct, $faixas),
+                [$furadas === 0 ? '' : $furadas.' '.($furadas === 1 ? 'faixa' : 'faixas')],
+            );
+        });
+
+        // A escada do alvo fecha a aba, para a coluna de margem ter contra o
+        // que ser lida sem abrir o sistema.
+        $linhas[] = array_merge(
+            ['', 'MARGEM ALVO DA FAIXA', ''],
+            array_map(fn (int $f) => round(($alvos[$f] ?? 0) / 100, 1), $faixas),
+            [''],
+        );
+
+        return [$cabecalho, $linhas];
+    }
+
+    /**
+     * Os parametros que produziram a coluna de margem.
+     *
+     * Sem eles a planilha nao se confere: quem recebe o arquivo por e-mail nao
+     * tem a tela ao lado para saber com que imposto e que alvo aquela margem
+     * foi calculada.
+     *
+     * @return array{0: list<string>, 1: list<list<string|int|float|null>>}
+     */
+    private function parametros(?Catalogo $catalogo): array
+    {
+        if (! $catalogo) {
+            return [['Parâmetro', 'Valor'], []];
+        }
+
+        return [
+            ['Parâmetro', 'Valor'],
+            [
+                ['Imposto sobre a venda', $catalogo->impostoRotulo()],
+                ['Comissão do vendedor sobre o lucro', self::pontos($catalogo->comissaoBps())],
+                ['Margem alvo na primeira faixa', $catalogo->margemAlvoRotulo()],
+                ['Degrau de margem por faixa', $catalogo->degrauRotulo()],
+                ['Tabela gerada em', now()->format('d/m/Y H:i')],
+            ],
+        ];
+    }
+
+    private static function pontos(int $bps): string
+    {
+        return number_format($bps / 100, 2, ',', '.').'%';
+    }
+
+    /**
+     * Uma linha por servico ativo, com os precos indexados pela faixa.
+     *
+     * Existe para as tres abas do catalogo montarem a linha do mesmo jeito: sem
+     * isso, cada aba filtrava e agrupava por conta propria e bastava uma delas
+     * esquecer o `where ativo` para as abas discordarem sobre quantos servicos
+     * existem.
+     *
+     * @param  callable(Servico, Collection): list<string|int|float|null>  $linha
+     * @return list<list<string|int|float|null>>
+     */
+    private function porServico(Catalogo $catalogo, callable $linha): array
+    {
+        return $catalogo->precos()
+            ->with('servico')
+            ->whereHas('servico', fn ($q) => $q->where('ativo', true))
+            ->get()
+            ->groupBy('servico_id')
+            ->map(fn (Collection $precos) => $linha(
+                $precos->first()->servico,
+                $precos->keyBy('consumo_minimo_cents'),
+            ))
+            ->values()
+            ->all();
     }
 
     /** @return array{0: list<string>, 1: list<list<string|int|float|null>>} */

@@ -62,7 +62,7 @@ class CalculadoraController extends Controller
             impostoBps: $catalogo?->imposto_bps ?? 0,
         );
 
-        return view('paginas.catalogo.calculadora', [
+        return view('paginas.simulacao.calculadora', [
             'catalogo' => $catalogo,
             'faixas' => $faixas,
             'faixa' => $faixa,

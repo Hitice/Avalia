@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Empresas'])
+@extends('layouts.app', ['title' => 'Clientes'])
 
 @php
     use App\Support\Dinheiro;
@@ -8,13 +8,21 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Empresas</h1>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Clientes</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Empresas contratantes e a situação de cada uma.
+                As empresas que contratam a Avalia e a situação de cada uma.
             </p>
         </div>
 
-        <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
+        <div class="flex flex-wrap items-center gap-3">
+            {{-- Exporta o recorte que está na tela: o filtro inteiro vai na
+                 query string, então o link já carrega a escolha. --}}
+            <x-avalia.botao variante="secundario" :href="route('empresas.planilha', request()->query())">
+                Exportar
+            </x-avalia.botao>
+
+            <x-avalia.botao :href="route('empresas.criar')">Novo cliente</x-avalia.botao>
+        </div>
     </div>
 
     @if ($quantidadeRemovidas > 0 || $removidas)
@@ -29,6 +37,9 @@
     @endif
 
     @include('paginas.catalogo.avisos')
+
+    <x-avalia.filtro-clientes :acao="route('empresas.index')" :vendedores="$vendedores"
+                              :planos="$planos" :escolha="$escolha" />
 
     <div class="cartao overflow-hidden">
         <div class="tabela-rolagem">

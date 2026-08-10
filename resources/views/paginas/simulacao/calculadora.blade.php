@@ -11,11 +11,11 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Calculadora</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Simulação de receita.
+            Quanto um contrato rende para a Avalia, antes de ele existir.
         </p>
     </div>
 
-    @include('paginas.catalogo.abas', ['atual' => 'calculadora'])
+    @include('paginas.simulacao.abas', ['atual' => 'calculadora'])
 
     @if (! $catalogo || $faixas === [])
         <div class="aviso aviso-alerta">
@@ -24,7 +24,7 @@
     @else
         <div class="grid gap-6 lg:grid-cols-[22rem_1fr]">
             <div class="cartao p-6">
-                <form method="GET" action="{{ route('catalogo.calculadora') }}" class="grid gap-5">
+                <form method="GET" action="{{ route('simulacao.calculadora') }}" class="grid gap-5">
                     <div>
                         <label for="faixa" class="rotulo-campo">Tabela de preços</label>
                         <select id="faixa" name="faixa" class="campo">

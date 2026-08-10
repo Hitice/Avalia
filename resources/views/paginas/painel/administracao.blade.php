@@ -16,7 +16,7 @@
              dois cliques de menu. Os dois do financeiro só viram link para quem
              tem a permissão, porque cartão que leva a 403 ensina o operador a
              ignorar o cartão. --}}
-        <x-avalia.cartao-indicador rotulo="Empresas ativas" :valor="$clientesAtivos"
+        <x-avalia.cartao-indicador rotulo="Clientes ativos" :valor="$clientesAtivos"
                                    :href="route('empresas.index')" />
 
         <x-avalia.cartao-indicador rotulo="Consultas no período" :valor="$consultas"

@@ -111,14 +111,14 @@ it('nao deixa vendedor abrir a calculadora', function () {
     // Ela mostra custo do fornecedor e margem, que sao internos.
     $this->actingAs(Staff::factory()->create(), 'staff')
         ->withSession(['versao_staff' => 1])
-        ->get(route('catalogo.calculadora'))
+        ->get(route('simulacao.calculadora'))
         ->assertForbidden();
 });
 
 it('abre com um cenario plausivel sem pedir nada', function () {
     Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493, 500_000 => 370])->create();
 
-    admin()->get(route('catalogo.calculadora'))
+    admin()->get(route('simulacao.calculadora'))
         ->assertOk()
         ->assertSee('Projeção')
         // Faixa do meio como padrao, nem o extremo bom nem o ruim.
@@ -130,7 +130,7 @@ it('carrega o cenario inteiro pelo endereco', function () {
     $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
     $catalogo->precos()->update(['custo_cents' => 280]);
 
-    $resposta = admin()->get(route('catalogo.calculadora', [
+    $resposta = admin()->get(route('simulacao.calculadora', [
         'faixa' => '900,00',
         'consumo' => '1.500,00',
         'mensalidade' => '79,90',
@@ -165,7 +165,7 @@ it('nao inventa custo medio onde nao ha custo cadastrado', function () {
 });
 
 it('avisa em vez de calcular quando nao ha catalogo', function () {
-    admin()->get(route('catalogo.calculadora'))
+    admin()->get(route('simulacao.calculadora'))
         ->assertOk()
         ->assertSee('Sem catálogo não há faixa nem custo para simular');
 });

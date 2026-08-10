@@ -26,9 +26,13 @@ class MenuHelper
             ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/carteira/simulacao', 'papeis' => ['vendedor']],
             ['icon' => 'documento', 'name' => 'Termos', 'path' => '/termos', 'papeis' => ['vendedor']],
 
-            ['icon' => 'user-profile', 'name' => 'Empresa', 'path' => '/empresas', 'papeis' => ['admin']],
+            // "Clientes" e nao "Empresas": e assim que a operacao fala de quem
+            // contrata, e e o mesmo nome que o vendedor ja usa na carteira. A
+            // rota continua /empresas para nao quebrar link salvo.
+            ['icon' => 'user-profile', 'name' => 'Clientes', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
+            ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/simulacao', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],

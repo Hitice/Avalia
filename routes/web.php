@@ -145,6 +145,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // Lista e ficha mostram custo, imposto e lucro por fatura.
         Route::middleware('admin')->group(function () {
             Route::get('/', [EmpresaController::class, 'index'])->name('index');
+            // A carteira filtrada em planilha, no mesmo molde da tabela de
+            // precos. Fica na trilha: e cadastro de terceiro saindo em arquivo.
+            Route::get('/planilha', [EmpresaController::class, 'exportar'])->name('planilha');
             Route::get('/{empresa}', [EmpresaController::class, 'ficha'])->name('ficha');
             // Fechar competencia emite cobranca: e decisao financeira.
             Route::post('/{empresa}/fechar', [EmpresaController::class, 'fechar'])
@@ -207,6 +210,16 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // atendimento discute o arquivo que o cliente esta olhando, e nao uma
         // segunda versao dos mesmos numeros.
         Route::get('/{fatura}/pdf', [FinanceiroController::class, 'demonstrativo'])->name('pdf');
+    });
+
+    // Simulacao: o que a Avalia ganha antes de a venda existir.
+    //
+    // Modulo proprio, e nao aba do catalogo. Catalogo e onde se cadastra preco;
+    // aqui nao se cadastra nada, so se pergunta "quanto rende este contrato".
+    // Sao trabalhos diferentes, e trabalho diferente merece porta propria.
+    Route::middleware('admin')->prefix('simulacao')->name('simulacao.')->group(function () {
+        Route::get('/', CalculadoraController::class)->name('calculadora');
+        Route::get('/proposta', [CarteiraController::class, 'simulacao'])->name('proposta');
     });
 
     // Quem trabalha na Avalia. E aqui que se define a comissao de cada
@@ -290,7 +303,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
 
         // Simulador de contrato. GET e sem gravar nada: o endereco carrega o
         // cenario, entao a simulacao vira link em vez de captura de tela.
-        Route::get('/calculadora', CalculadoraController::class)->name('calculadora');
+
 
         // Parametros comerciais em pagina propria: mexem no catalogo inteiro e
         // nao tem lugar no meio da matriz que se consulta todo dia.

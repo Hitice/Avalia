@@ -142,7 +142,7 @@ it('le csv de ponto e virgula, que e o que o Excel salva em portugues', function
 |--------------------------------------------------------------------------
 */
 
-it('exporta uma planilha com as tres abas', function () {
+it('exporta uma planilha com as mesmas abas da tela', function () {
     Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
     Plano::factory()->create(['nome' => 'Plano teste']);
 
@@ -156,9 +156,14 @@ it('exporta uma planilha com as tres abas', function () {
     $pasta = $zip->getFromName('xl/workbook.xml');
     $zip->close();
 
-    expect($pasta)->toContain('name="Catalogo"')
-        ->and($pasta)->toContain('name="Planos"')
-        ->and($pasta)->toContain('name="Servicos"');
+    // As mesmas visoes que a tela de Tabelas oferece, mais os parametros
+    // que produziram a coluna de margem.
+    foreach (['Preco de venda', 'Custo do fornecedor', 'Margem', 'Parametros', 'Planos', 'Servicos'] as $aba) {
+        expect($pasta)->toContain('name="'.$aba.'"');
+    }
+
+    // A de preco vem primeiro porque e a que a importacao le.
+    expect(strpos($pasta, 'Preco de venda'))->toBeLessThan(strpos($pasta, 'Custo do fornecedor'));
 
     unlink($caminho);
 });
@@ -347,4 +352,26 @@ it('nao deixa vendedor importar', function () {
             'planilha' => new UploadedFile($caminho, 'catalogo.xlsx', null, null, true),
         ])
         ->assertForbidden();
+});
+
+it('exporta e reimporta sem mudar nada, com as abas novas', function () {
+    // O risco concreto de reorganizar as abas: a importacao le a PRIMEIRA, e
+    // trocar a ordem sem perceber faria o arquivo voltar lendo custo como
+    // preco, em silencio. Este teste fecha a volta inteira.
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo->precos()->update(['custo_cents' => 150]);
+
+    $antes = $catalogo->precos()->orderBy('consumo_minimo_cents')
+        ->pluck('preco_cents', 'consumo_minimo_cents')->all();
+
+    $caminho = tempnam(sys_get_temp_dir(), 'ida').'.xlsx';
+    file_put_contents($caminho, app(App\Actions\Planilha\MontarPlanilha::class)());
+
+    $resultado = app(App\Actions\Planilha\ImportarPlanilha::class)($catalogo->fresh(), $caminho);
+    unlink($caminho);
+
+    expect($resultado['erro'])->toBeNull()
+        ->and($resultado['atualizados'])->toBe(0)
+        ->and($catalogo->fresh()->precos()->orderBy('consumo_minimo_cents')
+            ->pluck('preco_cents', 'consumo_minimo_cents')->all())->toBe($antes);
 });

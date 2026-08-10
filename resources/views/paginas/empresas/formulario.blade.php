@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => $empresa->exists ? $empresa->razao_social : 'Nova empresa'])
+@extends('layouts.app', ['title' => $empresa->exists ? $empresa->razao_social : 'Novo cliente'])
 
 @php
     use App\Support\Dinheiro;
@@ -15,12 +15,12 @@
         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        {{ $ehAdmin ? ($empresa->exists ? $empresa->razao_social : 'Empresas') : 'Minha carteira' }}
+        {{ $ehAdmin ? ($empresa->exists ? $empresa->razao_social : 'Clientes') : 'Minha carteira' }}
     </a>
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
-            {{ $empresa->exists ? 'Editar cadastro' : 'Nova empresa' }}
+            {{ $empresa->exists ? 'Editar cadastro' : ($ehAdmin ? 'Novo cliente' : 'Nova empresa') }}
         </h1>
 
         @if ($empresa->exists)

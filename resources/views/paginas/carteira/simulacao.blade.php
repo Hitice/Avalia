@@ -8,10 +8,23 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha carteira</h1>
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+            {{ $vendedor->ehAdmin() ? 'Simulação' : 'Minha carteira' }}
+        </h1>
+        @if ($vendedor->ehAdmin())
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Quanto o contrato custa para o cliente e quanto sobra para o vendedor.
+            </p>
+        @endif
     </div>
 
-    @include('paginas.carteira.abas')
+    {{-- Cada papel entra pelo seu modulo: o vendedor pela carteira, a
+         administracao por Simulação. A tela e a mesma, a navegacao nao. --}}
+    @if ($vendedor->ehAdmin())
+        @include('paginas.simulacao.abas', ['atual' => 'proposta'])
+    @else
+        @include('paginas.carteira.abas')
+    @endif
 
     @if ($faixas === [])
         <div class="cartao p-6">
