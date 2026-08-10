@@ -104,33 +104,8 @@
     </div>
 
     @if ($consulta->deuCerto() && ! $consulta->expurgada())
-        <div class="cartao mt-6 overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Resultado</h2>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="tabela min-w-[32rem]">
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @foreach ($resposta as $campo => $valor)
-                            <tr>
-                                <th scope="row" class="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">
-                                    {{ ucfirst(str_replace('_', ' ', $campo)) }}
-                                </th>
-                                <td class="px-6 py-3 text-right text-gray-800 dark:text-white/90">
-                                    @if (is_bool($valor))
-                                        {{ $valor ? 'Sim' : 'Não' }}
-                                    @elseif (str_ends_with($campo, '_cents'))
-                                        {{ Dinheiro::brl((int) $valor) }}
-                                    @else
-                                        {{ is_scalar($valor) ? $valor : json_encode($valor) }}
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+        <div class="mt-6">
+            @include('paginas.consulta-blocos', ['resposta' => $resposta])
         </div>
     @endif
 @endsection

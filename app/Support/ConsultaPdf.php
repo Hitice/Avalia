@@ -5,51 +5,90 @@ namespace App\Support;
 use App\Models\Consulta;
 
 /**
- * O resultado de uma consulta em PDF, para compartilhar.
+ * O resultado de uma consulta em PDF.
  *
  * E o unico jeito aprovado de o resultado sair da tela: arquivo entregue em
- * mao (ou anexado), nunca dado pessoal em URL de conversa. O rodape carrega o
- * protocolo, entao qualquer duvida futura cita um numero que o suporte acha.
+ * mao (ou anexado), nunca dado pessoal em URL de conversa.
  *
- * O arquivo tambem carimba QUEM o emitiu, em toda pagina. E o que o mercado
- * faz (marca d'agua com o responsavel pela emissao) e serve a um proposito
- * simples: PDF vaza, e o vazado precisa apontar para quem o gerou. Custa uma
- * linha e transforma o arquivo em evidencia contra o proprio mau uso.
+ * O desenho segue o que o mercado faz, e cada parte tem uma razao:
+ *
+ * - A marca e a data no topo, porque o arquivo circula solto e precisa dizer de
+ *   onde veio sem depender do e-mail que o levou.
+ * - As ressalvas ANTES do conteudo, e nao em letra miuda no rodape. A primeira
+ *   separa a Avalia da decisao de credito de quem consulta, e ninguem le rodape.
+ * - Os blocos na ordem de quem decide: score, quem e, o que pesa contra,
+ *   contexto. Quem le de cima para baixo conclui antes de acabar a pagina.
+ * - O que a consulta NAO contempla, dito com todas as letras. Ausencia de
+ *   pendencia e ausencia de informacao sao coisas opostas.
+ * - O rodape carimba QUEM emitiu, em toda pagina. PDF vaza, e o vazado precisa
+ *   apontar para quem o gerou. Custa uma linha e transforma o arquivo em
+ *   evidencia contra o proprio mau uso.
+ *
+ * A leitura em blocos vem de App\Support\Laudo, que e a mesma fonte da tela: PDF
+ * e tela que montam a ordem por conta propria divergem no primeiro campo novo.
  */
 final class ConsultaPdf
 {
     public static function resultado(Consulta $consulta, ?string $emitidoPor = null): string
     {
         $emissor = $emitidoPor ?? $consulta->solicitante ?? 'Avalia';
+        $resposta = (array) $consulta->resposta;
+        $documento = Documento::mascarar($consulta->documento);
 
         $pdf = (new Pdf)
             ->rodape('Emitido por '.$emissor.' em '.now()->format('d/m/Y H:i')
-                .' · protocolo '.($consulta->referencia_externa ?? 's/n').' · avaliaone.com.br')
-            ->titulo($consulta->servico?->nome ?? 'Consulta')
-            ->meta('Consultado em '.$consulta->created_at->format('d/m/Y H:i')
-                .($consulta->referencia_externa ? ' · protocolo '.$consulta->referencia_externa : ''))
-            ->meta('Documento consultado: '.Documento::mascarar($consulta->documento))
-            ->espaco(8);
+                .' · protocolo '.($consulta->referencia_externa ?? 's/n').' · avaliaone.com.br');
 
-        foreach ((array) $consulta->resposta as $campo => $valor) {
-            if (! is_scalar($valor)) {
-                $valor = json_encode($valor, JSON_UNESCAPED_UNICODE);
-            }
+        // A marca em texto, e nao imagem: o gerador escreve texto, e uma
+        // assinatura em palavra sobrevive a qualquer impressora.
+        $pdf->titulo('Avalia')
+            ->meta('Consulta de crédito · avaliaone.com.br')
+            ->espaco(10);
 
-            if (is_bool($valor)) {
-                $valor = $valor ? 'Sim' : 'Não';
-            }
+        $pdf->secao($consulta->servico?->nome ?? 'Consulta')
+            ->linha('Documento consultado', $documento ?: 'Não informado')
+            ->linha('Consultado em', $consulta->created_at->format('d/m/Y \à\s H:i'))
+            ->linha('Protocolo', $consulta->referencia_externa ?? 'sem protocolo')
+            ->linha('Finalidade declarada', $consulta->finalidade ?? 'Pesquisa de score de crédito');
 
-            if (str_ends_with($campo, '_cents')) {
-                $valor = Dinheiro::brl((int) $valor);
-            }
+        $pdf->secao('Atenção');
 
-            $pdf->paragrafo(ucfirst(str_replace('_', ' ', $campo)).': '.$valor);
+        foreach (Laudo::ressalvas($documento) as $ressalva) {
+            $pdf->paragrafo($ressalva);
         }
 
-        $pdf->espaco(12)
-            ->paragrafo('Resultado de pesquisa de score de crédito, para uso exclusivo em decisão de negócio do destinatário. É vedado o repasse.');
+        foreach (Laudo::blocos($resposta) as $bloco) {
+            $pdf->secao($bloco['titulo']);
+
+            foreach ($bloco['linhas'] as $linha) {
+                $pdf->linha($linha['rotulo'], $linha['valor']);
+            }
+        }
+
+        $ausentes = Laudo::ausentes($resposta);
+
+        if ($ausentes !== []) {
+            $pdf->secao('O que esta consulta não contempla')
+                ->paragrafo(
+                    'Este produto não retornou informações de '.self::lista($ausentes).'. '
+                    .'A ausência aqui não significa ausência de ocorrências: significa que esta '
+                    .'consulta não pesquisou essas bases. Para incluí-las, contrate o produto '
+                    .'correspondente com a Avalia.',
+                );
+        }
 
         return $pdf->bytes();
+    }
+
+    /** "a, b e c", que e como se escreve lista em portugues. */
+    private static function lista(array $itens): string
+    {
+        if (count($itens) === 1) {
+            return $itens[0];
+        }
+
+        $ultimo = array_pop($itens);
+
+        return implode(', ', $itens).' e '.$ultimo;
     }
 }
