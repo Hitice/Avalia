@@ -187,8 +187,15 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
+  /* A cor do texto e do fundo mora aqui, e nao em cada tela.
+
+     Sem cor no body, tudo que esquecia de declarar a sua caia no preto padrao
+     do navegador: legivel no tema claro, invisivel no escuro. Era um defeito
+     que voltava a cada tela nova, porque dependia de alguem lembrar de escrever
+     `dark:` em todo lugar. Agora o padrao ja e o certo nos dois temas, e quem
+     escreve cor esta refinando, nao consertando. */
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-normal font-outfit z-1 bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-white/90;
   }
 
   /* Barra de rolagem segue o tema no escopo inteiro. O navegador desenha a
@@ -281,6 +288,12 @@
 
 @utility cartao {
   @apply rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03];
+}
+
+/* Cartao de indicador que leva ao detalhe. O realce no hover existe para o
+   cartao parecer clicavel antes de alguem descobrir clicando. */
+@utility cartao-link {
+  @apply block transition hover:border-brand-300 hover:shadow-sm dark:hover:border-brand-500/40;
 }
 
 @utility tabela {

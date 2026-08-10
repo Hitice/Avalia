@@ -11,51 +11,46 @@
     </div>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">Empresas ativas</span>
-            <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $clientesAtivos }}</span>
-        </div>
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">Consultas no período</span>
-            <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $consultas }}</span>
-            @if ($falhas > 0)
-                <span class="ajuda-campo">{{ $falhas }} não {{ $falhas === 1 ? 'concluída' : 'concluídas' }}, sem cobrança.</span>
-            @endif
-        </div>
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">Consumo do período</span>
-            <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($consumoCents) }}</span>
-            <span class="ajuda-campo">Ainda não faturado.</span>
-        </div>
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">Custo do fornecedor</span>
-            <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($custoCents) }}</span>
-            {{-- Consulta que a casa faz nao tem receita do outro lado, entao sai
-                 inteira da margem. Ver o pedaco separado evita procurar buraco
-                 no preco quando o buraco esta no consumo interno. --}}
+        {{-- Cada número leva ao lugar onde ele é detalhado: a pergunta seguinte
+             a um indicador é sempre "de onde saiu isso?", e a resposta estava a
+             dois cliques de menu. Os dois do financeiro só viram link para quem
+             tem a permissão, porque cartão que leva a 403 ensina o operador a
+             ignorar o cartão. --}}
+        <x-avalia.cartao-indicador rotulo="Empresas ativas" :valor="$clientesAtivos"
+                                   :href="route('empresas.index')" />
+
+        <x-avalia.cartao-indicador rotulo="Consultas no período" :valor="$consultas"
+                                   :href="route('consultas')"
+                                   :ajuda="$falhas > 0 ? $falhas.' não '.($falhas === 1 ? 'concluída' : 'concluídas').', sem cobrança.' : null" />
+
+        <x-avalia.cartao-indicador rotulo="Consumo do período" :valor="Dinheiro::brl($consumoCents)"
+                                   :href="route('consultas')" ajuda="Ainda não faturado." />
+
+        {{-- Consulta que a casa faz não tem receita do outro lado, então sai
+             inteira da margem. Ver o pedaço separado evita procurar buraco no
+             preço quando o buraco está no consumo interno. --}}
+        <x-avalia.cartao-indicador rotulo="Custo do fornecedor" :valor="Dinheiro::brl($custoCents)"
+                                   :href="route('catalogo.tabela', ['visao' => 'custo'])">
             <span class="ajuda-campo">
                 Tudo que foi consultado no período.
                 @if ($custoProprioCents > 0)
                     {{ Dinheiro::brl($custoProprioCents) }} em consultas da casa, sem receita.
                 @endif
             </span>
-        </div>
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">Margem do período</span>
-            <span class="mt-1 block text-2xl font-semibold tabular-nums {{ $margemCents >= 0 ? 'text-success-600 dark:text-success-400' : 'text-error-600 dark:text-error-400' }}">
-                {{ Dinheiro::brl($margemCents) }}
-            </span>
-            <span class="ajuda-campo">Consumo menos custo, antes de imposto e comissão.</span>
-        </div>
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">A receber</span>
-            <span class="mt-1 block text-2xl font-semibold text-gray-800 dark:text-white/90 tabular-nums">{{ Dinheiro::brl($aReceber) }}</span>
-        </div>
-        <div class="cartao p-5">
-            <span class="rotulo-grupo block">Em atraso</span>
-            <span class="mt-1 block text-2xl font-semibold text-error-600 dark:text-error-400 tabular-nums">{{ Dinheiro::brl($vencido) }}</span>
-            <span class="ajuda-campo">{{ $inadimplentes }} {{ $inadimplentes === 1 ? 'empresa suspensa' : 'empresas suspensas' }}.</span>
-        </div>
+        </x-avalia.cartao-indicador>
+
+        <x-avalia.cartao-indicador rotulo="Margem do período" :valor="Dinheiro::brl($margemCents)"
+                                   :href="route('catalogo.tabela', ['visao' => 'margem'])"
+                                   :tom="$margemCents >= 0 ? 'text-success-600 dark:text-success-400' : 'text-error-600 dark:text-error-400'"
+                                   ajuda="Consumo menos custo, antes de imposto e comissão." />
+
+        <x-avalia.cartao-indicador rotulo="A receber" :valor="Dinheiro::brl($aReceber)"
+                                   :href="$staff->podeFinanceiro() ? route('financeiro.index', ['situacao' => 'pendente']) : null" />
+
+        <x-avalia.cartao-indicador rotulo="Em atraso" :valor="Dinheiro::brl($vencido)"
+                                   :href="$staff->podeFinanceiro() ? route('financeiro.index', ['situacao' => 'vencido']) : null"
+                                   tom="text-error-600 dark:text-error-400"
+                                   :ajuda="$inadimplentes.' '.($inadimplentes === 1 ? 'empresa suspensa' : 'empresas suspensas').'.'" />
     </div>
 
     @if (session('ok'))
