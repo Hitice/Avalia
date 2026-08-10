@@ -23,7 +23,7 @@ class MenuHelper
             ['icon' => 'consulta', 'name' => 'Consultar', 'path' => '/carteira/consultar'],
             ['icon' => 'tables', 'name' => 'Consultas', 'path' => '/carteira/consultas', 'papeis' => ['vendedor']],
             ['icon' => 'pages', 'name' => 'Serviços', 'path' => '/carteira/servicos', 'papeis' => ['vendedor']],
-            ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/carteira/simulacao', 'papeis' => ['vendedor']],
+            ['icon' => 'calculadora', 'name' => 'Simulador', 'path' => '/carteira/simulacao', 'papeis' => ['vendedor']],
             ['icon' => 'documento', 'name' => 'Termos', 'path' => '/termos', 'papeis' => ['vendedor']],
 
             // "Clientes" e nao "Empresas": e assim que a operacao fala de quem
@@ -32,7 +32,10 @@ class MenuHelper
             ['icon' => 'user-profile', 'name' => 'Clientes', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
-            ['icon' => 'calculadora', 'name' => 'Simulação', 'path' => '/simulacao', 'papeis' => ['admin']],
+            // "Simulador" nos tres papeis: e a mesma ferramenta, e o portal do
+            // cliente ja chamava assim. Nome diferente para a mesma coisa
+            // conforme quem abre a tela e o que a PDD manda evitar.
+            ['icon' => 'calculadora', 'name' => 'Simulador', 'path' => '/simulacao', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],

@@ -1257,6 +1257,7 @@ nome na tela muda conforme quem lê.
 | Consulta que deu certo | `sucesso` | Concluída | Concluída | Concluída |
 | Consulta que falhou | `falha` | Não concluída | Não concluída | Não concluída, sem cobrança |
 | Consumo acima da franquia | `excedente` | Excedente | Excedente | Consumo além do incluído |
+| Ferramenta de simulação | `simulacao` | Simulador | Simulador | Simulador |
 
 ### Decisões de nomenclatura
 
@@ -1289,6 +1290,11 @@ nome na tela muda conforme quem lê.
   não o produto. Nome que se venda, com a faixa como atributo ao lado.
 - **A aba de preços do módulo Catálogo chama-se Preços**, e não Catálogo, para não
   repetir o nome do módulo dentro dele.
+- **Simulador é o nome nos três papéis.** A ferramenta é a mesma e as perguntas
+  mudam (quanto rende, quanto sobra de comissão, quanto vou pagar), mas o nome
+  não: "Simulação" para um e "Simulador" para outro obriga quem atende a
+  traduzir enquanto explica. A calculadora de contrato é uma aba dentro dele,
+  e não um módulo à parte.
 - **Jargão financeiro fica na administração.** "Liquidado" não vai para o portal
   do cliente nem para a carteira.
 

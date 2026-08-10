@@ -10,5 +10,5 @@
         'carteira/consultas' => ['rotulo' => 'Consultas', 'url' => route('carteira.consultas')],
         'carteira/consultar' => ['rotulo' => 'Consultar', 'url' => route('carteira.consultar')],
         'carteira/servicos' => ['rotulo' => 'Serviços', 'url' => route('carteira.servicos')],
-        'carteira/simulacao' => ['rotulo' => 'Simulação', 'url' => route('carteira.simulacao')],
+        'carteira/simulacao' => ['rotulo' => 'Simulador', 'url' => route('carteira.simulacao')],
     ]" />
