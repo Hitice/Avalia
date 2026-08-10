@@ -90,7 +90,9 @@ it('leva marca, ressalvas e blocos para o PDF', function () {
     $pdf = App\Support\ConsultaPdf::resultado($consulta->fresh(), 'Fulana Operadora');
 
     expect($pdf)->toStartWith('%PDF')
-        ->and($pdf)->toContain('Avalia')
+        // A marca entra como imagem embutida, e nao como palavra.
+        ->and($pdf)->toContain('/DCTDecode')
+        ->and($pdf)->toContain('avaliaone.com.br')
         ->and($pdf)->toContain('Aten')            // "Atenção", escapado em CP1252
         ->and($pdf)->toContain('Score e risco')
         ->and($pdf)->toContain('Fulana Operadora');

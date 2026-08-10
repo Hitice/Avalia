@@ -39,11 +39,9 @@ final class ConsultaPdf
             ->rodape('Emitido por '.$emissor.' em '.now()->format('d/m/Y H:i')
                 .' · protocolo '.($consulta->referencia_externa ?? 's/n').' · avaliaone.com.br');
 
-        // A marca em texto, e nao imagem: o gerador escreve texto, e uma
-        // assinatura em palavra sobrevive a qualquer impressora.
-        $pdf->titulo('Avalia')
+        $pdf->marca(resource_path('marca/avaliaone.jpg'))
             ->meta('Consulta de crédito · avaliaone.com.br')
-            ->espaco(10);
+            ->espaco(6);
 
         $pdf->secao($consulta->servico?->nome ?? 'Consulta')
             ->linha('Documento consultado', $documento ?: 'Não informado')

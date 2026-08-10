@@ -40,6 +40,7 @@ final class FaturaPdf
 
         $pdf = (new Pdf)
             ->rodape('Avalia · avaliaone.com.br · documento gerado em '.now()->format('d/m/Y H:i'))
+            ->marca(resource_path('marca/avaliaone.jpg'))
             ->titulo('Demonstrativo da fatura')
             // O CNPJ so entra quando existe: rotulo sem numero na frente e o
             // tipo de detalhe que faz o financeiro do cliente desconfiar do

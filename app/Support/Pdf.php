@@ -50,6 +50,13 @@ final class Pdf
 
     private string $rodape = '';
 
+    /**
+     * A marca desenhada no topo, se houver.
+     *
+     * @var array{dados: string, largura: int, altura: int}|null
+     */
+    private ?array $marca = null;
+
     public function __construct()
     {
         $this->y = self::ALTURA - self::MARGEM;
@@ -61,6 +68,42 @@ final class Pdf
         $this->rodape = $texto;
 
         return $this;
+    }
+
+    /**
+     * A marca no topo da pagina, a partir de um JPEG.
+     *
+     * JPEG, e nao PNG, porque o PDF embute JPEG como esta (DCTDecode): sao
+     * poucas linhas de dicionario e o arquivo entra intacto. PNG exigiria
+     * refazer a compressao com preditor, que e trabalho de biblioteca e nao
+     * cabe num gerador que existe justamente para nao ter dependencia.
+     *
+     * A largura e em pontos; a altura sai da proporcao real do arquivo, para a
+     * marca nunca sair esticada.
+     */
+    public function marca(string $caminho, float $largura = 118.0): static
+    {
+        $dados = @file_get_contents($caminho);
+        $tamanho = $dados === false ? false : @getimagesizefromstring($dados);
+
+        // Sem a imagem o documento continua valido, e o texto seguinte ja
+        // identifica a Avalia. Documento que deixa de sair por causa de um
+        // arquivo de logo seria pior do que um documento sem logo.
+        if ($dados === false || $tamanho === false || ($tamanho[2] ?? null) !== IMAGETYPE_JPEG) {
+            return $this;
+        }
+
+        $altura = $largura * $tamanho[1] / $tamanho[0];
+        $this->marca = ['dados' => $dados, 'largura' => (int) $tamanho[0], 'altura' => (int) $tamanho[1]];
+
+        $this->y -= $altura;
+        $this->atual .= sprintf(
+            'q %.2F 0 0 %.2F %.2F %.2F cm /Marca Do Q
+',
+            $largura, $altura, self::MARGEM, $this->y,
+        );
+
+        return $this->espaco(16);
     }
 
     public function titulo(string $texto): static
@@ -178,6 +221,11 @@ final class Pdf
         $objetos[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
         $objetos[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
 
+        // A imagem entra DEPOIS das paginas para nao mexer na numeracao delas,
+        // que e calculada por posicao.
+        $marca = $this->marca ? 5 + $n * 2 : null;
+        $recursoDaMarca = $marca ? ' /XObject << /Marca '.$marca.' 0 R >>' : '';
+
         foreach ($this->paginas as $i => $conteudo) {
             $rodape = $this->operadoresDoRodape($i + 1, $n);
             $stream = $conteudo.$rodape;
@@ -185,9 +233,18 @@ final class Pdf
 
             $objetos[$pagina] = '<< /Type /Page /Parent 2 0 R'
                 .' /MediaBox [0 0 '.self::LARGURA.' '.self::ALTURA.']'
-                .' /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >>'
+                .' /Resources << /Font << /F1 3 0 R /F2 4 0 R >>'.$recursoDaMarca.' >>'
                 .' /Contents '.($pagina + 1).' 0 R >>';
             $objetos[$pagina + 1] = '<< /Length '.strlen($stream)." >>\nstream\n".$stream.'endstream';
+        }
+
+        if ($marca) {
+            $objetos[$marca] = '<< /Type /XObject /Subtype /Image'
+                .' /Width '.$this->marca['largura'].' /Height '.$this->marca['altura']
+                .' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode'
+                .' /Length '.strlen($this->marca['dados']).' >>
+stream
+'.$this->marca['dados'].'endstream';
         }
 
         $corpo = "%PDF-1.4\n";
