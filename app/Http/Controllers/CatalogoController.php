@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Catalogo\LevarPrecosAoPiso;
+use App\Actions\Catalogo\AjustarPrecosAoAlvo;
 use App\Enums\Categoria;
 use App\Http\Requests\ParametrosCatalogoRequest;
 use App\Models\Catalogo;
@@ -39,7 +39,8 @@ class CatalogoController extends Controller
                 'linhas' => collect(),
                 'categoria' => null,
                 'visao' => 'venda',
-                'abaixoDoPiso' => 0,
+                'abaixoDoAlvo' => 0,
+                'alvosBps' => [],
             ]);
         }
 
@@ -64,20 +65,25 @@ class CatalogoController extends Controller
             'linhas' => $this->linhas($precos, $categoria),
             'categoria' => $categoria?->value,
             'visao' => $visao,
-            // Prejuizo na tabela nao se descobre lendo coluna por coluna: o
-            // numero vem somado, com o caminho para consertar ao lado.
-            'abaixoDoPiso' => LevarPrecosAoPiso::abaixoDoPiso($catalogo)->count(),
+            // Margem furada nao se descobre lendo coluna por coluna: o numero
+            // vem somado, com o caminho para corrigir ao lado.
+            'abaixoDoAlvo' => AjustarPrecosAoAlvo::abaixoDoAlvo($catalogo)->count(),
+            // A escada de margem fica visivel no cabecalho da visao margem:
+            // sem ela, o operador compara cada numero com um alvo que so
+            // existe na cabeca de quem definiu.
+            'alvosBps' => $catalogo->margemAlvoPorFaixa(Catalogo::faixasDe($precos)),
         ]);
     }
 
     /**
-     * Sobe ao piso todo preco que hoje vende no prejuizo.
+     * Sobe ao alvo todo preco que rende menos que a margem da propria faixa.
      *
-     * A guarda da tela de edicao so pega quem edita servico a servico. Preco
-     * vindo da carga inicial nunca passou por ela, e mudar imposto, comissao
-     * ou custo move o piso do catalogo inteiro sem reavaliar linha nenhuma.
+     * A guarda da tela de edicao so recusa preco no prejuizo, e so para quem
+     * edita servico a servico. Preco vindo da carga inicial nunca passou por
+     * ela, e mudar imposto, comissao, custo ou a propria politica de margem
+     * desloca o alvo do catalogo inteiro sem reavaliar linha nenhuma.
      */
-    public function levarAoPiso(LevarPrecosAoPiso $levar)
+    public function ajustarAoAlvo(AjustarPrecosAoAlvo $ajustar)
     {
         $catalogo = Catalogo::vigente();
 
@@ -85,11 +91,11 @@ class CatalogoController extends Controller
             return back()->with('erro', 'Não há tabela de preços vigente.');
         }
 
-        $corrigidos = $levar($catalogo);
+        $ajustados = $ajustar($catalogo);
 
-        return back()->with($corrigidos > 0 ? 'ok' : 'erro', $corrigidos > 0
-            ? $corrigidos.' '.($corrigidos === 1 ? 'preço subiu' : 'preços subiram').' para o piso. O reajuste vale para o consumo daqui em diante.'
-            : 'Nenhum preço está abaixo do piso.');
+        return back()->with($ajustados > 0 ? 'ok' : 'erro', $ajustados > 0
+            ? $ajustados.' '.($ajustados === 1 ? 'preço subiu' : 'preços subiram').' para a margem alvo da faixa. O reajuste vale para o consumo daqui em diante.'
+            : 'Nenhum preço está abaixo da margem alvo.');
     }
 
     /** Pagina propria: parametro mexe no catalogo inteiro e nao na linha. */
@@ -101,6 +107,9 @@ class CatalogoController extends Controller
 
         return view('paginas.catalogo.parametros', [
             'catalogo' => $catalogo,
+            // A escada em numeros, na hora de decidir: dois campos abstratos
+            // viram alvos concretos por faixa.
+            'alvos' => $catalogo->margemAlvoPorFaixa(Catalogo::faixasDe($catalogo->precos()->get())),
         ]);
     }
 
@@ -108,11 +117,18 @@ class CatalogoController extends Controller
     {
         $catalogo->update([
             'imposto_bps' => $request->bps('imposto'),
+            'margem_alvo_bps' => $request->bps('margem_alvo'),
+            'degrau_margem_bps' => $request->bps('degrau_margem'),
         ]);
 
         $catalogo->refresh();
 
-        return back()->with('ok', "Imposto {$catalogo->impostoRotulo()} atualizado.");
+        // Salvar parametro nao mexe em preco nenhum, e a mensagem diz isso: o
+        // reajuste e outro botao, na tabela, e e decisao a parte.
+        return back()->with('ok', sprintf(
+            'Imposto %s, margem alvo %s e degrau de %s por faixa. Nenhum preço foi alterado.',
+            $catalogo->impostoRotulo(), $catalogo->margemAlvoRotulo(), $catalogo->degrauRotulo(),
+        ));
     }
 
     /**

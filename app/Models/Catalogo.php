@@ -99,6 +99,42 @@ class Catalogo extends Model
      *
      * @return list<int>
      */
+    /**
+     * Margem alvo de cada faixa, em pontos-base.
+     *
+     * Uma escada, e nao um numero unico: a faixa sem minimo entrega a margem
+     * cheia, e cada faixa seguinte cede um degrau, porque quem se compromete
+     * com mais consumo paga menos por consulta. E o mesmo raciocinio do
+     * desconto, dito pelo lado da margem, que e o lado que a operacao precisa
+     * defender.
+     *
+     * Nunca desce abaixo de zero: alvo negativo seria a casa planejando
+     * prejuizo, e a faixa mais funda simplesmente para no zero.
+     *
+     * @param  list<int>  $faixas  em ordem crescente
+     * @return array<int, int> faixa em centavos => margem alvo em bps
+     */
+    public function margemAlvoPorFaixa(array $faixas): array
+    {
+        $alvos = [];
+
+        foreach (array_values($faixas) as $degrau => $faixa) {
+            $alvos[$faixa] = max(0, $this->margem_alvo_bps - $degrau * $this->degrau_margem_bps);
+        }
+
+        return $alvos;
+    }
+
+    public function margemAlvoRotulo(): string
+    {
+        return self::pontosRotulo($this->margem_alvo_bps);
+    }
+
+    public function degrauRotulo(): string
+    {
+        return self::pontosRotulo($this->degrau_margem_bps);
+    }
+
     public static function faixasDe(ColecaoEloquent $precos): array
     {
         return $precos

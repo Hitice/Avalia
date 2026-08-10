@@ -163,18 +163,20 @@ it('ajusta os parametros na pagina propria', function () {
     $catalogo = Catalogo::factory()->create();
 
     admin()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '26.8',
+        'imposto' => '26.8', 'margem_alvo' => '35', 'degrau_margem' => '2.5',
     ])->assertSessionHas('ok');
 
     expect($catalogo->fresh()->imposto_bps)->toBe(2_680)
-        ->and($catalogo->fresh()->impostoRotulo())->toBe('26,8%');
+        ->and($catalogo->fresh()->impostoRotulo())->toBe('26,8%')
+        ->and($catalogo->fresh()->margem_alvo_bps)->toBe(3_500)
+        ->and($catalogo->fresh()->degrau_margem_bps)->toBe(250);
 });
 
 it('recusa aliquota de 100% ou mais', function () {
     $catalogo = Catalogo::factory()->create();
 
     admin()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '100',
+        'imposto' => '100', 'margem_alvo' => '30', 'degrau_margem' => '3',
     ])->assertSessionHasErrors('imposto');
 
     expect($catalogo->fresh()->imposto_bps)->toBe(1_350);
@@ -244,6 +246,6 @@ it('nao deixa vendedor ver custo nem mexer em parametro', function () {
     $vendedor()->get(route('catalogo.tabela', ['visao' => 'margem']))->assertForbidden();
     $vendedor()->get(route('catalogo.parametros'))->assertForbidden();
     $vendedor()->put(route('catalogo.parametros.salvar', $catalogo), [
-        'imposto' => '10',
+        'imposto' => '10', 'margem_alvo' => '30', 'degrau_margem' => '3',
     ])->assertForbidden();
 });

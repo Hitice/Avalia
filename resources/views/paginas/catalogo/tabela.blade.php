@@ -53,21 +53,22 @@
             Não há tabela de preços cadastrada. Faça a importação inicial antes de continuar.
         </div>
     @else
-        {{-- Margem negativa na tabela quase nunca foi digitada: ou o preço veio
-             da carga inicial sem passar pela guarda, ou o custo do fornecedor
-             subiu e levou o piso junto. Somar aqui evita caçar número vermelho
-             coluna por coluna. --}}
-        @if ($abaixoDoPiso > 0)
+        {{-- Margem furada quase nunca foi digitada: ou o preço veio da carga
+             inicial sem passar pela guarda, ou o custo do fornecedor subiu, ou
+             a política de margem mudou e deslocou o alvo de todo mundo. Somar
+             aqui evita caçar número coluna por coluna. --}}
+        @if ($abaixoDoAlvo > 0)
             <div class="aviso aviso-alerta mb-6 flex flex-wrap items-center justify-between gap-3">
                 <span>
-                    {{ $abaixoDoPiso }} {{ $abaixoDoPiso === 1 ? 'preço vende' : 'preços vendem' }}
-                    abaixo do custo com imposto e comissão. Cada consulta nessas faixas dá prejuízo.
+                    {{ $abaixoDoAlvo }} {{ $abaixoDoAlvo === 1 ? 'preço rende' : 'preços rendem' }}
+                    menos que a margem alvo da própria faixa
+                    ({{ $catalogo->margemAlvoRotulo() }} na primeira, menos {{ $catalogo->degrauRotulo() }} a cada faixa).
                 </span>
 
-                <form method="POST" action="{{ route('catalogo.precos.piso') }}"
-                      onsubmit="return confirm('Subir {{ $abaixoDoPiso }} {{ $abaixoDoPiso === 1 ? 'preço' : 'preços' }} para o piso? O reajuste vale para o consumo daqui em diante.')">
+                <form method="POST" action="{{ route('catalogo.precos.alvo') }}"
+                      onsubmit="return confirm('Subir {{ $abaixoDoAlvo }} {{ $abaixoDoAlvo === 1 ? 'preço' : 'preços' }} para a margem alvo? O reajuste vale para o consumo daqui em diante.')">
                     @csrf
-                    <x-avalia.botao variante="secundario" tamanho="sm">Levar ao piso</x-avalia.botao>
+                    <x-avalia.botao variante="secundario" tamanho="sm">Ajustar à margem alvo</x-avalia.botao>
                 </form>
             </div>
         @endif
@@ -81,7 +82,8 @@
             @if ($visao === 'margem')
                 <a href="{{ route('catalogo.parametros') }}"
                    class="hover:text-brand-500 dark:hover:text-brand-400 text-xs text-gray-500 dark:text-gray-400">
-                    Imposto {{ $catalogo->impostoRotulo() }} · ajustar
+                    Imposto {{ $catalogo->impostoRotulo() }} · alvo {{ $catalogo->margemAlvoRotulo() }}
+                    menos {{ $catalogo->degrauRotulo() }} por faixa · ajustar
                 </a>
             @endif
         </div>

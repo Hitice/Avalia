@@ -297,9 +297,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::get('/parametros', [CatalogoController::class, 'parametros'])->name('parametros');
         Route::put('/parametros/{catalogo}', [CatalogoController::class, 'salvarParametros'])->name('parametros.salvar');
 
-        // Correcao dos precos que vendem no prejuizo. Nunca automatica: subir
-        // preco de tabela e decisao comercial, e a trilha guarda quem decidiu.
-        Route::post('/precos/piso', [CatalogoController::class, 'levarAoPiso'])->name('precos.piso');
+        // Reajuste dos precos que rendem menos que a margem alvo da faixa.
+        // Nunca automatico: subir preco de tabela e decisao comercial, e a
+        // trilha guarda quem decidiu.
+        Route::post('/precos/alvo', [CatalogoController::class, 'ajustarAoAlvo'])->name('precos.alvo');
 
         // Modulo inteiro numa planilha de tres abas, e de volta.
         Route::get('/planilha', [PlanilhaController::class, 'exportar'])->name('planilha.exportar');

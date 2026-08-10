@@ -192,9 +192,39 @@ O piso não é cadastrado, é calculado, e **preço abaixo dele é recusado na
 gravação**. Relatar prejuízo depois do fato não impede ninguém de vender no
 negativo.
 
-Preço e custo são editados manualmente por serviço e faixa. A tela usa a visão
-de margem apenas para informar o resultado; ela não recalcula nem altera preços
-em lote.
+### A margem alvo é uma escada, não um número
+
+A margem alvo é o que a casa quer que sobre depois do fornecedor, do imposto e
+da comissão. Ela não é a mesma em toda faixa: vale inteira na faixa sem mínimo
+e cede um degrau a cada faixa seguinte, porque quem se compromete com mais
+consumo paga menos por consulta. Os dois números vivem no catálogo, com rastro,
+e a página de parâmetros mostra a escada resolvida em porcentagem por faixa
+antes de alguém salvar.
+
+Dizer a política pelo lado da margem, e não pelo do desconto, corrige um defeito
+real que existia na tabela. O desconto por faixa era um percentual igual para
+todos os serviços, mas o custo do fornecedor é fixo: serviço caro absorve o
+desconto inteiro e serviço barato afunda. Foi assim que "Endereços por
+CPF/CNPJ", com custo de R$ 0,85 e piso de R$ 0,93, chegou a ser vendido a
+R$ 0,53 na faixa de R$ 5.000, com margem de menos 69,8%.
+
+A guarda que recusa preço abaixo do piso continua valendo, mas ela só age sobre
+quem edita serviço a serviço. Preço vindo da carga inicial nunca passou por ela,
+e mudar imposto, comissão, custo do fornecedor ou a própria política desloca o
+alvo do catálogo inteiro sem reavaliar linha nenhuma. Por isso a tabela soma
+quantos preços estão abaixo do alvo e oferece o reajuste.
+
+O reajuste **só sobe**. O alvo é o mínimo que a casa aceita, e não a média que
+ela persegue: serviço que rende 59% está pagando pelos que rendem 20%, e
+derrubar todo mundo para o alvo seria abrir mão de dinheiro que já está na mesa.
+E ele **nunca roda sozinho**, porque reajuste é decisão comercial e ninguém pode
+descobrir um depois que o cliente reclamou. Cada preço alterado entra na trilha
+com o valor de origem, o de destino e o alvo que motivou.
+
+Salvar parâmetro não altera preço nenhum. São duas decisões, e a tela diz isso.
+
+Preço e custo continuam editáveis manualmente por serviço e faixa. Fora o
+reajuste ao alvo, que é explícito e auditado, a tela de margem apenas informa.
 
 Custo em branco significa **custo ainda não cadastrado**, e é diferente de custo
 zero: sem o dado, a plataforma não exibe margem nem piso em vez de exibir um
