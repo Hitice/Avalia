@@ -8,6 +8,7 @@ use App\Mail\FaturaEmitida;
 use App\Models\Fatura;
 use App\Models\Staff;
 use App\Support\Auditar;
+use App\Support\Caixa;
 use App\Support\FiltroFaturas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -266,12 +267,10 @@ class FinanceiroController extends Controller
 
     private function totais(): array
     {
-        $soma = fn (array $situacoes) => (int) Fatura::whereIn('situacao_pagamento', $situacoes)->sum('total_cents');
-
-        return [
-            'a_receber' => $soma([Fatura::PAGAMENTO_PENDENTE, Fatura::PAGAMENTO_VENCIDO]),
-            'vencido' => $soma([Fatura::PAGAMENTO_VENCIDO]),
-            'liquidado' => $soma([Fatura::PAGAMENTO_LIQUIDADO]),
+        // Mesma fonte da visao geral. Ver App\Support\Caixa para o motivo.
+        return Caixa::totais() + [
+            'recebido_no_mes' => Caixa::recebidoNoMesCents(),
+            'a_repassar' => Caixa::aRepassarCents(),
         ];
     }
 

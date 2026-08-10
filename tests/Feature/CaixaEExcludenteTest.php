@@ -86,3 +86,37 @@ it('repete a excludente na tela de faturas do cliente', function () {
         ->assertSee('de exclusiva responsabilidade', false)
         ->assertSee('Consulta não concluída não é cobrada', false);
 });
+
+it('mostra o mesmo caixa na visao geral e no financeiro', function () {
+    // A divergencia entre duas telas de dinheiro ja aconteceu neste projeto,
+    // com a comissao. Nao se descobre pela tela, descobre-se pelo repasse
+    // errado, e por isso as duas leem do mesmo App\Support\Caixa.
+    $fatura = faturaPaga();
+
+    $painel = admin()->get(route('painel'))->assertOk();
+    $financeiro = admin()->get(route('financeiro.index'))->assertOk();
+
+    expect($painel->viewData('recebidoCents'))
+        ->toBe($financeiro->viewData('totais')['recebido_no_mes'])
+        ->and($painel->viewData('aRepassarCents'))
+        ->toBe($financeiro->viewData('totais')['a_repassar']);
+
+    $financeiro->assertSee('Recebido no mês', false)
+        ->assertSee('Comissão a repassar', false)
+        ->assertSee('Total liquidado desde o início', false);
+
+    expect($financeiro->viewData('totais')['recebido_no_mes'])->toBe($fatura->total_cents);
+});
+
+it('nao mostra comissao a repassar negativa', function () {
+    // Vendedor que demonstrou mais do que vendeu nao deve dinheiro a casa.
+    [$vendedor, $empresa, $servico] = carteira();
+
+    foreach (['11111111111', '22222222222', '33333333333'] as $documento) {
+        comoVendedor($vendedor)->post(route('carteira.consultar.executar'), [
+            'servico_id' => $servico->id, 'documento' => $documento,
+        ]);
+    }
+
+    expect(App\Support\Caixa::aRepassarCents())->toBe(0);
+});

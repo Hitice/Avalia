@@ -37,26 +37,43 @@
 
     @include('paginas.catalogo.avisos')
 
-    <div class="mb-6 grid gap-4 sm:grid-cols-3">
+    {{-- Os cartões separam três perguntas que a tela misturava numa só:
+         quanto entrou, quanto vai entrar e quanto sai. Os números vêm de
+         App\Support\Caixa, a mesma fonte da visão geral. --}}
+    <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="cartao p-5">
+            <span class="rotulo-grupo block">Recebido no mês</span>
+            <span class="mt-1 block text-xl font-semibold tabular-nums text-success-600 dark:text-success-500">
+                {{ Dinheiro::brl($totais['recebido_no_mes']) }}
+            </span>
+            <span class="ajuda-campo">Pela data da baixa, não pela competência.</span>
+        </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">A receber</span>
-            <span class="mt-1 block text-xl font-semibold text-gray-800 dark:text-white/90">
+            <span class="mt-1 block text-xl font-semibold tabular-nums text-gray-800 dark:text-white/90">
                 {{ Dinheiro::brl($totais['a_receber']) }}
             </span>
+            <span class="ajuda-campo">Em aberto e vencido somados.</span>
         </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">Vencido</span>
-            <span class="mt-1 block text-xl font-semibold {{ $totais['vencido'] > 0 ? 'text-error-600 dark:text-error-400' : 'text-gray-800 dark:text-white/90' }}">
+            <span class="mt-1 block text-xl font-semibold tabular-nums {{ $totais['vencido'] > 0 ? 'text-error-600 dark:text-error-400' : 'text-gray-800 dark:text-white/90' }}">
                 {{ Dinheiro::brl($totais['vencido']) }}
             </span>
+            <span class="ajuda-campo">Já dentro do valor a receber.</span>
         </div>
         <div class="cartao p-5">
-            <span class="rotulo-grupo block">Liquidado</span>
-            <span class="mt-1 block text-xl font-semibold text-success-600 dark:text-success-500">
-                {{ Dinheiro::brl($totais['liquidado']) }}
+            <span class="rotulo-grupo block">Comissão a repassar</span>
+            <span class="mt-1 block text-xl font-semibold tabular-nums text-gray-800 dark:text-white/90">
+                {{ Dinheiro::brl($totais['a_repassar']) }}
             </span>
+            <span class="ajuda-campo">Já liberada, líquida das demonstrações.</span>
         </div>
     </div>
+
+    <p class="ajuda-campo mb-6">
+        Total liquidado desde o início: {{ Dinheiro::brl($totais['liquidado']) }}.
+    </p>
 
     <div class="mb-6">
         <x-avalia.segmentado rotulo="Faturas" :atual="$situacao ?? ''" :itens="$filtros" />
