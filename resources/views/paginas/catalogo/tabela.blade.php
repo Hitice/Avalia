@@ -53,6 +53,25 @@
             Não há tabela de preços cadastrada. Faça a importação inicial antes de continuar.
         </div>
     @else
+        {{-- Margem negativa na tabela quase nunca foi digitada: ou o preço veio
+             da carga inicial sem passar pela guarda, ou o custo do fornecedor
+             subiu e levou o piso junto. Somar aqui evita caçar número vermelho
+             coluna por coluna. --}}
+        @if ($abaixoDoPiso > 0)
+            <div class="aviso aviso-alerta mb-6 flex flex-wrap items-center justify-between gap-3">
+                <span>
+                    {{ $abaixoDoPiso }} {{ $abaixoDoPiso === 1 ? 'preço vende' : 'preços vendem' }}
+                    abaixo do custo com imposto e comissão. Cada consulta nessas faixas dá prejuízo.
+                </span>
+
+                <form method="POST" action="{{ route('catalogo.precos.piso') }}"
+                      onsubmit="return confirm('Subir {{ $abaixoDoPiso }} {{ $abaixoDoPiso === 1 ? 'preço' : 'preços' }} para o piso? O reajuste vale para o consumo daqui em diante.')">
+                    @csrf
+                    <x-avalia.botao variante="secundario" tamanho="sm">Levar ao piso</x-avalia.botao>
+                </form>
+            </div>
+        @endif
+
         <div class="mb-6 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <div class="flex flex-wrap items-end gap-x-8 gap-y-4">
                 <x-avalia.segmentado data-abas="visoes" rotulo="TABELAS" :atual="$visao" :itens="$itensVisao" />

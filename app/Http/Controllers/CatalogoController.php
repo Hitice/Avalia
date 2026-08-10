@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Catalogo\LevarPrecosAoPiso;
 use App\Enums\Categoria;
 use App\Http\Requests\ParametrosCatalogoRequest;
 use App\Models\Catalogo;
@@ -38,6 +39,7 @@ class CatalogoController extends Controller
                 'linhas' => collect(),
                 'categoria' => null,
                 'visao' => 'venda',
+                'abaixoDoPiso' => 0,
             ]);
         }
 
@@ -62,7 +64,32 @@ class CatalogoController extends Controller
             'linhas' => $this->linhas($precos, $categoria),
             'categoria' => $categoria?->value,
             'visao' => $visao,
+            // Prejuizo na tabela nao se descobre lendo coluna por coluna: o
+            // numero vem somado, com o caminho para consertar ao lado.
+            'abaixoDoPiso' => LevarPrecosAoPiso::abaixoDoPiso($catalogo)->count(),
         ]);
+    }
+
+    /**
+     * Sobe ao piso todo preco que hoje vende no prejuizo.
+     *
+     * A guarda da tela de edicao so pega quem edita servico a servico. Preco
+     * vindo da carga inicial nunca passou por ela, e mudar imposto, comissao
+     * ou custo move o piso do catalogo inteiro sem reavaliar linha nenhuma.
+     */
+    public function levarAoPiso(LevarPrecosAoPiso $levar)
+    {
+        $catalogo = Catalogo::vigente();
+
+        if (! $catalogo) {
+            return back()->with('erro', 'Não há tabela de preços vigente.');
+        }
+
+        $corrigidos = $levar($catalogo);
+
+        return back()->with($corrigidos > 0 ? 'ok' : 'erro', $corrigidos > 0
+            ? $corrigidos.' '.($corrigidos === 1 ? 'preço subiu' : 'preços subiram').' para o piso. O reajuste vale para o consumo daqui em diante.'
+            : 'Nenhum preço está abaixo do piso.');
     }
 
     /** Pagina propria: parametro mexe no catalogo inteiro e nao na linha. */
