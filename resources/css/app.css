@@ -296,6 +296,26 @@
   @apply block transition hover:border-brand-300 hover:shadow-sm dark:hover:border-brand-500/40;
 }
 
+/* Caixa de selecao de linha. O `accent-color` faz o navegador desenhar a marca
+   na cor da marca, sem precisar recriar o controle inteiro a mao. */
+@utility caixa {
+  @apply size-4 cursor-pointer rounded border-gray-300 accent-brand-500 dark:border-gray-600;
+}
+
+/* Botao de acao dentro da linha da tabela.
+
+   Alvo de 32px, que e o minimo confortavel para clicar em sequencia, e cor
+   discreta ate o hover: uma fileira de icones coloridos compete com o dado da
+   propria linha, que e o que a pessoa veio ler. */
+@utility acao-linha {
+  @apply inline-flex size-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-brand-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-brand-400;
+}
+
+/* A acao que fecha dinheiro se destaca das outras: e a que o operador procura. */
+@utility acao-linha-ok {
+  @apply text-success-600 hover:text-success-700 dark:text-success-500 dark:hover:text-success-400;
+}
+
 @utility tabela {
   @apply w-full text-sm;
 }

@@ -65,11 +65,50 @@
     <x-avalia.filtro-faturas :acao="route('financeiro.index')" :vendedores="$vendedores"
                              :competencias="$competencias" :escolha="$escolha" />
 
-    <div class="cartao overflow-hidden">
+    {{-- A tabela inteira dentro de um formulario, para a selecao das linhas
+         virar acao em lote. No fechamento a operacao repete a mesma coisa
+         dezenas de vezes, e uma a uma cansa e erra.
+
+         A baixa de pagamento NAO entra no lote de propósito: ela exige
+         justificativa por fatura e libera comissão na hora, e uma baixa em lote
+         seria a porta mais larga do sistema para dinheiro dado como recebido
+         sem ter entrado. --}}
+    <form method="POST" action="{{ route('financeiro.lote') }}" x-data="{ marcadas: [] }">
+        @csrf
+
+        <div class="cartao overflow-hidden">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-3 dark:border-gray-800"
+                 x-show="marcadas.length > 0" x-cloak>
+                <span class="text-sm text-gray-600 dark:text-gray-300">
+                    <span x-text="marcadas.length"></span>
+                    <span x-text="marcadas.length === 1 ? 'fatura selecionada' : 'faturas selecionadas'"></span>
+                </span>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <x-avalia.botao variante="secundario" tamanho="sm" type="submit" name="acao" value="exportar">
+                        Exportar selecionadas
+                    </x-avalia.botao>
+
+                    <x-avalia.botao variante="secundario" tamanho="sm" type="submit" name="acao" value="reenviar"
+                                    x-on:click="if (! confirm('Reenviar a cobrança por e-mail para ' + marcadas.length + ' cliente(s)?')) $event.preventDefault()">
+                        Reenviar cobrança
+                    </x-avalia.botao>
+                </div>
+            </div>
+
         <div class="overflow-x-auto">
-            <table class="tabela min-w-[60rem]">
+            <table class="tabela min-w-[64rem]">
                 <thead class="tabela-cabecalho">
                     <tr>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">
+                            {{-- Marcar tudo age sobre o RECORTE que está na tela, e não
+                                 sobre a base: é o mesmo princípio da exportação. --}}
+                            <input type="checkbox" class="caixa" title="Selecionar todas desta tela"
+                                   x-on:change="marcadas = $event.target.checked
+                                       ? [...$root.querySelectorAll('[name=\'faturas[]\']')].map(c => (c.checked = true) && c.value)
+                                       : ([...$root.querySelectorAll('[name=\'faturas[]\']')].forEach(c => c.checked = false), [])">
+                            <span class="sr-only">Selecionar todas</span>
+                        </th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Empresa</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Competência</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Pagamento</th>
@@ -83,6 +122,11 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($faturas as $fatura)
                         <tr>
+                            <td class="px-5 py-4 text-left">
+                                <input type="checkbox" name="faturas[]" class="caixa"
+                                       value="{{ $fatura->id }}" x-model="marcadas">
+                                <span class="sr-only">Selecionar a fatura de {{ $fatura->cliente->razao_social }}</span>
+                            </td>
                             <td class="px-5 py-4 text-left">
                                 <a href="{{ route('empresas.ficha', $fatura->cliente) }}"
                                    class="hover:text-brand-500 dark:hover:text-brand-400 font-medium text-gray-800 dark:text-white/90">
@@ -118,90 +162,117 @@
                                 {{ $fatura->vencimento()->format('d/m/Y') }}
                             </td>
                             <td class="px-5 py-4 text-right">
-                                {{-- O mesmo demonstrativo que o cliente baixa. Quando ele
-                                     liga com uma dúvida, os dois olham o mesmo papel. --}}
-                                <a class="mr-2 text-sm text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400"
-                                   href="{{ route('financeiro.pdf', $fatura) }}" title="Baixar o demonstrativo da fatura">PDF</a>
+                                {{-- Uma barra de acoes por linha, no lugar de botoes com rotulo
+                                     comprido. A operacao repete a mesma acao dezenas de vezes
+                                     seguidas no fechamento, e nesse ritmo o que importa e o
+                                     icone estar sempre na mesma posicao. Cada um carrega
+                                     `title`, para quem passa o mouse ler o que ele faz. --}}
+                                <div class="flex items-center justify-end gap-1">
+                                    <a class="acao-linha" href="{{ route('financeiro.pdf', $fatura) }}"
+                                       title="Baixar o demonstrativo da fatura">
+                                        <x-avalia.icone nome="documento" />
+                                        <span class="sr-only">Demonstrativo em PDF</span>
+                                    </a>
 
-                                @if ($fatura->estaLiquidada())
-                                    {{-- Pagamento desfeito acontece: chargeback, Pix devolvido,
-                                         boleto baixado por engano. Sem este caminho a correcao
-                                         so existiria no banco. --}}
-                                    <div x-data="{ aberto: false }" class="inline-block text-left">
-                                        <span class="text-xs text-gray-500 dark:text-gray-400" x-show="! aberto">
-                                            {{ $fatura->liquidada_em?->format('d/m/Y') }}
-                                            <button type="button" x-on:click="aberto = true"
-                                                    class="hover:text-error-600 dark:hover:text-error-400 ml-2 underline">
-                                                desfazer
+                                    @if ($fatura->cobrancaAsaas?->bank_slip_url)
+                                        <a class="acao-linha" target="_blank" rel="noopener noreferrer"
+                                           href="{{ $fatura->cobrancaAsaas->bank_slip_url }}" title="Abrir o boleto">
+                                            <x-avalia.icone nome="boleto" />
+                                            <span class="sr-only">Abrir o boleto</span>
+                                        </a>
+                                    @endif
+
+                                    @unless ($fatura->estaLiquidada())
+                                        {{-- Fatura sem cobranca no provedor: o fechamento tentou
+                                             e nao conseguiu, e sem este botao o boleto so
+                                             nasceria mexendo no banco de dados. --}}
+                                        @unless ($fatura->cobrancaAsaas?->asaas_charge_id)
+                                            <form method="POST" action="{{ route('financeiro.cobranca', $fatura) }}" class="inline">
+                                                @csrf
+                                                <button type="submit" class="acao-linha" title="Emitir a cobrança no provedor">
+                                                    <x-avalia.icone nome="raio" />
+                                                    <span class="sr-only">Emitir cobrança</span>
+                                                </button>
+                                            </form>
+                                        @endunless
+
+                                        {{-- Reenviar o aviso: o e-mail original se perde na caixa
+                                             de entrada, e ligar para pedir que procurem custa
+                                             mais do que mandar de novo. --}}
+                                        <form method="POST" action="{{ route('financeiro.reenviar', $fatura) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="acao-linha" title="Reenviar a cobrança por e-mail">
+                                                <x-avalia.icone nome="envelope" />
+                                                <span class="sr-only">Reenviar por e-mail</span>
                                             </button>
-                                        </span>
-
-                                        <form method="POST" action="{{ route('financeiro.estornar', $fatura) }}"
-                                              x-show="aberto" x-cloak class="flex items-center gap-2">
-                                            @csrf
-
-                                            <label for="estorno-{{ $fatura->id }}" class="sr-only">
-                                                Por que o recebimento foi desfeito
-                                            </label>
-                                            <input id="estorno-{{ $fatura->id }}" name="motivo" type="text"
-                                                   class="campo-linha w-64" required minlength="10" maxlength="255"
-                                                   placeholder="Por que o recebimento foi desfeito">
-
-                                            <x-avalia.botao tamanho="sm">Desfazer</x-avalia.botao>
-                                            <x-avalia.botao variante="secundario" tamanho="sm"
-                                                            type="button" x-on:click="aberto = false">
-                                                Cancelar
-                                            </x-avalia.botao>
-                                        </form>
-                                    </div>
-                                @else
-                                    {{-- Fatura sem cobranca no provedor: o fechamento tentou e
-                                         nao conseguiu, e sem este botao o boleto so nasceria
-                                         mexendo no banco de dados. --}}
-                                    @unless ($fatura->cobrancaAsaas?->asaas_charge_id)
-                                        <form method="POST" action="{{ route('financeiro.cobranca', $fatura) }}" class="mr-2 inline">
-                                            @csrf
-                                            <x-avalia.botao variante="secundario" tamanho="sm" title="Emitir a cobrança no provedor">
-                                                Emitir cobrança
-                                            </x-avalia.botao>
                                         </form>
                                     @endunless
 
-                                    {{-- A justificativa e obrigatoria porque esta e a unica porta
-                                         pela qual dinheiro e dado como recebido sem ter entrado, e
-                                         ela libera a comissao do vendedor na mesma hora. --}}
-                                    <div x-data="{ aberto: false }" class="inline-block text-left">
-                                        <x-avalia.botao variante="secundario" tamanho="icone"
-                                                        title="Confirmar pagamento recebido"
-                                                        x-show="! aberto" x-on:click="aberto = true">
-                                            <x-avalia.icone nome="confirmar" />
-                                            <span class="sr-only">Confirmar pagamento recebido</span>
-                                        </x-avalia.botao>
+                                    @if ($fatura->estaLiquidada())
+                                        {{-- Pagamento desfeito acontece: chargeback, Pix devolvido,
+                                             boleto baixado por engano. Sem este caminho a correcao
+                                             so existiria no banco. --}}
+                                        <div x-data="{ aberto: false }" class="inline-block text-left">
+                                            <button type="button" class="acao-linha" x-show="! aberto"
+                                                    x-on:click="aberto = true" title="Desfazer o recebimento">
+                                                <x-avalia.icone nome="desfazer" />
+                                                <span class="sr-only">Desfazer o recebimento</span>
+                                            </button>
 
-                                        <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
-                                              x-show="aberto" x-cloak class="flex items-center gap-2">
-                                            @csrf
+                                            <form method="POST" action="{{ route('financeiro.estornar', $fatura) }}"
+                                                  x-show="aberto" x-cloak class="flex items-center gap-2">
+                                                @csrf
 
-                                            <label for="motivo-{{ $fatura->id }}" class="sr-only">
-                                                Como o pagamento foi conferido
-                                            </label>
-                                            <input id="motivo-{{ $fatura->id }}" name="motivo" type="text"
-                                                   class="campo-linha w-64" required minlength="10" maxlength="255"
-                                                   placeholder="Como o pagamento foi conferido">
+                                                <label for="estorno-{{ $fatura->id }}" class="sr-only">
+                                                    Por que o recebimento foi desfeito
+                                                </label>
+                                                <input id="estorno-{{ $fatura->id }}" name="motivo" type="text"
+                                                       class="campo-linha w-64" required minlength="10" maxlength="255"
+                                                       placeholder="Por que o recebimento foi desfeito">
 
-                                            <x-avalia.botao tamanho="sm">Confirmar</x-avalia.botao>
-                                            <x-avalia.botao variante="secundario" tamanho="sm"
-                                                            type="button" x-on:click="aberto = false">
-                                                Cancelar
-                                            </x-avalia.botao>
-                                        </form>
-                                    </div>
-                                @endif
+                                                <x-avalia.botao tamanho="sm">Desfazer</x-avalia.botao>
+                                                <x-avalia.botao variante="secundario" tamanho="sm"
+                                                                type="button" x-on:click="aberto = false">
+                                                    Cancelar
+                                                </x-avalia.botao>
+                                            </form>
+                                        </div>
+                                    @else
+                                        {{-- A justificativa e obrigatoria porque esta e a unica
+                                             porta pela qual dinheiro e dado como recebido sem ter
+                                             entrado, e ela libera a comissao na mesma hora. --}}
+                                        <div x-data="{ aberto: false }" class="inline-block text-left">
+                                            <button type="button" class="acao-linha acao-linha-ok" x-show="! aberto"
+                                                    x-on:click="aberto = true" title="Confirmar pagamento recebido">
+                                                <x-avalia.icone nome="confirmar" />
+                                                <span class="sr-only">Confirmar pagamento recebido</span>
+                                            </button>
+
+                                            <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
+                                                  x-show="aberto" x-cloak class="flex items-center gap-2">
+                                                @csrf
+
+                                                <label for="motivo-{{ $fatura->id }}" class="sr-only">
+                                                    Como o pagamento foi conferido
+                                                </label>
+                                                <input id="motivo-{{ $fatura->id }}" name="motivo" type="text"
+                                                       class="campo-linha w-64" required minlength="10" maxlength="255"
+                                                       placeholder="Como o pagamento foi conferido">
+
+                                                <x-avalia.botao tamanho="sm">Confirmar</x-avalia.botao>
+                                                <x-avalia.botao variante="secundario" tamanho="sm"
+                                                                type="button" x-on:click="aberto = false">
+                                                    Cancelar
+                                                </x-avalia.botao>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="tabela-vazia">Nenhuma fatura corresponde a este filtro. Ajuste a busca para continuar.</td>
+                            <td colspan="9" class="tabela-vazia">Nenhuma fatura corresponde a este filtro. Ajuste a busca para continuar.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -213,7 +284,7 @@
                 @if ($resumo['quantidade'] > 0)
                     <tfoot class="border-t border-gray-100 dark:border-gray-800">
                         <tr>
-                            <td colspan="3" class="px-5 py-4 text-left text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="4" class="px-5 py-4 text-left text-sm text-gray-500 dark:text-gray-400">
                                 {{ $resumo['quantidade'] }}
                                 {{ $resumo['quantidade'] === 1 ? 'fatura no recorte' : 'faturas no recorte' }},
                                 {{ Dinheiro::brl($resumo['aberto_cents']) }} em aberto e
@@ -228,7 +299,8 @@
                 @endif
             </table>
         </div>
-    </div>
+        </div>
+    </form>
 
     @if ($comissoes->isNotEmpty())
         <div class="cartao mt-6 overflow-hidden">

@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Actions\Financeiro\EstornarLiquidacao;
 use App\Actions\Financeiro\RegistrarLiquidacao;
+use App\Mail\FaturaEmitida;
 use App\Models\Fatura;
 use App\Models\Staff;
 use App\Support\Auditar;
 use App\Support\FiltroFaturas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -64,6 +66,93 @@ class FinanceiroController extends Controller
             'avalia-faturas-interno-'.now()->format('Y-m-d').'.xlsx',
             ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
         );
+    }
+
+    /**
+     * Reenvia o aviso de fatura para o e-mail do cliente.
+     *
+     * O e-mail original se perde na caixa de entrada, e ligar para pedir que
+     * procurem custa mais do que mandar de novo. E o mesmo e-mail do
+     * fechamento, com o mesmo botao: reenvio que muda o texto vira uma segunda
+     * versao da cobranca para o cliente comparar.
+     */
+    public function reenviar(Fatura $fatura)
+    {
+        if ($fatura->estaLiquidada()) {
+            return back()->with('erro', 'Esta fatura já está paga.');
+        }
+
+        if (! $fatura->cliente?->email) {
+            return back()->with('erro', 'Este cliente não tem e-mail cadastrado.');
+        }
+
+        try {
+            Mail::to($fatura->cliente->email)->send(new FaturaEmitida($fatura));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('erro', 'O e-mail não pôde ser enviado agora. Tente de novo em instantes.');
+        }
+
+        Auditar::registrar('fatura.reenviada', $fatura, ['email' => $fatura->cliente->email]);
+
+        return back()->with('ok', 'Cobrança reenviada para '.$fatura->cliente->email.'.');
+    }
+
+    /**
+     * As acoes que valem para varias faturas de uma vez.
+     *
+     * No fechamento a operacao repete a mesma coisa dezenas de vezes, e uma a
+     * uma cansa e erra. O que NAO entra aqui e a baixa de pagamento: ela exige
+     * justificativa por fatura e libera comissao, e uma baixa em lote seria a
+     * porta mais larga do sistema para dinheiro dado como recebido sem ter
+     * entrado.
+     */
+    public function lote(Request $request)
+    {
+        $dados = $request->validate([
+            'acao' => ['required', 'in:reenviar,exportar'],
+            'faturas' => ['required', 'array', 'min:1'],
+            'faturas.*' => ['integer'],
+        ], [
+            'faturas.required' => 'Selecione ao menos uma fatura.',
+        ]);
+
+        $faturas = Fatura::with(['cliente', 'vendedor'])->whereIn('id', $dados['faturas'])->get();
+
+        if ($dados['acao'] === 'exportar') {
+            $conteudo = app(\App\Actions\Planilha\MontarPlanilhaFaturas::class)($faturas);
+
+            Auditar::registrar('faturas.exportadas', null, ['faturas' => $faturas->count()]);
+
+            return response()->streamDownload(
+                fn () => print $conteudo,
+                'avalia-faturas-interno-'.now()->format('Y-m-d').'.xlsx',
+                ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            );
+        }
+
+        $enviados = 0;
+
+        foreach ($faturas as $fatura) {
+            if ($fatura->estaLiquidada() || ! $fatura->cliente?->email) {
+                continue;
+            }
+
+            try {
+                Mail::to($fatura->cliente->email)->send(new FaturaEmitida($fatura));
+                Auditar::registrar('fatura.reenviada', $fatura, ['email' => $fatura->cliente->email]);
+                $enviados++;
+            } catch (\Throwable $e) {
+                // Uma falha nao pode derrubar o lote: o provedor recusa um
+                // endereco e os outros continuam merecendo o aviso.
+                report($e);
+            }
+        }
+
+        return back()->with($enviados > 0 ? 'ok' : 'erro', $enviados > 0
+            ? $enviados.' '.($enviados === 1 ? 'cobrança reenviada' : 'cobranças reenviadas').'.'
+            : 'Nenhuma cobrança foi reenviada. Faturas pagas e clientes sem e-mail ficam de fora.');
     }
 
     /** Um lugar so decide o recorte, para tela, resumo e planilha baterem. */

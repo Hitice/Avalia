@@ -201,6 +201,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // e automatica nao divergirem.
     Route::middleware(['admin', 'financeiro'])->prefix('financeiro')->name('financeiro.')->group(function () {
         Route::get('/', [FinanceiroController::class, 'index'])->name('index');
+        // Reenvio do aviso e acoes que valem para varias faturas de uma vez.
+        // A baixa de pagamento nao entra no lote de proposito: ela exige
+        // justificativa por fatura e libera comissao.
+        Route::post('/{fatura}/reenviar', [FinanceiroController::class, 'reenviar'])->name('reenviar');
+        Route::post('/lote', [FinanceiroController::class, 'lote'])->name('lote');
+
         // O recorte em planilha, com os numeros internos. Fica na trilha.
         Route::get('/planilha', [FinanceiroController::class, 'exportar'])->name('planilha');
         Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
