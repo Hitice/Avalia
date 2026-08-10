@@ -6,7 +6,10 @@ use App\Actions\Financeiro\EstornarLiquidacao;
 use App\Actions\Financeiro\RegistrarLiquidacao;
 use App\Models\Fatura;
 use App\Models\Staff;
+use App\Support\Auditar;
+use App\Support\FiltroFaturas;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * As faturas de todas as empresas, em um lugar so.
@@ -23,23 +26,54 @@ class FinanceiroController extends Controller
 {
     public function index(Request $request)
     {
-        $situacao = in_array($request->query('situacao'), Fatura::SITUACOES_PAGAMENTO, true)
-            ? $request->query('situacao')
-            : null;
-
-        $faturas = Fatura::query()
-            ->with(['cliente', 'vendedor'])
-            ->when($situacao, fn ($q) => $q->where('situacao_pagamento', $situacao))
-            ->orderByDesc('competencia')
-            ->orderBy('cliente_id')
-            ->get();
+        $escolha = FiltroFaturas::escolhido($request);
 
         return view('paginas.financeiro.index', [
-            'faturas' => $faturas,
-            'situacao' => $situacao,
+            'faturas' => $this->recorte($request)->get(),
+            'escolha' => $escolha,
+            'situacao' => $escolha['situacao'] ?: null,
+            // O que o RECORTE soma, ao lado do que a operacao inteira soma: sem
+            // isso o operador filtra, olha o cartao do topo e acha que o filtro
+            // nao pegou.
+            'resumo' => FiltroFaturas::resumo($this->recorte($request)),
             'totais' => $this->totais(),
             'comissoes' => $this->comissoesPorVendedor(),
+            'vendedores' => Staff::where('papel', 'vendedor')->orderBy('nome')->get(),
+            'competencias' => Fatura::query()->select('competencia')->distinct()
+                ->orderByDesc('competencia')->pluck('competencia'),
         ]);
+    }
+
+    /**
+     * As faturas do recorte, em planilha, para conciliar fora do sistema.
+     *
+     * Leva numero interno de proposito, e e a unica exportacao do projeto que
+     * leva: e o arquivo do contador e da conciliacao bancaria, e sem custo e
+     * comissao ele nao serve para nenhuma das duas coisas. O nome do arquivo
+     * avisa, e a trilha guarda quem levou.
+     */
+    public function exportar(Request $request, \App\Actions\Planilha\MontarPlanilhaFaturas $montar): StreamedResponse
+    {
+        $faturas = $this->recorte($request)->get();
+        $conteudo = $montar($faturas);
+
+        Auditar::registrar('faturas.exportadas', null, ['faturas' => $faturas->count()]);
+
+        return response()->streamDownload(
+            fn () => print $conteudo,
+            'avalia-faturas-interno-'.now()->format('Y-m-d').'.xlsx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        );
+    }
+
+    /** Um lugar so decide o recorte, para tela, resumo e planilha baterem. */
+    private function recorte(Request $request): \Illuminate\Database\Eloquent\Builder
+    {
+        $faturas = Fatura::query()->with(['cliente', 'vendedor', 'cobrancaAsaas']);
+
+        return FiltroFaturas::aplicar($faturas, $request)
+            ->orderByDesc('competencia')
+            ->orderBy('cliente_id');
     }
 
     /**

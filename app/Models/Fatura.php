@@ -157,7 +157,13 @@ class Fatura extends Model
 
     public function competenciaRotulo(): string
     {
-        [$ano, $mes] = explode('-', $this->competencia);
+        return self::competenciaRotuloDe($this->competencia);
+    }
+
+    /** O mesmo rotulo sem precisar de uma fatura em maos, para listas de filtro. */
+    public static function competenciaRotuloDe(string $competencia): string
+    {
+        [$ano, $mes] = explode('-', $competencia);
 
         return $mes.'/'.$ano;
     }

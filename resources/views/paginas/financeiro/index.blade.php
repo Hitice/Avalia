@@ -17,11 +17,22 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Financeiro</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Acompanhe as faturas de todas as empresas e confirme os pagamentos recebidos.
-        </p>
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Financeiro</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Acompanhe as faturas de todos os clientes e confirme os pagamentos recebidos.
+            </p>
+        </div>
+
+        {{-- Exporta o recorte que está na tela, com os números internos. É a
+             planilha do contador e da conciliação, e por isso o nome do arquivo
+             diz "interno": ela não pode ser encaminhada a cliente nem a
+             vendedor. --}}
+        <x-avalia.botao variante="secundario" :href="route('financeiro.planilha', request()->query())"
+                        title="Planilha interna: leva custo, lucro e comissão">
+            Exportar
+        </x-avalia.botao>
     </div>
 
     @include('paginas.catalogo.avisos')
@@ -50,6 +61,9 @@
     <div class="mb-6">
         <x-avalia.segmentado rotulo="Faturas" :atual="$situacao ?? ''" :itens="$filtros" />
     </div>
+
+    <x-avalia.filtro-faturas :acao="route('financeiro.index')" :vendedores="$vendedores"
+                             :competencias="$competencias" :escolha="$escolha" />
 
     <div class="cartao overflow-hidden">
         <div class="overflow-x-auto">
@@ -187,10 +201,31 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="tabela-vazia">Nenhuma fatura corresponde a esta situação. Selecione outro filtro para continuar.</td>
+                            <td colspan="8" class="tabela-vazia">Nenhuma fatura corresponde a este filtro. Ajuste a busca para continuar.</td>
                         </tr>
                     @endforelse
                 </tbody>
+
+                {{-- O que o RECORTE soma, e não a operação inteira. Sem esta
+                     linha o operador filtra, olha os cartões do topo e conclui
+                     que o filtro não pegou, porque aqueles números continuam os
+                     mesmos de propósito. --}}
+                @if ($resumo['quantidade'] > 0)
+                    <tfoot class="border-t border-gray-100 dark:border-gray-800">
+                        <tr>
+                            <td colspan="3" class="px-5 py-4 text-left text-sm text-gray-500 dark:text-gray-400">
+                                {{ $resumo['quantidade'] }}
+                                {{ $resumo['quantidade'] === 1 ? 'fatura no recorte' : 'faturas no recorte' }},
+                                {{ Dinheiro::brl($resumo['aberto_cents']) }} em aberto e
+                                {{ Dinheiro::brl($resumo['liquidado_cents']) }} já recebidos.
+                            </td>
+                            <td class="px-5 py-4 text-right font-semibold tabular-nums whitespace-nowrap text-gray-800 dark:text-white/90">
+                                {{ Dinheiro::brl($resumo['total_cents']) }}
+                            </td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tfoot>
+                @endif
             </table>
         </div>
     </div>

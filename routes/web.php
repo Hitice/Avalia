@@ -201,6 +201,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // e automatica nao divergirem.
     Route::middleware(['admin', 'financeiro'])->prefix('financeiro')->name('financeiro.')->group(function () {
         Route::get('/', [FinanceiroController::class, 'index'])->name('index');
+        // O recorte em planilha, com os numeros internos. Fica na trilha.
+        Route::get('/planilha', [FinanceiroController::class, 'exportar'])->name('planilha');
         Route::post('/{fatura}/liquidar', [FinanceiroController::class, 'liquidar'])->name('liquidar');
         Route::post('/{fatura}/estornar', [FinanceiroController::class, 'estornar'])->name('estornar');
         // Emitir de novo quando a criacao no provedor falhou: sem isto, fatura
@@ -303,7 +305,6 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
 
         // Simulador de contrato. GET e sem gravar nada: o endereco carrega o
         // cenario, entao a simulacao vira link em vez de captura de tela.
-
 
         // Parametros comerciais em pagina propria: mexem no catalogo inteiro e
         // nao tem lugar no meio da matriz que se consulta todo dia.
