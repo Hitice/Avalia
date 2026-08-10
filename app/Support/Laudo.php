@@ -205,6 +205,41 @@ final class Laudo
     }
 
     /**
+     * As ressalvas que acompanham o demonstrativo da fatura.
+     *
+     * A primeira e a mesma do laudo, e a repeticao e proposital. O laudo fica
+     * com quem consultou; a fatura vai para a contabilidade e para o juridico
+     * do cliente, e e la que a excludente precisa estar escrita quando alguem
+     * for procurar meses depois. Ninguem guarda os PDFs de consulta.
+     *
+     * As demais respondem as perguntas que o financeiro do cliente faz ao
+     * conferir a fatura: o que foi cobrado, o que nao foi, e ate quando da para
+     * conferir cada linha.
+     *
+     * @return list<string>
+     */
+    public static function ressalvasDaFatura(int $consultas, int $diasDeRetencao): array
+    {
+        return [
+            'As consultas cobradas neste demonstrativo serviram para subsidiar decisões de '
+            .'crédito do contratante. A decisão de conceder ou não o crédito foi, e permanece, '
+            .'de exclusiva responsabilidade de quem consultou. A Avalia responde pela entrega '
+            .'da informação, não pelo uso que se faz dela.',
+
+            'Consulta não concluída não é cobrada e não aparece aqui. '
+            .($consultas > 0
+                ? 'Foram '.$consultas.' '.($consultas === 1 ? 'consulta concluída' : 'consultas concluídas').' no período.'
+                : 'Não houve consulta concluída no período.'),
+
+            'O detalhe de cada consulta fica no portal por '.$diasDeRetencao.' dias a partir da '
+            .'data em que foi feita. O registro da consulta em si é permanente.',
+
+            'Demonstrativo do consumo do período, para conferência e arquivo. '
+            .'Não substitui a nota fiscal nem serve como comprovante de pagamento.',
+        ];
+    }
+
+    /**
      * As ressalvas que acompanham todo laudo.
      *
      * Nao e formalidade: a primeira delas e a que separa a Avalia da decisao de

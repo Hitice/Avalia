@@ -114,4 +114,12 @@
 
         <x-avalia.paginacao :pagina="$faturas" />
     </div>
+
+    {{-- A mesma excludente que vai no demonstrativo em PDF. Quem confere a
+         fatura na tela merece ler o que quem confere no papel le. --}}
+    <p class="ajuda-campo mt-4">
+        As consultas cobradas aqui serviram para subsidiar decisões de crédito da sua empresa.
+        A decisão de conceder ou não o crédito foi, e permanece, de exclusiva responsabilidade
+        de quem consultou. Consulta não concluída não é cobrada.
+    </p>
 @endsection

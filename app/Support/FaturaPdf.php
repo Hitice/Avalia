@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Consulta;
 use App\Models\Fatura;
 
 /**
@@ -51,6 +52,16 @@ final class FaturaPdf
                 .' · vencimento em '.$fatura->vencimento()->format('d/m/Y')
                 .' · '.Rotulos::fatura($fatura->situacao_pagamento));
 
+        // O resumo antes do detalhe, como o mercado escreve laudo: quem confere
+        // quer saber quantas e quanto antes de olhar linha por linha.
+        $consultas = (int) $fatura->itens->sum('quantidade');
+
+        $pdf->secao('Resumo do período')
+            ->linha('Consultas concluídas', (string) $consultas)
+            ->linha('Serviços utilizados', (string) $fatura->itens->count())
+            ->linha('Vencimento', $fatura->vencimento()->format('d/m/Y'))
+            ->linha('Total', $fatura->totalRotulo(), true);
+
         $pdf->secao('Composição');
         $pdf->linha('Mensalidade do plano', Dinheiro::brl($fatura->mensalidade_cents));
 
@@ -81,10 +92,15 @@ final class FaturaPdf
             );
         }
 
-        $pdf->espaco(10)->paragrafo(
-            'Demonstrativo do consumo do período, para conferência e arquivo. '
-            .'Não substitui a nota fiscal nem serve como comprovante de pagamento.',
-        );
+        // O bloco de ressalvas, no mesmo lugar em que o mercado o coloca: antes
+        // do fim e em corpo de texto, e nao em letra miuda no rodape. A
+        // excludente de responsabilidade sobre a decisao de credito e a mais
+        // importante delas, e e a primeira.
+        $pdf->secao('Atenção');
+
+        foreach (Laudo::ressalvasDaFatura($consultas, Consulta::DIAS_DE_RETENCAO) as $ressalva) {
+            $pdf->paragrafo($ressalva);
+        }
 
         return $pdf->bytes();
     }

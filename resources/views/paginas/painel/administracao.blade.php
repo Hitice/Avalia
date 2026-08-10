@@ -44,6 +44,18 @@
                                    :tom="$margemCents >= 0 ? 'text-success-600 dark:text-success-400' : 'text-error-600 dark:text-error-400'"
                                    ajuda="Consumo menos custo, antes de imposto e comissão." />
 
+        {{-- O caixa do mes: o que entrou de fato, contado pela data da baixa e
+             não pela competência, porque o mês do dinheiro é o mês em que ele
+             chegou. Sem este cartão a tela só falava de dinheiro futuro. --}}
+        <x-avalia.cartao-indicador rotulo="Recebido no mês" :valor="Dinheiro::brl($recebidoCents)"
+                                   :href="$staff->podeFinanceiro() ? route('financeiro.index', ['situacao' => 'liquidado']) : null"
+                                   tom="text-success-600 dark:text-success-500"
+                                   ajuda="Faturas com pagamento confirmado neste mês." />
+
+        <x-avalia.cartao-indicador rotulo="Comissão a repassar" :valor="Dinheiro::brl($aRepassarCents)"
+                                   :href="$staff->podeFinanceiro() ? route('financeiro.index') : null"
+                                   ajuda="Já liberada, líquida das demonstrações." />
+
         <x-avalia.cartao-indicador rotulo="A receber" :valor="Dinheiro::brl($aReceber)"
                                    :href="$staff->podeFinanceiro() ? route('financeiro.index', ['situacao' => 'pendente']) : null" />
 

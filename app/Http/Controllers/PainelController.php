@@ -59,6 +59,26 @@ class PainelController extends Controller
             'aReceber' => (int) Fatura::whereIn('situacao_pagamento', [Fatura::PAGAMENTO_PENDENTE, Fatura::PAGAMENTO_VENCIDO])->sum('total_cents'),
             'vencido' => (int) Fatura::where('situacao_pagamento', Fatura::PAGAMENTO_VENCIDO)->sum('total_cents'),
 
+            // O dinheiro que ENTROU, que e a pergunta que os outros cartoes nao
+            // respondiam. "A receber" e "Em atraso" sao promessa e promessa
+            // quebrada; nenhum dos dois diz quanto a casa recebeu de fato.
+            //
+            // Conta pela data da baixa, e nao pela competencia: o mes em que o
+            // dinheiro entrou e o mes do caixa, mesmo que a fatura seja de um
+            // periodo anterior.
+            'recebidoCents' => (int) Fatura::whereNotNull('liquidada_em')
+                ->whereBetween('liquidada_em', [now()->startOfMonth(), now()->endOfMonth()])
+                ->sum('total_cents'),
+
+            // E o que sai: comissao ja liberada pertence ao vendedor, esteja ou
+            // nao no bolso dele ainda. Caixa que ignora o compromisso ja
+            // assumido e caixa que parece maior do que e.
+            'aRepassarCents' => max(0, (int) Fatura::whereNotNull('comissao_liberada_em')->sum('comissao_cents')
+                - (int) Consulta::query()
+                    ->whereIn('vendedor_id', Staff::query()->where('papel', 'vendedor')->select('id'))
+                    ->where('situacao', Consulta::SUCESSO)
+                    ->sum('custo_cents')),
+
             // O numero que faltava: consumo menos custo. Estavam os dois lados
             // na tela e a subtracao ficava na cabeca de quem olhava.
             'margemCents' => (int) (clone $doMes)->where('situacao', Consulta::SUCESSO)->sum('preco_cents')
