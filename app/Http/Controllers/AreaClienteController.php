@@ -218,7 +218,10 @@ class AreaClienteController extends Controller
         }
 
         return redirect()
-            ->route('empresa.consultas.ver', $resultado['consulta'])
+            // Direto ao relatorio em PDF: e ele o produto da consulta. A tela
+            // de detalhe continua existindo, pela lista, para quem quer rever
+            // sem gerar arquivo.
+            ->route('empresa.consultas.pdf', $resultado['consulta'])
             ->with('ok', 'Consulta concluída.');
     }
 
@@ -335,9 +338,12 @@ class AreaClienteController extends Controller
 
         $empresa = auth('empresa')->user();
 
+        // Inline, e nao attachment: este E o relatorio da consulta, e o
+        // navegador deve abri-lo como pagina. Salvar continua a um clique, no
+        // proprio visualizador.
         return response(\App\Support\ConsultaPdf::resultado($consulta, $empresa->razao_social), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
+            'Content-Disposition' => 'inline; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
         ]);
     }
 

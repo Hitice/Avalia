@@ -77,7 +77,7 @@ class ConsultaController extends Controller
 
         return response(ConsultaPdf::resultado($consulta->load('servico'), $emissor), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
+            'Content-Disposition' => 'inline; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
         ]);
     }
 

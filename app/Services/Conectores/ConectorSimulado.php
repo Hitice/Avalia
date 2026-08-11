@@ -4,7 +4,6 @@ namespace App\Services\Conectores;
 
 use App\Contracts\ConectorBureau;
 use App\Models\Servico;
-use App\Support\Documento;
 use App\Support\RespostaConsulta;
 
 /**
@@ -42,17 +41,28 @@ class ConectorSimulado implements ConectorBureau
         }
 
         $semente = crc32($documento.$servico->codigo);
+        $restricoes = $semente % 3;
+        $ehCnpj = strlen($documento) === 14;
 
-        return RespostaConsulta::sucesso([
+        // As chaves sao as CANONICAS do laudo (App\Support\Laudo::BLOCOS), e
+        // isso nao e capricho: com chave propria o resultado caia inteiro em
+        // "Outras informacoes" e a tela dizia "nao contempla restricoes" com a
+        // restricao na linha de cima. O simulado existe para exercitar o fluxo
+        // real, entao precisa produzir o formato real.
+        //
+        // O que a tela ja mostra (documento, servico, finalidade, data) fica de
+        // fora do laudo: campo repetido em bloco de resultado e ruido.
+        return RespostaConsulta::sucesso(array_filter([
             'simulado' => true,
-            'documento' => Documento::formatarCnpj($documento) ?: $documento,
-            'servico' => $servico->nome,
-            'finalidade' => $finalidade,
-            'consultado_em' => now()->toIso8601String(),
             'score' => 300 + ($semente % 701),
-            'restricoes' => $semente % 3,
-            'valor_restricoes_cents' => ($semente % 3) === 0 ? 0 : ($semente % 900_000),
-        ], $this->protocolo($documento, $servico), (int) max($duracao, (microtime(true) - $inicio) * 1000));
+            'modelo_do_score' => 'SIMULADO_V1',
+            'nome' => $ehCnpj ? 'Empresa Simulada '.($semente % 90 + 10).' LTDA' : 'Titular Simulado '.($semente % 90 + 10),
+            'situacao_cadastral' => 'Regular',
+            'pendencias_financeiras' => $restricoes,
+            'protestos' => $restricoes > 1 ? 1 : 0,
+            'valor_total_das_restricoes_cents' => $restricoes === 0 ? null : ($semente % 900_000),
+            'consultas_recentes' => $semente % 7,
+        ], fn ($v) => $v !== null), $this->protocolo($documento, $servico), (int) max($duracao, (microtime(true) - $inicio) * 1000));
     }
 
     public function nome(): string

@@ -215,7 +215,8 @@ class CarteiraController extends Controller
             return back()->withInput()->with('erro', $resultado['erro']);
         }
 
-        return redirect()->route('carteira.demonstracoes.ver', $resultado['consulta']);
+        // Direto ao relatorio em PDF: e ele que o vendedor mostra ao prospect.
+        return redirect()->route('carteira.demonstracoes.pdf', $resultado['consulta']);
     }
 
     /** O resultado, so para o vendedor que consultou. */
@@ -234,7 +235,7 @@ class CarteiraController extends Controller
 
         return response(\App\Support\ConsultaPdf::resultado($consulta, Auth::guard('staff')->user()->nome), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
+            'Content-Disposition' => 'inline; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
         ]);
     }
 

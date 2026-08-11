@@ -40,7 +40,7 @@ final class ConsultaPdf
                 .' · protocolo '.($consulta->referencia_externa ?? 's/n').' · avaliaone.com.br');
 
         $pdf->marca(resource_path('marca/avaliaone.jpg'))
-            ->meta('Consulta de crédito · avaliaone.com.br')
+            ->meta('Relatório de consulta · avaliaone.com.br')
             ->espaco(6);
 
         $pdf->secao($consulta->servico?->nome ?? 'Consulta')
