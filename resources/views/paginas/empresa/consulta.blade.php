@@ -105,7 +105,7 @@
 
     @if ($consulta->deuCerto() && ! $consulta->expurgada())
         <div class="mt-6">
-            @include('paginas.consulta-blocos', ['resposta' => $resposta])
+            @include('paginas.consulta-blocos', ['resposta' => $resposta, 'documento' => $consulta->documento])
         </div>
     @endif
 @endsection

@@ -45,3 +45,21 @@
         não foram pesquisadas neste produto.
     </div>
 @endif
+
+{{-- As mesmas ressalvas que vão no PDF, da mesma fonte.
+
+     Ficam recolhidas porque quem abre a tela veio ver o resultado, e cinco
+     parágrafos de aviso antes dele empurram o que importa para baixo da dobra.
+     No PDF elas vêm abertas e antes do conteúdo, porque lá não há como
+     expandir e o papel circula sem quem o explique. --}}
+<details class="cartao mb-6 p-5">
+    <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200">
+        Informações importantes sobre o uso desta consulta
+    </summary>
+
+    <div class="mt-4 space-y-3">
+        @foreach (Laudo::ressalvas(App\Support\Documento::mascarar($documento ?? '')) as $ressalva)
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $ressalva }}</p>
+        @endforeach
+    </div>
+</details>

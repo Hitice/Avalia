@@ -43,6 +43,6 @@
     @endif
 
     @if ($consulta->deuCerto() && ! $consulta->expurgada())
-        @include('paginas.consulta-blocos', ['resposta' => $resposta])
+        @include('paginas.consulta-blocos', ['resposta' => $resposta, 'documento' => $consulta->documento])
     @endif
 @endsection

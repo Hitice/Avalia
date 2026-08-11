@@ -242,10 +242,21 @@ final class Laudo
     /**
      * As ressalvas que acompanham todo laudo.
      *
-     * Nao e formalidade: a primeira delas e a que separa a Avalia da decisao de
-     * credito de quem consulta, e a segunda e a que impede a consulta de ser
-     * lida como anotacao negativa. As duas sao praxe no mercado, e a razao e a
-     * mesma nos dois casos.
+     * Nenhuma delas e formalidade, e cada uma fecha uma porta diferente:
+     *
+     * 1. Separa a Avalia da decisao de credito de quem consulta.
+     * 2. Diz o que a informacao e e o que pode ser feito com ela, e lembra que
+     *    o mau uso responsabiliza quem usou, nao quem entregou.
+     * 3. Impede a consulta de ser lida como anotacao negativa. Sem ela, "fulano
+     *    foi consultado" vira "fulano esta negativado" na cabeca de quem le.
+     * 4. Cobre o registro que existe no mundo mas nao chegou a base: provedor
+     *    atrasa e provedor falha, e a ausencia aqui nao prova ausencia la fora.
+     * 5. Registra a declaracao de finalidade que o contratante ja aceitou nos
+     *    termos, no proprio documento que ele arquiva.
+     *
+     * Escrever em caixa alta, como o mercado costuma fazer nesses avisos, seria
+     * pior: texto todo maiusculo se le mais devagar e sinaliza "pule isto".
+     * Aviso feito para nao ser lido nao protege ninguem.
      *
      * @return list<string>
      */
@@ -261,11 +272,20 @@ final class Laudo
             'A decisão de conceder ou não o crédito é de exclusiva responsabilidade de quem consulta. '
             .'As informações deste laudo servem para subsidiar essa decisão e não a substituem.',
 
+            'Estas informações são confidenciais e destinam-se exclusivamente a orientar as transações '
+            .'comerciais de quem as solicitou. É vedado repassá-las a terceiros. Quem as utilizar em '
+            .'desacordo com a legislação responde, civil e criminalmente, pelos danos que causar.',
+
             $alvo.' A consulta em si não '
             .'significa negócio realizado e não se confunde com anotação negativa em cadastro de inadimplentes.',
 
-            'As informações refletem as bases no momento da consulta e podem mudar a qualquer tempo. '
-            .'Uso restrito à finalidade declarada; é vedado o repasse a terceiros.',
+            'As informações refletem o que as bases consultadas tinham no momento desta consulta e podem '
+            .'mudar a qualquer tempo. Registro que o provedor de origem ainda não enviou, ou enviou com '
+            .'atraso, não aparece aqui: a ausência de uma ocorrência neste laudo não prova que ela não exista.',
+
+            'Ao consultar, o contratante declarou que o tratamento destes dados observa as finalidades e os '
+            .'procedimentos admitidos pela Lei Geral de Proteção de Dados (Lei 13.709/2018), conforme a '
+            .'finalidade registrada acima e os termos aceitos no acesso à plataforma.',
         ];
     }
 }

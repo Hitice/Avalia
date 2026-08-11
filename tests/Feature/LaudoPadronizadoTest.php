@@ -69,14 +69,33 @@ it('escreve valor como pessoa le', function () {
 
 it('carimba as ressalvas em todo laudo', function () {
     $ressalvas = Laudo::ressalvas('123***901');
+    $tudo = implode(' ', $ressalvas);
 
-    expect(count($ressalvas))->toBe(3)
-        // A que separa a Avalia da decisao de credito de quem consulta.
+    // Cada uma fecha uma porta diferente, e nenhuma pode sumir num ajuste de
+    // redacao: sao as frases que separam a Avalia do uso que se faz do laudo.
+    expect($ressalvas)->toHaveCount(5)
+        // A decisao de credito e de quem consulta.
         ->and($ressalvas[0])->toContain('exclusiva responsabilidade de quem consulta')
-        // A que impede a consulta de ser lida como anotacao negativa.
-        ->and($ressalvas[1])->toContain('não se confunde com anotação negativa')
-        ->and($ressalvas[1])->toContain('123***901')
-        ->and($ressalvas[2])->toContain('vedado o repasse');
+        // Confidencialidade, vedacao de repasse e responsabilidade de quem usa.
+        ->and($tudo)->toContain('confidenciais')
+        ->and($tudo)->toContain('vedado repassá-las')
+        ->and($tudo)->toContain('civil e criminalmente')
+        // Consultar nao e negativar.
+        ->and($tudo)->toContain('não se confunde com anotação negativa')
+        ->and($tudo)->toContain('123***901')
+        // Registro que o provedor nao enviou nao aparece, e a ausencia aqui
+        // nao prova ausencia la fora.
+        ->and($tudo)->toContain('não prova que ela não exista')
+        // A declaracao de finalidade da LGPD, no documento que o cliente arquiva.
+        ->and($tudo)->toContain('Lei 13.709/2018');
+});
+
+it('nao escreve as ressalvas em caixa alta', function () {
+    // Texto todo maiusculo se le mais devagar e sinaliza "pule isto". Aviso
+    // feito para nao ser lido nao protege ninguem.
+    foreach (Laudo::ressalvas('123***901') as $ressalva) {
+        expect($ressalva)->not->toBe(mb_strtoupper($ressalva));
+    }
 });
 
 it('leva marca, ressalvas e blocos para o PDF', function () {
@@ -127,6 +146,9 @@ it('mostra os mesmos blocos na tela do cliente', function () {
         ->assertSee('Score e risco')
         ->assertSee('Score')
         ->assertSee('não contempla', false)
+        // As ressalvas tambem aparecem na tela, e nao so no papel.
+        ->assertSee('Informações importantes sobre o uso desta consulta', false)
+        ->assertSee('confidenciais', false)
         // Nome de chave de API nunca aparece para quem le.
         ->assertDontSee('modelo_do_score');
 });
