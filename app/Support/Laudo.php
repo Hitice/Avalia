@@ -249,16 +249,14 @@ final class Laudo
     public static function ressalvasDaFatura(int $consultas, int $diasDeRetencao): array
     {
         return [
-            'As consultas deste demonstrativo subsidiaram decisões de crédito do contratante; a decisão '
-            .'foi, e permanece, de exclusiva responsabilidade de quem consultou. Consulta não concluída '
-            .'não é cobrada e não aparece aqui. '
+            'As consultas deste demonstrativo subsidiaram decisões de crédito de exclusiva '
+            .'responsabilidade de quem consultou. Consulta não concluída não é cobrada. '
             .($consultas > 0
                 ? 'Foram '.$consultas.' '.($consultas === 1 ? 'consulta concluída' : 'consultas concluídas').' no período.'
                 : 'Não houve consulta concluída no período.'),
 
             'O detalhe de cada consulta fica no portal por '.$diasDeRetencao.' dias; o registro é '
-            .'permanente. Este demonstrativo serve à conferência e ao arquivo, e não substitui a nota '
-            .'fiscal nem serve como comprovante de pagamento.',
+            .'permanente. Não substitui a nota fiscal nem serve como comprovante de pagamento.',
         ];
     }
 
@@ -289,23 +287,20 @@ final class Laudo
         // inteira: "Consulta ao documento  nas bases" denuncia o buraco.
         $alvo = $documentoMascarado === ''
             ? 'Consulta às bases contratadas.'
-            : 'Consulta ao documento '.$documentoMascarado.' nas bases contratadas.';
+            : 'Consulta ao documento '.$documentoMascarado.'.';
 
-        // Tres notas, e nao cinco: cada frase que sobrou fecha uma porta
-        // juridica propria, e o que era contexto repetido saiu. Nota legal
-        // enxuta e nota que se le ate o fim.
+        // Uma frase por porta juridica, e nada alem: nota legal enxuta e nota
+        // que se le ate o fim.
         return [
-            'A decisão de crédito é de exclusiva responsabilidade de quem consulta: este laudo a subsidia '
-            .'e não a substitui. As informações são confidenciais, restritas à finalidade declarada, e é '
-            .'vedado repassá-las a terceiros; o uso em desacordo com a lei responsabiliza, civil e '
-            .'criminalmente, quem as utilizar.',
+            'A decisão de crédito é de exclusiva responsabilidade de quem consulta; este laudo apenas a '
+            .'subsidia. Informações confidenciais, restritas à finalidade declarada e de repasse vedado: '
+            .'o mau uso responsabiliza, civil e criminalmente, quem as utilizar.',
 
-            $alvo.' A consulta em si não significa negócio realizado e não se confunde com anotação '
-            .'negativa. O laudo reflete as bases no momento da consulta; registro que o provedor de origem '
-            .'não enviou não aparece aqui, e a ausência de uma ocorrência não prova que ela não exista.',
+            $alvo.' Consultar não significa negócio realizado e não se confunde com anotação negativa. O '
+            .'laudo reflete as bases neste momento; a ausência de um registro não prova que ele não exista.',
 
-            'Ao consultar, o contratante declarou tratar estes dados conforme a Lei Geral de Proteção de '
-            .'Dados (Lei 13.709/2018), a finalidade registrada acima e os termos aceitos na plataforma.',
+            'O contratante declarou tratar estes dados conforme a LGPD (Lei 13.709/2018) e os termos '
+            .'aceitos na plataforma.',
         ];
     }
 }

@@ -170,9 +170,9 @@ final class Pdf
         $pct = max(0.0, min(1.0, $maximo > 0 ? $valor / $maximo : 0));
         $cor = $paradas[min(3, (int) floor($pct * 4))];
 
-        // O numero grande a DIREITA, na cor da faixa, com o teto discreto
-        // antes dele: e a coluna onde todos os outros valores do laudo ja
-        // moram, entao o olho nao muda de lado para ler o mais importante.
+        // O numero grande a DIREITA, na cor da faixa, e o teto EMBAIXO dele:
+        // "de 1000" como legenda sob o numero le-se como unidade, e ao lado
+        // competia com ele.
         $this->y -= 30;
         $numero = (string) (int) $valor;
         $larguraNumero = $this->largura($numero, 30, true);
@@ -183,10 +183,13 @@ final class Pdf
             $cor[0], $cor[1], $cor[2],
             self::LARGURA - self::MARGEM - $larguraNumero, $this->y, $this->escapar($numero),
         );
+
+        // A legenda centrada sob o numero.
+        $this->y -= 12;
         $this->atual .= sprintf(
-            "BT /F1 10.00 Tf 0.55 0.55 0.55 rg %.2F %.2F Td (%s) Tj ET\n",
-            self::LARGURA - self::MARGEM - $larguraNumero - $this->largura($teto, 10, false) - 8,
-            $this->y + 2,
+            "BT /F1 9.00 Tf 0.55 0.55 0.55 rg %.2F %.2F Td (%s) Tj ET\n",
+            self::LARGURA - self::MARGEM - ($larguraNumero + $this->largura($teto, 9, false)) / 2,
+            $this->y,
             $this->escapar($teto),
         );
         $this->espaco(10);
@@ -473,8 +476,10 @@ final class Pdf
 
         $this->secaoSemQuebra($titulo);
 
+        // Centrado: o fecho e assinatura do documento, e texto de fecho
+        // centrado le-se como selo, nao como paragrafo perdido.
         foreach ($notas as $nota) {
-            $this->escrever($nota, 8.5, false, 0.42, italico: true);
+            $this->escrever($nota, 8.5, false, 0.42, italico: true, centrado: true);
             $this->espaco(4);
         }
 
@@ -581,7 +586,7 @@ stream
     }
 
     /** Escreve um bloco com quebra automatica, paginando quando acabar o espaco. */
-    private function escrever(string $texto, float $tamanho, bool $negrito, float $cinza, bool $italico = false): void
+    private function escrever(string $texto, float $tamanho, bool $negrito, float $cinza, bool $italico = false, bool $centrado = false): void
     {
         $larguraUtil = self::LARGURA - 2 * self::MARGEM;
         $entrelinha = $tamanho * 1.45;
@@ -593,7 +598,10 @@ stream
             }
 
             $this->y -= $entrelinha;
-            $this->texto($linha, self::MARGEM, $tamanho, $negrito, $cinza, $italico);
+            $x = $centrado
+                ? (self::LARGURA - $this->largura($linha, $tamanho, $negrito)) / 2
+                : self::MARGEM;
+            $this->texto($linha, $x, $tamanho, $negrito, $cinza, $italico);
         }
     }
 

@@ -78,14 +78,14 @@ it('carimba as ressalvas em todo laudo', function () {
         ->and($ressalvas[0])->toContain('exclusiva responsabilidade de quem consulta')
         // Confidencialidade, vedacao de repasse e responsabilidade de quem usa.
         ->and($tudo)->toContain('confidenciais')
-        ->and($tudo)->toContain('vedado repassá-las')
+        ->and($tudo)->toContain('repasse vedado')
         ->and($tudo)->toContain('civil e criminalmente')
         // Consultar nao e negativar.
         ->and($tudo)->toContain('não se confunde com anotação negativa')
         ->and($tudo)->toContain('123***901')
         // Registro que o provedor nao enviou nao aparece, e a ausencia aqui
         // nao prova ausencia la fora.
-        ->and($tudo)->toContain('não prova que ela não exista')
+        ->and($tudo)->toContain('não prova que ele não exista')
         // A declaracao de finalidade da LGPD, no documento que o cliente arquiva.
         ->and($tudo)->toContain('Lei 13.709/2018');
 });

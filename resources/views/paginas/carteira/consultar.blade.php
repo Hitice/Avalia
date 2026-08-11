@@ -43,16 +43,33 @@
                      ? 'border-brand-400 shadow-theme-md dark:border-brand-500/60'
                      : 'hover:border-brand-300 hover:shadow-sm dark:hover:border-brand-500/40'">
 
-                <button type="button" class="w-full px-5 py-4 text-left"
+                @php $nEstrelas = $estrelas[$servico->id] ?? 0; @endphp
+
+                {{-- Altura fixa e nome em duas linhas no maximo: card de tamanho
+                     variavel quebra a grade e o olho perde a comparacao. --}}
+                <button type="button" class="flex min-h-[104px] w-full flex-col justify-between px-5 py-4 text-left"
                         @click="aberto = aberto === {{ $servico->id }} ? null : {{ $servico->id }}; etapa = 'resumo'">
-                    <span class="flex items-start justify-between gap-3">
-                        <span class="font-medium text-gray-800 dark:text-white/90">
+                    <span class="flex w-full items-start justify-between gap-3">
+                        <span class="line-clamp-2 font-medium text-gray-800 dark:text-white/90">
                             {{ $servico->nome }}
                         </span>
-                        <span class="etiqueta etiqueta-neutra shrink-0">{{ $servico->numero }}</span>
+
+                        {{-- Zero a tres estrelas pelo quartil de preco, que no
+                             catalogo acompanha a profundidade da pesquisa. As
+                             apagadas ficam na tela: zero e quartil de entrada,
+                             nao defeito, e a regua so se le inteira. --}}
+                        <span class="flex shrink-0 gap-0.5 pt-1" title="{{ $nEstrelas }} de 3">
+                            @foreach (['text-brand-400', 'text-theme-purple-500', 'text-theme-pink-500'] as $i => $cor)
+                                <svg class="size-3 {{ $i < $nEstrelas ? $cor : 'text-gray-200 dark:text-gray-700' }}"
+                                     fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.956a1 1 0 0 0 .95.69h4.161c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 0 0-.363 1.118l1.287 3.956c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 0 0-1.175 0l-3.367 2.446c-.783.57-1.838-.196-1.539-1.118l1.287-3.956a1 1 0 0 0-.363-1.118L2.114 9.383c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 0 0 .95-.69L9.05 2.927Z" />
+                                </svg>
+                            @endforeach
+                            <span class="sr-only">{{ $nEstrelas }} de 3 estrelas</span>
+                        </span>
                     </span>
 
-                    <span class="mt-2 flex items-center justify-between text-sm">
+                    <span class="mt-2 flex w-full items-center justify-between text-sm">
                         <span class="text-gray-500 dark:text-gray-400">{{ $servico->rotuloCategoria() }}</span>
                         <span class="font-semibold tabular-nums text-gray-800 dark:text-white/90">
                             {{ isset($precos[$servico->id]) ? Dinheiro::brl($precos[$servico->id]) : 'Sob consulta' }}
