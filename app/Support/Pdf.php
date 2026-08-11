@@ -145,21 +145,26 @@ final class Pdf
      * O numero pequeno numa linha de tabela nao comunica risco nenhum; o
      * mercado mostra o score GRANDE e com a cor da faixa em que ele caiu,
      * porque e assim que quem decide le em um segundo. O leque vai do vermelho
-     * (negativo) ao azul claro (positivo) passando por laranja e ambar, todos
-     * da paleta da casa, e a agulha marca onde o documento caiu.
+     * (negativo) ao azul da marca (positivo) passando pelo rosa e pelo roxo da
+     * paleta, e a agulha marca onde o documento caiu.
      */
     public function medidor(float $valor, float $maximo = 1000): static
     {
         $this->garantir(70);
         $this->espaco(10);
 
-        // As paradas do leque, da paleta: error-500, orange-400, warning-400 e
-        // blue-light-400.
+        // As paradas do leque, TODAS da paleta da casa: error-500, o rosa da
+        // marca, o roxo do tema e o brand-400. A primeira versao usava laranja
+        // e ambar e destoava: o documento inteiro fala azul e rosa (as barras
+        // de secao fazem esse degrade), e o leque precisava falar a mesma
+        // lingua. O vermelho continua abrindo o lado negativo porque risco e
+        // convencao antes de ser paleta; dali em diante o caminho ate o azul
+        // passa por dentro da marca.
         $paradas = [
             [0.941, 0.267, 0.220],
-            [0.992, 0.522, 0.227],
-            [0.992, 0.690, 0.133],
-            [0.212, 0.749, 0.980],
+            [0.933, 0.275, 0.737],
+            [0.478, 0.353, 0.973],
+            [0.459, 0.573, 1.0],
         ];
 
         $pct = max(0.0, min(1.0, $maximo > 0 ? $valor / $maximo : 0));
