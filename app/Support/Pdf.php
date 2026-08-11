@@ -140,6 +140,22 @@ final class Pdf
     }
 
     /**
+     * Corpo menor, para o rodape legal do documento.
+     *
+     * Menor de proposito e sem prejuizo de leitura: 8,5pt ainda se le no papel,
+     * e o tamanho comunica hierarquia. A ressalva precisa estar la e precisa
+     * ser encontravel, mas nao pode competir com o resultado, que e o que a
+     * pessoa abriu o documento para ver.
+     */
+    public function nota(string $texto): static
+    {
+        $this->escrever($texto, 8.5, false, 0.42);
+        $this->espaco(4);
+
+        return $this;
+    }
+
+    /**
      * Rotulo a esquerda e valor encostado na margem direita, na mesma linha.
      *
      * E o unico formato de tabela que este gerador conhece, e existe porque

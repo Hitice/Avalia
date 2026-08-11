@@ -41,16 +41,24 @@ class PlanilhaController extends Controller
             return back()->with('erro', $resultado['erro']);
         }
 
-        if ($resultado['atualizados'] === 0) {
+        if ($resultado['atualizados'] === 0 && ($resultado['produtos'] ?? 0) === 0) {
             return back()->with('ok', 'Planilha lida: nenhum valor diferente do que já está cadastrado.');
         }
 
-        return back()->with('ok', sprintf(
-            '%d preco(s) atualizados pela planilha.%s',
-            $resultado['atualizados'],
+        $partes = [];
+
+        if ($resultado['atualizados'] > 0) {
+            $partes[] = $resultado['atualizados'].' '.($resultado['atualizados'] === 1 ? 'preço atualizado' : 'preços atualizados');
+        }
+
+        if (($resultado['produtos'] ?? 0) > 0) {
+            $partes[] = $resultado['produtos'].' '.($resultado['produtos'] === 1 ? 'serviço ligado ao produto do fornecedor' : 'serviços ligados ao produto do fornecedor');
+        }
+
+        return back()->with('ok', ucfirst(implode(' e ', $partes)).'.'.(
             $resultado['ignorados'] > 0
-                ? " {$resultado['ignorados']} linha(s) com codigo desconhecido foram ignoradas."
-                : '',
+                ? ' '.$resultado['ignorados'].' linha(s) com código desconhecido foram ignoradas.'
+                : ''
         ));
     }
 }

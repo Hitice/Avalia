@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ImportarPlanilha
 {
-    /** @return array{erro: string|null, atualizados: int, ignorados: int} */
+    /** @return array{erro: string|null, atualizados: int, produtos: int, ignorados: int} */
     public function __invoke(Catalogo $catalogo, string $caminho): array
     {
         $linhas = Planilha::ler($caminho);
@@ -33,6 +33,7 @@ class ImportarPlanilha
         $colunas = array_map(MontarPlanilha::chaveDaColuna(...), array_shift($linhas));
         $colCodigo = array_search('codigo', $colunas, true);
         $colCusto = array_search('custo', $colunas, true);
+        $colProduto = array_search('produto no fornecedor', $colunas, true);
 
         if ($colCodigo === false) {
             return $this->falha('A planilha precisa da coluna "Código".');
@@ -53,6 +54,7 @@ class ImportarPlanilha
         $precos = $catalogo->precos()->get()->keyBy(fn (Preco $p) => $p->servico_id.':'.$p->consumo_minimo_cents);
 
         $mudancas = [];
+        $produtos = [];
         $ignorados = 0;
 
         foreach ($linhas as $linha) {
@@ -79,6 +81,18 @@ class ImportarPlanilha
                 }
             }
 
+            // O produto do fornecedor vem pela planilha porque sao dezenas de
+            // servicos e a alternativa e abrir uma tela por servico. Celula
+            // vazia NAO apaga o que ja esta gravado: quem exporta, mexe em
+            // preco e reimporta nao pode desligar a consulta real sem querer.
+            if ($colProduto !== false) {
+                $produto = trim((string) ($linha[$colProduto] ?? ''));
+
+                if ($produto !== '') {
+                    $produtos[$servicoId] = $produto;
+                }
+            }
+
             if ($colCusto !== false) {
                 $custo = $this->centavos($linha[$colCusto] ?? null);
 
@@ -92,19 +106,32 @@ class ImportarPlanilha
             }
         }
 
-        DB::transaction(function () use ($mudancas) {
+        $servicosMudados = 0;
+
+        DB::transaction(function () use ($mudancas, $produtos, &$servicosMudados) {
             foreach ($mudancas as $id => $campos) {
                 Preco::whereKey($id)->update($campos);
             }
+
+            foreach ($produtos as $servicoId => $produto) {
+                $servicosMudados += Servico::whereKey($servicoId)
+                    ->where(fn ($q) => $q->whereNull('codigo_fornecedor')->orWhere('codigo_fornecedor', '!=', $produto))
+                    ->update(['codigo_fornecedor' => $produto]);
+            }
         });
 
-        return ['erro' => null, 'atualizados' => count($mudancas), 'ignorados' => $ignorados];
+        return [
+            'erro' => null,
+            'atualizados' => count($mudancas),
+            'produtos' => $servicosMudados,
+            'ignorados' => $ignorados,
+        ];
     }
 
-    /** @return array{erro: string, atualizados: int, ignorados: int} */
+    /** @return array{erro: string, atualizados: int, produtos: int, ignorados: int} */
     private function falha(string $mensagem): array
     {
-        return ['erro' => $mensagem, 'atualizados' => 0, 'ignorados' => 0];
+        return ['erro' => $mensagem, 'atualizados' => 0, 'produtos' => 0, 'ignorados' => 0];
     }
 
     /** Aceita "5,46", "5.46" e "R$ 5,46"; devolve null para celula vazia. */

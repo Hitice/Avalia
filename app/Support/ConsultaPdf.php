@@ -49,12 +49,6 @@ final class ConsultaPdf
             ->linha('Protocolo', $consulta->referencia_externa ?? 'sem protocolo')
             ->linha('Finalidade declarada', $consulta->finalidade ?? 'Pesquisa de score de crédito');
 
-        $pdf->secao('Atenção');
-
-        foreach (Laudo::ressalvas($documento) as $ressalva) {
-            $pdf->paragrafo($ressalva);
-        }
-
         foreach (Laudo::blocos($resposta) as $bloco) {
             $pdf->secao($bloco['titulo']);
 
@@ -73,6 +67,16 @@ final class ConsultaPdf
                     .'consulta não pesquisou essas bases. Para incluí-las, contrate o produto '
                     .'correspondente com a Avalia.',
                 );
+        }
+
+        // As ressalvas fecham o documento, em corpo menor. E o lugar em que se
+        // procura por elas em qualquer relatorio do mercado, e o tamanho diz a
+        // hierarquia: precisam estar e precisam ser encontraveis, mas nao podem
+        // disputar a leitura com o resultado.
+        $pdf->secao('Informações importantes');
+
+        foreach (Laudo::ressalvas($documento) as $ressalva) {
+            $pdf->nota($ressalva);
         }
 
         return $pdf->bytes();

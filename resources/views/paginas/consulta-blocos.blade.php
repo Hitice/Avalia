@@ -46,20 +46,20 @@
     </div>
 @endif
 
-{{-- As mesmas ressalvas que vão no PDF, da mesma fonte.
+{{-- As mesmas ressalvas que vão no PDF, da mesma fonte, e no mesmo lugar:
+     fechando o relatório, em corpo menor. É onde se procura por elas em
+     qualquer laudo do mercado, e o tamanho comunica hierarquia. Elas precisam
+     estar e precisam ser encontráveis, mas não podem disputar a leitura com o
+     resultado, que é o que a pessoa abriu a tela para ver.
 
-     Ficam recolhidas porque quem abre a tela veio ver o resultado, e cinco
-     parágrafos de aviso antes dele empurram o que importa para baixo da dobra.
-     No PDF elas vêm abertas e antes do conteúdo, porque lá não há como
-     expandir e o papel circula sem quem o explique. --}}
-<details class="cartao mb-6 p-5">
-    <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200">
-        Informações importantes sobre o uso desta consulta
-    </summary>
+     Fixas, e não recolhidas atrás de um clique: ressalva que depende de alguém
+     clicar para aparecer não protege ninguém. --}}
+<div class="cartao mt-6 p-5">
+    <h2 class="rotulo-grupo mb-3 block">Informações importantes</h2>
 
-    <div class="mt-4 space-y-3">
+    <div class="space-y-2">
         @foreach (Laudo::ressalvas(App\Support\Documento::mascarar($documento ?? '')) as $ressalva)
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $ressalva }}</p>
+            <p class="text-xs leading-relaxed text-gray-500 dark:text-gray-400">{{ $ressalva }}</p>
         @endforeach
     </div>
-</details>
+</div>

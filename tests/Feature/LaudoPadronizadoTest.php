@@ -112,7 +112,7 @@ it('leva marca, ressalvas e blocos para o PDF', function () {
         // A marca entra como imagem embutida, e nao como palavra.
         ->and($pdf)->toContain('/DCTDecode')
         ->and($pdf)->toContain('avaliaone.com.br')
-        ->and($pdf)->toContain('Aten')            // "Atenção", escapado em CP1252
+        ->and($pdf)->toContain('Informa')         // "Informações importantes", em CP1252
         ->and($pdf)->toContain('Score e risco')
         ->and($pdf)->toContain('Fulana Operadora');
 
@@ -147,7 +147,7 @@ it('mostra os mesmos blocos na tela do cliente', function () {
         ->assertSee('Score')
         ->assertSee('não contempla', false)
         // As ressalvas tambem aparecem na tela, e nao so no papel.
-        ->assertSee('Informações importantes sobre o uso desta consulta', false)
+        ->assertSee('Informações importantes', false)
         ->assertSee('confidenciais', false)
         // Nome de chave de API nunca aparece para quem le.
         ->assertDontSee('modelo_do_score');

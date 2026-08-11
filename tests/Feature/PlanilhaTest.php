@@ -375,3 +375,73 @@ it('exporta e reimporta sem mudar nada, com as abas novas', function () {
         ->and($catalogo->fresh()->precos()->orderBy('consumo_minimo_cents')
             ->pluck('preco_cents', 'consumo_minimo_cents')->all())->toBe($antes);
 });
+
+it('leva e traz o produto do fornecedor pela planilha', function () {
+    // Sem produto a consulta real nem sai, e sao dezenas de servicos: a
+    // alternativa a planilha e abrir uma tela por servico.
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    $servico = Servico::firstWhere('codigo', 'scpc-bvs');
+
+    expect($servico->codigo_fornecedor)->toBeNull();
+
+    $caminho = tempnam(sys_get_temp_dir(), 'produto').'.xlsx';
+    file_put_contents($caminho, app(App\Actions\Planilha\MontarPlanilha::class)());
+
+    // Simula a edicao no Excel: escreve o produto na coluna e reimporta.
+    $planilha = App\Support\Planilha::ler($caminho);
+    $coluna = array_search('produto no fornecedor',
+        array_map(App\Actions\Planilha\MontarPlanilha::chaveDaColuna(...), $planilha[0]), true);
+
+    expect($coluna)->not->toBeFalse();
+
+    $planilha[1][$coluna] = 'SCPC_NET_PF';
+
+    // A volta e por CSV, que e o outro formato aceito no upload: reescrever
+    // XLSX a mao no teste seria testar o gerador, e nao a importacao.
+    $csv = tempnam(sys_get_temp_dir(), 'produto').'.csv';
+    $arquivo = fopen($csv, 'w');
+    foreach ($planilha as $linha) {
+        fputcsv($arquivo, $linha, ';');
+    }
+    fclose($arquivo);
+
+    $resultado = app(App\Actions\Planilha\ImportarPlanilha::class)($catalogo, $csv);
+    unlink($caminho);
+    unlink($csv);
+
+    expect($resultado['erro'])->toBeNull()
+        ->and($resultado['produtos'])->toBe(1)
+        ->and($servico->fresh()->codigo_fornecedor)->toBe('SCPC_NET_PF');
+});
+
+it('celula vazia nao apaga o produto ja gravado', function () {
+    // Quem exporta, mexe so no preco e reimporta nao pode desligar a consulta
+    // real sem querer.
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631])->create();
+    Servico::firstWhere('codigo', 'scpc-bvs')->update(['codigo_fornecedor' => 'SCORE_PF']);
+
+    $caminho = tempnam(sys_get_temp_dir(), 'vazio').'.xlsx';
+    file_put_contents($caminho, app(App\Actions\Planilha\MontarPlanilha::class)());
+
+    $planilha = App\Support\Planilha::ler($caminho);
+    $coluna = array_search('produto no fornecedor',
+        array_map(App\Actions\Planilha\MontarPlanilha::chaveDaColuna(...), $planilha[0]), true);
+    $planilha[1][$coluna] = '';
+
+    $csv = tempnam(sys_get_temp_dir(), 'vazio').'.csv';
+    $arquivo = fopen($csv, 'w');
+    foreach ($planilha as $linha) {
+        fputcsv($arquivo, $linha, ';');
+    }
+    fclose($arquivo);
+
+    $resultado = app(App\Actions\Planilha\ImportarPlanilha::class)($catalogo, $csv);
+    unlink($caminho);
+    unlink($csv);
+
+    // A importacao precisa ter FUNCIONADO e mesmo assim nao ter mexido: se ela
+    // falhasse, o valor tambem ficaria igual e o teste passaria por engano.
+    expect($resultado['erro'])->toBeNull()
+        ->and($resultado['produtos'])->toBe(0)
+        ->and(Servico::firstWhere('codigo', 'scpc-bvs')->codigo_fornecedor)->toBe('SCORE_PF');
+});

@@ -56,7 +56,7 @@ it('leva a excludente de risco de credito para o demonstrativo', function () {
 
     // O PDF quebra linha, entao a frase inteira nao existe como uma string so:
     // procura-se por pedacos curtos, que cabem numa linha.
-    expect($pdf)->toContain('Aten')
+    expect($pdf)->toContain('Informa')
         ->toContain('responsabilidade')
         ->toContain('decis')
         // O resumo do periodo vem antes do detalhe, como o mercado escreve.
