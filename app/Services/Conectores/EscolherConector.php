@@ -44,10 +44,30 @@ class EscolherConector
 
     public function para(?Servico $servico): ConectorBureau
     {
-        $doServico = $servico?->fornecedor;
+        // A primeira base declarada, para quem so precisa de um conector.
+        $primeira = trim(explode(',', (string) $servico?->fornecedor)[0] ?? '');
 
-        if ($doServico && isset(self::CONECTORES[$doServico]) && Conexao::ativaDe($doServico)) {
-            return app(self::CONECTORES[$doServico]);
+        return $this->conector($primeira);
+    }
+
+    /**
+     * O conector de um fornecedor pelo nome, com a mesma cascata.
+     *
+     * Fornecedor desconhecido ou com a conexao desligada cai na escolha geral:
+     * desligar uma conexao e acao de emergencia, e emergencia nao pode derrubar
+     * o catalogo inteiro junto.
+     */
+    public function conector(string $fornecedor): ConectorBureau
+    {
+        // O simulado nao tem conexao para estar ativa: ele E a ausencia de
+        // fornecedor. Exigir conexao dele o tornava inalcancavel justamente
+        // quando alguem o escolhe de proposito para testar o fluxo.
+        if ($fornecedor === 'simulado') {
+            return app(ConectorSimulado::class);
+        }
+
+        if ($fornecedor !== '' && isset(self::CONECTORES[$fornecedor]) && Conexao::ativaDe($fornecedor)) {
+            return app(self::CONECTORES[$fornecedor]);
         }
 
         return app(self::CONECTORES[self::global()] ?? self::CONECTORES['simulado']);

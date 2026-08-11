@@ -2,6 +2,7 @@
     use App\Support\Laudo;
 
     $ausentes = Laudo::ausentes($resposta);
+    $indisponiveis = Laudo::fontesIndisponiveis($resposta);
 @endphp
 
 {{-- O resultado da consulta em blocos.
@@ -12,6 +13,22 @@
 
      A ordem é a de quem decide crédito: score, quem é, o que pesa contra,
      contexto. Quem lê de cima para baixo conclui antes de acabar a tela. --}}
+
+{{-- Base que foi consultada e nao respondeu. Vem ANTES do resultado, porque
+     muda como se le tudo o que vem depois: o laudo saiu incompleto, e quem
+     decide precisa saber disso antes de decidir, e nao depois. --}}
+@if ($indisponiveis !== [])
+    <div class="aviso aviso-alerta mb-6">
+        <span class="block font-medium">Este resultado está incompleto.</span>
+        @foreach ($indisponiveis as $fonte => $motivo)
+            <span class="mt-1 block">{{ Laudo::nomeDaFonte($fonte) }}: {{ $motivo }}</span>
+        @endforeach
+        <span class="mt-2 block">
+            O que aparece abaixo veio das bases que responderam. Consultar de novo mais tarde
+            pode trazer o que faltou.
+        </span>
+    </div>
+@endif
 
 @foreach (Laudo::blocos($resposta) as $bloco)
     <div class="cartao mb-6 overflow-hidden">

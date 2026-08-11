@@ -82,7 +82,7 @@ final class Laudo
      *
      * @var list<string>
      */
-    private const CONTROLE = ['laudo', 'fornecido_em', 'informacoes_adicionais', 'erro'];
+    private const CONTROLE = ['laudo', 'fornecido_em', 'informacoes_adicionais', 'erro', 'fontes_indisponiveis'];
 
     /**
      * O laudo organizado em blocos, pronto para a tela e para o PDF.
@@ -155,6 +155,30 @@ final class Laudo
         }
 
         return $ausentes;
+    }
+
+    /**
+     * As bases que nao responderam nesta consulta, com o motivo.
+     *
+     * Diferente de "o produto nao contempla": ali a base nunca foi pesquisada,
+     * aqui ela foi e nao respondeu. Para quem decide credito o efeito e o
+     * mesmo (falta informacao), mas para quem opera nao e: uma se resolve
+     * contratando, a outra se resolve consertando.
+     *
+     * @param  array<string, mixed>  $resposta
+     * @return array<string, string> fornecedor => motivo
+     */
+    public static function fontesIndisponiveis(array $resposta): array
+    {
+        $fontes = $resposta['fontes_indisponiveis'] ?? [];
+
+        return is_array($fontes) ? array_map(fn ($m) => (string) $m, $fontes) : [];
+    }
+
+    /** O nome do fornecedor como se escreve na tela. */
+    public static function nomeDaFonte(string $chave): string
+    {
+        return Fornecedores::todos()[$chave]['nome'] ?? ucfirst(str_replace('-', ' ', $chave));
     }
 
     /**

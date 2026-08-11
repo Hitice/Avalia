@@ -6,7 +6,7 @@ use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
 use App\Models\Servico;
-use App\Services\Conectores\EscolherConector;
+use App\Services\Conectores\ConsultarFontes;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ExecutarConsulta
 {
-    public function __construct(private readonly EscolherConector $bureaus) {}
+    public function __construct(private readonly ConsultarFontes $fontes) {}
 
     /** @return array{erro: string|null, consulta: Consulta|null} */
     public function __invoke(
@@ -125,12 +125,20 @@ class ExecutarConsulta
             return $this->recusa("O período {$competencia} já foi fechado.");
         }
 
-        // O conector sai do SERVICO, e nao de uma escolha global: o catalogo
-        // mistura bases, e "Base III" e Boa Vista enquanto outras linhas vem de
-        // outro fornecedor.
-        $conector = $this->bureaus->para($servico);
+        // Um servico pode puxar de mais de uma base, e base e fornecedor
+        // diferente. Vale o que voltou: relatorio incompleto e util, relatorio
+        // que nao sai nao e util para ninguem.
+        ['resposta' => $resposta, 'fontes' => $atendidas, 'indisponiveis' => $indisponiveis]
+            = ($this->fontes)($servico, $documento, $finalidade);
 
-        $resposta = $conector->consultar($servico, $documento, $finalidade);
+        $dados = $resposta->dados;
+
+        // O que faltou vai gravado NA consulta, e nao so na mensagem: quem
+        // reabrir o resultado daqui a um mes precisa saber que aquele laudo
+        // saiu incompleto, e por que.
+        if ($resposta->sucesso && $indisponiveis !== []) {
+            $dados['fontes_indisponiveis'] = $indisponiveis;
+        }
 
         $consulta = DB::transaction(fn () => Consulta::create([
             'cliente_id' => $cliente->id,
@@ -145,7 +153,7 @@ class ExecutarConsulta
             'situacao' => $resposta->sucesso ? Consulta::SUCESSO : Consulta::FALHA,
             'referencia_externa' => $resposta->referenciaExterna,
             'duracao_ms' => $resposta->duracaoMs,
-            'resposta' => $resposta->sucesso ? $resposta->dados : ['erro' => $resposta->erro],
+            'resposta' => $resposta->sucesso ? $dados : ['erro' => $resposta->erro],
 
             // O que nao respondeu nao custa e nao se cobra.
             'preco_cents' => $resposta->sucesso ? $preco->preco_cents : 0,
@@ -157,7 +165,8 @@ class ExecutarConsulta
         Auditar::registrar('consulta.'.$consulta->situacao, $consulta, [
             'servico' => $servico->codigo,
             'finalidade' => $finalidade,
-            'fornecedor' => $conector->nome(),
+            'fornecedor' => implode(', ', $atendidas),
+            'fontes_indisponiveis' => array_keys($indisponiveis),
         ]);
 
         return $resposta->sucesso

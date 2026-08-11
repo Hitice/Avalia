@@ -5,7 +5,7 @@ namespace App\Actions\Consumo;
 use App\Models\Consulta;
 use App\Models\Servico;
 use App\Models\Staff;
-use App\Services\Conectores\EscolherConector;
+use App\Services\Conectores\ConsultarFontes;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +32,7 @@ class ExecutarDemonstracao
 
     public const FINALIDADE_OPERACAO = 'Conferência interna, pesquisa de score de crédito';
 
-    public function __construct(private readonly EscolherConector $bureaus) {}
+    public function __construct(private readonly ConsultarFontes $fontes) {}
 
     /** Quantas consultas proprias esta conta ainda pode fazer hoje. */
     public static function restantes(Staff $conta): int
@@ -101,12 +101,15 @@ class ExecutarDemonstracao
             ->where('servico_id', $servico->id)
             ->value('custo_cents');
 
-        // O conector sai do SERVICO: "Base III" e Boa Vista, e outras linhas
-        // vem de outro fornecedor. Escolha global mandaria para um bureau ate
-        // o que ele nao vende.
-        $conector = $this->bureaus->para($servico);
+        // Todas as bases do servico, e vale o que voltou.
+        ['resposta' => $resposta, 'fontes' => $atendidas, 'indisponiveis' => $indisponiveis]
+            = ($this->fontes)($servico, $documento, $finalidade);
 
-        $resposta = $conector->consultar($servico, $documento, $finalidade);
+        $dados = $resposta->dados;
+
+        if ($resposta->sucesso && $indisponiveis !== []) {
+            $dados['fontes_indisponiveis'] = $indisponiveis;
+        }
 
         $consulta = DB::transaction(fn () => Consulta::create([
             'cliente_id' => null,
@@ -119,7 +122,7 @@ class ExecutarDemonstracao
             'situacao' => $resposta->sucesso ? Consulta::SUCESSO : Consulta::FALHA,
             'referencia_externa' => $resposta->referenciaExterna,
             'duracao_ms' => $resposta->duracaoMs,
-            'resposta' => $resposta->sucesso ? $resposta->dados : ['erro' => $resposta->erro],
+            'resposta' => $resposta->sucesso ? $dados : ['erro' => $resposta->erro],
 
             // Preco zero: ninguem e cobrado. Custo congelado: e o que sai da
             // comissao do vendedor, ou o custo que a casa assume quando quem
@@ -134,7 +137,7 @@ class ExecutarDemonstracao
             'servico' => $servico->codigo,
             'finalidade' => $finalidade,
             'origem' => $daCasa ? 'operacao' : 'demonstracao',
-            'fornecedor' => $conector->nome(),
+            'fornecedor' => implode(', ', $atendidas),
         ]);
 
         return $resposta->sucesso

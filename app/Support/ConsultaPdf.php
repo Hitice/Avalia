@@ -49,6 +49,22 @@ final class ConsultaPdf
             ->linha('Protocolo', $consulta->referencia_externa ?? 'sem protocolo')
             ->linha('Finalidade declarada', $consulta->finalidade ?? 'Pesquisa de score de crédito');
 
+        // Antes do resultado, porque muda como se le tudo o que vem depois.
+        $indisponiveis = Laudo::fontesIndisponiveis($resposta);
+
+        if ($indisponiveis !== []) {
+            $pdf->secao('Este resultado está incompleto');
+
+            foreach ($indisponiveis as $fonte => $motivo) {
+                $pdf->linha(Laudo::nomeDaFonte($fonte), 'não respondeu');
+            }
+
+            $pdf->espaco(6)->paragrafo(
+                'O que segue veio das bases que responderam. A ausência de uma ocorrência '
+                .'aqui pode ser efeito da base que faltou, e não prova que ela não exista.',
+            );
+        }
+
         foreach (Laudo::blocos($resposta) as $bloco) {
             $pdf->secao($bloco['titulo']);
 
