@@ -14,8 +14,8 @@ uses(RefreshDatabase::class);
 it('manda os cabecalhos de seguranca em toda resposta', function () {
     $resposta = $this->get(route('entrar'))->assertOk();
 
-    expect($resposta->headers->get('Content-Security-Policy'))->toContain("frame-ancestors 'none'")
-        ->and($resposta->headers->get('X-Frame-Options'))->toBe('DENY')
+    expect($resposta->headers->get('Content-Security-Policy'))->toContain("frame-ancestors 'self'")
+        ->and($resposta->headers->get('X-Frame-Options'))->toBe('SAMEORIGIN')
         ->and($resposta->headers->get('X-Content-Type-Options'))->toBe('nosniff')
         ->and($resposta->headers->get('Referrer-Policy'))->toBe('same-origin');
 });
@@ -26,8 +26,8 @@ it('manda os cabecalhos tambem em redirecionamento e erro', function () {
     $redirecionamento = $this->get('/painel')->assertRedirect();
     $naoEncontrado = $this->get('/rota-que-nao-existe')->assertNotFound();
 
-    expect($redirecionamento->headers->get('X-Frame-Options'))->toBe('DENY')
-        ->and($naoEncontrado->headers->get('X-Frame-Options'))->toBe('DENY');
+    expect($redirecionamento->headers->get('X-Frame-Options'))->toBe('SAMEORIGIN')
+        ->and($naoEncontrado->headers->get('X-Frame-Options'))->toBe('SAMEORIGIN');
 });
 
 it('impede o navegador de adivinhar o tipo de arquivo', function () {

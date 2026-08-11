@@ -140,44 +140,77 @@ final class Pdf
     }
 
     /**
-     * O medidor do score: a regua visual de 0 ao teto, preenchida em degrade.
+     * O score em temperatura: numero grande e colorido, regua em leque.
      *
-     * O numero sozinho obriga quem le a lembrar da escala; a regua mostra onde
-     * ele cai nela antes de qualquer conta. O degrade e o mesmo da barra de
-     * secao, entao o documento inteiro fala a mesma lingua visual.
+     * O numero pequeno numa linha de tabela nao comunica risco nenhum; o
+     * mercado mostra o score GRANDE e com a cor da faixa em que ele caiu,
+     * porque e assim que quem decide le em um segundo. O leque vai do vermelho
+     * (negativo) ao azul claro (positivo) passando por laranja e ambar, todos
+     * da paleta da casa, e a agulha marca onde o documento caiu.
      */
     public function medidor(float $valor, float $maximo = 1000): static
     {
-        $this->garantir(26);
-        $this->espaco(8);
+        $this->garantir(70);
+        $this->espaco(10);
 
-        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
-        $alturaRegua = 8.0;
+        // As paradas do leque, da paleta: error-500, orange-400, warning-400 e
+        // blue-light-400.
+        $paradas = [
+            [0.941, 0.267, 0.220],
+            [0.992, 0.522, 0.227],
+            [0.992, 0.690, 0.133],
+            [0.212, 0.749, 0.980],
+        ];
+
         $pct = max(0.0, min(1.0, $maximo > 0 ? $valor / $maximo : 0));
+        $cor = $paradas[min(3, (int) floor($pct * 4))];
+
+        // O numero grande, na cor da faixa, com o teto discreto ao lado.
+        $this->y -= 30;
+        $numero = (string) (int) $valor;
+        $this->atual .= sprintf(
+            "BT /F2 30.00 Tf %.3F %.3F %.3F rg %.2F %.2F Td (%s) Tj ET\n",
+            $cor[0], $cor[1], $cor[2], self::MARGEM, $this->y, $this->escapar($numero),
+        );
+        $this->atual .= sprintf(
+            "BT /F1 10.00 Tf 0.55 0.55 0.55 rg %.2F %.2F Td (%s) Tj ET\n",
+            self::MARGEM + $this->largura($numero, 30, true) + 8, $this->y + 2,
+            $this->escapar('de '.(int) $maximo),
+        );
+        $this->espaco(10);
+
+        // O leque inteiro, em fatias que atravessam as quatro paradas.
+        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
+        $alturaRegua = 10.0;
+        $fatias = 48;
         $this->y -= $alturaRegua;
 
-        // O trilho inteiro, apagado.
-        $this->atual .= sprintf(
-            "q 0.92 0.93 0.95 rg %.2F %.2F %.2F %.2F re f Q\n",
-            self::MARGEM, $this->y, $larguraUtil, $alturaRegua,
-        );
-
-        // O preenchido, em fatias do degrade ate onde o score alcanca.
-        $fatias = (int) round(40 * $pct);
-
         for ($i = 0; $i < $fatias; $i++) {
-            $t = $i / 39;
+            $t = $i / ($fatias - 1);
+            $trecho = min(2, (int) floor($t * 3));
+            $tt = $t * 3 - $trecho;
+            $a = $paradas[$trecho];
+            $b = $paradas[$trecho + 1];
+
             $this->atual .= sprintf(
                 "q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q\n",
-                self::AZUL[0] + (self::ROSA[0] - self::AZUL[0]) * $t,
-                self::AZUL[1] + (self::ROSA[1] - self::AZUL[1]) * $t,
-                self::AZUL[2] + (self::ROSA[2] - self::AZUL[2]) * $t,
-                self::MARGEM + $i * ($larguraUtil / 40), $this->y, $larguraUtil / 40 + 0.5, $alturaRegua,
+                $a[0] + ($b[0] - $a[0]) * $tt,
+                $a[1] + ($b[1] - $a[1]) * $tt,
+                $a[2] + ($b[2] - $a[2]) * $tt,
+                self::MARGEM + $i * ($larguraUtil / $fatias), $this->y,
+                $larguraUtil / $fatias + 0.5, $alturaRegua,
             );
         }
 
+        // A agulha: triangulo escuro apontando para onde o score caiu.
+        $x = self::MARGEM + $larguraUtil * $pct;
+        $this->atual .= sprintf(
+            "q 0.11 0.11 0.11 rg %.2F %.2F m %.2F %.2F l %.2F %.2F l f Q\n",
+            $x - 4, $this->y - 6, $x + 4, $this->y - 6, $x, $this->y - 1,
+        );
+
         // A escala nas pontas, para a regua se explicar sozinha.
-        $this->y -= 11;
+        $this->y -= 16;
         $this->texto('0', self::MARGEM, 7, false, 0.55);
         $this->texto((string) (int) $maximo, self::LARGURA - self::MARGEM - $this->largura((string) (int) $maximo, 7, false), 7, false, 0.55);
         $this->espaco(6);

@@ -60,7 +60,7 @@ class Consulta extends Model
      * vazia; a declaracao vinculante e a do aceite, e cada consulta a
      * referencia.
      */
-    public const FINALIDADE_PADRAO = 'Pesquisa de score de crédito, conforme os termos aceitos';
+    public const FINALIDADE_PADRAO = 'Pesquisa de avaliação de risco, conforme os termos aceitos';
 
     protected $fillable = [
         'cliente_id', 'servico_id', 'operador_id', 'vendedor_id', 'competencia', 'preco_cents', 'custo_cents',

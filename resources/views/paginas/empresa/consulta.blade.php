@@ -50,6 +50,10 @@
                 {{-- O resultado sai daqui em arquivo, nunca em captura de tela:
                      o PDF leva protocolo, documento mascarado e o carimbo de
                      quem emitiu. --}}
+                <x-avalia.botao variante="secundario" tamanho="sm" :href="route('empresa.consultas')">
+                    Voltar
+                </x-avalia.botao>
+
                 <x-avalia.visor-laudo :url="route('empresa.consultas.pdf', $consulta)"
                                       :aberto="request('laudo') === 'aberto'" />
 
@@ -103,8 +107,9 @@
     </div>
 
     @if ($consulta->deuCerto() && ! $consulta->expurgada())
-        <div class="mt-6">
-            @include('paginas.consulta-blocos', ['resposta' => $resposta, 'documento' => $consulta->documento])
-        </div>
+        {{-- O conteudo do resultado vive no RELATORIO, que abre no visor por
+             cima desta pagina. Repetir os blocos aqui atras do popup era ler o
+             mesmo laudo duas vezes em duas diagramacoes, e a tela por baixo
+             existe so para reabrir o visor e navegar. --}}
     @endif
 @endsection

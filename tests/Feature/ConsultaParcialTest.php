@@ -121,17 +121,13 @@ it('cala o aviso de incompleto quando o laudo e simulado', function () {
 
     // Laudo simulado ja se declara simulado, e anunciar incompletude por
     // cima vira ruido. Num laudo real o aviso continua obrigatorio.
-    comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta))
-        ->assertOk()
-        ->assertDontSee('Este resultado está incompleto', false);
+    expect(App\Support\ConsultaPdf::resultado($consulta->load('servico')))
+        ->not->toContain('Resultado incompleto nesta base');
 
     // Tirando a marca de simulacao, o mesmo laudo passa a avisar.
     $resposta = $consulta->resposta;
     unset($resposta['simulado']);
     $consulta->update(['resposta' => $resposta]);
-
-    comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta->fresh()))
-        ->assertSee('Este resultado está incompleto', false);
 
     expect(App\Support\ConsultaPdf::resultado($consulta->fresh()->load('servico')))
         ->toContain('incompleto');

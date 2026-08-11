@@ -29,8 +29,14 @@
         @if ($consulta->deuCerto() && ! $consulta->expurgada())
             {{-- O unico jeito aprovado de o resultado sair da tela: arquivo em
                  mao, nunca dado pessoal em URL de conversa. --}}
-            <x-avalia.visor-laudo :url="route('carteira.demonstracoes.pdf', $consulta)"
+            <div class="flex flex-wrap items-center gap-2">
+                <x-avalia.botao variante="secundario" tamanho="sm" :href="route('carteira.consultar')">
+                    Voltar
+                </x-avalia.botao>
+
+                <x-avalia.visor-laudo :url="route('carteira.demonstracoes.pdf', $consulta)"
                                   :aberto="request('laudo') === 'aberto'" />
+            </div>
         @endif
     </div>
 
@@ -42,6 +48,9 @@
     @endif
 
     @if ($consulta->deuCerto() && ! $consulta->expurgada())
-        @include('paginas.consulta-blocos', ['resposta' => $resposta, 'documento' => $consulta->documento])
+        {{-- O conteudo do resultado vive no RELATORIO, que abre no visor por
+             cima desta pagina. Repetir os blocos aqui atras do popup era ler o
+             mesmo laudo duas vezes em duas diagramacoes, e a tela por baixo
+             existe so para reabrir o visor e navegar. --}}
     @endif
 @endsection

@@ -133,7 +133,7 @@ it('avisa no PDF o que o produto nao contemplou', function () {
         ->toContain('contempla');
 });
 
-it('mostra os mesmos blocos na tela do cliente', function () {
+it('a tela do resultado e casca do visor do relatorio', function () {
     $empresa = empresaComPlano();
     $servico = App\Models\Servico::firstWhere('codigo', 'scpc-bvs');
     app(App\Actions\Consumo\RegistrarConsulta::class)($empresa, $servico, 1);
@@ -141,14 +141,11 @@ it('mostra os mesmos blocos na tela do cliente', function () {
     $consulta = App\Models\Consulta::latest('id')->firstOrFail();
     $consulta->update(['resposta' => ['score' => 700, 'nome' => 'Fulana de Teste']]);
 
+    // A tela e casca do visor: o conteudo vive no relatorio, e repeti-lo
+    // atras do popup era ler o mesmo laudo em duas diagramacoes.
     comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta))
         ->assertOk()
-        ->assertSee('Score e risco')
-        ->assertSee('Score')
-        ->assertSee('não contempla', false)
-        // As ressalvas tambem aparecem na tela, e nao so no papel.
-        ->assertSee('Informações importantes', false)
-        ->assertSee('confidenciais', false)
-        // Nome de chave de API nunca aparece para quem le.
+        ->assertSee(route('empresa.consultas.pdf', $consulta), false)
+        ->assertDontSee('Score e risco')
         ->assertDontSee('modelo_do_score');
 });

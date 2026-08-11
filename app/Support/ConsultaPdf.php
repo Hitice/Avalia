@@ -68,7 +68,7 @@ final class ConsultaPdf
             ->linha('Documento consultado', $documento ?: 'Não informado')
             ->linha('Consultado em', $consulta->created_at->format('d/m/Y \à\s H:i'))
             ->linha('Protocolo', $consulta->referencia_externa ?? 'sem protocolo')
-            ->linha('Finalidade declarada', $consulta->finalidade ?? 'Pesquisa de score de crédito');
+            ->linha('Finalidade declarada', $consulta->finalidade ?? 'Pesquisa de avaliação de risco');
 
         foreach (Laudo::blocos($resposta) as $bloco) {
             // O bloco inteiro ou nada nesta pagina: titulo orfao no pe, com as
@@ -77,14 +77,21 @@ final class ConsultaPdf
             $pdf->garantir(46 + min(count($bloco['linhas']), 12) * 16);
             $pdf->secao($bloco['titulo']);
 
-            foreach ($bloco['linhas'] as $linha) {
-                $pdf->linha($linha['rotulo'], $linha['valor']);
+            // No bloco de score o numero vira o protagonista: grande, na cor
+            // da faixa, com o leque de temperatura embaixo. A linha "Score"
+            // em tabela sai, senao o mesmo numero apareceria duas vezes.
+            $temScoreGrande = $bloco['titulo'] === 'Score e risco' && is_numeric($resposta['score'] ?? null);
+
+            if ($temScoreGrande) {
+                $pdf->medidor((float) $resposta['score']);
             }
 
-            // A regua do score logo abaixo do numero: o numero sozinho obriga
-            // quem le a lembrar da escala.
-            if ($bloco['titulo'] === 'Score e risco' && is_numeric($resposta['score'] ?? null)) {
-                $pdf->medidor((float) $resposta['score']);
+            foreach ($bloco['linhas'] as $linha) {
+                if ($temScoreGrande && $linha['rotulo'] === 'Score') {
+                    continue;
+                }
+
+                $pdf->linha($linha['rotulo'], $linha['valor']);
             }
         }
 

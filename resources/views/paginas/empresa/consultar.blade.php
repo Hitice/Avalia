@@ -30,7 +30,7 @@
         <div class="cartao p-6">
             <p class="ajuda-campo mb-5">
                 Cada consulta registra quem consultou e a finalidade declarada no aceite dos
-                termos: pesquisa de score de crédito.
+                termos: pesquisa de avaliação de risco.
             </p>
 
             <form method="POST" action="{{ route('empresa.consultas.executar') }}" class="grid gap-5 sm:grid-cols-2">

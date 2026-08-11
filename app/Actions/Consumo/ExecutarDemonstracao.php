@@ -28,9 +28,9 @@ use Illuminate\Support\Facades\DB;
  */
 class ExecutarDemonstracao
 {
-    public const FINALIDADE = 'Demonstração comercial, pesquisa de score de crédito';
+    public const FINALIDADE = 'Demonstração comercial, pesquisa de avaliação de risco';
 
-    public const FINALIDADE_OPERACAO = 'Conferência interna, pesquisa de score de crédito';
+    public const FINALIDADE_OPERACAO = 'Conferência interna, pesquisa de avaliação de risco';
 
     public function __construct(private readonly ConsultarFontes $fontes) {}
 

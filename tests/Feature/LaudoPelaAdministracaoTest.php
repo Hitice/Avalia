@@ -42,9 +42,10 @@ it('oferece abrir e emitir o laudo na lista', function () {
 it('abre o resultado e registra quem abriu', function () {
     $consulta = consultaDeCliente();
 
+    // A tela e casca do visor: o conteudo vive no relatorio em PDF. O que
+    // ela precisa mostrar e o cerco, nao o laudo.
     admin()->get(route('consultas.ver', $consulta))
         ->assertOk()
-        ->assertSee('Score e risco')
         // O documento aparece mascarado, nunca inteiro.
         ->assertSee('123******01')
         ->assertDontSee('12345678901')

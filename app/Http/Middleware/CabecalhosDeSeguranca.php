@@ -13,8 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
  *
  *   a politica de conteudo impede que script de outra origem execute, que e a
  *   diferenca entre um campo mal escapado e uma sessao roubada;
- *   negar enquadramento impede que a tela seja embutida em pagina de terceiro
- *   para capturar clique;
+ *   negar enquadramento a terceiros impede que a tela seja embutida em pagina
+ *   alheia para capturar clique (a propria origem pode, porque o visor de
+ *   laudo abre o PDF em iframe do proprio site);
  *   a politica de referencia impede que o endereco de uma fatura ou consulta
  *   vaze no cabecalho de uma requisicao para fora;
  *   `nosniff` impede que o navegador adivinhe o tipo de um arquivo e execute o
@@ -38,13 +39,17 @@ class CabecalhosDeSeguranca
             "img-src 'self' data:",
             "connect-src 'self'",
             "form-action 'self'",
-            "frame-ancestors 'none'",
+            // O PROPRIO site pode se emoldurar: o visor de laudo abre o PDF
+            // num iframe da mesma origem. Terceiros continuam proibidos, que e
+            // o que o cabecalho existe para impedir (clickjacking e por pagina
+            // de fora, nao pela nossa).
+            "frame-ancestors 'self'",
             "base-uri 'self'",
         ]);
 
         foreach ([
             'Content-Security-Policy' => $politica,
-            'X-Frame-Options' => 'DENY',
+            'X-Frame-Options' => 'SAMEORIGIN',
             'X-Content-Type-Options' => 'nosniff',
             'Referrer-Policy' => 'same-origin',
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',

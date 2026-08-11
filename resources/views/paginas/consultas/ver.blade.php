@@ -27,7 +27,13 @@
             </p>
         </div>
 
-        <x-avalia.visor-laudo :url="route('consultas.pdf', $consulta)" rotulo="Ver laudo" />
+        <div class="flex flex-wrap items-center gap-2">
+            <x-avalia.botao variante="secundario" tamanho="sm" :href="route('consultas')">
+                Voltar
+            </x-avalia.botao>
+
+            <x-avalia.visor-laudo :url="route('consultas.pdf', $consulta)" rotulo="Ver laudo" />
+        </div>
     </div>
 
     {{-- O aviso existe porque esta tela é a única em que a administração vê o
@@ -69,5 +75,8 @@
         </dl>
     </div>
 
-    @include('paginas.consulta-blocos', ['resposta' => $resposta, 'documento' => $consulta->documento])
+        {{-- O conteudo do resultado vive no RELATORIO, que abre no visor por
+             cima desta pagina. Repetir os blocos aqui atras do popup era ler o
+             mesmo laudo duas vezes em duas diagramacoes, e a tela por baixo
+             existe so para reabrir o visor e navegar. --}}
 @endsection
