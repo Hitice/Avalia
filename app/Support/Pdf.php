@@ -170,32 +170,41 @@ final class Pdf
         $pct = max(0.0, min(1.0, $maximo > 0 ? $valor / $maximo : 0));
         $cor = $paradas[min(3, (int) floor($pct * 4))];
 
-        // O numero grande a DIREITA, na cor da faixa, e o teto EMBAIXO dele:
-        // "de 1000" como legenda sob o numero le-se como unidade, e ao lado
-        // competia com ele.
+        // O numero grande ACOMPANHA a agulha: centrado sobre o ponto do leque
+        // em que o score caiu, com o "de 1000" como legenda embaixo. Numero e
+        // posicao dizem a mesma coisa duas vezes, que e como escala se le num
+        // relance. Nas pontas ele para na margem em vez de vazar.
+        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
         $this->y -= 30;
         $numero = (string) (int) $valor;
         $larguraNumero = $this->largura($numero, 30, true);
         $teto = 'de '.(int) $maximo;
 
+        $xNumero = max(
+            self::MARGEM,
+            min(
+                self::LARGURA - self::MARGEM - $larguraNumero,
+                self::MARGEM + $larguraUtil * $pct - $larguraNumero / 2,
+            ),
+        );
+
         $this->atual .= sprintf(
             "BT /F2 30.00 Tf %.3F %.3F %.3F rg %.2F %.2F Td (%s) Tj ET\n",
             $cor[0], $cor[1], $cor[2],
-            self::LARGURA - self::MARGEM - $larguraNumero, $this->y, $this->escapar($numero),
+            $xNumero, $this->y, $this->escapar($numero),
         );
 
         // A legenda centrada sob o numero.
         $this->y -= 12;
         $this->atual .= sprintf(
             "BT /F1 9.00 Tf 0.55 0.55 0.55 rg %.2F %.2F Td (%s) Tj ET\n",
-            self::LARGURA - self::MARGEM - ($larguraNumero + $this->largura($teto, 9, false)) / 2,
+            $xNumero + ($larguraNumero - $this->largura($teto, 9, false)) / 2,
             $this->y,
             $this->escapar($teto),
         );
         $this->espaco(10);
 
         // O leque inteiro, em fatias que atravessam as quatro paradas.
-        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
         $alturaRegua = 10.0;
         $fatias = 48;
         $this->y -= $alturaRegua;

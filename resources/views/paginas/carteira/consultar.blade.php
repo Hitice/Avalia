@@ -92,10 +92,14 @@
                      os vizinhos. O popup mostra o resumo, e o Consultar troca o
                      miolo pelo campo do documento com o foco ja dentro. --}}
                 <template x-teleport="body">
+                    {{-- Centrado no ESCOPO da aba, nao na janela: o recuo
+                         acompanha a largura real da coluna esquerda, senao o
+                         popup nasce deslocado para ela. --}}
                     <div x-cloak x-show="aberto === {{ $servico->id }}" x-transition.opacity.duration.200ms
                          class="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 p-4"
+                         :class="($store.sidebar.isExpanded || $store.sidebar.isHovered) ? 'xl:pl-[290px]' : 'xl:pl-[90px]'"
                          @keydown.escape.window="aberto = null">
-                        <div class="entra-popup w-full max-w-lg rounded-2xl bg-white shadow-theme-lg dark:bg-gray-800"
+                        <div class="entra-popup w-full max-w-2xl rounded-2xl bg-white shadow-theme-lg dark:bg-gray-800"
                              @click.outside="aberto = null">
                             <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                                 <div>
@@ -117,7 +121,21 @@
                             <div class="px-6 py-5">
                                 <div x-show="etapa === 'resumo'">
                                     <p class="text-sm text-gray-600 dark:text-gray-300">
-                                        {{ $servico->descricao ?: 'Consulta ao documento nas bases contratadas, com resultado em relatório padronizado: score com temperatura, identificação, restrições e contexto.' }}
+                                        {{ $servico->descricao ?: 'Consulta ao documento nas bases contratadas deste serviço.' }}
+                                    </p>
+
+                                    <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                        O resultado abre na hora, em relatório com a marca da Avalia:
+                                        score com régua de temperatura, identificação do titular,
+                                        restrições da mais grave para a menos e o contexto de consultas
+                                        recentes. O que a base não trouxer aparece dito com todas as
+                                        letras, e o laudo sai pronto para imprimir ou anexar.
+                                    </p>
+
+                                    <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                        O documento consultado fica mascarado no arquivo, o protocolo
+                                        vai no rodapé de toda página, e a consulta é registrada com a
+                                        finalidade declarada, como os termos exigem.
                                     </p>
 
                                     @php
@@ -156,9 +174,7 @@
                                             Voltar ao resumo
                                         </button>
 
-                                        <x-avalia.botao>
-                                            {{ $vendedor->ehAdmin() ? 'Consultar' : 'Consultar para demonstrar' }}
-                                        </x-avalia.botao>
+                                        <x-avalia.botao>Confirmar consulta</x-avalia.botao>
                                     </div>
                                 </form>
                             </div>

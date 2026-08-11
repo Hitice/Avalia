@@ -292,9 +292,9 @@ final class Laudo
         // Uma frase por porta juridica, e nada alem: nota legal enxuta e nota
         // que se le ate o fim.
         return [
-            'A decisão de crédito é de exclusiva responsabilidade de quem consulta; este laudo apenas a '
-            .'subsidia. Informações confidenciais, restritas à finalidade declarada e de repasse vedado: '
-            .'o mau uso responsabiliza, civil e criminalmente, quem as utilizar.',
+            'A decisão de crédito é exclusiva de quem consulta; este laudo apenas a subsidia. Informações '
+            .'confidenciais, restritas à finalidade declarada; vedado o repasse. O mau uso responsabiliza '
+            .'civil e criminalmente.',
 
             $alvo.' Consultar não significa negócio realizado e não se confunde com anotação negativa. O '
             .'laudo reflete as bases neste momento; a ausência de um registro não prova que ele não exista.',

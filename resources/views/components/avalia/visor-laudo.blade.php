@@ -19,6 +19,7 @@
     <template x-teleport="body">
         <div x-cloak x-show="aberto" x-transition.opacity.duration.300ms
              class="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 p-4"
+             :class="($store.sidebar?.isExpanded || $store.sidebar?.isHovered) ? 'xl:pl-[290px]' : 'xl:pl-[90px]'"
              @keydown.escape.window="aberto = false">
             <div class="entra-popup flex h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-theme-lg dark:bg-gray-800"
                  @click.outside="aberto = false">

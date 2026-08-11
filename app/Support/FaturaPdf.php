@@ -99,7 +99,7 @@ final class FaturaPdf
         $pdf->fecho(
             'Informações importantes',
             Laudo::ressalvasDaFatura($consultas, Consulta::DIAS_DE_RETENCAO),
-            'Avalia · avaliaone.com.br · demonstrativo de fatura',
+            'avaliaone.com.br · CNPJ 39.914.870/0001-01',
         );
 
         return $pdf->bytes();

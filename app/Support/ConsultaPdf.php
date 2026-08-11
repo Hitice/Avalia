@@ -129,7 +129,7 @@ final class ConsultaPdf
         $pdf->fecho(
             'Informações importantes',
             Laudo::ressalvas($documento),
-            'Avalia · avaliaone.com.br · relatório de consulta',
+            'avaliaone.com.br · CNPJ 39.914.870/0001-01',
         );
 
         return $pdf->bytes();

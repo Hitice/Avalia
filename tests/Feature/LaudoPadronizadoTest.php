@@ -75,10 +75,10 @@ it('carimba as ressalvas em todo laudo', function () {
     // redacao: sao as frases que separam a Avalia do uso que se faz do laudo.
     expect($ressalvas)->toHaveCount(3)
         // A decisao de credito e de quem consulta.
-        ->and($ressalvas[0])->toContain('exclusiva responsabilidade de quem consulta')
+        ->and($ressalvas[0])->toContain('exclusiva de quem consulta')
         // Confidencialidade, vedacao de repasse e responsabilidade de quem usa.
         ->and($tudo)->toContain('confidenciais')
-        ->and($tudo)->toContain('repasse vedado')
+        ->and($tudo)->toContain('vedado o repasse')
         ->and($tudo)->toContain('civil e criminalmente')
         // Consultar nao e negativar.
         ->and($tudo)->toContain('não se confunde com anotação negativa')
