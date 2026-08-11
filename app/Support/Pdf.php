@@ -170,17 +170,24 @@ final class Pdf
         $pct = max(0.0, min(1.0, $maximo > 0 ? $valor / $maximo : 0));
         $cor = $paradas[min(3, (int) floor($pct * 4))];
 
-        // O numero grande, na cor da faixa, com o teto discreto ao lado.
+        // O numero grande a DIREITA, na cor da faixa, com o teto discreto
+        // antes dele: e a coluna onde todos os outros valores do laudo ja
+        // moram, entao o olho nao muda de lado para ler o mais importante.
         $this->y -= 30;
         $numero = (string) (int) $valor;
+        $larguraNumero = $this->largura($numero, 30, true);
+        $teto = 'de '.(int) $maximo;
+
         $this->atual .= sprintf(
             "BT /F2 30.00 Tf %.3F %.3F %.3F rg %.2F %.2F Td (%s) Tj ET\n",
-            $cor[0], $cor[1], $cor[2], self::MARGEM, $this->y, $this->escapar($numero),
+            $cor[0], $cor[1], $cor[2],
+            self::LARGURA - self::MARGEM - $larguraNumero, $this->y, $this->escapar($numero),
         );
         $this->atual .= sprintf(
             "BT /F1 10.00 Tf 0.55 0.55 0.55 rg %.2F %.2F Td (%s) Tj ET\n",
-            self::MARGEM + $this->largura($numero, 30, true) + 8, $this->y + 2,
-            $this->escapar('de '.(int) $maximo),
+            self::LARGURA - self::MARGEM - $larguraNumero - $this->largura($teto, 10, false) - 8,
+            $this->y + 2,
+            $this->escapar($teto),
         );
         $this->espaco(10);
 

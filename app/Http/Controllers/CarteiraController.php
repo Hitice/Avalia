@@ -189,9 +189,16 @@ class CarteiraController extends Controller
     {
         $vendedor = Auth::guard('staff')->user();
 
+        // O preco de TABELA (faixa sem minimo), para o card dizer quanto a
+        // consulta vale no catalogo. Preco de venda o vendedor pode ver; custo
+        // e margem continuam fora desta tela.
+        $precos = \App\Models\Catalogo::vigente()
+            ?->precos()->where('consumo_minimo_cents', 0)->pluck('preco_cents', 'servico_id') ?? collect();
+
         return view('paginas.carteira.consultar', [
             'vendedor' => $vendedor,
             'servicos' => Servico::query()->disponiveis()->orderBy('numero')->get(),
+            'precos' => $precos,
             'restantes' => \App\Actions\Consumo\ExecutarDemonstracao::restantes($vendedor),
         ]);
     }
