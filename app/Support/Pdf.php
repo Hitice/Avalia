@@ -106,6 +106,85 @@ final class Pdf
         return $this->espaco(16);
     }
 
+    /**
+     * A identificacao do titular no topo direito, em frente a marca.
+     *
+     * O nome e a primeira coisa que se confere num laudo, e no canto oposto ao
+     * logotipo ele ganha a mesma hierarquia sem competir com nada. Escreve em
+     * coordenadas proprias, sem mexer no cursor: o fluxo do documento continua
+     * de onde estava.
+     */
+    public function identidade(?string $nome, array $detalhes = []): static
+    {
+        if (! $nome) {
+            return $this;
+        }
+
+        $yy = self::ALTURA - self::MARGEM - 11 * 1.45;
+        $this->atual .= sprintf(
+            "BT /F2 11.00 Tf 0.11 0.11 0.11 rg %.2F %.2F Td (%s) Tj ET\n",
+            self::LARGURA - self::MARGEM - $this->largura($nome, 11, true), $yy,
+            $this->escapar($nome),
+        );
+
+        foreach ($detalhes as $detalhe) {
+            $yy -= 9 * 1.45;
+            $this->atual .= sprintf(
+                "BT /F3 9.00 Tf 0.42 0.42 0.42 rg %.2F %.2F Td (%s) Tj ET\n",
+                self::LARGURA - self::MARGEM - $this->largura((string) $detalhe, 9, false), $yy,
+                $this->escapar((string) $detalhe),
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * O medidor do score: a regua visual de 0 ao teto, preenchida em degrade.
+     *
+     * O numero sozinho obriga quem le a lembrar da escala; a regua mostra onde
+     * ele cai nela antes de qualquer conta. O degrade e o mesmo da barra de
+     * secao, entao o documento inteiro fala a mesma lingua visual.
+     */
+    public function medidor(float $valor, float $maximo = 1000): static
+    {
+        $this->garantir(26);
+        $this->espaco(8);
+
+        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
+        $alturaRegua = 8.0;
+        $pct = max(0.0, min(1.0, $maximo > 0 ? $valor / $maximo : 0));
+        $this->y -= $alturaRegua;
+
+        // O trilho inteiro, apagado.
+        $this->atual .= sprintf(
+            "q 0.92 0.93 0.95 rg %.2F %.2F %.2F %.2F re f Q\n",
+            self::MARGEM, $this->y, $larguraUtil, $alturaRegua,
+        );
+
+        // O preenchido, em fatias do degrade ate onde o score alcanca.
+        $fatias = (int) round(40 * $pct);
+
+        for ($i = 0; $i < $fatias; $i++) {
+            $t = $i / 39;
+            $this->atual .= sprintf(
+                "q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q\n",
+                self::AZUL[0] + (self::ROSA[0] - self::AZUL[0]) * $t,
+                self::AZUL[1] + (self::ROSA[1] - self::AZUL[1]) * $t,
+                self::AZUL[2] + (self::ROSA[2] - self::AZUL[2]) * $t,
+                self::MARGEM + $i * ($larguraUtil / 40), $this->y, $larguraUtil / 40 + 0.5, $alturaRegua,
+            );
+        }
+
+        // A escala nas pontas, para a regua se explicar sozinha.
+        $this->y -= 11;
+        $this->texto('0', self::MARGEM, 7, false, 0.55);
+        $this->texto((string) (int) $maximo, self::LARGURA - self::MARGEM - $this->largura((string) (int) $maximo, 7, false), 7, false, 0.55);
+        $this->espaco(6);
+
+        return $this;
+    }
+
     public function titulo(string $texto): static
     {
         $this->escrever($texto, 16, true, 0.11);
@@ -122,8 +201,10 @@ final class Pdf
         return $this;
     }
 
-    /** Azul da marca (brand-800), para as barras de secao. */
+    /** Azul e rosa da marca, para as barras de secao. */
     private const AZUL = [0.145, 0.176, 0.682];
+
+    private const ROSA = [0.933, 0.275, 0.737];
 
     /**
      * Titulo de secao numa barra azul, texto branco.
@@ -133,31 +214,75 @@ final class Pdf
      * mercado se navegam. E como a barra abre uma secao, ela nunca fica orfa
      * no pe da pagina: sem espaco para ela mais duas linhas, quebra antes.
      */
-    public function secao(string $texto): static
+    public function secao(string $texto, string $estilo = 'marca'): static
     {
         $this->garantir(70);
         $this->espaco(12);
+        $this->barra($texto, $estilo);
 
+        return $this;
+    }
+
+    /**
+     * A barra de secao em si.
+     *
+     * No estilo da marca, ela faz o degrade do azul ao rosa (em fatias, porque
+     * o formato nao tem gradiente simples) e ganha tres cortes diagonais
+     * vazados em branco perto da ponta, o ritmo visual da propria logo. O
+     * estilo cinza existe para as secoes de servico (notas legais): elas
+     * precisam da estrutura, nao do destaque.
+     */
+    private function barra(string $texto, string $estilo): void
+    {
         $altura = 20.0;
+        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
         $this->y -= $altura;
 
-        $this->atual .= sprintf(
-            'q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q
-',
-            self::AZUL[0], self::AZUL[1], self::AZUL[2],
-            self::MARGEM, $this->y, self::LARGURA - 2 * self::MARGEM, $altura,
-        );
+        if ($estilo === 'cinza') {
+            $this->atual .= sprintf(
+                "q 0.42 0.44 0.50 rg %.2F %.2F %.2F %.2F re f Q\n",
+                self::MARGEM, $this->y, $larguraUtil, $altura,
+            );
+        } else {
+            // O degrade em 40 fatias: cada uma um passo do azul ao rosa.
+            $fatias = 40;
+            $passo = $larguraUtil / $fatias;
 
-        // O texto centrado na barra, em branco.
+            for ($i = 0; $i < $fatias; $i++) {
+                $t = $i / ($fatias - 1);
+                $this->atual .= sprintf(
+                    "q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q\n",
+                    self::AZUL[0] + ($this->rosa(0) - self::AZUL[0]) * $t,
+                    self::AZUL[1] + ($this->rosa(1) - self::AZUL[1]) * $t,
+                    self::AZUL[2] + ($this->rosa(2) - self::AZUL[2]) * $t,
+                    self::MARGEM + $i * $passo, $this->y, $passo + 0.5, $altura,
+                );
+            }
+
+            // Os cortes vazados, diagonais como a agulha do velocimetro.
+            for ($k = 0; $k < 3; $k++) {
+                $x = self::LARGURA - self::MARGEM - 34 - $k * 13;
+                $this->atual .= sprintf(
+                    "q 1 1 1 rg %.2F %.2F m %.2F %.2F l %.2F %.2F l %.2F %.2F l f Q\n",
+                    $x, $this->y,
+                    $x + 5, $this->y,
+                    $x + 12, $this->y + $altura,
+                    $x + 7, $this->y + $altura,
+                );
+            }
+        }
+
         $this->atual .= sprintf(
-            'BT /F2 11.00 Tf 1 1 1 rg %.2F %.2F Td (%s) Tj ET
-',
+            "BT /F2 11.00 Tf 1 1 1 rg %.2F %.2F Td (%s) Tj ET\n",
             self::MARGEM + 8, $this->y + 6, $this->escapar($texto),
         );
 
         $this->espaco(8);
+    }
 
-        return $this;
+    private function rosa(int $i): float
+    {
+        return self::ROSA[$i];
     }
 
     /**
@@ -195,7 +320,7 @@ final class Pdf
      */
     public function nota(string $texto): static
     {
-        $this->escrever($texto, 8.5, false, 0.42);
+        $this->escrever($texto, 8.5, false, 0.42, italico: true);
         $this->espaco(4);
 
         return $this;
@@ -219,7 +344,7 @@ final class Pdf
         $larguraValor = $this->largura($valor, $tamanho, $destaque);
         $larguraRotulo = self::LARGURA - 2 * self::MARGEM - $larguraValor - 18;
 
-        $linhas = $this->quebrar($rotulo, $tamanho, false, max(60.0, $larguraRotulo));
+        $linhas = $this->quebrar($rotulo, $tamanho, true, max(60.0, $larguraRotulo));
 
         foreach ($linhas as $i => $texto) {
             if ($this->y - $entrelinha < self::MARGEM + self::RODAPE_ALTURA) {
@@ -228,7 +353,9 @@ final class Pdf
             }
 
             $this->y -= $entrelinha;
-            $this->texto($texto, self::MARGEM, $tamanho, $destaque, $cinza);
+            // O rotulo em negrito e o valor normal: e o nome que se procura
+            // primeiro, e o olho acha o negrito antes de ler.
+            $this->texto($texto, self::MARGEM, $tamanho, true, $cinza);
 
             // O valor sai uma vez so, alinhado a direita na primeira linha.
             if ($i === 0) {
@@ -302,57 +429,42 @@ final class Pdf
         $this->secaoSemQuebra($titulo);
 
         foreach ($notas as $nota) {
-            $this->escrever($nota, 8.5, false, 0.42);
+            $this->escrever($nota, 8.5, false, 0.42, italico: true);
             $this->espaco(4);
         }
 
-        // A faixa final: marca pequena a esquerda, identificacao ao lado.
+        // A faixa final, centrada: a marca em cima e a identificacao embaixo.
+        // Centrada porque e assinatura de documento, nao item de lista, e sem
+        // repetir em texto o que a propria marca ja diz.
         if ($this->marca) {
             $larguraMarca = 54.0;
             $alturaMarca = $larguraMarca * $this->marca['altura'] / $this->marca['largura'];
-            $this->espaco(10);
+            $this->espaco(12);
             $this->y -= $alturaMarca;
 
             $this->atual .= sprintf(
-                'q %.2F 0 0 %.2F %.2F %.2F cm /Marca Do Q
-',
-                $larguraMarca, $alturaMarca, self::MARGEM, $this->y,
+                "q %.2F 0 0 %.2F %.2F %.2F cm /Marca Do Q\n",
+                $larguraMarca, $alturaMarca, (self::LARGURA - $larguraMarca) / 2, $this->y,
             );
+        }
 
-            if ($assinatura !== '') {
-                $this->atual .= sprintf(
-                    'BT /F1 8 Tf 0.45 0.45 0.45 rg %.2F %.2F Td (%s) Tj ET
-',
-                    self::MARGEM + $larguraMarca + 10, $this->y + $alturaMarca / 2 - 3,
-                    $this->escapar($assinatura),
-                );
-            }
-        } elseif ($assinatura !== '') {
+        if ($assinatura !== '') {
             $this->espaco(10);
-            $this->escrever($assinatura, 8, false, 0.45);
+            $this->y -= 8 * 1.45;
+            $this->atual .= sprintf(
+                "BT /F1 8 Tf 0.45 0.45 0.45 rg %.2F %.2F Td (%s) Tj ET\n",
+                (self::LARGURA - $this->largura($assinatura, 8, false)) / 2, $this->y,
+                $this->escapar($assinatura),
+            );
         }
 
         return $this;
     }
 
-    /** A mesma barra azul da secao, sem o teste de quebra: o fecho ja mediu. */
+    /** A barra do fecho, cinza e sem teste de quebra: o fecho ja mediu. */
     private function secaoSemQuebra(string $texto): void
     {
-        $altura = 20.0;
-        $this->y -= $altura;
-
-        $this->atual .= sprintf(
-            'q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q
-',
-            self::AZUL[0], self::AZUL[1], self::AZUL[2],
-            self::MARGEM, $this->y, self::LARGURA - 2 * self::MARGEM, $altura,
-        );
-        $this->atual .= sprintf(
-            'BT /F2 11.00 Tf 1 1 1 rg %.2F %.2F Td (%s) Tj ET
-',
-            self::MARGEM + 8, $this->y + 6, $this->escapar($texto),
-        );
-        $this->espaco(8);
+        $this->barra($texto, 'cinza');
     }
 
     /** O arquivo pronto, byte a byte. */
@@ -363,31 +475,32 @@ final class Pdf
         $n = count($this->paginas);
         $objetos = [];
 
-        // 1 catalogo, 2 arvore de paginas, 3 e 4 fontes; paginas e conteudos
+        // 1 catalogo, 2 arvore de paginas, 3 a 5 fontes; paginas e conteudos
         // vem depois, em pares.
         $kids = [];
         for ($i = 0; $i < $n; $i++) {
-            $kids[] = (5 + $i * 2).' 0 R';
+            $kids[] = (6 + $i * 2).' 0 R';
         }
 
         $objetos[1] = '<< /Type /Catalog /Pages 2 0 R >>';
         $objetos[2] = '<< /Type /Pages /Kids ['.implode(' ', $kids).'] /Count '.$n.' >>';
         $objetos[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
         $objetos[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+        $objetos[5] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>';
 
         // A imagem entra DEPOIS das paginas para nao mexer na numeracao delas,
         // que e calculada por posicao.
-        $marca = $this->marca ? 5 + $n * 2 : null;
+        $marca = $this->marca ? 6 + $n * 2 : null;
         $recursoDaMarca = $marca ? ' /XObject << /Marca '.$marca.' 0 R >>' : '';
 
         foreach ($this->paginas as $i => $conteudo) {
             $rodape = $this->operadoresDoRodape($i + 1, $n);
             $stream = $conteudo.$rodape;
-            $pagina = 5 + $i * 2;
+            $pagina = 6 + $i * 2;
 
             $objetos[$pagina] = '<< /Type /Page /Parent 2 0 R'
                 .' /MediaBox [0 0 '.self::LARGURA.' '.self::ALTURA.']'
-                .' /Resources << /Font << /F1 3 0 R /F2 4 0 R >>'.$recursoDaMarca.' >>'
+                .' /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >>'.$recursoDaMarca.' >>'
                 .' /Contents '.($pagina + 1).' 0 R >>';
             $objetos[$pagina + 1] = '<< /Length '.strlen($stream)." >>\nstream\n".$stream.'endstream';
         }
@@ -423,7 +536,7 @@ stream
     }
 
     /** Escreve um bloco com quebra automatica, paginando quando acabar o espaco. */
-    private function escrever(string $texto, float $tamanho, bool $negrito, float $cinza): void
+    private function escrever(string $texto, float $tamanho, bool $negrito, float $cinza, bool $italico = false): void
     {
         $larguraUtil = self::LARGURA - 2 * self::MARGEM;
         $entrelinha = $tamanho * 1.45;
@@ -435,16 +548,20 @@ stream
             }
 
             $this->y -= $entrelinha;
-            $this->texto($linha, self::MARGEM, $tamanho, $negrito, $cinza);
+            $this->texto($linha, self::MARGEM, $tamanho, $negrito, $cinza, $italico);
         }
     }
 
     /** Um pedaco de texto numa posicao horizontal, na altura corrente. */
-    private function texto(string $texto, float $x, float $tamanho, bool $negrito, float $cinza): void
+    private function texto(string $texto, float $x, float $tamanho, bool $negrito, float $cinza, bool $italico = false): void
     {
+        // O italico ganha do negrito quando alguem pedir os dois: nao ha
+        // Helvetica-BoldOblique carregada, e o par raro nao paga o objeto.
+        $fonte = $italico ? 'F3' : ($negrito ? 'F2' : 'F1');
+
         $this->atual .= sprintf(
             "BT /%s %.2F Tf %.2F %.2F %.2F rg %.2F %.2F Td (%s) Tj ET\n",
-            $negrito ? 'F2' : 'F1', $tamanho, $cinza, $cinza, $cinza, $x, $this->y,
+            $fonte, $tamanho, $cinza, $cinza, $cinza, $x, $this->y,
             $this->escapar($texto),
         );
     }

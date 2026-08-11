@@ -215,8 +215,9 @@ class CarteiraController extends Controller
             return back()->withInput()->with('erro', $resultado['erro']);
         }
 
-        // Direto ao relatorio em PDF: e ele que o vendedor mostra ao prospect.
-        return redirect()->route('carteira.demonstracoes.pdf', $resultado['consulta']);
+        // A tela de resultado com o visor do laudo ja aberto: e o PDF que o
+        // vendedor mostra ao prospect, e a pagina fica embaixo para o proximo.
+        return redirect()->route('carteira.demonstracoes.ver', [$resultado['consulta'], 'laudo' => 'aberto']);
     }
 
     /** O resultado, so para o vendedor que consultou. */

@@ -47,6 +47,21 @@ class ConsultarFontes
         $indisponiveis = [];
 
         foreach ($fontes as $fonte) {
+            // Servico com VARIAS fontes: a que nao existe ou esta desligada
+            // vira base em branco no laudo, e nao fallback. Cair no conector
+            // geral aqui consultaria a mesma base duas vezes e esconderia do
+            // laudo que a fonte prometida nao veio. Com fonte unica a cascata
+            // continua valendo, porque ali fallback e a diferenca entre
+            // atender e nao atender.
+            $conhecida = $fonte === 'simulado'
+                || (isset(EscolherConector::CONECTORES[$fonte]) && \App\Models\Conexao::ativaDe($fonte));
+
+            if (count($fontes) > 1 && ! $conhecida) {
+                $indisponiveis[$fonte] = 'A base ainda não está conectada à plataforma.';
+
+                continue;
+            }
+
             $conector = $this->escolher->conector($fonte);
             $resposta = $conector->consultar($servico, $documento, $finalidade);
             $duracao += $resposta->duracaoMs;

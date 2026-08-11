@@ -178,6 +178,10 @@ final class Laudo
     /** O nome do fornecedor como se escreve na tela. */
     public static function nomeDaFonte(string $chave): string
     {
+        if ($chave === 'scr') {
+            return 'SCR · Registro de Operações de Crédito (Banco Central)';
+        }
+
         return Fornecedores::todos()[$chave]['nome'] ?? ucfirst(str_replace('-', ' ', $chave));
     }
 

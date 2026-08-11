@@ -29,9 +29,8 @@
         @if ($consulta->deuCerto() && ! $consulta->expurgada())
             {{-- O unico jeito aprovado de o resultado sair da tela: arquivo em
                  mao, nunca dado pessoal em URL de conversa. --}}
-            <x-avalia.botao variante="secundario" tamanho="sm" :href="route('carteira.demonstracoes.pdf', $consulta)">
-                Baixar PDF
-            </x-avalia.botao>
+            <x-avalia.visor-laudo :url="route('carteira.demonstracoes.pdf', $consulta)"
+                                  :aberto="request('laudo') === 'aberto'" />
         @endif
     </div>
 

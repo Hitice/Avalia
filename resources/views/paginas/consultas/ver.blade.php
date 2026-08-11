@@ -27,9 +27,7 @@
             </p>
         </div>
 
-        <x-avalia.botao variante="secundario" tamanho="sm" :href="route('consultas.pdf', $consulta)">
-            Baixar laudo
-        </x-avalia.botao>
+        <x-avalia.visor-laudo :url="route('consultas.pdf', $consulta)" rotulo="Ver laudo" />
     </div>
 
     {{-- O aviso existe porque esta tela é a única em que a administração vê o

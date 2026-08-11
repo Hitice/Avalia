@@ -17,7 +17,10 @@
 {{-- Base que foi consultada e nao respondeu. Vem ANTES do resultado, porque
      muda como se le tudo o que vem depois: o laudo saiu incompleto, e quem
      decide precisa saber disso antes de decidir, e nao depois. --}}
-@if ($indisponiveis !== [])
+@if ($indisponiveis !== [] && empty($resposta['simulado']))
+    {{-- Laudo simulado nao anuncia incompletude: quem opera em homologacao ja
+         sabe que o dado e de exercicio, e o aviso vira ruido repetido. Num
+         laudo REAL ele e obrigatorio, porque muda a decisao de quem le. --}}
     <div class="aviso aviso-alerta mb-6">
         <span class="block font-medium">Este resultado está incompleto.</span>
         @foreach ($indisponiveis as $fonte => $motivo)

@@ -103,7 +103,7 @@ it('falha inteira so quando nenhuma base responde', function () {
         ->and($consulta->custo_cents)->toBe(0);
 });
 
-it('avisa na tela e no laudo que o resultado saiu incompleto', function () {
+it('cala o aviso de incompleto quando o laudo e simulado', function () {
     $empresa = empresaComPlano();
     $servico = servicoDeDuasBases();
 
@@ -119,13 +119,21 @@ it('avisa na tela e no laudo que o resultado saiu incompleto', function () {
 
     $consulta = Consulta::latest('id')->firstOrFail();
 
-    // O aviso vem ANTES do resultado: muda como se le tudo o que vem depois.
+    // Laudo simulado ja se declara simulado, e anunciar incompletude por
+    // cima vira ruido. Num laudo real o aviso continua obrigatorio.
     comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta))
         ->assertOk()
-        ->assertSee('Este resultado está incompleto', false)
-        ->assertSee('Equifax', false);
+        ->assertDontSee('Este resultado está incompleto', false);
 
-    expect(App\Support\ConsultaPdf::resultado($consulta->load('servico')))
+    // Tirando a marca de simulacao, o mesmo laudo passa a avisar.
+    $resposta = $consulta->resposta;
+    unset($resposta['simulado']);
+    $consulta->update(['resposta' => $resposta]);
+
+    comoEmpresa($empresa)->get(route('empresa.consultas.ver', $consulta->fresh()))
+        ->assertSee('Este resultado está incompleto', false);
+
+    expect(App\Support\ConsultaPdf::resultado($consulta->fresh()->load('servico')))
         ->toContain('incompleto');
 });
 

@@ -123,7 +123,7 @@
                                         </a>
 
                                         <a class="acao-linha" href="{{ route('consultas.pdf', $consulta) }}"
-                                           title="Baixar o laudo em PDF">
+                                           target="_blank" rel="noopener" title="Abrir o laudo em PDF">
                                             <x-avalia.icone nome="documento" />
                                             <span class="sr-only">Baixar o laudo</span>
                                         </a>
