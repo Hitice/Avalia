@@ -96,11 +96,11 @@ final class FaturaPdf
         // do fim e em corpo de texto, e nao em letra miuda no rodape. A
         // excludente de responsabilidade sobre a decisao de credito e a mais
         // importante delas, e e a primeira.
-        $pdf->secao('Informações importantes');
-
-        foreach (Laudo::ressalvasDaFatura($consultas, Consulta::DIAS_DE_RETENCAO) as $ressalva) {
-            $pdf->nota($ressalva);
-        }
+        $pdf->fecho(
+            'Informações importantes',
+            Laudo::ressalvasDaFatura($consultas, Consulta::DIAS_DE_RETENCAO),
+            'Avalia · avaliaone.com.br · demonstrativo de fatura',
+        );
 
         return $pdf->bytes();
     }

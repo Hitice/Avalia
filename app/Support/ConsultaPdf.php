@@ -66,6 +66,10 @@ final class ConsultaPdf
         }
 
         foreach (Laudo::blocos($resposta) as $bloco) {
+            // O bloco inteiro ou nada nesta pagina: titulo azul orfao no pe,
+            // com as linhas na pagina seguinte, e o tipo de corte que faz o
+            // leitor achar que a secao esta vazia.
+            $pdf->garantir(46 + min(count($bloco['linhas']), 12) * 16);
             $pdf->secao($bloco['titulo']);
 
             foreach ($bloco['linhas'] as $linha) {
@@ -85,15 +89,15 @@ final class ConsultaPdf
                 );
         }
 
-        // As ressalvas fecham o documento, em corpo menor. E o lugar em que se
-        // procura por elas em qualquer relatorio do mercado, e o tamanho diz a
-        // hierarquia: precisam estar e precisam ser encontraveis, mas nao podem
-        // disputar a leitura com o resultado.
-        $pdf->secao('Informações importantes');
-
-        foreach (Laudo::ressalvas($documento) as $ressalva) {
-            $pdf->nota($ressalva);
-        }
+        // As ressalvas fecham o documento ANCORADAS no pe da ultima pagina,
+        // inteiras, com a marca reduzida e a identificacao da casa: e onde todo
+        // relatorio de mercado as poe, e cortar nota legal no meio de uma
+        // quebra de pagina e o unico jeito de garantir que ninguem a leia.
+        $pdf->fecho(
+            'Informações importantes',
+            Laudo::ressalvas($documento),
+            'Avalia · avaliaone.com.br · relatório de consulta',
+        );
 
         return $pdf->bytes();
     }

@@ -122,11 +122,57 @@ final class Pdf
         return $this;
     }
 
+    /** Azul da marca (brand-800), para as barras de secao. */
+    private const AZUL = [0.145, 0.176, 0.682];
+
+    /**
+     * Titulo de secao numa barra azul, texto branco.
+     *
+     * A barra e o separador visual do documento: quem folheia acha as secoes
+     * pela cor antes de ler qualquer palavra, que e como os relatorios de
+     * mercado se navegam. E como a barra abre uma secao, ela nunca fica orfa
+     * no pe da pagina: sem espaco para ela mais duas linhas, quebra antes.
+     */
     public function secao(string $texto): static
     {
-        $this->espaco(14);
-        $this->escrever($texto, 12, true, 0.11);
-        $this->espaco(4);
+        $this->garantir(70);
+        $this->espaco(12);
+
+        $altura = 20.0;
+        $this->y -= $altura;
+
+        $this->atual .= sprintf(
+            'q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q
+',
+            self::AZUL[0], self::AZUL[1], self::AZUL[2],
+            self::MARGEM, $this->y, self::LARGURA - 2 * self::MARGEM, $altura,
+        );
+
+        // O texto centrado na barra, em branco.
+        $this->atual .= sprintf(
+            'BT /F2 11.00 Tf 1 1 1 rg %.2F %.2F Td (%s) Tj ET
+',
+            self::MARGEM + 8, $this->y + 6, $this->escapar($texto),
+        );
+
+        $this->espaco(8);
+
+        return $this;
+    }
+
+    /**
+     * Garante espaco vertical na pagina, quebrando antes se preciso.
+     *
+     * E o que impede um bloco de sair cortado no meio: quem vai escrever um
+     * conjunto que deve ficar junto pede o tamanho antes, e o corte acontece
+     * ENTRE blocos, nunca dentro.
+     */
+    public function garantir(float $pontos): static
+    {
+        if ($this->y - min($pontos, 600) < self::MARGEM + self::RODAPE_ALTURA) {
+            $this->fecharPagina();
+            $this->y = self::ALTURA - self::MARGEM;
+        }
 
         return $this;
     }
@@ -215,6 +261,98 @@ final class Pdf
         $this->y -= $pontos;
 
         return $this;
+    }
+
+    /**
+     * O fecho do documento: as notas legais ancoradas no PE da ultima pagina,
+     * com a marca reduzida e a identificacao da casa.
+     *
+     * Ancorado, e nao "depois do conteudo": nota legal que flutua logo abaixo
+     * do ultimo bloco fica no meio da pagina, e o leitor de relatorio procura
+     * por ela no rodape, porque e onde todo relatorio de mercado a poe. O
+     * bloco e medido antes; se nao couber inteiro no espaco que sobrou, vai
+     * INTEIRO para a pagina seguinte, nunca cortado no meio.
+     *
+     * @param  list<string>  $notas
+     */
+    public function fecho(string $titulo, array $notas, string $assinatura = ''): static
+    {
+        $larguraUtil = self::LARGURA - 2 * self::MARGEM;
+
+        // Mede tudo primeiro: barra (28), cada nota (linhas de 8,5pt + folga),
+        // e a faixa da assinatura com a marca reduzida (34).
+        $altura = 40.0;
+
+        foreach ($notas as $nota) {
+            $altura += count($this->quebrar($nota, 8.5, false, $larguraUtil)) * 8.5 * 1.45 + 4;
+        }
+
+        if ($assinatura !== '' || $this->marca) {
+            $altura += 40;
+        }
+
+        if ($this->y - $altura < self::MARGEM + self::RODAPE_ALTURA) {
+            $this->fecharPagina();
+            $this->y = self::ALTURA - self::MARGEM;
+        }
+
+        // Desce ate o ponto em que o bloco TERMINA rente ao rodape.
+        $this->y = self::MARGEM + self::RODAPE_ALTURA + $altura;
+
+        $this->secaoSemQuebra($titulo);
+
+        foreach ($notas as $nota) {
+            $this->escrever($nota, 8.5, false, 0.42);
+            $this->espaco(4);
+        }
+
+        // A faixa final: marca pequena a esquerda, identificacao ao lado.
+        if ($this->marca) {
+            $larguraMarca = 54.0;
+            $alturaMarca = $larguraMarca * $this->marca['altura'] / $this->marca['largura'];
+            $this->espaco(10);
+            $this->y -= $alturaMarca;
+
+            $this->atual .= sprintf(
+                'q %.2F 0 0 %.2F %.2F %.2F cm /Marca Do Q
+',
+                $larguraMarca, $alturaMarca, self::MARGEM, $this->y,
+            );
+
+            if ($assinatura !== '') {
+                $this->atual .= sprintf(
+                    'BT /F1 8 Tf 0.45 0.45 0.45 rg %.2F %.2F Td (%s) Tj ET
+',
+                    self::MARGEM + $larguraMarca + 10, $this->y + $alturaMarca / 2 - 3,
+                    $this->escapar($assinatura),
+                );
+            }
+        } elseif ($assinatura !== '') {
+            $this->espaco(10);
+            $this->escrever($assinatura, 8, false, 0.45);
+        }
+
+        return $this;
+    }
+
+    /** A mesma barra azul da secao, sem o teste de quebra: o fecho ja mediu. */
+    private function secaoSemQuebra(string $texto): void
+    {
+        $altura = 20.0;
+        $this->y -= $altura;
+
+        $this->atual .= sprintf(
+            'q %.3F %.3F %.3F rg %.2F %.2F %.2F %.2F re f Q
+',
+            self::AZUL[0], self::AZUL[1], self::AZUL[2],
+            self::MARGEM, $this->y, self::LARGURA - 2 * self::MARGEM, $altura,
+        );
+        $this->atual .= sprintf(
+            'BT /F2 11.00 Tf 1 1 1 rg %.2F %.2F Td (%s) Tj ET
+',
+            self::MARGEM + 8, $this->y + 6, $this->escapar($texto),
+        );
+        $this->espaco(8);
     }
 
     /** O arquivo pronto, byte a byte. */
