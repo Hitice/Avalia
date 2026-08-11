@@ -26,7 +26,12 @@ class ServicoController extends Controller
             ->orderBy('nome')
             ->get();
 
-        return view('paginas.catalogo.servicos', ['servicos' => $servicos]);
+        return view('paginas.catalogo.servicos', [
+            'servicos' => $servicos,
+            // Servico sem produto do fornecedor nao consulta, e o erro so
+            // aparece quando alguem tenta: aqui a pendencia fica visivel antes.
+            'pendentes' => \App\Actions\Catalogo\SugerirProdutosBoaVista::pendentes(),
+        ]);
     }
 
     public function criar()
@@ -124,6 +129,30 @@ class ServicoController extends Controller
         return redirect()
             ->route('catalogo.servicos.index')
             ->with('ok', "Serviço '{$servico->nome}' atualizado.");
+    }
+
+    /**
+     * Preenche o produto da Boa Vista nos servicos que ainda nao tem.
+     *
+     * Sugestao pelo nome comercial, e nao verdade contratual: produto que a
+     * Avalia nao contratou volta recusado, e produto trocado devolve o
+     * relatorio errado. Por isso a mensagem manda conferir, e a acao so toca no
+     * que esta vazio.
+     */
+    public function sugerirProdutos(\App\Actions\Catalogo\SugerirProdutosBoaVista $sugerir)
+    {
+        $preenchidos = $sugerir();
+
+        if ($preenchidos === 0) {
+            return back()->with('erro', 'Nenhum serviço estava sem produto do fornecedor.');
+        }
+
+        return back()->with('ok', sprintf(
+            '%d %s com o produto sugerido da Boa Vista. Confira contra o seu contrato antes de consultar: '
+            .'produto não contratado volta recusado, e produto trocado devolve o relatório errado.',
+            $preenchidos,
+            $preenchidos === 1 ? 'serviço preenchido' : 'serviços preenchidos',
+        ));
     }
 
     /** Liga e desliga o servico no clique, sem abrir formulario. */

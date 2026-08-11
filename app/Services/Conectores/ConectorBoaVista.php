@@ -34,7 +34,9 @@ class ConectorBoaVista implements ConectorBureau
         $inicio = microtime(true);
         $duracao = fn () => (int) ((microtime(true) - $inicio) * 1000);
 
-        if (! $servico->codigo_fornecedor) {
+        $produto = self::produto($servico->codigo_fornecedor, $documento);
+
+        if (! $produto) {
             return RespostaConsulta::falha(
                 "O serviço {$servico->nome} ainda não tem o produto do fornecedor configurado no catálogo.",
                 null,
@@ -50,7 +52,7 @@ class ConectorBoaVista implements ConectorBureau
 
         try {
             $resposta = $this->cliente->consultar($escopo, self::RECURSO, [
-                'produto' => $servico->codigo_fornecedor,
+                'produto' => $produto,
                 'documento' => $documento,
                 'versao' => 'v1',
                 'tipoCredito' => Conexao::segredo('boa-vista', 'tipo_credito') ?? 'CD',
@@ -80,6 +82,44 @@ class ConectorBoaVista implements ConectorBureau
     public function nome(): string
     {
         return 'boa-vista';
+    }
+
+    /**
+     * O produto a pedir, considerando se o documento e CPF ou CNPJ.
+     *
+     * O catalogo vende "Credito Net PF/PJ" numa linha so, mas a Equifax tem
+     * produtos SEPARADOS para pessoa fisica e juridica (SCPC_NET_PF e
+     * SCPC_NET_PJ, SCORE_PF e SCORE_PJ). Uma linha comercial, dois produtos no
+     * fornecedor.
+     *
+     * Entao o campo aceita os dois, separados por barra vertical, na ordem
+     * PF|PJ:
+     *
+     *     SCPC_NET_PF|SCPC_NET_PJ
+     *
+     * Um valor sozinho continua valendo para os dois tipos de documento, que e
+     * o caso dos produtos que nao se dividem. Documento com 14 digitos e CNPJ;
+     * qualquer outro tamanho cai no lado PF, porque CPF e o caso comum e um
+     * documento malformado ja e recusado antes de chegar aqui.
+     */
+    public static function produto(?string $configurado, string $documento): ?string
+    {
+        $configurado = trim((string) $configurado);
+
+        if ($configurado === '') {
+            return null;
+        }
+
+        if (! str_contains($configurado, '|')) {
+            return $configurado;
+        }
+
+        [$pf, $pj] = array_pad(array_map('trim', explode('|', $configurado, 2)), 2, '');
+        $ehCnpj = strlen(preg_replace('/\D/', '', $documento) ?? '') === 14;
+
+        // Lado vazio cai no outro: quem preencheu so um dos dois quis dizer que
+        // aquele serve para ambos, e nao que o outro documento nao consulta.
+        return ($ehCnpj ? ($pj ?: $pf) : ($pf ?: $pj)) ?: null;
     }
 
     /**

@@ -105,3 +105,47 @@ it('recusa fornecedor desconhecido no cadastro do servico', function () {
 
     expect($servico->fresh()->fornecedor)->toBeNull();
 });
+
+it('escolhe o produto PF ou PJ pelo documento consultado', function () {
+    // O catalogo vende "PF/PJ" numa linha so, mas a Equifax tem produtos
+    // separados. Uma linha comercial, dois produtos no fornecedor.
+    $par = 'SCPC_NET_PF|SCPC_NET_PJ';
+
+    expect(ConectorBoaVista::produto($par, '12345678901'))->toBe('SCPC_NET_PF')
+        ->and(ConectorBoaVista::produto($par, '39914870000101'))->toBe('SCPC_NET_PJ')
+        // Com mascara tambem, porque o operador cola do jeito que recebeu.
+        ->and(ConectorBoaVista::produto($par, '39.914.870/0001-01'))->toBe('SCPC_NET_PJ')
+        // Valor unico serve aos dois tipos de documento.
+        ->and(ConectorBoaVista::produto('SCORE_PF', '39914870000101'))->toBe('SCORE_PF')
+        // Lado vazio cai no outro, em vez de recusar a consulta.
+        ->and(ConectorBoaVista::produto('|SCPC_NET_PJ', '12345678901'))->toBe('SCPC_NET_PJ')
+        ->and(ConectorBoaVista::produto('', '12345678901'))->toBeNull();
+});
+
+it('preenche o produto sugerido so onde esta vazio', function () {
+    $vazio = Servico::factory()->create(['codigo' => 'score-positivo', 'codigo_fornecedor' => null]);
+    $escolhido = Servico::factory()->create(['codigo' => 'credito-net', 'codigo_fornecedor' => 'PRODUTO_DO_CONTRATO']);
+
+    expect(App\Actions\Catalogo\SugerirProdutosBoaVista::pendentes())->toBe(1);
+
+    $preenchidos = app(App\Actions\Catalogo\SugerirProdutosBoaVista::class)();
+
+    expect($preenchidos)->toBe(1)
+        ->and($vazio->fresh()->codigo_fornecedor)->toBe('SCORE_PF|SCORE_PJ')
+        ->and($vazio->fresh()->fornecedor)->toBe('boa-vista')
+        // Escolha de quem sabe nunca e sobrescrita por sugestao.
+        ->and($escolhido->fresh()->codigo_fornecedor)->toBe('PRODUTO_DO_CONTRATO');
+
+    expect(App\Models\Auditoria::where('acao', 'servico.produto_sugerido')->count())->toBe(1);
+});
+
+it('avisa na tela e oferece o preenchimento, sem aplicar sozinho', function () {
+    Servico::factory()->create(['codigo' => 'score-positivo', 'codigo_fornecedor' => null]);
+
+    admin()->get(route('catalogo.servicos.index'))
+        ->assertOk()
+        ->assertSee('sem o produto do fornecedor', false)
+        ->assertSee(route('catalogo.servicos.produtos'), false);
+
+    expect(Servico::firstWhere('codigo', 'score-positivo')->codigo_fornecedor)->toBeNull();
+});

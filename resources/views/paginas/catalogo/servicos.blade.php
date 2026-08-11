@@ -16,6 +16,24 @@
 
     @include('paginas.catalogo.avisos')
 
+    {{-- Serviço sem produto do fornecedor não consulta, e a mensagem de erro só
+         aparece quando alguém tenta. Somar aqui transforma uma descoberta em
+         uma pendência visível. --}}
+    @if ($pendentes > 0)
+        <div class="aviso aviso-alerta mb-6 flex flex-wrap items-center justify-between gap-3">
+            <span>
+                {{ $pendentes }} {{ $pendentes === 1 ? 'serviço da Boa Vista está' : 'serviços da Boa Vista estão' }}
+                sem o produto do fornecedor e não conseguem consultar.
+            </span>
+
+            <form method="POST" action="{{ route('catalogo.servicos.produtos') }}"
+                  onsubmit="return confirm('Preencher {{ $pendentes }} {{ $pendentes === 1 ? 'serviço' : 'serviços' }} com o produto sugerido? Confira depois contra o seu contrato: produto não contratado volta recusado.')">
+                @csrf
+                <x-avalia.botao variante="secundario" tamanho="sm">Preencher com a sugestão</x-avalia.botao>
+            </form>
+        </div>
+    @endif
+
     <div class="overflow-hidden cartao">
         <div class="tabela-rolagem">
             <table class="tabela min-w-[44rem]">

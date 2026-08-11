@@ -330,6 +330,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // trilha guarda quem decidiu.
         Route::post('/precos/alvo', [CatalogoController::class, 'ajustarAoAlvo'])->name('precos.alvo');
 
+        // Preenche o produto da Boa Vista nos servicos que ainda nao tem. E
+        // sugestao pelo nome comercial, nao substitui o contrato, e so mexe no
+        // que esta vazio.
+        Route::post('/servicos/produtos-sugeridos', [ServicoController::class, 'sugerirProdutos'])
+            ->name('servicos.produtos');
+
         // Modulo inteiro numa planilha de tres abas, e de volta.
         Route::get('/planilha', [PlanilhaController::class, 'exportar'])->name('planilha.exportar');
         Route::post('/planilha', [PlanilhaController::class, 'importar'])->name('planilha.importar');

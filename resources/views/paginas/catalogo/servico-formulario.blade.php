@@ -82,8 +82,11 @@
                            placeholder="RELATORIO_AVANCADO_PF">
                     <span class="ajuda-campo">
                         O nome do produto no contrato do bureau. Sem ele, a consulta real
-                        não sai e a tela explica o motivo. Exemplos: RELATORIO_AVANCADO_PF,
-                        ACERTA_COMPLETO_POSITIVO, SCPC_NET_PJ, SCORE_PF.
+                        não sai e a tela explica o motivo. Quando o serviço atende PF e PJ e
+                        o fornecedor tem um produto para cada, escreva os dois separados por
+                        barra, na ordem <code>PF|PJ</code>: por exemplo
+                        <code>SCPC_NET_PF|SCPC_NET_PJ</code>. O sistema escolhe pelo documento
+                        consultado.
                     </span>
                 </label>
 
