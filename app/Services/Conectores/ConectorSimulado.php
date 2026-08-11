@@ -66,7 +66,7 @@ class ConectorSimulado implements ConectorBureau
             'simulado' => true,
             'score' => 300 + ($semente % 701),
             'modelo_do_score' => 'SIMULADO_V1',
-            'nome' => $ehCnpj ? 'Empresa Simulada '.($semente % 90 + 10).' LTDA' : 'Titular Simulado '.($semente % 90 + 10),
+            'nome' => $ehCnpj ? self::nomeDeEmpresa($semente) : self::nomeDePessoa($semente),
             'situacao_cadastral' => 'Regular',
             'pendencias_financeiras' => $restricoes,
             'protestos' => $protestos,
@@ -78,7 +78,7 @@ class ConectorSimulado implements ConectorBureau
 
         if ($profundo && $ehCnpj) {
             $laudo += [
-                'nome_fantasia' => 'Marca Simulada '.($semente % 90 + 10),
+                'nome_fantasia' => explode(' LTDA', self::nomeDeEmpresa($semente))[0],
                 'data_de_fundacao' => (2000 + $semente % 20).'-0'.(1 + $semente % 9).'-15',
                 'cnae_principal' => '6190-6/01 · Provedores de acesso às redes de comunicações',
                 'natureza_juridica' => 'Sociedade Empresária Limitada',
@@ -87,7 +87,7 @@ class ConectorSimulado implements ConectorBureau
                 'tempo_de_atuacao' => ['5 a 10', '11 a 20', '21 a 30'][$semente % 3].' anos',
                 'matriz_ou_filial' => 'Matriz',
                 'faturamento_presumido' => ['Até R$ 1 milhão', 'De R$ 1 a 2,5 milhões', 'De R$ 2,5 a 10 milhões'][$semente % 3],
-                'quadro_societario' => (1 + $semente % 3).' administradores · '.(1 + $semente % 4).' sócios',
+                'socios' => $this->socios($semente),
                 'contatos_localizados' => (2 + $semente % 40).' telefones · '.(1 + $semente % 20).' e-mails · '.(1 + $semente % 4).' endereços',
             ];
         }
@@ -97,6 +97,14 @@ class ConectorSimulado implements ConectorBureau
                 'data_de_nascimento' => (1960 + $semente % 40).'-0'.(1 + $semente % 9).'-20',
                 'contatos_localizados' => (1 + $semente % 6).' telefones · '.(1 + $semente % 3).' e-mails',
             ];
+        }
+
+        if ($restricoes > 0) {
+            $laudo['pendencias_detalhe'] = $this->pendencias($semente, $restricoes);
+        }
+
+        if ($protestos > 0) {
+            $laudo['protestos_detalhe'] = $this->protestos($semente, $protestos, (int) $valorProtestos);
         }
 
         if ($temScr) {
@@ -110,6 +118,25 @@ class ConectorSimulado implements ConectorBureau
                 'prejuizo_cents' => 0,
                 'limites_de_credito_cents' => (100 + (($semente >> 2) % 900)) * 100_000,
             ];
+
+            // As modalidades como o Bacen as descreve, com valor por linha: e
+            // o quadro de operacoes detalhadas do relatorio real.
+            $modalidades = [
+                'Empréstimos · capital de giro acima de 365 dias',
+                'Empréstimos · conta garantida',
+                'Empréstimos · cheque especial',
+                'Financiamentos · aquisição de veículos',
+                'Outros créditos · cartão de crédito à vista',
+                'Coobrigações · garantias prestadas',
+            ];
+            $laudo['scr_operacoes_detalhe'] = [];
+
+            foreach (array_slice($modalidades, 0, 3 + $semente % 4) as $i => $modalidade) {
+                $laudo['scr_operacoes_detalhe'][] = [
+                    'modalidade' => $modalidade,
+                    'valor_cents' => (10 + (($semente >> $i) % 800)) * 100_000,
+                ];
+            }
         }
 
         return RespostaConsulta::sucesso(
@@ -122,6 +149,95 @@ class ConectorSimulado implements ConectorBureau
     public function nome(): string
     {
         return 'simulado';
+    }
+
+    /**
+     * O quadro societario simulado: nome, cargo e documento (que a tela e o
+     * PDF mascaram na saida).
+     *
+     * @return list<array{nome: string, cargo: string, documento: string}>
+     */
+    private function socios(int $semente): array
+    {
+        $socios = [];
+
+        for ($i = 0; $i <= 1 + $semente % 3; $i++) {
+            $socios[] = [
+                'nome' => self::nomeDePessoa($semente + $i * 17),
+                'cargo' => $i === 0 ? 'Administrador' : 'Sócio',
+                'documento' => str_pad((string) (($semente * ($i + 3)) % 99_999_999_999), 11, '4', STR_PAD_LEFT),
+            ];
+        }
+
+        return $socios;
+    }
+
+    /**
+     * Nome verossimil e determinista, como os geradores de dados de teste
+     * fazem: "Empresa Simulada 42" quebrava a leitura do laudo em homologacao,
+     * porque ninguem avalia um relatorio que grita ser de mentira. A marca
+     * `simulado` no laudo continua sendo o que diz a verdade.
+     */
+    public static function nomeDePessoa(int $semente): string
+    {
+        $nomes = ['Wexley', 'Rafaela', 'Diego', 'Patrícia', 'Marcos', 'Juliana', 'Anderson', 'Camila', 'Vinícius', 'Larissa', 'Otávio', 'Beatriz'];
+        $meios = ['Jaécio', 'Gondin', 'Zanato', 'Pérsia', 'Rossini', 'Malta', 'Cristiano', 'Miranda', 'Bomfim', 'Franciele', 'Magno', 'Elias'];
+        $sobrenomes = ['de Souza', 'Teixeira', 'Vasconcelos', 'Ribeiro Marques', 'Alves da Silva', 'Vieira Martins', 'Barbosa de Freitas', 'dos Reis', 'Andrade de Paiva', 'Viegas', 'Gomes Junior', 'Macedo'];
+
+        return $nomes[$semente % 12].' '.$meios[($semente >> 2) % 12].' '.$sobrenomes[($semente >> 4) % 12];
+    }
+
+    public static function nomeDeEmpresa(int $semente): string
+    {
+        $marcas = ['Fly Norte', 'Vale Azul', 'Serra Forte', 'Rio Claro', 'Alto Cerrado', 'Boa Safra', 'Ponte Nova', 'Campo Real'];
+        $ramos = ['Telecom', 'Distribuidora', 'Comércio de Materiais', 'Logística', 'Alimentos', 'Autopeças', 'Engenharia', 'Serviços Digitais'];
+
+        return $marcas[$semente % 8].' '.$ramos[($semente >> 3) % 8].' LTDA';
+    }
+
+    /**
+     * As pendencias com o que decide: quem negativou, quando entrou, contrato
+     * e valor.
+     *
+     * @return list<array{incluida_em: string, credor: string, contrato: string, valor_cents: int}>
+     */
+    private function pendencias(int $semente, int $quantas): array
+    {
+        $credores = ['Banco Simulado S.A.', 'Financeira Simulada Ltda', 'Comercial Simulada de Varejo'];
+        $itens = [];
+
+        for ($i = 0; $i < $quantas; $i++) {
+            $itens[] = [
+                'incluida_em' => now()->subDays(60 + (($semente >> $i) % 500))->format('d/m/Y'),
+                'credor' => $credores[($semente + $i) % 3],
+                'contrato' => str_pad((string) (($semente * ($i + 7)) % 9_999_999_999), 10, '0', STR_PAD_LEFT),
+                'valor_cents' => 40_000 + (($semente >> $i) % 400_000),
+            ];
+        }
+
+        return $itens;
+    }
+
+    /**
+     * Os protestos por cartorio, com o valor total repartido entre eles.
+     *
+     * @return list<array{data: string, cartorio: string, cidade: string, uf: string, valor_cents: int}>
+     */
+    private function protestos(int $semente, int $quantos, int $valorTotal): array
+    {
+        $itens = [];
+
+        for ($i = 0; $i < $quantos; $i++) {
+            $itens[] = [
+                'data' => now()->subDays(30 + (($semente >> ($i + 2)) % 400))->format('d/m/Y'),
+                'cartorio' => ($i + 1).'º Tabelionato de Protesto de Títulos',
+                'cidade' => 'Cidade Simulada',
+                'uf' => 'MG',
+                'valor_cents' => intdiv($valorTotal, $quantos),
+            ];
+        }
+
+        return $itens;
     }
 
     /** Protocolo estavel, para o operador citar o mesmo numero em suporte. */

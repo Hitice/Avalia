@@ -70,6 +70,18 @@ final class ConsultaPdf
             ->linha('Protocolo', $consulta->referencia_externa ?? 'sem protocolo')
             ->linha('Finalidade declarada', $consulta->finalidade ?? 'Pesquisa de avaliação de risco');
 
+        // Cada grupo de ocorrencias abre logo apos o bloco que o resume:
+        // "2 protestos" e o numero, e a lista logo abaixo e a resposta de
+        // "quais". Longe um do outro, o leitor soma de novo para conferir.
+        $ocorrencias = Laudo::ocorrencias($resposta);
+        $aposOBloco = [
+            'Identificação' => ['Quadro societário'],
+            'Restrições' => ['Pendências financeiras · ocorrências', 'Protestos · ocorrências'],
+            'SCR · Banco Central' => ['SCR · operações detalhadas'],
+        ];
+
+        $grupoJaImpresso = [];
+
         foreach (Laudo::blocos($resposta) as $bloco) {
             // O bloco inteiro ou nada nesta pagina: titulo orfao no pe, com as
             // linhas na pagina seguinte, e o tipo de corte que faz o leitor
@@ -92,6 +104,36 @@ final class ConsultaPdf
                     continue;
                 }
 
+                $pdf->linha($linha['rotulo'], $linha['valor']);
+            }
+
+            foreach ($aposOBloco[$bloco['titulo']] ?? [] as $grupo) {
+                if (! isset($ocorrencias[$grupo])) {
+                    continue;
+                }
+
+                $grupoJaImpresso[] = $grupo;
+                $pdf->garantir(46 + min(count($ocorrencias[$grupo]), 10) * 16);
+                $pdf->secao($grupo);
+
+                foreach ($ocorrencias[$grupo] as $linha) {
+                    $pdf->linha($linha['rotulo'], $linha['valor']);
+                }
+            }
+        }
+
+        // Grupo cujo bloco pai nao veio (identificacao inteira no cabecalho,
+        // por exemplo) entra assim mesmo: a lista de socios nao pode sumir por
+        // falta de onde se pendurar.
+        foreach ($ocorrencias as $grupo => $linhas) {
+            if (in_array($grupo, $grupoJaImpresso, true)) {
+                continue;
+            }
+
+            $pdf->garantir(46 + min(count($linhas), 10) * 16);
+            $pdf->secao($grupo);
+
+            foreach ($linhas as $linha) {
                 $pdf->linha($linha['rotulo'], $linha['valor']);
             }
         }

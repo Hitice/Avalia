@@ -133,6 +133,92 @@ it('avisa no PDF o que o produto nao contemplou', function () {
         ->toContain('contempla');
 });
 
+it('detalha as ocorrencias em linhas prontas, com documento de socio mascarado', function () {
+    // "2 pendencias" e o numero; a lista logo abaixo responde quem negativou,
+    // quando entrou e qual contrato. Sem isso o laudo obriga a segunda consulta.
+    $grupos = Laudo::ocorrencias([
+        'pendencias_detalhe' => [
+            ['incluida_em' => '03/02/2026', 'credor' => 'Banco Exemplo S.A.', 'contrato' => '0001234567', 'valor_cents' => 45_000],
+        ],
+        'socios' => [
+            ['nome' => 'Wexley Jaécio de Souza', 'cargo' => 'Administrador', 'documento' => '12345678901'],
+        ],
+        'scr_operacoes_detalhe' => [
+            ['modalidade' => 'Empréstimos · conta garantida', 'valor_cents' => 2_000_000],
+        ],
+    ]);
+
+    expect($grupos['Pendências financeiras · ocorrências'][0]['rotulo'])
+        ->toBe('03/02/2026 · Banco Exemplo S.A. · contrato 0001234567')
+        ->and($grupos['Pendências financeiras · ocorrências'][0]['valor'])->toBe(App\Support\Dinheiro::brl(45_000))
+        ->and($grupos['Quadro societário'][0]['rotulo'])->toBe('Wexley Jaécio de Souza')
+        // O documento do socio e de pessoa, e circula so mascarado.
+        ->and($grupos['Quadro societário'][0]['valor'])->toContain('Administrador')
+        ->and($grupos['Quadro societário'][0]['valor'])->not->toContain('12345678901')
+        ->and($grupos['SCR · operações detalhadas'][0]['valor'])->toBe(App\Support\Dinheiro::brl(2_000_000));
+});
+
+it('nao despeja as listas de ocorrencias como JSON em outras informacoes', function () {
+    $blocos = collect(Laudo::blocos([
+        'score' => 700,
+        'socios' => [['nome' => 'Fulana', 'cargo' => 'Sócio', 'documento' => '12345678901']],
+    ]))->pluck('titulo');
+
+    expect($blocos)->not->toContain('Outras informações');
+});
+
+it('leva as ocorrencias detalhadas para o PDF do relatorio profundo', function () {
+    $empresa = empresaComPlano();
+    $servico = App\Models\Servico::firstWhere('codigo', 'scpc-bvs');
+    app(App\Actions\Consumo\RegistrarConsulta::class)($empresa, $servico, 1);
+
+    $consulta = App\Models\Consulta::latest('id')->firstOrFail();
+    $consulta->update(['resposta' => laudoCompleto() + [
+        'pendencias_financeiras' => 1,
+        'pendencias_detalhe' => [
+            ['incluida_em' => '03/02/2026', 'credor' => 'Banco Exemplo S.A.', 'contrato' => '0001234567', 'valor_cents' => 45_000],
+        ],
+        'socios' => [['nome' => 'Wexley Jaécio de Souza', 'cargo' => 'Administrador', 'documento' => '12345678901']],
+    ]]);
+
+    $pdf = App\Support\ConsultaPdf::resultado($consulta->fresh());
+
+    expect($pdf)->toContain('contrato 0001234567')
+        ->and($pdf)->toContain('Wexley Ja')       // nome do socio, em CP1252
+        ->and($pdf)->toContain('Quadro societ')
+        ->and($pdf)->not->toContain('12345678901');
+});
+
+it('o simulador profundo nomeia socios e itemiza pendencias com nomes verossimeis', function () {
+    $servico = App\Models\Servico::firstWhere('codigo', 'prime-completa-scr')
+        ?? App\Models\Servico::factory()->create(['nome' => 'Prime Completa + SCR PJ', 'codigo' => 'prime-completa-scr']);
+
+    // Documento que nao termina em zero (zero e o caminho de erro do simulado)
+    // e com restricoes na semente; varremos ate achar um com pendencia.
+    $conector = new App\Services\Conectores\ConectorSimulado;
+    $resposta = null;
+
+    foreach (range(1, 60) as $i) {
+        $doc = str_pad((string) $i, 13, '9', STR_PAD_LEFT).'1';
+        $tentativa = $conector->consultar($servico, $doc, 'Pesquisa de avaliação de risco');
+
+        if ($tentativa->sucesso && ($tentativa->dados['pendencias_financeiras'] ?? 0) > 0) {
+            $resposta = $tentativa->dados;
+            break;
+        }
+    }
+
+    expect($resposta)->not->toBeNull()
+        // Sem os codinomes de laboratorio: laudo que grita "simulado" no nome
+        // nao serve de demonstracao. A marca `simulado` segue no laudo.
+        ->and($resposta['nome'])->not->toContain('Simulad')
+        ->and($resposta['simulado'])->toBeTrue()
+        ->and($resposta['socios'][0])->toHaveKeys(['nome', 'cargo', 'documento'])
+        ->and($resposta['socios'][0]['cargo'])->toBe('Administrador')
+        ->and($resposta['pendencias_detalhe'][0])->toHaveKeys(['incluida_em', 'credor', 'contrato', 'valor_cents'])
+        ->and($resposta['scr_operacoes_detalhe'][0])->toHaveKeys(['modalidade', 'valor_cents']);
+});
+
 it('a tela do resultado e casca do visor do relatorio', function () {
     $empresa = empresaComPlano();
     $servico = App\Models\Servico::firstWhere('codigo', 'scpc-bvs');

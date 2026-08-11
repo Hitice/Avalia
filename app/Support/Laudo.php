@@ -108,6 +108,10 @@ final class Laudo
                 'contatos_localizados' => 'Contatos localizados',
                 'documentos_extraviados' => 'Documentos roubados, furtados ou extraviados',
                 'ultima_atualizacao' => 'Última atualização do cadastro',
+                // So existe em laudo simulado; com rotulo proprio, a marca de
+                // demonstracao sai legivel em vez de "Simulado Sim" despejado
+                // em Outras informacoes.
+                'simulado' => 'Dados de demonstração',
             ],
         ],
     ];
@@ -117,7 +121,12 @@ final class Laudo
      *
      * @var list<string>
      */
-    private const CONTROLE = ['laudo', 'fornecido_em', 'informacoes_adicionais', 'erro', 'fontes_indisponiveis'];
+    private const CONTROLE = [
+        'laudo', 'fornecido_em', 'informacoes_adicionais', 'erro', 'fontes_indisponiveis',
+        // As listas de ocorrencias tem renderizacao propria e nao podem cair
+        // em "Outras informacoes" como JSON cru.
+        'pendencias_detalhe', 'protestos_detalhe', 'socios', 'scr_operacoes_detalhe',
+    ];
 
     /**
      * O laudo organizado em blocos, pronto para a tela e para o PDF.
@@ -194,6 +203,81 @@ final class Laudo
         }
 
         return $ausentes;
+    }
+
+    /**
+     * As ocorrencias detalhadas, prontas para virar linhas.
+     *
+     * E o que transforma "2 pendencias" em decisao: quem negativou, quando
+     * entrou, qual contrato e quanto vale. Uma ocorrencia por LINHA, e nao um
+     * quadro por ocorrencia como o mercado faz: o modelo estudado gasta meia
+     * pagina por protesto repetindo rotulos, e a linha unica diz o mesmo.
+     *
+     * @param  array<string, mixed>  $resposta
+     * @return array<string, list<array{rotulo: string, valor: string}>> titulo => linhas
+     */
+    public static function ocorrencias(array $resposta): array
+    {
+        $grupos = [];
+
+        foreach ((array) ($resposta['pendencias_detalhe'] ?? []) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $grupos['Pendências financeiras · ocorrências'][] = [
+                'rotulo' => implode(' · ', array_filter([
+                    $item['incluida_em'] ?? null,
+                    $item['credor'] ?? null,
+                    isset($item['contrato']) ? 'contrato '.$item['contrato'] : null,
+                ])),
+                'valor' => isset($item['valor_cents']) ? Dinheiro::brl((int) $item['valor_cents']) : '',
+            ];
+        }
+
+        foreach ((array) ($resposta['protestos_detalhe'] ?? []) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $grupos['Protestos · ocorrências'][] = [
+                'rotulo' => implode(' · ', array_filter([
+                    $item['data'] ?? null,
+                    $item['cartorio'] ?? null,
+                    isset($item['cidade']) ? ($item['cidade'].(isset($item['uf']) ? '/'.$item['uf'] : '')) : null,
+                ])),
+                'valor' => isset($item['valor_cents']) ? Dinheiro::brl((int) $item['valor_cents']) : '',
+            ];
+        }
+
+        foreach ((array) ($resposta['scr_operacoes_detalhe'] ?? []) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $grupos['SCR · operações detalhadas'][] = [
+                'rotulo' => (string) ($item['modalidade'] ?? ''),
+                'valor' => isset($item['valor_cents']) ? Dinheiro::brl((int) $item['valor_cents']) : '',
+            ];
+        }
+
+        foreach ((array) ($resposta['socios'] ?? []) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            // O nome em rotulo (negrito) e o papel com o documento MASCARADO
+            // no valor: socio e pessoa, e o documento inteiro dela nao circula.
+            $grupos['Quadro societário'][] = [
+                'rotulo' => (string) ($item['nome'] ?? ''),
+                'valor' => implode(' · ', array_filter([
+                    $item['cargo'] ?? null,
+                    isset($item['documento']) ? Documento::mascarar((string) $item['documento']) : null,
+                ])),
+            ];
+        }
+
+        return $grupos;
     }
 
     /**
