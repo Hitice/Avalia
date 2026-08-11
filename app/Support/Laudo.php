@@ -249,21 +249,16 @@ final class Laudo
     public static function ressalvasDaFatura(int $consultas, int $diasDeRetencao): array
     {
         return [
-            'As consultas cobradas neste demonstrativo serviram para subsidiar decisões de '
-            .'crédito do contratante. A decisão de conceder ou não o crédito foi, e permanece, '
-            .'de exclusiva responsabilidade de quem consultou. A Avalia responde pela entrega '
-            .'da informação, não pelo uso que se faz dela.',
-
-            'Consulta não concluída não é cobrada e não aparece aqui. '
+            'As consultas deste demonstrativo subsidiaram decisões de crédito do contratante; a decisão '
+            .'foi, e permanece, de exclusiva responsabilidade de quem consultou. Consulta não concluída '
+            .'não é cobrada e não aparece aqui. '
             .($consultas > 0
                 ? 'Foram '.$consultas.' '.($consultas === 1 ? 'consulta concluída' : 'consultas concluídas').' no período.'
                 : 'Não houve consulta concluída no período.'),
 
-            'O detalhe de cada consulta fica no portal por '.$diasDeRetencao.' dias a partir da '
-            .'data em que foi feita. O registro da consulta em si é permanente.',
-
-            'Demonstrativo do consumo do período, para conferência e arquivo. '
-            .'Não substitui a nota fiscal nem serve como comprovante de pagamento.',
+            'O detalhe de cada consulta fica no portal por '.$diasDeRetencao.' dias; o registro é '
+            .'permanente. Este demonstrativo serve à conferência e ao arquivo, e não substitui a nota '
+            .'fiscal nem serve como comprovante de pagamento.',
         ];
     }
 
@@ -296,24 +291,21 @@ final class Laudo
             ? 'Consulta às bases contratadas.'
             : 'Consulta ao documento '.$documentoMascarado.' nas bases contratadas.';
 
+        // Tres notas, e nao cinco: cada frase que sobrou fecha uma porta
+        // juridica propria, e o que era contexto repetido saiu. Nota legal
+        // enxuta e nota que se le ate o fim.
         return [
-            'A decisão de conceder ou não o crédito é de exclusiva responsabilidade de quem consulta. '
-            .'As informações deste laudo servem para subsidiar essa decisão e não a substituem.',
+            'A decisão de crédito é de exclusiva responsabilidade de quem consulta: este laudo a subsidia '
+            .'e não a substitui. As informações são confidenciais, restritas à finalidade declarada, e é '
+            .'vedado repassá-las a terceiros; o uso em desacordo com a lei responsabiliza, civil e '
+            .'criminalmente, quem as utilizar.',
 
-            'Estas informações são confidenciais e destinam-se exclusivamente a orientar as transações '
-            .'comerciais de quem as solicitou. É vedado repassá-las a terceiros. Quem as utilizar em '
-            .'desacordo com a legislação responde, civil e criminalmente, pelos danos que causar.',
+            $alvo.' A consulta em si não significa negócio realizado e não se confunde com anotação '
+            .'negativa. O laudo reflete as bases no momento da consulta; registro que o provedor de origem '
+            .'não enviou não aparece aqui, e a ausência de uma ocorrência não prova que ela não exista.',
 
-            $alvo.' A consulta em si não '
-            .'significa negócio realizado e não se confunde com anotação negativa em cadastro de inadimplentes.',
-
-            'As informações refletem o que as bases consultadas tinham no momento desta consulta e podem '
-            .'mudar a qualquer tempo. Registro que o provedor de origem ainda não enviou, ou enviou com '
-            .'atraso, não aparece aqui: a ausência de uma ocorrência neste laudo não prova que ela não exista.',
-
-            'Ao consultar, o contratante declarou que o tratamento destes dados observa as finalidades e os '
-            .'procedimentos admitidos pela Lei Geral de Proteção de Dados (Lei 13.709/2018), conforme a '
-            .'finalidade registrada acima e os termos aceitos no acesso à plataforma.',
+            'Ao consultar, o contratante declarou tratar estes dados conforme a Lei Geral de Proteção de '
+            .'Dados (Lei 13.709/2018), a finalidade registrada acima e os termos aceitos na plataforma.',
         ];
     }
 }
