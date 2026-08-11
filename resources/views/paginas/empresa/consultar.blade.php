@@ -9,6 +9,15 @@
         <x-avalia.ajuda assunto="Consulta">Falar com a Avalia</x-avalia.ajuda>
     </div>
 
+    {{-- A consulta que acabou de sair abre aqui, por cima da tela: nao ha
+         pagina de resultado no meio do caminho. --}}
+    @if (request()->filled('laudo'))
+        <div class="mb-6">
+            <x-avalia.visor-laudo :url="route('empresa.consultas.pdf', (int) request('laudo'))"
+                                  rotulo="Ver último relatório" :aberto="true" />
+        </div>
+    @endif
+
     @if (! $empresa->podeConsultar())
         <div class="aviso aviso-alerta mb-6">{{ $empresa->motivoSuspensao() }}</div>
     @endif

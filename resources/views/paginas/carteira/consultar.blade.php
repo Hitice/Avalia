@@ -30,6 +30,16 @@
         <div class="aviso aviso-erro mb-6">{{ session('erro') }}</div>
     @endif
 
+    {{-- A consulta que acabou de sair abre AQUI, por cima da grade: nao ha
+         pagina de resultado no meio do caminho, e fechar o visor ja deixa a
+         pessoa em frente aos cards para a proxima. --}}
+    @if (request()->filled('laudo'))
+        <div class="mb-6">
+            <x-avalia.visor-laudo :url="route('carteira.demonstracoes.pdf', (int) request('laudo'))"
+                                  rotulo="Ver último relatório" :aberto="true" />
+        </div>
+    @endif
+
     {{-- Cada serviço é um card, e não uma linha de dropdown: dropdown de 40
          itens esconde o catálogo atrás de um clique e não tem onde dizer o que
          cada pesquisa traz nem quanto vale. O card abre com o resumo e o botão
@@ -77,61 +87,84 @@
                     </span>
                 </button>
 
-                <div x-cloak x-show="aberto === {{ $servico->id }}"
-                     class="border-t border-gray-100 px-5 py-4 dark:border-gray-800">
+                {{-- O detalhe abre SOBRE a tela, nao empurrando a grade: card
+                     que expande no lugar vira dropdown disfarcado e desalinha
+                     os vizinhos. O popup mostra o resumo, e o Consultar troca o
+                     miolo pelo campo do documento com o foco ja dentro. --}}
+                <template x-teleport="body">
+                    <div x-cloak x-show="aberto === {{ $servico->id }}" x-transition.opacity.duration.200ms
+                         class="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 p-4"
+                         @keydown.escape.window="aberto = null">
+                        <div class="entra-popup w-full max-w-lg rounded-2xl bg-white shadow-theme-lg dark:bg-gray-800"
+                             @click.outside="aberto = null">
+                            <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                                <div>
+                                    <h2 class="font-medium text-gray-800 dark:text-white/90">{{ $servico->nome }}</h2>
+                                    <p class="ajuda-campo mt-0.5">
+                                        {{ $servico->rotuloCategoria() }}
+                                        · {{ isset($precos[$servico->id]) ? Dinheiro::brl($precos[$servico->id]) : 'Sob consulta' }}
+                                    </p>
+                                </div>
+                                <button type="button" @click="aberto = null"
+                                        class="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5">
+                                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                                    </svg>
+                                    <span class="sr-only">Fechar</span>
+                                </button>
+                            </div>
 
-                    {{-- O resumo: o que a pesquisa traz, de onde vem e quanto vale. --}}
-                    <div x-show="etapa === 'resumo'">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">
-                            {{ $servico->descricao ?: 'Consulta ao documento nas bases contratadas, com resultado em relatório padronizado: score com temperatura, identificação, restrições e contexto.' }}
-                        </p>
+                            <div class="px-6 py-5">
+                                <div x-show="etapa === 'resumo'">
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                                        {{ $servico->descricao ?: 'Consulta ao documento nas bases contratadas, com resultado em relatório padronizado: score com temperatura, identificação, restrições e contexto.' }}
+                                    </p>
 
-                        @php
-                            $bases = collect(explode(',', (string) $servico->fornecedor))
-                                ->map(fn ($f) => trim($f))
-                                ->filter(fn ($f) => $f !== '' && $f !== 'simulado')
-                                ->map(fn ($f) => Laudo::nomeDaFonte($f));
-                        @endphp
+                                    @php
+                                        $bases = collect(explode(',', (string) $servico->fornecedor))
+                                            ->map(fn ($f) => trim($f))
+                                            ->filter(fn ($f) => $f !== '' && $f !== 'simulado')
+                                            ->map(fn ($f) => Laudo::nomeDaFonte($f));
+                                    @endphp
 
-                        @if ($bases->isNotEmpty())
-                            <p class="ajuda-campo mt-2">Bases: {{ $bases->implode(' · ') }}</p>
-                        @endif
+                                    @if ($bases->isNotEmpty())
+                                        <p class="ajuda-campo mt-2">Bases: {{ $bases->implode(' · ') }}</p>
+                                    @endif
 
-                        <div class="mt-4 flex items-center justify-between gap-3">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ $vendedor->ehAdmin() ? 'Sem cobrança: custo da operação.' : 'Sem cobrança: sai da sua comissão.' }}
-                            </span>
+                                    <div class="mt-5 text-right">
+                                        <x-avalia.botao type="button"
+                                                        x-on:click="etapa = 'form'; $nextTick(() => $refs.doc{{ $servico->id }}.focus())">
+                                            Consultar
+                                        </x-avalia.botao>
+                                    </div>
+                                </div>
 
-                            <x-avalia.botao tamanho="sm" type="button" x-on:click="etapa = 'form'">
-                                Consultar
-                            </x-avalia.botao>
+                                <form x-show="etapa === 'form'" method="POST"
+                                      action="{{ route('carteira.consultar.executar') }}">
+                                    @csrf
+                                    <input type="hidden" name="servico_id" value="{{ $servico->id }}">
+
+                                    <label for="documento-{{ $servico->id }}" class="rotulo-campo">CPF ou CNPJ</label>
+                                    <input id="documento-{{ $servico->id }}" name="documento" type="text"
+                                           x-ref="doc{{ $servico->id }}"
+                                           class="campo mt-1" required inputmode="numeric"
+                                           placeholder="Só números ou com máscara">
+
+                                    <div class="mt-4 flex items-center justify-between gap-3">
+                                        <button type="button" x-on:click="etapa = 'resumo'"
+                                                class="hover:text-brand-600 dark:hover:text-brand-400 text-sm text-gray-500 dark:text-gray-400">
+                                            Voltar ao resumo
+                                        </button>
+
+                                        <x-avalia.botao>
+                                            {{ $vendedor->ehAdmin() ? 'Consultar' : 'Consultar para demonstrar' }}
+                                        </x-avalia.botao>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-
-                    {{-- O card vira o formulário: documento e enviar, nada mais. --}}
-                    <form x-show="etapa === 'form'" method="POST"
-                          action="{{ route('carteira.consultar.executar') }}">
-                        @csrf
-                        <input type="hidden" name="servico_id" value="{{ $servico->id }}">
-
-                        <label for="documento-{{ $servico->id }}" class="rotulo-campo">CPF ou CNPJ</label>
-                        <input id="documento-{{ $servico->id }}" name="documento" type="text"
-                               class="campo mt-1" required inputmode="numeric"
-                               x-bind:disabled="etapa !== 'form' || aberto !== {{ $servico->id }}"
-                               placeholder="Só números ou com máscara">
-
-                        <div class="mt-3 flex items-center justify-between gap-3">
-                            <button type="button" x-on:click="etapa = 'resumo'"
-                                    class="hover:text-brand-600 dark:hover:text-brand-400 text-sm text-gray-500 dark:text-gray-400">
-                                Voltar ao resumo
-                            </button>
-
-                            <x-avalia.botao tamanho="sm">
-                                {{ $vendedor->ehAdmin() ? 'Consultar' : 'Consultar para demonstrar' }}
-                            </x-avalia.botao>
-                        </div>
-                    </form>
-                </div>
+                </template>
             </div>
         @endforeach
     </div>

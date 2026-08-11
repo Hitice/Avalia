@@ -218,10 +218,9 @@ class AreaClienteController extends Controller
         }
 
         return redirect()
-            // A tela de resultado com o visor do laudo JA aberto: o relatorio
-            // aparece em popup, e a pagina continua embaixo para quando ele
-            // fechar. Abrir o PDF na propria aba tirava a pessoa do portal.
-            ->route('empresa.consultas.ver', [$resultado['consulta'], 'laudo' => 'aberto'])
+            // De volta a propria tela de consultar, com o visor aberto por
+            // cima: a proxima consulta comeca onde a anterior terminou.
+            ->route('empresa.consultar', ['laudo' => $resultado['consulta']->id])
             ->with('ok', 'Consulta concluída.');
     }
 
