@@ -99,6 +99,8 @@ final class Rotulos
         'fatura.estornada' => 'Pagamento estornado',
         'fatura.segunda_via' => 'Segunda via da fatura pedida',
         'fatura.reenviada' => 'Cobrança reenviada por e-mail',
+        'consulta.aberta' => 'Resultado de consulta aberto',
+        'consulta.laudo_emitido' => 'Laudo de consulta emitido',
         'preco.alvo' => 'Preço subiu para a margem alvo',
         'clientes.exportados' => 'Carteira de clientes exportada',
         'faturas.exportadas' => 'Faturas exportadas em planilha',

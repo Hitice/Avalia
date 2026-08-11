@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Consulta;
 use App\Models\Servico;
+use App\Support\Auditar;
+use App\Support\ConsultaPdf;
 use App\Support\FiltroConsultas;
 use Illuminate\Http\Request;
 
@@ -24,7 +26,7 @@ class ConsultaController extends Controller
 {
     private const POR_PAGINA = 50;
 
-    public function __invoke(Request $pedido)
+    public function index(Request $pedido)
     {
         $filtradas = FiltroConsultas::aplicar(Consulta::query(), $pedido);
 
@@ -35,6 +37,47 @@ class ConsultaController extends Controller
             'servicos' => Servico::orderBy('nome')->get(),
             'consultas' => $filtradas->with(['servico', 'cliente'])->latest('id')
                 ->paginate(self::POR_PAGINA)->withQueryString(),
+        ]);
+    }
+
+    /**
+     * O resultado de uma consulta, para a administracao.
+     *
+     * A lista nunca mostra o documento consultado, e este metodo e a razao: o
+     * acesso a dado pessoal e um EVENTO, e evento se registra. Quem abriu, de
+     * qual empresa e quando fica na trilha, e e essa trilha que responde a
+     * pergunta que o titular tem o direito de fazer.
+     *
+     * Consulta expurgada nao abre: o conteudo ja nao existe, e o registro dela
+     * continua na lista.
+     */
+    public function ver(Consulta $consulta)
+    {
+        abort_unless($consulta->deuCerto() && ! $consulta->expurgada(), 404);
+
+        Auditar::registrar('consulta.aberta', $consulta, [
+            'cliente_id' => $consulta->cliente_id,
+            'servico' => $consulta->servico?->codigo,
+        ]);
+
+        return view('paginas.consultas.ver', ['consulta' => $consulta->load('servico', 'cliente')]);
+    }
+
+    /** O mesmo laudo que o cliente baixa, para o atendimento. */
+    public function pdf(Consulta $consulta)
+    {
+        abort_unless($consulta->deuCerto() && ! $consulta->expurgada(), 404);
+
+        Auditar::registrar('consulta.laudo_emitido', $consulta, [
+            'cliente_id' => $consulta->cliente_id,
+            'servico' => $consulta->servico?->codigo,
+        ]);
+
+        $emissor = auth('staff')->user()?->nome;
+
+        return response(ConsultaPdf::resultado($consulta->load('servico'), $emissor), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="consulta-'.($consulta->referencia_externa ?? $consulta->id).'.pdf"',
         ]);
     }
 

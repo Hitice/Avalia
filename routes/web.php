@@ -167,7 +167,15 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     // Consultas de todas as empresas, para a operacao acompanhar volume e
     // resposta do fornecedor. So leitura, e so admin: a lista do vendedor e
     // /carteira/consultas, restrita as empresas dele.
-    Route::get('/consultas', ConsultaController::class)->middleware('admin')->name('consultas');
+    Route::middleware('admin')->group(function () {
+        Route::get('/consultas', [ConsultaController::class, 'index'])->name('consultas');
+
+        // Abrir o resultado e emitir o laudo ficam na trilha: acesso a dado
+        // pessoal e evento, e e a trilha que responde ao titular quem viu o
+        // que, e quando.
+        Route::get('/consultas/{consulta}', [ConsultaController::class, 'ver'])->name('consultas.ver');
+        Route::get('/consultas/{consulta}/pdf', [ConsultaController::class, 'pdf'])->name('consultas.pdf');
+    });
 
     // A fila de pedidos de contato vive no painel da administracao; atender e
     // tirar da fila, e a trilha guarda quem atendeu.
