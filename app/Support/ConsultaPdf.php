@@ -80,14 +80,15 @@ final class ConsultaPdf
             // No bloco de score o numero vira o protagonista: grande, na cor
             // da faixa, com o leque de temperatura embaixo. A linha "Score"
             // em tabela sai, senao o mesmo numero apareceria duas vezes.
-            $temScoreGrande = $bloco['titulo'] === 'Score e risco' && is_numeric($resposta['score'] ?? null);
+            $chaveDoMedidor = ['Score e risco' => 'score', 'SCR · Banco Central' => 'scr_score'][$bloco['titulo']] ?? null;
+            $temScoreGrande = $chaveDoMedidor && is_numeric($resposta[$chaveDoMedidor] ?? null);
 
             if ($temScoreGrande) {
-                $pdf->medidor((float) $resposta['score']);
+                $pdf->medidor((float) $resposta[$chaveDoMedidor]);
             }
 
             foreach ($bloco['linhas'] as $linha) {
-                if ($temScoreGrande && $linha['rotulo'] === 'Score') {
+                if ($temScoreGrande && in_array($linha['rotulo'], ['Score', 'Score SCR'], true)) {
                     continue;
                 }
 
@@ -154,7 +155,9 @@ final class ConsultaPdf
             $bases[Laudo::nomeDaFonte($fonte)] = $motivo;
         }
 
-        if (stripos((string) $consulta->servico?->nome, 'SCR') !== false) {
+        // So acusa o SCR ausente se ele realmente nao veio: com o bloco no
+        // laudo, secao em branco por cima seria o documento se desmentindo.
+        if (stripos((string) $consulta->servico?->nome, 'SCR') !== false && ! isset($resposta['scr_score'])) {
             $bases[Laudo::nomeDaFonte('scr')] ??= 'A base ainda não está conectada à plataforma.';
         }
 

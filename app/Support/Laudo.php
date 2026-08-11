@@ -44,10 +44,17 @@ final class Laudo
             'titulo' => 'Identificação',
             'campos' => [
                 'nome' => 'Nome',
+                'nome_fantasia' => 'Nome fantasia',
                 'situacao_cadastral' => 'Situação cadastral',
                 'data_de_nascimento' => 'Data de nascimento',
                 'data_de_fundacao' => 'Data de fundação',
                 'atividade_principal' => 'Atividade principal',
+                'cnae_principal' => 'CNAE principal',
+                'natureza_juridica' => 'Natureza jurídica',
+                'capital_social_cents' => 'Capital social',
+                'faixa_de_funcionarios' => 'Faixa de funcionários',
+                'tempo_de_atuacao' => 'Tempo de atuação',
+                'matriz_ou_filial' => 'Matriz ou filial',
             ],
         ],
         'restricoes' => [
@@ -63,14 +70,42 @@ final class Laudo
                 'pendencias' => 'Pendências',
                 'cheques_sem_fundo' => 'Cheques sem fundo',
                 'dividas_vencidas' => 'Dívidas vencidas',
+                'valor_dos_protestos_cents' => 'Valor dos protestos',
+                'ultimo_protesto_em' => 'Último protesto em',
                 'valor_total_das_restricoes_cents' => 'Valor total das restrições',
+            ],
+        ],
+        // O recorte do Banco Central e bloco proprio porque e outra natureza
+        // de informacao: nao e restricao, e o retrato do relacionamento
+        // bancario, e misturar os dois faria divida saudavel parecer pendencia.
+        'scr' => [
+            'titulo' => 'SCR · Banco Central',
+            // Opcional: so os produtos com SCR no nome pesquisam esta base, e
+            // acusa-la como "nao contemplada" nos demais leria como defeito de
+            // um produto que nunca a prometeu.
+            'opcional' => true,
+            'campos' => [
+                'scr_score' => 'Score SCR',
+                'relacionamento_bancario_desde' => 'Relacionamento bancário desde',
+                'instituicoes_com_relacionamento' => 'Instituições com relacionamento',
+                'operacoes_de_credito' => 'Operações de crédito',
+                'carteira_ativa_cents' => 'Carteira ativa',
+                'creditos_vencidos_cents' => 'Créditos vencidos',
+                'prejuizo_cents' => 'Prejuízo',
+                'limites_de_credito_cents' => 'Limites de crédito contratados',
             ],
         ],
         'contexto' => [
             'titulo' => 'Contexto',
             'campos' => [
                 'consultas_recentes' => 'Consultas recentes ao documento',
+                'faturamento_presumido' => 'Faturamento presumido',
+                'quadro_societario' => 'Quadro societário',
                 'participacoes_societarias' => 'Participações societárias',
+                // Contagem, e nao a lista: o modelo de mercado despeja vinte
+                // paginas de telefone repetido, e ninguem decide credito com
+                // isso. Quem precisar da lista pede o produto de localizacao.
+                'contatos_localizados' => 'Contatos localizados',
                 'documentos_extraviados' => 'Documentos roubados, furtados ou extraviados',
                 'ultima_atualizacao' => 'Última atualização do cadastro',
             ],
@@ -139,6 +174,10 @@ final class Laudo
         $ausentes = [];
 
         foreach (self::BLOCOS as $bloco) {
+            if ($bloco['opcional'] ?? false) {
+                continue;
+            }
+
             $tem = false;
 
             foreach (array_keys($bloco['campos']) as $chave) {
