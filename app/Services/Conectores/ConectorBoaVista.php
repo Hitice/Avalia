@@ -232,6 +232,15 @@ class ConectorBoaVista implements ConectorBureau
                 .'Confira no portal do fornecedor se ela já foi aprovada para o seu aplicativo.';
         }
 
+        // 401.04 e "No product match found": a credencial VALE, o endereco
+        // existe, e o que falta e o produto estar liberado para o aplicativo.
+        // E o oposto de credencial recusada, e mandar conferir a credencial
+        // faria alguem trocar uma chave que esta certa.
+        if (str_starts_with($codigo, '401.04')) {
+            return 'A credencial foi aceita, mas este produto não está liberado para o seu '
+                .'aplicativo no fornecedor. É liberação de contrato, não configuração daqui.';
+        }
+
         $conhecido = match ($resposta->status()) {
             400 => 'O fornecedor recusou a consulta: confira o produto e o documento informados.',
             401, 403 => 'O fornecedor recusou as credenciais. Confira a conexão com o bureau.',

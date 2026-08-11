@@ -159,3 +159,21 @@ it('repassa a descricao do fornecedor quando o erro e desconhecido', function ()
     expect(app(ConectorBoaVista::class)->consultar($servico, '12345678901', 'Pesquisa de score')->erro)
         ->toContain('Produto não habilitado para o contrato informado');
 });
+
+it('separa credencial recusada de produto nao liberado', function () {
+    // "No product match found" significa que a chave VALE e o endereco existe:
+    // falta o produto no contrato. Tratar como credencial recusada faria
+    // alguem trocar uma chave que esta certa.
+    conexaoBoaVista();
+    $servico = Servico::factory()->create(['codigo_fornecedor' => 'SCPC_NET_PJ']);
+
+    Http::fake([
+        '*oauth/token' => Http::response(['access_token' => 'tok']),
+        '*consulta' => Http::response(['efxErrorCode' => '401.04', 'description' => 'No product match found'], 401),
+    ]);
+
+    $erro = app(ConectorBoaVista::class)->consultar($servico, '39914870000101', 'Pesquisa de score')->erro;
+
+    expect($erro)->toContain('não está liberado para o seu aplicativo')
+        ->and($erro)->not->toContain('Confira a conexão com o bureau');
+});
