@@ -15,6 +15,24 @@ namespace App\Support;
  */
 final class Fornecedores
 {
+    /**
+     * Os bureaus que tem conector escrito, para escolher no cadastro do
+     * servico. So os que existem: oferecer fornecedor sem conector seria
+     * prometer uma consulta que nao sai.
+     *
+     * @return array<string, string>
+     */
+    public static function bureaus(): array
+    {
+        $rotulos = [];
+
+        foreach (array_keys(\App\Services\Conectores\EscolherConector::CONECTORES) as $chave) {
+            $rotulos[$chave] = self::todos()[$chave]['nome'] ?? ucfirst($chave);
+        }
+
+        return $rotulos;
+    }
+
     /** @return array<string, array<string, mixed>> */
     public static function todos(): array
     {

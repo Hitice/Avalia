@@ -85,6 +85,23 @@
                         não sai e a tela explica o motivo. Exemplos: RELATORIO_AVANCADO_PF,
                         ACERTA_COMPLETO_POSITIVO, SCPC_NET_PJ, SCORE_PF.
                     </span>
+                </label>
+
+                <label class="block">
+                    <span class="rotulo-campo">Fornecedor</span>
+                    <select name="fornecedor" class="campo">
+                        <option value="">Usar o fornecedor padrão do sistema</option>
+                        @foreach (App\Support\Fornecedores::bureaus() as $chave => $rotulo)
+                            <option value="{{ $chave }}" @selected(old('fornecedor', $servico->fornecedor) === $chave)>
+                                {{ $rotulo }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span class="ajuda-campo">
+                        De qual bureau esta linha vem. O catálogo mistura bases, e sem isto
+                        ligar um fornecedor mandaria para ele até o que ele não vende.
+                        Em branco, vale a escolha geral do sistema.
+                    </span>
                     @error('codigo_fornecedor') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 

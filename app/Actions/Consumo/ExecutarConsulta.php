@@ -2,11 +2,11 @@
 
 namespace App\Actions\Consumo;
 
-use App\Contracts\ConectorBureau;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
 use App\Models\Servico;
+use App\Services\Conectores\EscolherConector;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ExecutarConsulta
 {
-    public function __construct(private readonly ConectorBureau $conector) {}
+    public function __construct(private readonly EscolherConector $bureaus) {}
 
     /** @return array{erro: string|null, consulta: Consulta|null} */
     public function __invoke(
@@ -125,7 +125,12 @@ class ExecutarConsulta
             return $this->recusa("O período {$competencia} já foi fechado.");
         }
 
-        $resposta = $this->conector->consultar($servico, $documento, $finalidade);
+        // O conector sai do SERVICO, e nao de uma escolha global: o catalogo
+        // mistura bases, e "Base III" e Boa Vista enquanto outras linhas vem de
+        // outro fornecedor.
+        $conector = $this->bureaus->para($servico);
+
+        $resposta = $conector->consultar($servico, $documento, $finalidade);
 
         $consulta = DB::transaction(fn () => Consulta::create([
             'cliente_id' => $cliente->id,
@@ -152,7 +157,7 @@ class ExecutarConsulta
         Auditar::registrar('consulta.'.$consulta->situacao, $consulta, [
             'servico' => $servico->codigo,
             'finalidade' => $finalidade,
-            'fornecedor' => $this->conector->nome(),
+            'fornecedor' => $conector->nome(),
         ]);
 
         return $resposta->sucesso

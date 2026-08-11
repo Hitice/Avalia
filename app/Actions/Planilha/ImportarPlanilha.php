@@ -34,6 +34,7 @@ class ImportarPlanilha
         $colCodigo = array_search('codigo', $colunas, true);
         $colCusto = array_search('custo', $colunas, true);
         $colProduto = array_search('produto no fornecedor', $colunas, true);
+        $colFornecedor = array_search('fornecedor', $colunas, true);
 
         if ($colCodigo === false) {
             return $this->falha('A planilha precisa da coluna "Código".');
@@ -89,7 +90,18 @@ class ImportarPlanilha
                 $produto = trim((string) ($linha[$colProduto] ?? ''));
 
                 if ($produto !== '') {
-                    $produtos[$servicoId] = $produto;
+                    $produtos[$servicoId]['codigo_fornecedor'] = $produto;
+                }
+            }
+
+            // Fornecedor desconhecido e ignorado em vez de gravado: nome errado
+            // na planilha nao pode desviar consulta para um conector que nao
+            // existe, e a linha continua no fornecedor que ja tinha.
+            if ($colFornecedor !== false) {
+                $fornecedor = trim(mb_strtolower((string) ($linha[$colFornecedor] ?? '')));
+
+                if (array_key_exists($fornecedor, \App\Services\Conectores\EscolherConector::CONECTORES)) {
+                    $produtos[$servicoId]['fornecedor'] = $fornecedor;
                 }
             }
 
@@ -113,10 +125,19 @@ class ImportarPlanilha
                 Preco::whereKey($id)->update($campos);
             }
 
-            foreach ($produtos as $servicoId => $produto) {
-                $servicosMudados += Servico::whereKey($servicoId)
-                    ->where(fn ($q) => $q->whereNull('codigo_fornecedor')->orWhere('codigo_fornecedor', '!=', $produto))
-                    ->update(['codigo_fornecedor' => $produto]);
+            foreach ($produtos as $servicoId => $campos) {
+                $servico = Servico::find($servicoId);
+
+                if (! $servico) {
+                    continue;
+                }
+
+                $diferentes = array_filter($campos, fn ($valor, $campo) => $servico->{$campo} !== $valor, ARRAY_FILTER_USE_BOTH);
+
+                if ($diferentes !== []) {
+                    $servico->update($diferentes);
+                    $servicosMudados++;
+                }
             }
         });
 

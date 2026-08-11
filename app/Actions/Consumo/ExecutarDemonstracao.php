@@ -2,10 +2,10 @@
 
 namespace App\Actions\Consumo;
 
-use App\Contracts\ConectorBureau;
 use App\Models\Consulta;
 use App\Models\Servico;
 use App\Models\Staff;
+use App\Services\Conectores\EscolherConector;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +32,7 @@ class ExecutarDemonstracao
 
     public const FINALIDADE_OPERACAO = 'Conferência interna, pesquisa de score de crédito';
 
-    public function __construct(private readonly ConectorBureau $conector) {}
+    public function __construct(private readonly EscolherConector $bureaus) {}
 
     /** Quantas consultas proprias esta conta ainda pode fazer hoje. */
     public static function restantes(Staff $conta): int
@@ -101,7 +101,12 @@ class ExecutarDemonstracao
             ->where('servico_id', $servico->id)
             ->value('custo_cents');
 
-        $resposta = $this->conector->consultar($servico, $documento, $finalidade);
+        // O conector sai do SERVICO: "Base III" e Boa Vista, e outras linhas
+        // vem de outro fornecedor. Escolha global mandaria para um bureau ate
+        // o que ele nao vende.
+        $conector = $this->bureaus->para($servico);
+
+        $resposta = $conector->consultar($servico, $documento, $finalidade);
 
         $consulta = DB::transaction(fn () => Consulta::create([
             'cliente_id' => null,
@@ -129,7 +134,7 @@ class ExecutarDemonstracao
             'servico' => $servico->codigo,
             'finalidade' => $finalidade,
             'origem' => $daCasa ? 'operacao' : 'demonstracao',
-            'fornecedor' => $this->conector->nome(),
+            'fornecedor' => $conector->nome(),
         ]);
 
         return $resposta->sucesso

@@ -111,7 +111,7 @@ class MontarPlanilha
         // As colunas de margem sairam daqui e viraram aba, para o arquivo ter
         // a mesma divisao da tela.
         $cabecalho = array_merge(
-            ['Código', 'Serviço', 'Categoria', 'Situação', 'Produto no fornecedor', 'Custo'],
+            ['Código', 'Serviço', 'Categoria', 'Situação', 'Fornecedor', 'Produto no fornecedor', 'Custo'],
             array_map(self::tituloDaFaixa(...), $faixas),
         );
 
@@ -130,9 +130,10 @@ class MontarPlanilha
                         $servico->nome,
                         $servico->rotuloCategoria(),
                         self::situacao($servico),
-                        // Sem produto, a consulta real nem sai: e o campo que
-                        // liga o servico vendido ao produto contratado no
-                        // fornecedor, e preenche-lo aqui evita abrir 43 telas.
+                        // De quem vem a linha, e qual produto pedir a ele. Sem
+                        // os dois a consulta real nao sai, e preenche-los aqui
+                        // evita abrir uma tela por servico.
+                        $servico->fornecedor ?? '',
                         $servico->codigo_fornecedor ?? '',
                         self::reais($precos->first()->custo_cents),
                     ],
@@ -337,10 +338,11 @@ class MontarPlanilha
                 $servico->nome,
                 $servico->rotuloCategoria(),
                 self::situacao($servico),
+                $servico->fornecedor ?? '',
                 $servico->codigo_fornecedor ?? '',
             ])
             ->all();
 
-        return [['Código', 'Serviço', 'Categoria', 'Situação', 'Produto no fornecedor'], $linhas];
+        return [['Código', 'Serviço', 'Categoria', 'Situação', 'Fornecedor', 'Produto no fornecedor'], $linhas];
     }
 }

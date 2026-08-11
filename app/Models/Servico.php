@@ -18,7 +18,7 @@ class Servico extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['codigo', 'nome', 'categoria', 'descricao', 'codigo_fornecedor', 'ativo', 'exige_liberacao'];
+    protected $fillable = ['codigo', 'nome', 'categoria', 'descricao', 'codigo_fornecedor', 'fornecedor', 'ativo', 'exige_liberacao'];
 
     /**
      * O numero de atendimento nasce sozinho, sequencial, e nunca se reusa:

@@ -50,6 +50,9 @@ class ServicoRequest extends FormRequest
             'nome' => ['required', 'string', 'max:150'],
             'descricao' => ['nullable', 'string', 'max:300'],
             'codigo_fornecedor' => ['nullable', 'string', 'max:80'],
+            // Fornecedor tem lista fechada: valor livre aqui desviaria a
+            // consulta para um conector que nao existe.
+            'fornecedor' => ['nullable', 'string', Rule::in(array_keys(\App\Services\Conectores\EscolherConector::CONECTORES))],
             'categoria' => ['required', Rule::in(Categoria::valores())],
             'ativo' => ['boolean'],
             'exige_liberacao' => ['boolean'],

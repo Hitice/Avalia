@@ -22,29 +22,11 @@ class AppServiceProvider extends ServiceProvider
          * faria producao decidir sozinha usar dado falso no dia em que a
          * credencial faltasse, e ninguem perceberia.
          */
-        $this->app->bind(\App\Contracts\ConectorBureau::class, function () {
-            $conectores = [
-                'simulado' => \App\Services\Conectores\ConectorSimulado::class,
-                'serasa' => \App\Services\Conectores\ConectorSerasa::class,
-                'boa-vista' => \App\Services\Conectores\ConectorBoaVista::class,
-            ];
-
-            // Config manda (e o que os testes e a homologacao usam); sem
-            // config, vale a primeira conexao de bureau ATIVA na tela de
-            // Conexoes; sem nenhuma, o simulado responde.
-            $escolhido = (string) config('services.bureau.conector', '');
-
-            if ($escolhido === '') {
-                foreach (['serasa', 'quod', 'boa-vista', 'spc'] as $fornecedor) {
-                    if (isset($conectores[$fornecedor]) && \App\Models\Conexao::ativaDe($fornecedor)) {
-                        $escolhido = $fornecedor;
-                        break;
-                    }
-                }
-            }
-
-            return $this->app->make($conectores[$escolhido] ?? $conectores['simulado']);
-        });
+        $this->app->bind(\App\Contracts\ConectorBureau::class, fn () => app(
+            \App\Services\Conectores\EscolherConector::CONECTORES[
+                \App\Services\Conectores\EscolherConector::global()
+            ] ?? \App\Services\Conectores\ConectorSimulado::class,
+        ));
     }
 
     /**
