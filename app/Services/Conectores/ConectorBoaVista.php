@@ -62,7 +62,7 @@ class ConectorBoaVista implements ConectorBureau
             ]);
 
             if (! $resposta->successful()) {
-                return RespostaConsulta::falha($this->motivo($resposta->status()), null, $duracao());
+                return RespostaConsulta::falha($this->motivo($resposta), null, $duracao());
             }
 
             $corpo = $resposta->json() ?? [];
@@ -208,14 +208,44 @@ class ConectorBoaVista implements ConectorBureau
             : 'BV-'.strtoupper(substr(hash('sha256', $documento.now()->timestamp), 0, 12));
     }
 
-    private function motivo(int $status): string
+    /**
+     * O motivo da recusa, escrito para quem vai resolver.
+     *
+     * Le o CODIGO do fornecedor antes do status HTTP, e a diferenca custou uma
+     * investigacao: 404 aqui pode ser "documento nao existe na base" ou "esta
+     * API nao existe neste ambiente", que sao problemas opostos. Traduzir todo
+     * 404 como documento nao encontrado mandava o operador conferir um CNPJ
+     * correto enquanto o problema estava na aprovacao da API no portal.
+     *
+     * Codigo desconhecido devolve a descricao do proprio fornecedor em vez de
+     * uma frase generica: quem escreveu o erro sabe mais sobre ele do que nos.
+     */
+    private function motivo(\Illuminate\Http\Client\Response $resposta): string
     {
-        return match ($status) {
+        $codigo = (string) ($resposta->json('efxErrorCode') ?? '');
+        $descricao = trim((string) ($resposta->json('description') ?? ''));
+
+        // 404.01 e "recurso nao existe", ou seja, o ENDPOINT. Documento sem
+        // ocorrencia volta com resposta vazia, e nao com 404.
+        if (str_starts_with($codigo, '404.01')) {
+            return 'A API deste produto não está publicada no ambiente configurado. '
+                .'Confira no portal do fornecedor se ela já foi aprovada para o seu aplicativo.';
+        }
+
+        $conhecido = match ($resposta->status()) {
             400 => 'O fornecedor recusou a consulta: confira o produto e o documento informados.',
             401, 403 => 'O fornecedor recusou as credenciais. Confira a conexão com o bureau.',
             404 => 'Documento não encontrado na base do fornecedor.',
             429 => 'O fornecedor limitou o volume de consultas. Aguarde alguns minutos.',
-            default => 'O fornecedor respondeu com erro ('.$status.').',
+            default => null,
         };
+
+        if ($conhecido) {
+            return $conhecido;
+        }
+
+        return $descricao !== ''
+            ? 'O fornecedor recusou a consulta: '.$descricao
+            : 'O fornecedor respondeu com erro ('.$resposta->status().').';
     }
 }

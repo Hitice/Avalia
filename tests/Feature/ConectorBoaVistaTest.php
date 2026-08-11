@@ -118,3 +118,44 @@ it('escolhe o conector da Boa Vista quando a conexao dela esta ativa', function 
 
     expect(app(App\Contracts\ConectorBureau::class))->toBeInstanceOf(ConectorBoaVista::class);
 });
+
+it('nao confunde API ausente com documento inexistente', function () {
+    // 404 do Equifax pode ser "documento nao existe" ou "esta API nao existe
+    // neste ambiente", que sao problemas opostos. Traduzir os dois igual manda
+    // o operador conferir um CNPJ correto enquanto o problema esta na
+    // aprovacao da API no portal. Aconteceu.
+    conexaoBoaVista();
+    $servico = Servico::factory()->create(['codigo_fornecedor' => 'SCPC_NET_PJ']);
+
+    Http::fake([
+        '*oauth/token' => Http::response(['access_token' => 'tok']),
+        '*consulta' => Http::response([
+            'efxErrorCode' => 404.01,
+            'description' => 'Not Found - The specified resource does not exist',
+        ], 404),
+    ]);
+
+    $resposta = app(ConectorBoaVista::class)->consultar($servico, '39914870000101', 'Pesquisa de score');
+
+    expect($resposta->sucesso)->toBeFalse()
+        ->and($resposta->erro)->toContain('não está publicada no ambiente configurado')
+        ->and($resposta->erro)->not->toContain('Documento não encontrado');
+});
+
+it('repassa a descricao do fornecedor quando o erro e desconhecido', function () {
+    // Quem escreveu o erro sabe mais sobre ele do que nos, e frase generica
+    // manda o operador abrir chamado para descobrir o que o corpo ja dizia.
+    conexaoBoaVista();
+    $servico = Servico::factory()->create(['codigo_fornecedor' => 'SCPC_NET_PF']);
+
+    Http::fake([
+        '*oauth/token' => Http::response(['access_token' => 'tok']),
+        '*consulta' => Http::response([
+            'efxErrorCode' => 422.07,
+            'description' => 'Produto não habilitado para o contrato informado',
+        ], 422),
+    ]);
+
+    expect(app(ConectorBoaVista::class)->consultar($servico, '12345678901', 'Pesquisa de score')->erro)
+        ->toContain('Produto não habilitado para o contrato informado');
+});
