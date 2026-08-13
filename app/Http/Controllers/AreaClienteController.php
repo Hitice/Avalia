@@ -11,7 +11,6 @@ use App\Models\DocumentoLegal;
 use App\Models\Operador;
 use App\Models\Servico;
 use App\Support\Auditar;
-use App\Support\Dinheiro;
 use App\Support\DocumentoPdf;
 use App\Support\FiltroConsultas;
 use Illuminate\Http\Request;
@@ -103,28 +102,35 @@ class AreaClienteController extends Controller
             ->groupBy('servico_id')
             ->pluck('quantidade', 'servico_id');
 
-        // O preco de cada servico vai junto do nome: ninguem deveria descobrir
-        // o valor da consulta na fatura. A franquia aparece quando existe.
-        $precos = $servicos->mapWithKeys(function ($servico) use ($plano, $uso) {
+        // O preco de cada servico vai no card: ninguem deveria descobrir o
+        // valor da consulta na fatura. E o preco do PLANO da empresa, entao as
+        // estrelas medem o quartil dentro do proprio catalogo dela.
+        $precos = $servicos->mapWithKeys(fn ($servico) => [
+            $servico->id => (int) $plano->precoDe($servico->codigo),
+        ]);
+
+        // A franquia aparece quando existe, ja com o saldo do mes: e a
+        // resposta de "essa consulta vai custar ou ainda esta na mensalidade".
+        $franquias = $servicos->mapWithKeys(function ($servico) use ($plano, $uso) {
             $franquia = $plano->franquiaDe($servico->codigo);
-            $usadas = (int) ($uso[$servico->id] ?? 0);
 
-            $texto = ($servico->descricao ? $servico->descricao.' · ' : '')
-                .'Valor por consulta: '.Dinheiro::brl((int) $plano->precoDe($servico->codigo));
-
-            if ($franquia > 0) {
-                $texto .= $usadas < $franquia
-                    ? ' · '.($franquia - $usadas).' de '.$franquia.' consultas da franquia ainda incluídas na mensalidade'
-                    : ' · As '.$franquia.' consultas da franquia deste mês já foram usadas';
+            if ($franquia <= 0) {
+                return [$servico->id => null];
             }
 
-            return [$servico->id => $texto];
+            $usadas = (int) ($uso[$servico->id] ?? 0);
+
+            return [$servico->id => $usadas < $franquia
+                ? ($franquia - $usadas).' de '.$franquia.' consultas da franquia ainda incluídas na mensalidade'
+                : 'As '.$franquia.' consultas da franquia deste mês já foram usadas'];
         });
 
         return view('paginas.empresa.consultar', [
             'empresa' => $empresa,
             'servicos' => $servicos,
             'precos' => $precos,
+            'estrelas' => \App\Support\Estrelas::porPreco($precos),
+            'franquias' => $franquias,
             'pendentes' => $this->documentosPendentes($empresa),
         ]);
     }

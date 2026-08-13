@@ -195,18 +195,7 @@ class CarteiraController extends Controller
         $precos = \App\Models\Catalogo::vigente()
             ?->precos()->where('consumo_minimo_cents', 0)->pluck('preco_cents', 'servico_id') ?? collect();
 
-        // As estrelas saem do QUARTIL do preco de tabela, e nao de nota
-        // editorial: no catalogo o preco acompanha a profundidade da pesquisa
-        // (mais bases, mais dado, mais caro), entao o quartil e um resumo
-        // honesto de "quanto esta consulta traz". Zero e o quartil de entrada,
-        // nao um defeito, e por isso as estrelas apagadas continuam na tela.
-        $ordenados = $precos->sort()->values();
-        $estrelas = $precos->map(function (int $preco) use ($ordenados) {
-            $abaixo = $ordenados->search(fn (int $v) => $v > $preco);
-            $fracao = ($abaixo === false ? $ordenados->count() : $abaixo) / max(1, $ordenados->count());
-
-            return (int) min(3, floor($fracao * 4 - 0.0001));
-        });
+        $estrelas = \App\Support\Estrelas::porPreco($precos);
 
         return view('paginas.carteira.consultar', [
             'vendedor' => $vendedor,

@@ -68,11 +68,10 @@ it('mostra preco e descricao do servico antes de consultar', function () {
 
     app(RegistrarConsulta::class)($empresa, $servico, 4);
 
-    $precos = comoEmpresa($empresa)->get(route('empresa.consultar'))->assertOk()
-        ->viewData('precos');
+    $html = comoEmpresa($empresa)->get(route('empresa.consultar'))->assertOk()->getContent();
 
-    expect($precos[$servico->id])->toContain('Restrições, protestos e score')
-        ->toContain('Valor por consulta')
+    // O card traz o preco e o popup traz a descricao e o saldo da franquia.
+    expect($html)->toContain('Restrições, protestos e score')
         ->toContain("R$\u{00A0}3,24")
         ->toContain('6 de 10 consultas da franquia');
 });
