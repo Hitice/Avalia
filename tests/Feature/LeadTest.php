@@ -230,7 +230,7 @@ it('cadastra lead a mao guardando o CNPJ sem mascara', function () {
         'telefone' => '(31) 3592-2011',
         'email' => 'CONTATO@Exemplo.com',
         'origem' => 'Indicação',
-        'ativo' => '1',
+        'situacao' => 'novo',
     ])->assertRedirect(route('leads.index'));
 
     $lead = Lead::firstWhere('nome', 'INDICACAO DA FEIRA LTDA');

@@ -73,7 +73,7 @@
     <div>
         <label for="situacao" class="rotulo-campo">Situação</label>
         <select id="situacao" name="situacao" class="campo">
-            @foreach (FiltroLeads::SITUACOES as $valor => $rotulo)
+            @foreach (FiltroLeads::situacoes() as $valor => $rotulo)
                 <option value="{{ $valor }}" @selected($escolha['situacao'] === $valor)>{{ $rotulo }}</option>
             @endforeach
         </select>

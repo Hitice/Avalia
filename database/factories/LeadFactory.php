@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\SituacaoLead;
 use App\Models\Lead;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,7 +21,7 @@ class LeadFactory extends Factory
             'telefone' => fake()->numerify('(31) ####-####'),
             'email' => fake()->unique()->safeEmail(),
             'origem' => fake()->numberBetween(1, 38).'.pdf',
-            'ativo' => true,
+            'situacao' => SituacaoLead::Novo,
         ];
     }
 
@@ -30,8 +31,22 @@ class LeadFactory extends Factory
         return $this->state(['telefone' => null, 'email' => null]);
     }
 
-    public function inativo(): static
+    /** Lead com reuniao marcada, que e o unico estagio com data. */
+    public function agendado(?string $quando = null): static
     {
-        return $this->state(['ativo' => false]);
+        return $this->state([
+            'situacao' => SituacaoLead::Agendado,
+            'agendado_para' => $quando ?? now()->addDays(2),
+        ]);
+    }
+
+    /** Ficha completa: o lead que ja da para converter em cliente. */
+    public function pronto(): static
+    {
+        return $this->state([
+            'cnpj' => '08876860000103',
+            'email' => 'contato@exemplo.com.br',
+            'responsavel_nome' => 'Quem Decide',
+        ]);
     }
 }

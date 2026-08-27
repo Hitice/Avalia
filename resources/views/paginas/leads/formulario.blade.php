@@ -1,6 +1,7 @@
 @extends('layouts.app', ['title' => $lead->exists ? $lead->nome : 'Novo lead'])
 
 @php
+    use App\Enums\SituacaoLead;
     use App\Support\Documento;
 @endphp
 
@@ -114,21 +115,100 @@
                     @error('origem') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
-                <div class="flex items-end">
-                    <label class="rotulo-opcao">
-                        <input type="checkbox" name="ativo" value="1" class="caixa"
-                               @checked(old('ativo', $lead->ativo))>
-                        Lead ativo
-                    </label>
+                <div>
+                    <label for="responsavel_nome" class="rotulo-campo">Quem decide</label>
+                    <input id="responsavel_nome" name="responsavel_nome" type="text" class="campo"
+                           value="{{ old('responsavel_nome', $lead->responsavel_nome) }}">
+                    @error('responsavel_nome') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="responsavel_cpf" class="rotulo-campo">CPF de quem decide</label>
+                    <input id="responsavel_cpf" name="responsavel_cpf" type="text" class="campo"
+                           value="{{ old('responsavel_cpf', $lead->responsavel_cpf) }}">
+                    @error('responsavel_cpf') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="cep" class="rotulo-campo">CEP</label>
+                    <input id="cep" name="cep" type="text" class="campo" value="{{ old('cep', $lead->cep) }}">
+                    @error('cep') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="logradouro" class="rotulo-campo">Logradouro</label>
+                    <input id="logradouro" name="logradouro" type="text" class="campo"
+                           value="{{ old('logradouro', $lead->logradouro) }}">
+                    @error('logradouro') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="numero" class="rotulo-campo">Número</label>
+                    <input id="numero" name="numero" type="text" class="campo"
+                           value="{{ old('numero', $lead->numero) }}">
+                    @error('numero') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="complemento" class="rotulo-campo">Complemento</label>
+                    <input id="complemento" name="complemento" type="text" class="campo"
+                           value="{{ old('complemento', $lead->complemento) }}">
+                    @error('complemento') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="bairro" class="rotulo-campo">Bairro</label>
+                    <input id="bairro" name="bairro" type="text" class="campo"
+                           value="{{ old('bairro', $lead->bairro) }}">
+                    @error('bairro') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- A administração alcança os seis estágios, inclusive "Não
+                     atender", que é decisão da casa e some o lead da fila de
+                     quem prospecta. O vendedor só registra os quatro da conversa
+                     dele. --}}
+                <div>
+                    <label for="situacao" class="rotulo-campo">Em que pé está</label>
+                    <select id="situacao" name="situacao" class="campo" required>
+                        @foreach (SituacaoLead::rotulos() as $valor => $rotulo)
+                            <option value="{{ $valor }}" @selected(old('situacao', $lead->situacao?->value) === $valor)>
+                                {{ $rotulo }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('situacao') <span class="erro-campo">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="agendado_para" class="rotulo-campo">Agendado para</label>
+                    <input id="agendado_para" name="agendado_para" type="datetime-local" class="campo"
+                           value="{{ old('agendado_para', $lead->agendado_para?->format('Y-m-d\TH:i')) }}">
+                    <span class="ajuda-campo">Só vale no estágio Agendado.</span>
+                    @error('agendado_para') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="sm:col-span-2">
                     <label for="observacao" class="rotulo-campo">Observação</label>
                     <textarea id="observacao" name="observacao" rows="3" class="campo">{{ old('observacao', $lead->observacao) }}</textarea>
-                    <span class="ajuda-campo">O que o vendedor precisa saber antes de ligar. Ele lê isto na lista dele.</span>
+                    <span class="ajuda-campo">O que o vendedor precisa saber antes de ligar. Ele lê isto na ficha dele.</span>
                     @error('observacao') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
             </div>
+
+            @if ($lead->jaEhCliente() && $lead->cliente)
+                <div class="mt-6 border-t border-gray-100 pt-5 dark:border-gray-800">
+                    <span class="rotulo-grupo block">Virou cliente</span>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                        <a href="{{ route('empresas.ficha', $lead->cliente) }}"
+                           class="hover:text-brand-500 dark:hover:text-brand-400 font-medium">
+                            {{ $lead->cliente->razao_social }}
+                        </a>
+                        @if ($lead->convertido_em)
+                            <span class="text-gray-500 dark:text-gray-400">em {{ $lead->convertido_em->format('d/m/Y') }}</span>
+                        @endif
+                    </p>
+                </div>
+            @endif
 
             @if ($lead->exists && $lead->vendedores->isNotEmpty())
                 <div class="mt-6 border-t border-gray-100 pt-5 dark:border-gray-800">

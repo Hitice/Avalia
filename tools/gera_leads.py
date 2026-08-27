@@ -9,7 +9,9 @@ O prototipo guarda a base numa constante SEED do proprio HTML, no formato em
 que ela saiu dos PDFs: CNPJ com mascara, UF as vezes vazia, e o marcador
 "(INATIVO)" colado no comeco do nome de quem ja nao opera. Aqui isso vira
 coluna: CNPJ so com os digitos, para casar com o que a tabela de clientes
-guarda, e o marcador vira o booleano `ativo`.
+guarda, e o marcador vira estagio do funil ("nao atender") com o porque na
+observacao. Todo o resto nasce como lead novo, que e o unico estagio possivel
+para quem ninguem ligou ainda.
 """
 
 import json
@@ -58,7 +60,9 @@ def le():
             'telefone': linha['tel'].strip()[:60] or None,
             'email': linha['email'].strip().lower()[:160] or None,
             'origem': linha['src'].strip() or None,
-            'ativo': not INATIVO.search(linha['nome']),
+            'situacao': 'bloqueado' if INATIVO.search(linha['nome']) else 'novo',
+            'observacao': ('Veio marcado como INATIVO na base de origem.'
+                           if INATIVO.search(linha['nome']) else None),
         })
 
     return leads
@@ -76,7 +80,7 @@ def php(leads):
         ' *',
         ' * CNPJ so com os digitos, do mesmo jeito que a tabela de clientes guarda: e o',
         ' * que permite comparar com a carteira e descobrir que o lead ja e cliente.',
-        ' * `ativo` falso e o marcador "(INATIVO)" que vinha colado no nome.',
+        ' * `situacao` bloqueado e o marcador "(INATIVO)" que vinha colado no nome.',
         ' */',
         '',
         'return [',
@@ -92,7 +96,8 @@ def php(leads):
             f"'telefone' => {php_texto(lead['telefone'])}",
             f"'email' => {php_texto(lead['email'])}",
             f"'origem' => {php_texto(lead['origem'])}",
-            f"'ativo' => {'true' if lead['ativo'] else 'false'}",
+            f"'situacao' => {php_texto(lead['situacao'])}",
+            f"'observacao' => {php_texto(lead['observacao'])}",
         ])
         linhas.append(f'    [{campos}],')
 

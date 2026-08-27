@@ -148,7 +148,12 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
         // Os leads que a administracao compartilhou com ele. Nao mostra numero
         // interno nenhum, e o recorte sai do vinculo, nao da URL: nao existe
         // parametro que peca a lista de outro vendedor.
-        'carteira.leads',
+        //
+        // A ficha e a conversao seguem a mesma regra, e o controller confere o
+        // vinculo em cada uma: lead de outro vendedor da 404, e o `lead_id` que
+        // chega no cadastro de empresa e reconferido antes de fechar o lead.
+        'carteira.leads', 'carteira.leads.editar', 'carteira.leads.atualizar',
+        'carteira.leads.converter',
         'painel', 'sair', 'empresas.criar', 'empresas.salvar',
         'empresas.editar', 'empresas.atualizar', 'empresas.remover', 'empresas.convite'];
 

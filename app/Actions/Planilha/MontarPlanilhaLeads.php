@@ -26,7 +26,7 @@ class MontarPlanilhaLeads
             'Leads' => [
                 [
                     'Código', 'Nome', 'CNPJ', 'Cidade', 'UF', 'Telefone',
-                    'E-mail', 'Situação', 'Origem', 'Compartilhado com',
+                    'E-mail', 'Responsável', 'Situação', 'Agendado para', 'Origem', 'Compartilhado com',
                 ],
                 $leads->map(fn (Lead $lead) => [
                     $lead->codigo ?? '',
@@ -36,7 +36,9 @@ class MontarPlanilhaLeads
                     $lead->uf ?? '',
                     $lead->telefone ?? '',
                     $lead->email ?? '',
-                    $lead->ativo ? 'Ativo' : 'Inativo',
+                    $lead->responsavel_nome ?? '',
+                    $lead->situacao->rotulo(),
+                    $lead->agendado_para?->format('d/m/Y H:i') ?? '',
                     $lead->origem ?? '',
                     $lead->vendedores->pluck('nome')->implode(', '),
                 ])->values()->all(),

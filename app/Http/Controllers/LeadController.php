@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Planilha\MontarPlanilhaLeads;
 use App\Actions\Prospeccao\CompartilharLeads;
 use App\Actions\Prospeccao\RecolherLeads;
+use App\Enums\SituacaoLead;
 use App\Http\Requests\LeadRequest;
 use App\Models\Lead;
 use App\Models\Staff;
@@ -203,7 +204,7 @@ class LeadController extends Controller
     public function criar()
     {
         return view('paginas.leads.formulario', [
-            'lead' => new Lead(['ativo' => true]),
+            'lead' => new Lead(['situacao' => SituacaoLead::Novo]),
             'vendedores' => $this->vendedores(),
         ]);
     }
@@ -220,7 +221,7 @@ class LeadController extends Controller
     public function editar(Lead $lead)
     {
         return view('paginas.leads.formulario', [
-            'lead' => $lead->load('vendedores'),
+            'lead' => $lead->load('vendedores', 'cliente'),
             'vendedores' => $this->vendedores(),
         ]);
     }

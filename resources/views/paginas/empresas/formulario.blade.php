@@ -37,6 +37,17 @@
 
     @include('paginas.catalogo.avisos')
 
+    {{-- Conversao de lead: o formulario e o mesmo, com os campos ja copiados da
+         ficha. O aviso existe para quem abriu a tela saber que salvar aqui tira
+         a empresa da prospeccao, e nao so cadastra mais um cliente. --}}
+    @isset($lead)
+        <div class="aviso aviso-ok mb-6">
+            Cadastro aberto a partir do lead <strong>{{ $lead->nome }}</strong>. Confira os campos
+            copiados da ficha e complete o que faltar. Ao salvar, o lead sai da prospecção e passa
+            a apontar para esta empresa.
+        </div>
+    @endisset
+
     @if ($errors->any())
         {{-- O formulario e longo: sem o resumo aqui em cima, o erro la embaixo
              fica fora da dobra e o clique parece nao ter feito nada. --}}
@@ -57,6 +68,10 @@
             @if ($empresa->exists)
                 @method('PUT')
             @endif
+
+            @isset($lead)
+                <input type="hidden" name="lead_id" value="{{ $lead->id }}">
+            @endisset
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SituacaoLead;
 use App\Models\Lead;
 use Database\Seeders\LeadsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -36,16 +37,26 @@ it('guarda o CNPJ sem mascara, para casar com a carteira de clientes', function 
 /**
  * O marcador "(INATIVO)" vinha colado no comeco do nome na base de origem.
  * Nome nao e lugar de guardar situacao: o vendedor le o nome em voz alta no
- * telefone.
+ * telefone. E a migration do funil o traduziu para "nao atender", preservando
+ * no cadastro o porque, que era a unica informacao que o marcador carregava.
  */
-it('tira o marcador de inativo do nome e o transforma em coluna', function () {
+it('tira o marcador de inativo do nome e o transforma em estagio do funil', function () {
     $this->seed(LeadsSeeder::class);
 
-    $inativo = Lead::firstWhere('codigo', '13694');
+    $bloqueado = Lead::firstWhere('codigo', '13694');
 
-    expect($inativo->nome)->toBe('CESTA MAIS COMERCIO DE ALIMENTOS LTDA')
-        ->and($inativo->ativo)->toBeFalse()
+    expect($bloqueado->nome)->toBe('CESTA MAIS COMERCIO DE ALIMENTOS LTDA')
+        ->and($bloqueado->situacao)->toBe(SituacaoLead::Bloqueado)
+        ->and($bloqueado->observacao)->toContain('INATIVO na base de origem')
         ->and(Lead::where('nome', 'like', '%INATIVO%')->count())->toBe(0);
+});
+
+it('poe todo o resto da base como lead novo, que e o unico estagio possivel', function () {
+    $this->seed(LeadsSeeder::class);
+
+    expect(Lead::where('situacao', SituacaoLead::Novo)->count())->toBe(1036)
+        ->and(Lead::whereNotNull('agendado_para')->count())->toBe(0)
+        ->and(Lead::whereNotNull('cliente_id')->count())->toBe(0);
 });
 
 it('roda duas vezes sem duplicar nada', function () {

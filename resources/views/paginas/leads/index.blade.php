@@ -185,9 +185,14 @@
                                     @endunless
                                 </td>
                                 <td class="px-5 py-4 text-left">
-                                    <span class="etiqueta {{ $lead->ativo ? 'etiqueta-sucesso' : 'etiqueta-neutra' }}">
-                                        {{ $lead->ativo ? 'Ativo' : 'Inativo' }}
+                                    <span class="etiqueta {{ $lead->situacao->etiqueta() }}">
+                                        {{ $lead->situacao->rotulo() }}
                                     </span>
+                                    @if ($lead->agendado_para)
+                                        <span class="mt-1 block text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $lead->agendado_para->format('d/m/Y H:i') }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-5 py-4 text-left">
                                     @forelse ($lead->vendedores as $vendedor)

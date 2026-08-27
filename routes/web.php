@@ -204,6 +204,16 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // Os leads que a administracao passou para ele. O recorte vem do
         // vinculo, entao nao existe URL que peca a lista de outro.
         Route::get('/leads', [CarteiraController::class, 'leads'])->name('carteira.leads');
+
+        // A ficha do lead na mao de quem prospecta: corrige o que a base nao
+        // tinha e registra em que pe esta a conversa. Quem descobre o telefone
+        // certo e quem ligou, e sem esta porta o dado morria no caderno dele.
+        Route::get('/leads/{lead}', [CarteiraController::class, 'editarLead'])->name('carteira.leads.editar');
+        Route::put('/leads/{lead}', [CarteiraController::class, 'atualizarLead'])->name('carteira.leads.atualizar');
+
+        // Converter e abrir o cadastro de cliente ja preenchido pela ficha. Nao
+        // grava nada: quem grava e `empresas.salvar`, o mesmo de sempre.
+        Route::get('/leads/{lead}/converter', [CarteiraController::class, 'converterLead'])->name('carteira.leads.converter');
         Route::get('/servicos', [CarteiraController::class, 'servicos'])->name('carteira.servicos');
         Route::get('/simulacao', [CarteiraController::class, 'simulacao'])->name('carteira.simulacao');
     });

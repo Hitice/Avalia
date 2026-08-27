@@ -701,6 +701,53 @@ que peça a lista de outro. Nada de custo, margem ou número interno ali: é uma
 lista de quem ligar. Recolher desfaz a distribuição sem tirar o lead da base, e
 remover tira o lead do trabalho sem apagar o rastro de com quem ele esteve.
 
+### O funil, e quando o lead vira cliente
+
+O lead não é "ativo" nem "inativo". Aquilo era o marcador `(INATIVO)` que a base
+de origem trazia colado no nome: dizia algo sobre a situação da empresa na
+Receita e nada sobre o trabalho, e ninguém responde "com quem eu falei e como
+foi" olhando um booleano. No lugar entrou o estágio do funil, com seis valores:
+**novo**, **em atendimento**, **agendado**, **recusado**, **não atender** e
+**virou cliente**. Agendado é o único com data, e a data é o motivo de o estágio
+existir: "agendado" sem quando não serve a quem abre a tela amanhã, que é
+justamente o dono dela. Sair de agendado limpa a data, senão reunião que não
+aconteceu fica para sempre na fila de atrasados.
+
+Quem registra o andamento é quem teve a conversa. O vendedor edita a ficha dos
+leads dele e alcança quatro dos seis estágios; **não atender** fica de fora
+porque é decisão da casa e some o lead da distribuição, e **virou cliente**
+porque quem marca é a conversão, quando o cadastro do cliente é gravado de
+verdade. Deixar o segundo na mão de quem prospecta criaria lead convertido sem
+empresa do outro lado, que é a pior das duas metades: ele sai da fila e ninguém
+descobre que a venda não existe. Mudança de estágio entra na trilha; correção de
+telefone não, para a trilha não virar ruído.
+
+A ficha do lead tem os mesmos campos que `clientes` pede, e não um subconjunto:
+responsável, CPF e endereço completo. Sem isso, quem fechava a venda descobria na
+hora de cadastrar que precisava perguntar tudo de novo, com o cliente do outro
+lado da linha. É o que faz a conversão ser cópia, e não segunda entrevista.
+
+**A regra: um lead vira cliente quando o vendedor converte, e a conversão só é
+possível com CNPJ válido e e-mail.** São os dois campos que o cadastro exige e
+que ninguém inventa: o CNPJ é quem vai ser cobrado, o e-mail é o acesso da
+empresa à plataforma. O dígito verificador é conferido aqui de propósito, porque
+documento inventado reaparece na primeira cobrança, quando já é problema
+financeiro. Faltando um dos dois, a tela diz o que falta em vez de sumir com o
+botão: botão desabilitado sem explicação vira chamado no atendimento.
+
+Converter não cria um segundo caminho de cadastro. Abre o mesmo formulário de
+empresa que o vendedor já usa, com os campos copiados da ficha e o vínculo
+escondido no POST, conferido no servidor contra a carteira de quem pediu. Mesma
+validação, mesmo convite por e-mail, mesma adesão, mesma regra de carteira. Um
+"cadastro de conversão" paralelo seria uma segunda validação e um segundo convite
+para manter, e o caminho que ninguém testa é o que quebra.
+
+O cliente nasce **ativo**, que do lado do contratante significa permissão de
+consultar e de ser cobrado. É a única acepção de "ativo" que sobrou no sistema, e
+ela vive onde faz sentido: em quem tem contrato. O lead não é apagado; fica
+`virou cliente`, apontando para a empresa. "De onde veio este cliente" é a
+pergunta que a prospecção existe para responder.
+
 ### Demonstração pelo vendedor
 
 O vendedor consulta no próprio ambiente (aba Consultar da carteira) para

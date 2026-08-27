@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Consumo\FecharCompetencia;
+use App\Actions\Prospeccao\RegistrarConversaoDoLead;
 use App\Http\Requests\EmpresaRequest;
 use App\Mail\ConviteDeAcesso;
 use App\Models\Adesao;
 use App\Models\Cliente;
 use App\Models\Consulta;
+use App\Models\Lead;
 use App\Models\Plano;
 use App\Models\Staff;
 use App\Support\Auditar;
@@ -101,6 +103,7 @@ class EmpresaController extends Controller
 
         $empresa = Cliente::create($dados);
         $this->gravarAdesao($empresa, $request);
+        $lead = $this->fecharLead($empresa, $request);
 
         $aviso = null;
 
@@ -115,9 +118,47 @@ class EmpresaController extends Controller
             $aviso = 'O convite por e-mail não pôde ser enviado. Use o botão de redefinição na edição do cadastro.';
         }
 
-        return redirect($this->depoisDeGravar($empresa))
-            ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada.".($aviso ? '' : ' Convite de acesso enviado por e-mail.'))
+        return redirect($lead ? route('carteira.leads') : $this->depoisDeGravar($empresa))
+            ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada."
+                .($lead ? ' O lead saiu da prospecção.' : '')
+                .($aviso ? '' : ' Convite de acesso enviado por e-mail.'))
             ->with('erro', $aviso);
+    }
+
+    /**
+     * Fecha o lead de origem, quando o cadastro veio de um.
+     *
+     * O `lead_id` chega escondido no formulario da conversao. E conferido aqui
+     * e nao aceito de olhos fechados: para o vendedor, so lead compartilhado com
+     * ele; para a administracao, qualquer um. Sem essa conferencia, um POST
+     * montado a mao fecharia lead alheio.
+     *
+     * Roda DEPOIS de a empresa existir. Lead marcado como convertido sem empresa
+     * do outro lado sairia da fila de quem prospecta sem que a venda existisse.
+     */
+    private function fecharLead(Cliente $empresa, EmpresaRequest $request): ?Lead
+    {
+        $id = (int) $request->input('lead_id');
+
+        if ($id <= 0) {
+            return null;
+        }
+
+        $leads = Lead::query();
+
+        if (! $this->ehAdmin()) {
+            $leads->doVendedor(auth('staff')->id());
+        }
+
+        $lead = $leads->whereKey($id)->first();
+
+        if ($lead === null) {
+            return null;
+        }
+
+        app(RegistrarConversaoDoLead::class)($lead, $empresa);
+
+        return $lead;
     }
 
     public function editar(Cliente $empresa)

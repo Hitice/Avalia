@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\SituacaoLead;
+use App\Http\Requests\LeadRequest;
 use App\Models\Catalogo;
 use App\Models\Cliente;
 use App\Models\Consulta;
@@ -10,6 +12,8 @@ use App\Models\Lead;
 use App\Models\Plano;
 use App\Models\Preco;
 use App\Models\Servico;
+use App\Models\Staff;
+use App\Support\Auditar;
 use App\Support\Comissao;
 use App\Support\Dinheiro;
 use App\Support\FiltroConsultas;
@@ -140,12 +144,18 @@ class CarteiraController extends Controller
             // Carrega so o proprio vinculo: a lista mostra "com voce desde", e
             // trazer os outros vendedores seria dizer a ele com quem mais o lead
             // esta, que e informacao da administracao.
+            // O que tem data marcada vem primeiro, do mais atrasado ao mais
+            // distante: numa lista de prospeccao, prazo e a unica coisa que
+            // ordena sozinha. O resto segue em ordem de nome.
             'leads' => (clone $filtrados)
                 ->with(['vendedores' => fn (BelongsToMany $q) => $q->where('staff.id', $vendedor->id)])
-                ->orderBy('nome')->paginate(self::POR_PAGINA)->withQueryString(),
+                ->orderByRaw('agendado_para is null, agendado_para')
+                ->orderBy('nome')
+                ->paginate(self::POR_PAGINA)->withQueryString(),
             'total' => (clone $filtrados)->count(),
-            'comTelefone' => (clone $filtrados)->whereNotNull('telefone')->count(),
-            'comEmail' => (clone $filtrados)->whereNotNull('email')->count(),
+            'emAberto' => (clone $dele)->emAberto()->count(),
+            'atrasados' => (clone $dele)->agendamentoVencido()->count(),
+            'convertidos' => (clone $dele)->where('situacao', SituacaoLead::Convertido->value)->count(),
 
             // As opcoes dos filtros saem da propria lista dele: oferecer UF que
             // ele nao tem lead nenhum e oferecer uma tela vazia.
@@ -154,6 +164,100 @@ class CarteiraController extends Controller
             'origens' => (clone $dele)->whereNotNull('origem')->distinct()->pluck('origem')
                 ->sortBy(fn (string $origem) => (int) $origem)->values(),
         ]);
+    }
+
+    /**
+     * A ficha de um lead dele, para corrigir dado e registrar o andamento.
+     *
+     * Quem trabalha o lead e quem descobre o que a base nao tinha: o telefone
+     * que mudou, o nome de quem decide, o CNPJ que faltava. Sem esta tela esses
+     * dados morriam no caderno do vendedor, e a venda fechada virava entrevista
+     * de cadastro com o cliente esperando na linha.
+     */
+    public function editarLead(Lead $lead)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $this->soDosProprios($lead, $vendedor->id);
+
+        return view('paginas.carteira.lead', ['lead' => $lead, 'vendedor' => $vendedor]);
+    }
+
+    public function atualizarLead(LeadRequest $pedido, Lead $lead)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $this->soDosProprios($lead, $vendedor->id);
+
+        $antes = $lead->situacao;
+        $lead->update($pedido->dados());
+
+        // Só a mudança de estágio entra na trilha. Corrigir um telefone não
+        // vira registro, para a trilha não virar ruído e esconder o que importa.
+        if ($lead->situacao !== $antes) {
+            Auditar::registrar('lead.situacao', $lead, [
+                'de' => $antes->rotulo(),
+                'para' => $lead->situacao->rotulo(),
+            ]);
+        }
+
+        return redirect()->route('carteira.leads')
+            ->with('ok', "{$lead->nome}: ".mb_strtolower($lead->situacao->rotulo()).'.');
+    }
+
+    /**
+     * Abre o cadastro de cliente ja preenchido pela ficha do lead.
+     *
+     * Nao existe um segundo caminho de cadastro: e o mesmo formulario que o
+     * vendedor usa hoje, com os campos copiados do lead e o vinculo escondido
+     * no POST. Duplicar o cadastro para "converter" seria criar uma segunda
+     * validacao, um segundo convite por e-mail e uma segunda regra de carteira,
+     * e a que ninguem testa e a que quebra.
+     *
+     * O que falta para a conversao ser possivel (CNPJ valido e e-mail) e
+     * decidido pelo proprio lead, e a tela diz o que falta em vez de sumir com
+     * o botao.
+     */
+    public function converterLead(Lead $lead)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $this->soDosProprios($lead, $vendedor->id);
+
+        if ($lead->jaEhCliente()) {
+            return redirect()->route('carteira.leads')
+                ->with('erro', "{$lead->nome} já virou cliente.");
+        }
+
+        if (! $lead->podeVirarCliente()) {
+            return redirect()->route('carteira.leads.editar', $lead)
+                ->with('erro', 'Antes de abrir o cadastro, preencha '.implode(' e ', $lead->faltaParaVirarCliente()).'.');
+        }
+
+        return view('paginas.empresas.formulario', [
+            'empresa' => new Cliente($lead->paraCadastroDeCliente() + ['situacao' => 'ativo']),
+            'planos' => Plano::where('ativo', true)->orderBy('consumo_minimo_cents')->get(),
+            // Mesma lista que a administracao ve. O campo fica escondido para o
+            // vendedor e o controller forca a carteira dele de todo jeito, mas
+            // manda a mesma coisa: formulario que difere por caminho e o que
+            // quebra num dos dois.
+            'vendedores' => Staff::where('ativo', true)->where('papel', 'vendedor')->orderBy('nome')->get(),
+            'lead' => $lead,
+        ]);
+    }
+
+    /**
+     * Fecha a porta do lead que nao e dele.
+     *
+     * O recorte sai do vinculo, e nao da URL: nao existe parametro de rota que
+     * escolha a lista de outro vendedor, e trocar o id no endereco da 404.
+     */
+    private function soDosProprios(Lead $lead, int $staffId): void
+    {
+        abort_if(
+            ! Lead::query()->doVendedor($staffId)->whereKey($lead->getKey())->exists(),
+            404,
+        );
     }
 
     /**

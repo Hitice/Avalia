@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\SituacaoLead;
 use App\Models\Lead;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -20,12 +21,17 @@ use Illuminate\Http\Request;
  */
 final class FiltroLeads
 {
-    /** @var array<string, string> */
-    public const SITUACOES = [
-        '' => 'Todas',
-        'ativo' => 'Ativo',
-        'inativo' => 'Inativo',
-    ];
+    /**
+     * Estagios do funil, mais dois recortes que a operacao pede todo dia e que
+     * nao sao estagio nenhum: o que ainda da trabalho, e o que passou da hora.
+     *
+     * @return array<string, string>
+     */
+    public static function situacoes(): array
+    {
+        return ['' => 'Todas', 'em_aberto' => 'Em aberto (dá trabalho)', 'atrasado' => 'Agendamento vencido']
+            + SituacaoLead::rotulos();
+    }
 
     /** @var array<string, string> */
     public const CONTATOS = [
@@ -56,13 +62,14 @@ final class FiltroLeads
         $situacao = (string) $pedido->query('situacao', '');
         $contato = (string) $pedido->query('contato', '');
         $documento = (string) $pedido->query('documento', '');
+        $situacoes = self::situacoes();
 
         return [
             'busca' => trim((string) $pedido->query('busca', '')),
             'uf' => mb_strtoupper(trim((string) $pedido->query('uf', ''))),
             'cidade' => trim((string) $pedido->query('cidade', '')),
             'origem' => trim((string) $pedido->query('origem', '')),
-            'situacao' => array_key_exists($situacao, self::SITUACOES) ? $situacao : '',
+            'situacao' => array_key_exists($situacao, $situacoes) ? $situacao : '',
             'contato' => array_key_exists($contato, self::CONTATOS) ? $contato : '',
             'documento' => array_key_exists($documento, self::DOCUMENTOS) ? $documento : '',
             // Aceita id de vendedor e tambem "sem", que e a pergunta que a
@@ -111,9 +118,12 @@ final class FiltroLeads
             $leads->where('origem', $escolha['origem']);
         }
 
-        if ($escolha['situacao'] !== '') {
-            $leads->where('ativo', $escolha['situacao'] === 'ativo');
-        }
+        match ($escolha['situacao']) {
+            '' => null,
+            'em_aberto' => $leads->emAberto(),
+            'atrasado' => $leads->agendamentoVencido(),
+            default => $leads->where('situacao', $escolha['situacao']),
+        };
 
         match ($escolha['contato']) {
             'telefone' => $leads->whereNotNull('telefone'),
