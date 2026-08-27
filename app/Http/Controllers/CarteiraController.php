@@ -6,13 +6,17 @@ use App\Models\Catalogo;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\Fatura;
+use App\Models\Lead;
 use App\Models\Plano;
 use App\Models\Preco;
 use App\Models\Servico;
 use App\Support\Comissao;
 use App\Support\Dinheiro;
 use App\Support\FiltroConsultas;
+use App\Support\FiltroLeads;
 use App\Support\Simulacao;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -107,6 +111,48 @@ class CarteiraController extends Controller
             'servicos' => Servico::orderBy('nome')->get(),
             'consultas' => $filtradas->with(['servico', 'cliente'])->latest('id')
                 ->paginate(self::POR_PAGINA)->withQueryString(),
+        ]);
+    }
+
+    /**
+     * Os leads que a administracao passou para ele.
+     *
+     * O recorte vem do vinculo, e nao da URL: o vendedor nao alcanca a base de
+     * prospeccao, so o pedaco que foi compartilhado com ele. Nao ha parametro de
+     * rota que escolha a lista de outro, e o filtro roda dentro do vinculo.
+     *
+     * Sem custo, sem margem, sem numero interno: e uma lista de quem ligar.
+     */
+    public function leads(Request $pedido)
+    {
+        $vendedor = Auth::guard('staff')->user();
+
+        $dele = Lead::query()->whereHas(
+            'vendedores',
+            fn (Builder $q) => $q->where('staff.id', $vendedor->id)
+        );
+
+        $filtrados = FiltroLeads::aplicar($dele, $pedido);
+
+        return view('paginas.carteira.leads', [
+            'vendedor' => $vendedor,
+            'escolha' => FiltroLeads::escolhido($pedido),
+            // Carrega so o proprio vinculo: a lista mostra "com voce desde", e
+            // trazer os outros vendedores seria dizer a ele com quem mais o lead
+            // esta, que e informacao da administracao.
+            'leads' => (clone $filtrados)
+                ->with(['vendedores' => fn (BelongsToMany $q) => $q->where('staff.id', $vendedor->id)])
+                ->orderBy('nome')->paginate(self::POR_PAGINA)->withQueryString(),
+            'total' => (clone $filtrados)->count(),
+            'comTelefone' => (clone $filtrados)->whereNotNull('telefone')->count(),
+            'comEmail' => (clone $filtrados)->whereNotNull('email')->count(),
+
+            // As opcoes dos filtros saem da propria lista dele: oferecer UF que
+            // ele nao tem lead nenhum e oferecer uma tela vazia.
+            'ufs' => (clone $dele)->whereNotNull('uf')->distinct()->orderBy('uf')->pluck('uf'),
+            'cidades' => (clone $dele)->whereNotNull('cidade')->distinct()->orderBy('cidade')->pluck('cidade'),
+            'origens' => (clone $dele)->whereNotNull('origem')->distinct()->pluck('origem')
+                ->sortBy(fn (string $origem) => (int) $origem)->values(),
         ]);
     }
 

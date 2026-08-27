@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             CatalogoSeeder::class,
             CustosSeeder::class,
             PlanosSeeder::class,
+            LeadsSeeder::class,
         ]);
     }
 }

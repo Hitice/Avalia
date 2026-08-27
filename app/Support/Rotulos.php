@@ -138,6 +138,14 @@ final class Rotulos
         'conexao.ativada' => 'Conexão ativada',
         'conexao.desativada' => 'Conexão desativada',
         'conexao.testada' => 'Conexão testada',
+        'lead.criado' => 'Lead cadastrado',
+        'lead.alterado' => 'Cadastro de lead alterado',
+        'lead.removido' => 'Lead removido da base',
+        'lead.restaurado' => 'Lead restaurado na base',
+        'leads.compartilhados' => 'Leads compartilhados com vendedor',
+        'leads.recolhidos' => 'Leads recolhidos do vendedor',
+        'leads.removidos' => 'Leads removidos da base',
+        'leads.exportados' => 'Base de leads exportada',
     ];
 
     /** @var array<class-string, string> */
@@ -154,6 +162,7 @@ final class Rotulos
         \App\Models\Interessado::class => 'Pedido de contato',
         \App\Models\Conexao::class => 'Conexão',
         \App\Models\Operador::class => 'Operador',
+        \App\Models\Lead::class => 'Lead',
     ];
 
     /** @var array<string, string> */
@@ -164,6 +173,8 @@ final class Rotulos
         'franquia_cents' => 'Valor incluído na franquia',
         'faixa_cents' => 'Faixa de consumo mínimo',
         'faturas' => 'Faturas',
+        'leads' => 'Leads',
+        'vendedor' => 'Vendedor',
         'de_cents' => 'De',
         'margem_alvo_bps' => 'Margem alvo da faixa',
         'para_cents' => 'Para',

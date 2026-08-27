@@ -17,6 +17,10 @@ class MenuHelper
             // Modulos do vendedor, um a um na lateral: a aba escondida dentro
             // de Carteira era o modulo que ninguem achava.
             ['icon' => 'task', 'name' => 'Carteira', 'path' => '/carteira', 'papeis' => ['vendedor']],
+            // O que a administracao passou para ele prospectar. Rotulo igual ao
+            // do menu da administracao de proposito: e a mesma coisa, vista de
+            // um lado so.
+            ['icon' => 'lead', 'name' => 'Leads', 'path' => '/carteira/leads', 'papeis' => ['vendedor']],
             // Consultar serve aos dois papeis: o vendedor demonstra, a
             // administracao consulta a trabalho. A regra de dinheiro difere
             // (um desconta comissao, o outro e custo da casa), a tela nao.
@@ -29,6 +33,9 @@ class MenuHelper
             // "Clientes" e nao "Empresas": e assim que a operacao fala de quem
             // contrata, e e o mesmo nome que o vendedor ja usa na carteira. A
             // rota continua /empresas para nao quebrar link salvo.
+            // Antes de Clientes porque e essa a ordem do funil: o lead de hoje
+            // e o cliente do mes que vem.
+            ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads', 'papeis' => ['admin']],
             ['icon' => 'user-profile', 'name' => 'Clientes', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'consulta', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
             ['icon' => 'pages', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
@@ -106,6 +113,7 @@ class MenuHelper
             'documento' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.25 3.5H7.5A2.25 2.25 0 0 0 5.25 5.75v12.5A2.25 2.25 0 0 0 7.5 20.5h9a2.25 2.25 0 0 0 2.25-2.25V8m-4.5-4.5L18.75 8m-4.5-4.5V8h4.5M8.75 12.5h6.5M8.75 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'campanha' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.75 9.75v4.5a1.5 1.5 0 0 0 1.5 1.5h2.25l6.75 4.5V5.25L7.5 9.75H5.25a1.5 1.5 0 0 0-1.5 0Zm13.5-1.5a5.25 5.25 0 0 1 0 7.5M7.5 15.75v3a1.5 1.5 0 0 0 1.5 1.5h.75a1.5 1.5 0 0 0 1.5-1.5v-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'consulta' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.5" cy="10.5" r="6.25" stroke="currentColor" stroke-width="1.5"/><path d="m15.2 15.2 4.05 4.05M7.5 12.5l2-2 1.65 1.35 2.35-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            'lead' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.25 4.75h-4a1.5 1.5 0 0 0-1.5 1.5v11.5a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5v-4M8 9.25h3.5M8 12.5h2.5M8 15.75h4.5m4.75-11.5v5m2.5-2.5h-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'plug' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3.75v4.5m6-4.5v4.5M6.75 8.25h10.5v2.5a5.25 5.25 0 0 1-4.25 5.155V20.5h-2v-4.595A5.25 5.25 0 0 1 6.75 10.75v-2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'calculadora' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.25" y="3.25" width="13.5" height="17.5" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 7h7M8.75 11.25h.01M12 11.25h.01M15.25 11.25h.01M8.75 14.5h.01M12 14.5h.01M15.25 14.5h.01M8.75 17.75h.01M12 17.75h.01M15.25 17.75h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
             'dashboard' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>',

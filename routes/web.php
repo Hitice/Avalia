@@ -17,6 +17,7 @@ use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\InteresseController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
@@ -200,6 +201,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // Ficha da empresa na visao do vendedor: preco de venda, nada interno.
         Route::get('/empresas/{empresa}', [CarteiraController::class, 'empresa'])->name('carteira.empresa');
         Route::get('/demonstracoes/{consulta}/pdf', [CarteiraController::class, 'demonstracaoPdf'])->name('carteira.demonstracoes.pdf');
+        // Os leads que a administracao passou para ele. O recorte vem do
+        // vinculo, entao nao existe URL que peca a lista de outro.
+        Route::get('/leads', [CarteiraController::class, 'leads'])->name('carteira.leads');
         Route::get('/servicos', [CarteiraController::class, 'servicos'])->name('carteira.servicos');
         Route::get('/simulacao', [CarteiraController::class, 'simulacao'])->name('carteira.simulacao');
     });
@@ -284,6 +288,34 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::put('/{fornecedor}', [ConexaoController::class, 'atualizar'])->name('atualizar');
         Route::post('/{fornecedor}/alternar', [ConexaoController::class, 'alternar'])->name('alternar');
         Route::post('/{fornecedor}/testar', [ConexaoController::class, 'testar'])->name('testar');
+    });
+
+    /*
+     * Base de prospeccao. So a administracao entra: distribuir lead e decisao
+     * dela (PDD.md), e o vendedor alcanca apenas o que recebeu, em
+     * /carteira/leads.
+     */
+    Route::middleware('admin')->prefix('leads')->name('leads.')->group(function () {
+        Route::get('/', [LeadController::class, 'index'])->name('index');
+
+        // A base filtrada em planilha, no mesmo molde da carteira de clientes.
+        // Fica na trilha: e cadastro de terceiro saindo em arquivo.
+        Route::get('/planilha', [LeadController::class, 'exportar'])->name('planilha');
+
+        Route::get('/novo', [LeadController::class, 'criar'])->name('criar');
+        Route::post('/', [LeadController::class, 'salvar'])->name('salvar');
+
+        // Compartilhar, recolher e remover em lote. E a porta da distribuicao:
+        // a base tem mais de mil leads, e um por um ninguem distribui.
+        Route::post('/lote', [LeadController::class, 'lote'])->name('lote');
+
+        Route::get('/{lead}', [LeadController::class, 'editar'])->name('editar');
+        Route::put('/{lead}', [LeadController::class, 'atualizar'])->name('atualizar');
+
+        // Remover e tirar do trabalho, nao apagar: o rastro de com quem o lead
+        // ja esteve continua de pe, e restaurar desfaz.
+        Route::delete('/{lead}', [LeadController::class, 'remover'])->name('remover');
+        Route::post('/{id}/restaurar', [LeadController::class, 'restaurar'])->name('restaurar');
     });
 
     Route::middleware('admin')->prefix('campanhas')->name('campanhas.')->group(function () {

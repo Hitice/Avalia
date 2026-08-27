@@ -145,6 +145,10 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
         'carteira.empresa',
         // Termos da equipe: e exatamente para o vendedor ler e aceitar.
         'termos', 'termos.aceitar',
+        // Os leads que a administracao compartilhou com ele. Nao mostra numero
+        // interno nenhum, e o recorte sai do vinculo, nao da URL: nao existe
+        // parametro que peca a lista de outro vendedor.
+        'carteira.leads',
         'painel', 'sair', 'empresas.criar', 'empresas.salvar',
         'empresas.editar', 'empresas.atualizar', 'empresas.remover', 'empresas.convite'];
 

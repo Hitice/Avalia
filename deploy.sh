@@ -82,6 +82,13 @@ dependencias
 echo "==> Migrations"
 php artisan migrate --force
 
+# Carga da base de prospeccao. Idempotente: so insere codigo que ainda nao
+# existe, entao repetir a publicacao nao duplica lead nem desfaz correcao feita
+# na tela. Fica aqui, e nao numa migration, porque migration de mil linhas de
+# dado rodaria tambem na suite de testes.
+echo "==> Base de leads"
+php artisan db:seed --class=LeadsSeeder --force
+
 echo "==> Caches"
 caches
 

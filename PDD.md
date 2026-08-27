@@ -671,6 +671,36 @@ mede qual porta converte, e a trilha de auditoria guarda quem atendeu. O
 vendedor não vê nem atende a fila: lead ainda não tem carteira, e distribuí-lo
 é decisão da administração.
 
+### Base de leads e distribuição
+
+A prospecção tem base própria (`leads`), e não uma situação a mais na tabela de
+clientes: lead não tem plano, não tem fatura, não tem senha e não entra em
+consulta nenhuma, e enfiá-lo na tabela do contratante deixaria metade das
+colunas vazia e um filtro esquecido bastaria para ele aparecer num fechamento
+de competência. O CNPJ é guardado só com os dígitos, do mesmo jeito que na
+carteira: é o que permite comparar as duas e reconhecer o lead que já virou
+cliente. A carga inicial veio dos PDFs da prospecção, transcrita por
+`tools/gera_leads.py`, e o seeder só insere código que ainda não existe, então
+republicar não duplica lead nem desfaz correção feita na tela.
+
+A tela da administração é de filtro antes de ser de busca: é com ele que se
+monta o recorte ("Uberlândia, com telefone, ainda sem vendedor") que vai ser
+passado a alguém. O recorte inteiro vive na barra de endereços, então a tela
+vira link, a exportação leva exatamente o que está nela, e a ação em lote sabe
+agir sobre o filtro inteiro, e não só sobre os cinquenta da página aberta: uma
+base de mil leads distribuída página a página seria distribuída errado.
+
+Quem distribui é a administração, pela mesma razão da fila de pedidos de
+contato. A distribuição mora numa tabela de ligação com data e autor, e não numa
+coluna `vendedor_id`: o mesmo lead pode ser trabalhado por mais de um vendedor,
+e "está com ele desde quando" é a pergunta que se faz quando o lead não andou.
+Compartilhar de novo o que já está com a pessoa não reescreve a data do
+primeiro compartilhamento. O vendedor abre `/carteira/leads` e enxerga apenas o
+que recebeu: o recorte sai do vínculo, não da URL, então não existe parâmetro
+que peça a lista de outro. Nada de custo, margem ou número interno ali: é uma
+lista de quem ligar. Recolher desfaz a distribuição sem tirar o lead da base, e
+remover tira o lead do trabalho sem apagar o rastro de com quem ele esteve.
+
 ### Demonstração pelo vendedor
 
 O vendedor consulta no próprio ambiente (aba Consultar da carteira) para

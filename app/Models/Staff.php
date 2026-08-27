@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\ContaAutenticavel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -50,6 +51,18 @@ class Staff extends Authenticatable implements ContaAutenticavel
     public function clientes(): HasMany
     {
         return $this->hasMany(Cliente::class, 'vendedor_id');
+    }
+
+    /**
+     * Os leads que a administracao compartilhou com esta pessoa.
+     *
+     * Nao e carteira: lead nao tem contrato, e o mesmo lead pode estar com mais
+     * de um vendedor. Quem distribui e sempre a administracao.
+     */
+    public function leads(): BelongsToMany
+    {
+        return $this->belongsToMany(Lead::class, 'lead_staff', 'staff_id', 'lead_id')
+            ->withPivot(['compartilhado_em', 'compartilhado_por']);
     }
 
     /**
