@@ -319,6 +319,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // a base tem mais de mil leads, e um por um ninguem distribui.
         Route::post('/lote', [LeadController::class, 'lote'])->name('lote');
 
+        // Tirar de circulacao e devolver, num clique: lead bloqueado nao entra
+        // em distribuicao, e isso e decisao da administracao.
+        Route::patch('/{lead}/situacao', [LeadController::class, 'alternar'])->name('alternar');
+
         Route::get('/{lead}', [LeadController::class, 'editar'])->name('editar');
         Route::put('/{lead}', [LeadController::class, 'atualizar'])->name('atualizar');
 

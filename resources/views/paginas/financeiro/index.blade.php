@@ -204,25 +204,21 @@
                                              e nao conseguiu, e sem este botao o boleto so
                                              nasceria mexendo no banco de dados. --}}
                                         @unless ($fatura->cobrancaAsaas?->asaas_charge_id)
-                                            <form method="POST" action="{{ route('financeiro.cobranca', $fatura) }}" class="inline">
-                                                @csrf
-                                                <button type="submit" class="acao-linha" title="Emitir a cobrança no provedor">
-                                                    <x-avalia.icone nome="raio" />
-                                                    <span class="sr-only">Emitir cobrança</span>
-                                                </button>
-                                            </form>
+                                            <button type="submit" class="acao-linha" title="Emitir a cobrança no provedor"
+                                                    form="cobranca-{{ $fatura->id }}">
+                                                <x-avalia.icone nome="raio" />
+                                                <span class="sr-only">Emitir cobrança</span>
+                                            </button>
                                         @endunless
 
                                         {{-- Reenviar o aviso: o e-mail original se perde na caixa
                                              de entrada, e ligar para pedir que procurem custa
                                              mais do que mandar de novo. --}}
-                                        <form method="POST" action="{{ route('financeiro.reenviar', $fatura) }}" class="inline">
-                                            @csrf
-                                            <button type="submit" class="acao-linha" title="Reenviar a cobrança por e-mail">
-                                                <x-avalia.icone nome="envelope" />
-                                                <span class="sr-only">Reenviar por e-mail</span>
-                                            </button>
-                                        </form>
+                                        <button type="submit" class="acao-linha" title="Reenviar a cobrança por e-mail"
+                                                form="reenviar-{{ $fatura->id }}">
+                                            <x-avalia.icone nome="envelope" />
+                                            <span class="sr-only">Reenviar por e-mail</span>
+                                        </button>
                                     @endunless
 
                                     @if ($fatura->estaLiquidada())
@@ -236,23 +232,21 @@
                                                 <span class="sr-only">Desfazer o recebimento</span>
                                             </button>
 
-                                            <form method="POST" action="{{ route('financeiro.estornar', $fatura) }}"
-                                                  x-show="aberto" x-cloak class="flex items-center gap-2">
-                                                @csrf
-
+                                            <div x-show="aberto" x-cloak class="flex items-center gap-2">
                                                 <label for="estorno-{{ $fatura->id }}" class="sr-only">
                                                     Por que o recebimento foi desfeito
                                                 </label>
                                                 <input id="estorno-{{ $fatura->id }}" name="motivo" type="text"
+                                                       form="estornar-{{ $fatura->id }}"
                                                        class="campo-linha w-64" required minlength="10" maxlength="255"
                                                        placeholder="Por que o recebimento foi desfeito">
 
-                                                <x-avalia.botao tamanho="sm">Desfazer</x-avalia.botao>
+                                                <x-avalia.botao tamanho="sm" form="estornar-{{ $fatura->id }}">Desfazer</x-avalia.botao>
                                                 <x-avalia.botao variante="secundario" tamanho="sm"
                                                                 type="button" x-on:click="aberto = false">
                                                     Cancelar
                                                 </x-avalia.botao>
-                                            </form>
+                                            </div>
                                         </div>
                                     @else
                                         {{-- A justificativa e obrigatoria porque esta e a unica
@@ -265,23 +259,21 @@
                                                 <span class="sr-only">Confirmar pagamento recebido</span>
                                             </button>
 
-                                            <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}"
-                                                  x-show="aberto" x-cloak class="flex items-center gap-2">
-                                                @csrf
-
+                                            <div x-show="aberto" x-cloak class="flex items-center gap-2">
                                                 <label for="motivo-{{ $fatura->id }}" class="sr-only">
                                                     Como o pagamento foi conferido
                                                 </label>
                                                 <input id="motivo-{{ $fatura->id }}" name="motivo" type="text"
+                                                       form="liquidar-{{ $fatura->id }}"
                                                        class="campo-linha w-64" required minlength="10" maxlength="255"
                                                        placeholder="Como o pagamento foi conferido">
 
-                                                <x-avalia.botao tamanho="sm">Confirmar</x-avalia.botao>
+                                                <x-avalia.botao tamanho="sm" form="liquidar-{{ $fatura->id }}">Confirmar</x-avalia.botao>
                                                 <x-avalia.botao variante="secundario" tamanho="sm"
                                                                 type="button" x-on:click="aberto = false">
                                                     Cancelar
                                                 </x-avalia.botao>
-                                            </form>
+                                            </div>
                                         </div>
                                     @endif
                                 </div>
@@ -318,6 +310,40 @@
         </div>
         </div>
     </form>
+
+    {{-- Os formulários de linha ficam FORA do formulário do lote.
+
+         Estavam dentro, e form dentro de form o navegador descarta: os botões de
+         emitir cobrança, reenviar, confirmar e desfazer pagamento passavam a
+         enviar o formulário do lote, que responde por outra rota. Nenhum teste
+         pegou porque a suíte posta direto nas rotas, sem passar pelo HTML.
+
+         Cada botão se liga ao seu pelo atributo `form`, e os campos de
+         justificativa também: sem o atributo no campo, o motivo não iria junto e
+         a baixa seria recusada por falta dele. --}}
+    @foreach ($faturas as $fatura)
+        @unless ($fatura->estaLiquidada())
+            @unless ($fatura->cobrancaAsaas?->asaas_charge_id)
+                <form method="POST" action="{{ route('financeiro.cobranca', $fatura) }}" id="cobranca-{{ $fatura->id }}">
+                    @csrf
+                </form>
+            @endunless
+
+            <form method="POST" action="{{ route('financeiro.reenviar', $fatura) }}" id="reenviar-{{ $fatura->id }}">
+                @csrf
+            </form>
+        @endunless
+
+        @if ($fatura->estaLiquidada())
+            <form method="POST" action="{{ route('financeiro.estornar', $fatura) }}" id="estornar-{{ $fatura->id }}">
+                @csrf
+            </form>
+        @else
+            <form method="POST" action="{{ route('financeiro.liquidar', $fatura) }}" id="liquidar-{{ $fatura->id }}">
+                @csrf
+            </form>
+        @endif
+    @endforeach
 
     @if ($comissoes->isNotEmpty())
         <div class="cartao mt-6 overflow-hidden">

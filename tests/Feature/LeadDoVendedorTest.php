@@ -44,7 +44,7 @@ it('abre a ficha do lead que e dele', function () {
     comoVendedor($vendedor)->get(route('carteira.leads.editar', $lead))
         ->assertOk()
         ->assertSee('PADARIA DO BAIRRO LTDA')
-        ->assertSee('Em que pé está');
+        ->assertSee('Situação');
 });
 
 it('nao abre nem grava a ficha de lead que nao e dele', function () {
@@ -165,7 +165,7 @@ it('recusa agendamento sem data', function () {
             'situacao' => 'agendado',
             'agendado_para' => '',
         ])
-        ->assertSessionHasErrors(['agendado_para' => 'Informe quando é o agendamento.']);
+        ->assertSessionHasErrors(['agendado_para' => 'Informe a data do agendamento.']);
 
     expect($lead->fresh()->situacao)->toBe(SituacaoLead::Novo);
 });
@@ -234,7 +234,7 @@ it('poe a mudanca de estagio na trilha, e a correcao de telefone nao', function 
 
     expect($trilha->dados)->toBe(['de' => 'Novo', 'para' => 'Recusado'])
         ->and($trilha->staff_id)->toBe($vendedor->id)
-        ->and(App\Support\Rotulos::acao('lead.situacao'))->toBe('Andamento do lead registrado');
+        ->and(App\Support\Rotulos::acao('lead.situacao'))->toBe('Situação do lead alterada');
 });
 
 /*
@@ -260,7 +260,7 @@ it('diz o que falta em vez de deixar converter pela metade', function () {
 
     comoVendedor($vendedor)->get(route('carteira.leads.editar', $semNada))
         ->assertOk()
-        ->assertSee('falta preencher');
+        ->assertSee('para abrir o cadastro de cliente');
 
     comoVendedor($vendedor)->get(route('carteira.leads.converter', $semNada))
         ->assertRedirect(route('carteira.leads.editar', $semNada))
@@ -317,7 +317,7 @@ it('converte o lead em cliente ativo da carteira dele, e o lead aponta para a em
 
     $trilha = Auditoria::where('acao', 'lead.convertido')->sole();
     expect($trilha->dados['cliente_id'])->toBe($empresa->id)
-        ->and(App\Support\Rotulos::acao('lead.convertido'))->toBe('Lead virou cliente');
+        ->and(App\Support\Rotulos::acao('lead.convertido'))->toBe('Lead convertido em cliente');
 });
 
 it('sai da fila de quem prospecta depois de virar cliente', function () {

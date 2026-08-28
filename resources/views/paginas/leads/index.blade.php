@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Leads</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                A base de prospecção e quem está trabalhando cada pedaço dela.
+                A base de prospecção e a distribuição dela.
             </p>
         </div>
 
@@ -39,9 +39,9 @@
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-avalia.cartao-indicador rotulo="No recorte" :valor="number_format($noRecorte, 0, ',', '.')"
                                    :ajuda="$noRecorte === $naBase ? 'A base inteira' : 'De '.number_format($naBase, 0, ',', '.').' na base'" />
-        <x-avalia.cartao-indicador rotulo="Com telefone" :valor="number_format($comTelefone, 0, ',', '.')" ajuda="Dá para ligar hoje" />
-        <x-avalia.cartao-indicador rotulo="Com e-mail" :valor="number_format($comEmail, 0, ',', '.')" ajuda="Dá para escrever hoje" />
-        <x-avalia.cartao-indicador rotulo="Sem vendedor" :valor="number_format($semVendedor, 0, ',', '.')" ajuda="Parados, à espera de distribuição" />
+        <x-avalia.cartao-indicador rotulo="Com telefone" :valor="number_format($comTelefone, 0, ',', '.')" ajuda="Podem ser chamados" />
+        <x-avalia.cartao-indicador rotulo="Com e-mail" :valor="number_format($comEmail, 0, ',', '.')" ajuda="Podem receber proposta" />
+        <x-avalia.cartao-indicador rotulo="Sem vendedor" :valor="number_format($semVendedor, 0, ',', '.')" ajuda="Ainda não distribuídos" />
     </div>
 
     <x-avalia.filtro-leads :acao="route('leads.index')" :vendedores="$vendedores" :ufs="$ufs"
@@ -107,7 +107,7 @@
                         @if (! $removidos)
                             <x-avalia.botao variante="secundario" tamanho="sm" type="submit" name="acao" value="remover"
                                             class="disabled:opacity-40" x-bind:disabled="vazio"
-                                            x-on:click="if (! confirm('Remover estes leads da base? Eles saem do trabalho, mas dá para restaurar.')) $event.preventDefault()">
+                                            x-on:click="if (! confirm('Remover estes leads da base? Dá para restaurar depois.')) $event.preventDefault()">
                                 Remover
                             </x-avalia.botao>
                         @endif
@@ -115,18 +115,17 @@
                 </div>
             @endif
 
-            <div class="overflow-x-auto">
+            <div class="tabela-rolagem">
                 <table class="tabela min-w-[72rem]">
-                    <thead class="tabela-cabecalho">
+                    <thead class="tabela-cabecalho tabela-cabecalho-fixo">
                         <tr>
                             <th scope="col" class="px-5 py-3 text-left font-medium">
-                                {{-- Marcar tudo age sobre a PÁGINA que está na tela. Para
-                                     agir sobre o recorte inteiro existe o botão de cima. --}}
-                                <input type="checkbox" class="caixa" title="Selecionar os desta página"
+                                {{-- Marcar tudo age sobre a lista que está na tela. --}}
+                                <input type="checkbox" class="caixa" title="Selecionar os desta lista"
                                        x-on:change="escopo = 'marcados'; marcados = $event.target.checked
                                            ? [...$root.querySelectorAll('[name=\'leads[]\']')].map(c => (c.checked = true) && c.value)
                                            : ([...$root.querySelectorAll('[name=\'leads[]\']')].forEach(c => c.checked = false), [])">
-                                <span class="sr-only">Selecionar os desta página</span>
+                                <span class="sr-only">Selecionar os desta lista</span>
                             </th>
                             <th scope="col" class="px-5 py-3 text-left font-medium">Lead</th>
                             <th scope="col" class="px-5 py-3 text-left font-medium">CNPJ</th>
@@ -134,7 +133,8 @@
                             <th scope="col" class="px-5 py-3 text-left font-medium">Contato</th>
                             <th scope="col" class="px-5 py-3 text-left font-medium">Situação</th>
                             <th scope="col" class="px-5 py-3 text-left font-medium">Compartilhado com</th>
-                            <th scope="col" class="px-5 py-3 text-right font-medium"><span class="sr-only">Ações</span></th>
+                            <th scope="col" class="px-5 py-3 text-center font-medium">Em circulação</th>
+                            <th scope="col" class="px-5 py-3 text-right font-medium">Editar</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -204,25 +204,46 @@
                                         <span class="text-sm text-gray-400 dark:text-gray-500">Ninguém ainda</span>
                                     @endforelse
                                 </td>
-                                <td class="px-5 py-4 text-right whitespace-nowrap">
-                                    @if ($removidos)
-                                        {{-- `form` aponta para o formulario declarado no fim da
-                                             pagina: form dentro de form nao existe em HTML, e o
-                                             botao pode viver longe do proprio formulario. --}}
-                                        <x-avalia.botao variante="secundario" tamanho="sm"
-                                                        form="restaurar-{{ $lead->id }}">
-                                            Restaurar
-                                        </x-avalia.botao>
+                                {{-- Um clique tira o lead da distribuição ou devolve. Lead que
+                                     já é cliente não tem chave: quem desfaz conversão é o
+                                     cadastro da empresa, do outro lado. --}}
+                                <td class="px-5 py-4 text-center">
+                                    @if ($removidos || $lead->jaEhCliente())
+                                        <span class="text-xs text-gray-400 dark:text-gray-500">&mdash;</span>
                                     @else
-                                        <x-avalia.botao variante="secundario" tamanho="sm" :href="route('leads.editar', $lead)">
-                                            Editar
-                                        </x-avalia.botao>
+                                        <x-avalia.interruptor
+                                            :ligado="$lead->situacao !== App\Enums\SituacaoLead::Bloqueado"
+                                            :form="'alternar-'.$lead->id"
+                                            ligado-rotulo="Em circulação" desligado-rotulo="Bloqueado"
+                                            :titulo="$lead->situacao === App\Enums\SituacaoLead::Bloqueado
+                                                ? 'Devolver à prospecção'
+                                                : 'Tirar da prospecção'" />
                                     @endif
+                                </td>
+                                <td class="px-5 py-4 text-right whitespace-nowrap">
+                                    {{-- `form` aponta para o formulário declarado no fim da página:
+                                         form dentro de form o navegador descarta, e os botões de
+                                         dentro passam a enviar o de fora. --}}
+                                    <div class="flex items-center justify-end gap-1">
+                                        @if ($removidos)
+                                            <button type="submit" class="acao-linha" form="restaurar-{{ $lead->id }}"
+                                                    title="Devolver o lead à base">
+                                                <x-avalia.icone nome="desfazer" />
+                                                <span class="sr-only">Restaurar</span>
+                                            </button>
+                                        @else
+                                            <a class="acao-linha" href="{{ route('leads.editar', $lead) }}"
+                                               title="Editar o cadastro do lead">
+                                                <x-avalia.icone nome="lapis" />
+                                                <span class="sr-only">Editar</span>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="tabela-vazia">
+                                <td colspan="9" class="tabela-vazia">
                                     Nenhum lead neste recorte. Ajuste o filtro ou cadastre um lead novo.
                                 </td>
                             </tr>
@@ -231,18 +252,34 @@
                 </table>
             </div>
 
-            <x-avalia.paginacao :pagina="$leads" />
+            {{-- Teto que não se anuncia lê como se a tela estivesse mostrando
+                 tudo, e aí o operador conclui que o filtro não achou o resto. --}}
+            <div class="border-t border-gray-100 px-6 py-4 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                @if ($noRecorte > $leads->count())
+                    Mostrando {{ number_format($leads->count(), 0, ',', '.') }}
+                    de {{ number_format($noRecorte, 0, ',', '.') }} leads. Refine o filtro para ver o resto;
+                    as ações em lote sobre o filtro alcançam os {{ number_format($noRecorte, 0, ',', '.') }}.
+                @else
+                    {{ number_format($leads->count(), 0, ',', '.') }}
+                    {{ $leads->count() === 1 ? 'lead' : 'leads' }} nesta lista
+                @endif
+            </div>
         </div>
     </form>
 
-    {{-- Os formulários de restaurar ficam FORA do formulário do lote: form dentro
-         de form o navegador não aceita. O botão de cada linha se liga ao seu pelo
-         atributo `form`. --}}
-    @if ($removidos)
-        @foreach ($leads as $lead)
+    {{-- Os formulários de linha ficam FORA do formulário do lote: form dentro de
+         form o navegador descarta, e os botões de dentro passariam a enviar o de
+         fora. Cada botão se liga ao seu pelo atributo `form`. --}}
+    @foreach ($leads as $lead)
+        @if ($removidos)
             <form method="POST" action="{{ route('leads.restaurar', $lead->id) }}" id="restaurar-{{ $lead->id }}">
                 @csrf
             </form>
-        @endforeach
-    @endif
+        @elseif (! $lead->jaEhCliente())
+            <form method="POST" action="{{ route('leads.alternar', $lead) }}" id="alternar-{{ $lead->id }}">
+                @csrf
+                @method('PATCH')
+            </form>
+        @endif
+    @endforeach
 @endsection

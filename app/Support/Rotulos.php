@@ -146,8 +146,10 @@ final class Rotulos
         'leads.recolhidos' => 'Leads recolhidos do vendedor',
         'leads.removidos' => 'Leads removidos da base',
         'leads.exportados' => 'Base de leads exportada',
-        'lead.situacao' => 'Andamento do lead registrado',
-        'lead.convertido' => 'Lead virou cliente',
+        'lead.situacao' => 'Situação do lead alterada',
+        'lead.convertido' => 'Lead convertido em cliente',
+        'lead.bloqueado' => 'Lead tirado da prospecção',
+        'lead.liberado' => 'Lead devolvido à prospecção',
     ];
 
     /** @var array<class-string, string> */
@@ -177,7 +179,7 @@ final class Rotulos
         'faturas' => 'Faturas',
         'leads' => 'Leads',
         'vendedor' => 'Vendedor',
-        'convertido_em' => 'Virou cliente em',
+        'convertido_em' => 'Cliente desde',
         'de_cents' => 'De',
         'margem_alvo_bps' => 'Margem alvo da faixa',
         'para_cents' => 'Para',

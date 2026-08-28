@@ -11,9 +11,9 @@ use Illuminate\Validation\Rule;
  * A ficha do lead, cadastrada ou corrigida a mao.
  *
  * A base vem dos PDFs da prospeccao, mas quem trabalha o lead e quem descobre o
- * que falta: o telefone que mudou, o nome de quem decide, o CNPJ que o site da
- * empresa mostrava. Sem esta porta esses dados ficavam num caderno, e a venda
- * fechada virava entrevista de cadastro com o cliente esperando na linha.
+ * que falta: o telefone que mudou, o nome do responsavel, o CNPJ que o site da
+ * empresa mostrava. Sem esta porta o dado ficava num caderno, e a venda fechada
+ * virava entrevista de cadastro com o cliente na linha.
  *
  * Os campos sao os mesmos de `EmpresaRequest`, com uma diferenca deliberada: o
  * CNPJ e opcional e nao tem o digito verificador conferido. Metade da base chega
@@ -22,9 +22,8 @@ use Illuminate\Validation\Rule;
  * conversao, que e onde o documento passa a valer dinheiro.
  *
  * O que o vendedor NAO decide: o codigo e a origem, que sao a procedencia do
- * lead na base, e as situacoes "Nao atender" e "Virou cliente". A primeira e
- * decisao da casa; a segunda quem marca e a conversao, quando o cadastro do
- * cliente e gravado de verdade.
+ * lead na base, e os estagios Bloqueado e Cliente. O primeiro e decisao da
+ * administracao; o segundo e marcado pela conversao.
  */
 class LeadRequest extends FormRequest
 {
@@ -141,7 +140,7 @@ class LeadRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'agendado_para.required' => 'Informe quando é o agendamento.',
+            'agendado_para.required' => 'Informe a data do agendamento.',
             'responsavel_cpf.size' => 'O CPF do responsável precisa ter 11 dígitos.',
             'cep.size' => 'O CEP precisa ter 8 dígitos.',
         ];

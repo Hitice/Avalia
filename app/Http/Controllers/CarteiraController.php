@@ -147,11 +147,14 @@ class CarteiraController extends Controller
             // O que tem data marcada vem primeiro, do mais atrasado ao mais
             // distante: numa lista de prospeccao, prazo e a unica coisa que
             // ordena sozinha. O resto segue em ordem de nome.
+            //
+            // Sem paginacao, como as outras tabelas longas: a tabela rola dentro
+            // do cartao com o cabecalho fixo, e quem procura usa o filtro.
             'leads' => (clone $filtrados)
                 ->with(['vendedores' => fn (BelongsToMany $q) => $q->where('staff.id', $vendedor->id)])
                 ->orderByRaw('agendado_para is null, agendado_para')
                 ->orderBy('nome')
-                ->paginate(self::POR_PAGINA)->withQueryString(),
+                ->get(),
             'total' => (clone $filtrados)->count(),
             'emAberto' => (clone $dele)->emAberto()->count(),
             'atrasados' => (clone $dele)->agendamentoVencido()->count(),
@@ -170,9 +173,9 @@ class CarteiraController extends Controller
      * A ficha de um lead dele, para corrigir dado e registrar o andamento.
      *
      * Quem trabalha o lead e quem descobre o que a base nao tinha: o telefone
-     * que mudou, o nome de quem decide, o CNPJ que faltava. Sem esta tela esses
-     * dados morriam no caderno do vendedor, e a venda fechada virava entrevista
-     * de cadastro com o cliente esperando na linha.
+     * que mudou, o nome do responsavel, o CNPJ que faltava. Sem esta tela o dado
+     * morria no caderno do vendedor, e a venda fechada virava entrevista de
+     * cadastro com o cliente na linha.
      */
     public function editarLead(Lead $lead)
     {
@@ -192,8 +195,8 @@ class CarteiraController extends Controller
         $antes = $lead->situacao;
         $lead->update($pedido->dados());
 
-        // Só a mudança de estágio entra na trilha. Corrigir um telefone não
-        // vira registro, para a trilha não virar ruído e esconder o que importa.
+        // So a mudanca de estagio entra na trilha. Corrigir um telefone nao vira
+        // registro, para a trilha nao virar ruido e esconder o que importa.
         if ($lead->situacao !== $antes) {
             Auditar::registrar('lead.situacao', $lead, [
                 'de' => $antes->rotulo(),
@@ -202,7 +205,7 @@ class CarteiraController extends Controller
         }
 
         return redirect()->route('carteira.leads')
-            ->with('ok', "{$lead->nome}: ".mb_strtolower($lead->situacao->rotulo()).'.');
+            ->with('ok', "Cadastro de {$lead->nome} atualizado.");
     }
 
     /**

@@ -116,7 +116,7 @@
                 </div>
 
                 <div>
-                    <label for="responsavel_nome" class="rotulo-campo">Quem decide</label>
+                    <label for="responsavel_nome" class="rotulo-campo">Responsável</label>
                     <input id="responsavel_nome" name="responsavel_nome" type="text" class="campo"
                            value="{{ old('responsavel_nome', $lead->responsavel_nome) }}">
                     @error('responsavel_nome') <span class="erro-campo">{{ $message }}</span> @enderror
@@ -163,12 +163,10 @@
                     @error('bairro') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- A administração alcança os seis estágios, inclusive "Não
-                     atender", que é decisão da casa e some o lead da fila de
-                     quem prospecta. O vendedor só registra os quatro da conversa
-                     dele. --}}
+                {{-- A administração alcança os seis estágios, inclusive
+                     Bloqueado. O vendedor registra os quatro da conversa dele. --}}
                 <div>
-                    <label for="situacao" class="rotulo-campo">Em que pé está</label>
+                    <label for="situacao" class="rotulo-campo">Situação</label>
                     <select id="situacao" name="situacao" class="campo" required>
                         @foreach (SituacaoLead::rotulos() as $valor => $rotulo)
                             <option value="{{ $valor }}" @selected(old('situacao', $lead->situacao?->value) === $valor)>
@@ -183,21 +181,21 @@
                     <label for="agendado_para" class="rotulo-campo">Agendado para</label>
                     <input id="agendado_para" name="agendado_para" type="datetime-local" class="campo"
                            value="{{ old('agendado_para', $lead->agendado_para?->format('Y-m-d\TH:i')) }}">
-                    <span class="ajuda-campo">Só vale no estágio Agendado.</span>
+                    <span class="ajuda-campo">Vale no estágio Agendado.</span>
                     @error('agendado_para') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="sm:col-span-2">
                     <label for="observacao" class="rotulo-campo">Observação</label>
                     <textarea id="observacao" name="observacao" rows="3" class="campo">{{ old('observacao', $lead->observacao) }}</textarea>
-                    <span class="ajuda-campo">O que o vendedor precisa saber antes de ligar. Ele lê isto na ficha dele.</span>
+                    <span class="ajuda-campo">O vendedor lê isto na ficha dele.</span>
                     @error('observacao') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
             </div>
 
             @if ($lead->jaEhCliente() && $lead->cliente)
                 <div class="mt-6 border-t border-gray-100 pt-5 dark:border-gray-800">
-                    <span class="rotulo-grupo block">Virou cliente</span>
+                    <span class="rotulo-grupo block">Cliente</span>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
                         <a href="{{ route('empresas.ficha', $lead->cliente) }}"
                            class="hover:text-brand-500 dark:hover:text-brand-400 font-medium">

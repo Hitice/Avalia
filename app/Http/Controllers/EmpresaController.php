@@ -120,7 +120,7 @@ class EmpresaController extends Controller
 
         return redirect($lead ? route('carteira.leads') : $this->depoisDeGravar($empresa))
             ->with('ok', "Empresa '{$empresa->razao_social}' cadastrada."
-                .($lead ? ' O lead saiu da prospecção.' : '')
+                .($lead ? ' Lead fora da prospecção.' : '')
                 .($aviso ? '' : ' Convite de acesso enviado por e-mail.'))
             ->with('erro', $aviso);
     }

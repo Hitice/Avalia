@@ -13,7 +13,6 @@ use App\Support\Auditar;
 use App\Support\FiltroLeads;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -33,15 +32,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class LeadController extends Controller
 {
-    private const POR_PAGINA = 50;
-
     public function index(Request $request)
     {
         $escolha = FiltroLeads::escolhido($request);
         $recorte = $this->recorte($request);
 
         return view('paginas.leads.index', [
-            'leads' => $this->pagina($request),
+            'leads' => $this->daTela($request),
             'escolha' => $escolha,
             'removidos' => $escolha['removidos'],
             'quantidadeRemovidos' => Lead::onlyTrashed()->count(),
@@ -54,6 +51,7 @@ class LeadController extends Controller
             'comEmail' => (clone $recorte)->whereNotNull('email')->count(),
             'semVendedor' => (clone $recorte)->whereDoesntHave('vendedores')->count(),
             'naBase' => Lead::count(),
+            'teto' => self::TETO_DA_TELA,
 
             'vendedores' => Staff::where('papel', 'vendedor')->orderBy('nome')->get(),
             'ufs' => Lead::query()->whereNotNull('uf')->distinct()->orderBy('uf')->pluck('uf'),
@@ -77,14 +75,66 @@ class LeadController extends Controller
         return FiltroLeads::aplicar($leads, $request);
     }
 
-    /** @return LengthAwarePaginator<int, Lead> */
-    private function pagina(Request $request): LengthAwarePaginator
+    /**
+     * Teto de exibicao da tabela.
+     *
+     * Nao e paginacao: e um teto, e a tela diz quando bateu nele. A base tem mil
+     * linhas, e mil linhas renderizadas somam cinco megabytes de HTML, que o
+     * servidor entrega em 200ms e o navegador do celular engasga para montar.
+     * Trezentas enchem a rolagem de sobra.
+     *
+     * Vale so para o que a tela desenha. A acao em lote sobre o filtro alcanca o
+     * recorte inteiro, porque o servidor o recalcula a partir do endereco em vez
+     * de confiar no que o navegador mandou: se dependesse da lista desenhada, o
+     * teto viraria distribuicao incompleta em silencio.
+     */
+    private const TETO_DA_TELA = 300;
+
+    /**
+     * O que a tabela desenha: o recorte ate o teto.
+     *
+     * Sem paginacao, como as outras tabelas longas do sistema: rola dentro do
+     * cartao com o cabecalho fixo, e quem procura um lead usa o filtro.
+     *
+     * @return Collection<int, Lead>
+     */
+    private function daTela(Request $request): Collection
     {
         return $this->recorte($request)
-            ->with('vendedores')
+            ->with(['vendedores', 'cliente'])
             ->orderBy('nome')
-            ->paginate(self::POR_PAGINA)
-            ->withQueryString();
+            ->limit(self::TETO_DA_TELA)
+            ->get();
+    }
+
+    /**
+     * Tira o lead de circulacao, ou devolve, num clique.
+     *
+     * Lead bloqueado nao entra em distribuicao. E decisao da administracao (a
+     * empresa pediu para nao ser procurada, ja e cliente por outro caminho, o
+     * cadastro esta furado), e por isso nao esta na tela do vendedor.
+     *
+     * Liberar devolve para "novo", e nao para o estagio anterior: o que valia
+     * antes do bloqueio nao vale mais depois dele, e guardar o estagio antigo
+     * para restaurar seria inventar um historico que ninguem pediu.
+     */
+    public function alternar(Lead $lead)
+    {
+        // Lead que virou cliente nao volta para a fila por um clique: quem
+        // desfaz conversao e o cadastro da empresa, do outro lado.
+        if ($lead->jaEhCliente()) {
+            return back()->with('erro', "{$lead->nome} já é cliente.");
+        }
+
+        $bloqueando = $lead->situacao !== SituacaoLead::Bloqueado;
+
+        $lead->update(['situacao' => $bloqueando ? SituacaoLead::Bloqueado : SituacaoLead::Novo]);
+
+        Auditar::registrar($bloqueando ? 'lead.bloqueado' : 'lead.liberado', $lead);
+
+        return back()->with('ok', $bloqueando
+            ? "{$lead->nome} fora da prospecção."
+            : "{$lead->nome} de volta à prospecção.");
     }
 
     /**

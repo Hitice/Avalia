@@ -37,14 +37,12 @@
 
     @include('paginas.catalogo.avisos')
 
-    {{-- Conversao de lead: o formulario e o mesmo, com os campos ja copiados da
-         ficha. O aviso existe para quem abriu a tela saber que salvar aqui tira
-         a empresa da prospeccao, e nao so cadastra mais um cliente. --}}
+    {{-- Conversao de lead: o formulario e o mesmo, com os campos copiados da
+         ficha. O aviso existe porque salvar aqui tambem fecha o lead. --}}
     @isset($lead)
         <div class="aviso aviso-ok mb-6">
-            Cadastro aberto a partir do lead <strong>{{ $lead->nome }}</strong>. Confira os campos
-            copiados da ficha e complete o que faltar. Ao salvar, o lead sai da prospecção e passa
-            a apontar para esta empresa.
+            Cadastro aberto a partir do lead <strong>{{ $lead->nome }}</strong>. Os campos vieram da
+            ficha; complete o que faltar. Ao salvar, o lead sai da prospecção.
         </div>
     @endisset
 

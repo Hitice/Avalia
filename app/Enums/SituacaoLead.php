@@ -34,8 +34,8 @@ enum SituacaoLead: string
             self::Atendendo => 'Em atendimento',
             self::Agendado => 'Agendado',
             self::Recusado => 'Recusado',
-            self::Bloqueado => 'Não atender',
-            self::Convertido => 'Virou cliente',
+            self::Bloqueado => 'Bloqueado',
+            self::Convertido => 'Cliente',
         };
     }
 
@@ -52,25 +52,24 @@ enum SituacaoLead: string
         };
     }
 
-    /** Ainda da trabalho: aparece na fila de quem prospecta. */
+    /** Ainda em prospeccao: aparece na fila do vendedor. */
     public function emAberto(): bool
     {
         return in_array($this, [self::Novo, self::Atendendo, self::Agendado], true);
     }
 
-    /** Sem data marcada, "Agendado" nao diz nada a quem abre a tela amanha. */
+    /** Agendado sem data nao diz nada a quem abre a tela no dia seguinte. */
     public function exigeData(): bool
     {
         return $this === self::Agendado;
     }
 
     /**
-     * O vendedor registra o andamento da propria conversa, e nada alem dela.
+     * Os estagios que o vendedor registra.
      *
-     * "Nao atender" fica de fora porque e decisao da casa, e esconde o lead da
-     * distribuicao. "Virou cliente" tambem: quem marca e a conversao, quando o
-     * cadastro do cliente e gravado de verdade. Deixar os dois na mao de quem
-     * prospecta criaria lead convertido sem cliente do outro lado.
+     * Bloqueado e decisao da administracao e esconde o lead da distribuicao.
+     * Cliente e marcado pela conversao, quando o cadastro esta gravado: na mao
+     * do vendedor, viraria lead convertido sem cliente do outro lado.
      *
      * @return array<string, string>
      */

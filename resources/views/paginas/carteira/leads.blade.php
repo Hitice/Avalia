@@ -4,7 +4,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Leads</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            As empresas que a administração passou para você trabalhar.
+            Os leads que a administração distribuiu para você.
         </p>
     </div>
 
@@ -12,20 +12,19 @@
 
     @if ($total > 0 || $convertidos > 0)
         <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <x-avalia.cartao-indicador rotulo="Com você" :valor="number_format($total, 0, ',', '.')" />
+            <x-avalia.cartao-indicador rotulo="Leads" :valor="number_format($total, 0, ',', '.')" />
 
-            <x-avalia.cartao-indicador rotulo="Dão trabalho" :valor="number_format($emAberto, 0, ',', '.')"
+            <x-avalia.cartao-indicador rotulo="Em prospecção" :valor="number_format($emAberto, 0, ',', '.')"
                                        ajuda="Novos, em atendimento ou agendados"
                                        :href="route('carteira.leads', ['situacao' => 'em_aberto'])" />
 
-            {{-- Atrasado em vermelho e clicável: é a única linha desta tela que
-                 pede ação hoje, e o número existe para virar clique. --}}
+            {{-- Vermelho e clicável: é a única linha da tela que pede ação hoje. --}}
             <x-avalia.cartao-indicador rotulo="Agendamento vencido" :valor="number_format($atrasados, 0, ',', '.')"
                                        :tom="$atrasados > 0 ? 'text-error-600 dark:text-error-500' : null"
-                                       ajuda="Passou da hora marcada"
+                                       ajuda="Passou da data marcada"
                                        :href="route('carteira.leads', ['situacao' => 'atrasado'])" />
 
-            <x-avalia.cartao-indicador rotulo="Viraram cliente" :valor="number_format($convertidos, 0, ',', '.')"
+            <x-avalia.cartao-indicador rotulo="Convertidos" :valor="number_format($convertidos, 0, ',', '.')"
                                        tom="text-success-600 dark:text-success-500" />
         </div>
 
@@ -36,15 +35,15 @@
     @endif
 
     <div class="cartao overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="tabela-rolagem">
             <table class="tabela min-w-[60rem]">
-                <thead class="tabela-cabecalho">
+                <thead class="tabela-cabecalho tabela-cabecalho-fixo">
                     <tr>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Lead</th>
-                        <th scope="col" class="px-5 py-3 text-left font-medium">Em que pé está</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Situação</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Contato</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Cidade</th>
-                        <th scope="col" class="px-5 py-3 text-right font-medium"><span class="sr-only">Ações</span></th>
+                        <th scope="col" class="px-5 py-3 text-right font-medium">Abrir</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -64,7 +63,7 @@
                                 <span class="etiqueta {{ $lead->situacao->etiqueta() }}">{{ $lead->situacao->rotulo() }}</span>
                                 @if ($lead->agendado_para)
                                     <span class="mt-1 block text-xs {{ $atrasado ? 'text-error-600 dark:text-error-500' : 'text-gray-500 dark:text-gray-400' }}">
-                                        {{ $atrasado ? 'Passou: ' : '' }}{{ $lead->agendado_para->format('d/m/Y H:i') }}
+                                        {{ $lead->agendado_para->format('d/m/Y H:i') }}
                                     </span>
                                 @endif
                             </td>
@@ -93,21 +92,20 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-right whitespace-nowrap">
-                                @if ($lead->jaEhCliente())
-                                    <span class="etiqueta etiqueta-sucesso">Cliente</span>
-                                @else
-                                    <x-avalia.botao variante="secundario" tamanho="sm"
-                                                    :href="route('carteira.leads.editar', $lead)">
-                                        Abrir
-                                    </x-avalia.botao>
-                                @endif
+                                <div class="flex items-center justify-end gap-1">
+                                    <a class="acao-linha" href="{{ route('carteira.leads.editar', $lead) }}"
+                                       title="Abrir a ficha do lead">
+                                        <x-avalia.icone nome="lapis" />
+                                        <span class="sr-only">Abrir</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="5" class="tabela-vazia">
                                 @if ($total === 0)
-                                    Nenhum lead com você ainda. A administração distribui a base de prospecção.
+                                    Nenhum lead distribuído para você ainda.
                                 @else
                                     Nenhum lead neste recorte. Ajuste o filtro.
                                 @endif
@@ -118,6 +116,9 @@
             </table>
         </div>
 
-        <x-avalia.paginacao :pagina="$leads" />
+        <div class="border-t border-gray-100 px-6 py-4 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            {{ number_format($leads->count(), 0, ',', '.') }}
+            {{ $leads->count() === 1 ? 'lead' : 'leads' }} nesta lista
+        </div>
     </div>
 @endsection

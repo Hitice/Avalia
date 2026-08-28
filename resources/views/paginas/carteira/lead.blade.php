@@ -29,7 +29,7 @@
 
         @if ($lead->jaEhCliente())
             <span class="etiqueta etiqueta-sucesso">
-                Virou cliente em {{ $lead->convertido_em?->format('d/m/Y') }}
+                Cliente desde {{ $lead->convertido_em?->format('d/m/Y') }}
             </span>
         @else
             {{-- Fora do formulario principal: form dentro de form nao existe em
@@ -46,12 +46,10 @@
     @include('paginas.catalogo.avisos')
 
     @if ($falta && ! $lead->jaEhCliente())
-        {{-- Botao desabilitado sem explicacao vira chamado no atendimento: a
-             tela diz o que falta, e os campos estao logo abaixo. --}}
+        {{-- Botao desabilitado sem explicacao vira chamado no atendimento. --}}
         <div class="aviso aviso-alerta mb-6">
-            Para abrir o cadastro de cliente falta preencher <strong>{{ implode(' e ', $falta) }}</strong>.
-            São os dois campos que a empresa precisa ter: o CNPJ é quem vai ser cobrado, e o e-mail
-            é o acesso dela à plataforma.
+            Falta <strong>{{ implode(' e ', $falta) }}</strong> para abrir o cadastro de cliente.
+            O CNPJ é quem será cobrado; o e-mail é o acesso da empresa à plataforma.
         </div>
     @endif
 
@@ -71,14 +69,14 @@
         @csrf
         @method('PUT')
 
-        {{-- Andamento primeiro: é o que ele mexe todo dia. A ficha cadastral
-             abaixo só se toca quando a conversa avança. --}}
+        {{-- Andamento primeiro: é o que muda a cada contato. O cadastro abaixo
+             só se toca quando a conversa avança. --}}
         <div class="cartao mb-6 p-6">
             <h2 class="mb-4 font-medium text-gray-800 dark:text-white/90">Andamento</h2>
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div>
-                    <label for="situacao" class="rotulo-campo">Em que pé está</label>
+                    <label for="situacao" class="rotulo-campo">Situação</label>
                     <select id="situacao" name="situacao" class="campo" x-model="situacao" required>
                         @foreach (SituacaoLead::doVendedor() as $valor => $rotulo)
                             <option value="{{ $valor }}">{{ $rotulo }}</option>
@@ -87,30 +85,29 @@
                     @error('situacao') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- A data só aparece quando faz sentido: campo de agendamento
-                     visível em lead recusado é convite a preencher errado. --}}
+                {{-- Campo de agendamento visível em lead recusado é convite a
+                     preencher errado. --}}
                 <div x-show="situacao === '{{ SituacaoLead::Agendado->value }}'" x-cloak>
-                    <label for="agendado_para" class="rotulo-campo">Quando</label>
+                    <label for="agendado_para" class="rotulo-campo">Data e hora</label>
                     <input id="agendado_para" name="agendado_para" type="datetime-local" class="campo"
                            value="{{ old('agendado_para', $lead->agendado_para?->format('Y-m-d\TH:i')) }}">
-                    <span class="ajuda-campo">Dia e hora da reunião. É por essa data que a sua lista se ordena.</span>
+                    <span class="ajuda-campo">A lista se ordena por esta data.</span>
                     @error('agendado_para') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="sm:col-span-2">
-                    <label for="observacao" class="rotulo-campo">Como foi</label>
+                    <label for="observacao" class="rotulo-campo">Observação</label>
                     <textarea id="observacao" name="observacao" rows="4" class="campo"
-                              placeholder="Com quem você falou, o que ficou combinado, o que travou.">{{ old('observacao', $lead->observacao) }}</textarea>
+                              placeholder="Com quem falou e o que ficou combinado.">{{ old('observacao', $lead->observacao) }}</textarea>
                     @error('observacao') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
             </div>
         </div>
 
         <div class="cartao p-6">
-            <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Ficha</h2>
+            <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Cadastro</h2>
             <p class="ajuda-campo mb-4">
-                São os mesmos campos do cadastro de cliente. O que você preencher aqui vai
-                preenchido na conversão, e ninguém pergunta de novo.
+                Os mesmos campos do cadastro de cliente. O que estiver aqui vai preenchido na conversão.
             </p>
 
             <div class="grid gap-5 sm:grid-cols-2">
@@ -133,7 +130,7 @@
                     <label for="email" class="rotulo-campo">E-mail</label>
                     <input id="email" name="email" type="text" class="campo"
                            value="{{ old('email', $lead->email) }}">
-                    <span class="ajuda-campo">Vira o acesso da empresa à plataforma.</span>
+                    <span class="ajuda-campo">Acesso da empresa à plataforma.</span>
                     @error('email') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
@@ -145,14 +142,14 @@
                 </div>
 
                 <div>
-                    <label for="responsavel_nome" class="rotulo-campo">Quem decide</label>
+                    <label for="responsavel_nome" class="rotulo-campo">Responsável</label>
                     <input id="responsavel_nome" name="responsavel_nome" type="text" class="campo"
                            value="{{ old('responsavel_nome', $lead->responsavel_nome) }}">
                     @error('responsavel_nome') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="responsavel_cpf" class="rotulo-campo">CPF de quem decide</label>
+                    <label for="responsavel_cpf" class="rotulo-campo">CPF do responsável</label>
                     <input id="responsavel_cpf" name="responsavel_cpf" type="text" class="campo"
                            value="{{ old('responsavel_cpf', $lead->responsavel_cpf) }}">
                     @error('responsavel_cpf') <span class="erro-campo">{{ $message }}</span> @enderror

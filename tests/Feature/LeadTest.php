@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SituacaoLead;
 use App\Models\Lead;
 use App\Models\Staff;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -271,6 +272,48 @@ it('some da lista do vendedor quando e removido da base', function () {
     $lead->delete();
 
     comoVendedor($vendedor)->get(route('carteira.leads'))->assertDontSee('DESCARTADO LTDA');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Em circulacao
+|--------------------------------------------------------------------------
+*/
+
+it('tira o lead de circulacao e devolve, num clique', function () {
+    $lead = Lead::factory()->create(['nome' => 'NAO PROCURAR LTDA']);
+
+    admin()->from(route('leads.index'))->patch(route('leads.alternar', $lead))
+        ->assertSessionHas('ok', 'NAO PROCURAR LTDA fora da prospecção.');
+
+    expect($lead->fresh()->situacao)->toBe(SituacaoLead::Bloqueado);
+
+    admin()->patch(route('leads.alternar', $lead))
+        ->assertSessionHas('ok', 'NAO PROCURAR LTDA de volta à prospecção.');
+
+    // Volta para novo, e nao para o estagio anterior ao bloqueio: o que valia
+    // antes nao vale mais depois dele.
+    expect($lead->fresh()->situacao)->toBe(SituacaoLead::Novo);
+});
+
+it('nao devolve para a fila o lead que ja e cliente', function () {
+    $lead = Lead::factory()->create(['nome' => 'JA E CLIENTE LTDA']);
+
+    app(App\Actions\Prospeccao\RegistrarConversaoDoLead::class)($lead, empresaComPlano());
+
+    admin()->patch(route('leads.alternar', $lead->fresh()))
+        ->assertSessionHas('erro', 'JA E CLIENTE LTDA já é cliente.');
+
+    expect($lead->fresh()->situacao)->toBe(SituacaoLead::Convertido);
+});
+
+it('nao poe a chave de circulacao na mao do vendedor', function () {
+    [$vendedor] = carteira();
+    $lead = Lead::factory()->create();
+
+    comoVendedor($vendedor)->patch(route('leads.alternar', $lead))->assertForbidden();
+
+    expect($lead->fresh()->situacao)->toBe(SituacaoLead::Novo);
 });
 
 /*

@@ -22,14 +22,14 @@ use Illuminate\Http\Request;
 final class FiltroLeads
 {
     /**
-     * Estagios do funil, mais dois recortes que a operacao pede todo dia e que
-     * nao sao estagio nenhum: o que ainda da trabalho, e o que passou da hora.
+     * Estagios do funil, mais dois recortes que nao sao estagio: o que segue em
+     * prospeccao, e o que passou da data marcada.
      *
      * @return array<string, string>
      */
     public static function situacoes(): array
     {
-        return ['' => 'Todas', 'em_aberto' => 'Em aberto (dá trabalho)', 'atrasado' => 'Agendamento vencido']
+        return ['' => 'Todas', 'em_aberto' => 'Em aberto', 'atrasado' => 'Agendamento vencido']
             + SituacaoLead::rotulos();
     }
 
