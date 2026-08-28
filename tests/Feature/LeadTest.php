@@ -75,6 +75,46 @@ it('acha o lead pelo CNPJ colado com mascara', function () {
         ->assertDontSee('IGNORADO LTDA');
 });
 
+/**
+ * Um campo, tudo que o operador pode ter na mao. Sete seletores obrigavam a
+ * escolher o campo antes de digitar, e escolher errado devolvia tela vazia.
+ */
+it('acha o lead por qualquer dado, num campo so', function () {
+    Lead::factory()->create([
+        'nome' => 'PADARIA AURORA LTDA', 'codigo' => '77712', 'uf' => 'PE',
+        'cidade' => 'Recife', 'telefone' => '(81) 3333-1010',
+        'email' => 'contato@aurora.com.br', 'responsavel_nome' => 'Marta Aurora',
+        'origem' => '12.pdf',
+    ]);
+    // Os chamarizes vao com todo campo explicito. Com os aleatorios da factory,
+    // um nome sorteado com "PE" dentro (PEREIRA, LOPES) casava com a busca por
+    // UF, e o teste passava sozinho e falhava na suite.
+    $chamariz = [
+        'cnpj' => null, 'cidade' => 'Salvador', 'uf' => 'BA', 'telefone' => '(71) 4444-2020',
+        'email' => 'sac@salvador.com.br', 'responsavel_nome' => 'Joao Silva', 'origem' => '3.pdf',
+    ];
+
+    Lead::factory()->agendado()->create(['nome' => 'REUNIAO MARCADA LTDA', 'codigo' => '11101'] + $chamariz);
+    Lead::factory()->create(['nome' => 'IGNORADO LTDA', 'codigo' => '11102'] + $chamariz);
+
+    $acha = fn (string $termo) => admin()->get(route('leads.index', ['busca' => $termo]))->assertOk();
+
+    $acha('AURORA')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+    $acha('77712')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+    $acha('3333-1010')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+    $acha('contato@aurora.com.br')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+    $acha('Marta')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+    $acha('Recife')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+    $acha('12.pdf')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+
+    // O estagio pelo nome que aparece na tela: quem digita "agendado" espera os
+    // agendados, e devolver nada ensinaria a nao confiar na busca.
+    $acha('agendado')->assertSee('REUNIAO MARCADA LTDA')->assertDontSee('IGNORADO LTDA');
+
+    // UF casa exata: dentro de um LIKE, "PE" acharia "Recife" e meio pais.
+    $acha('PE')->assertSee('PADARIA AURORA LTDA')->assertDontSee('IGNORADO LTDA');
+});
+
 it('separa quem ainda nao esta com vendedor nenhum', function () {
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
     $comDono = Lead::factory()->create(['nome' => 'JA DISTRIBUIDO LTDA']);

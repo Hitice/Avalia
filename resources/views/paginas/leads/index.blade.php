@@ -39,13 +39,18 @@
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-avalia.cartao-indicador rotulo="No recorte" :valor="number_format($noRecorte, 0, ',', '.')"
                                    :ajuda="$noRecorte === $naBase ? 'A base inteira' : 'De '.number_format($naBase, 0, ',', '.').' na base'" />
-        <x-avalia.cartao-indicador rotulo="Com telefone" :valor="number_format($comTelefone, 0, ',', '.')" ajuda="Podem ser chamados" />
-        <x-avalia.cartao-indicador rotulo="Com e-mail" :valor="number_format($comEmail, 0, ',', '.')" ajuda="Podem receber proposta" />
-        <x-avalia.cartao-indicador rotulo="Sem vendedor" :valor="number_format($semVendedor, 0, ',', '.')" ajuda="Ainda não distribuídos" />
+        {{-- Os recortes que não se digitam entram por aqui: o próprio número é o
+             filtro, e o link preserva a busca e a cidade já escolhidas. --}}
+        <x-avalia.cartao-indicador rotulo="Com telefone" :valor="number_format($comTelefone, 0, ',', '.')"
+                                   :href="route('leads.index', array_merge(request()->query(), ['contato' => 'telefone']))" />
+        <x-avalia.cartao-indicador rotulo="Com e-mail" :valor="number_format($comEmail, 0, ',', '.')"
+                                   :href="route('leads.index', array_merge(request()->query(), ['contato' => 'email']))" />
+        <x-avalia.cartao-indicador rotulo="Sem vendedor" :valor="number_format($semVendedor, 0, ',', '.')"
+                                   :href="route('leads.index', array_merge(request()->query(), ['vendedor' => 'sem']))" />
     </div>
 
-    <x-avalia.filtro-leads :acao="route('leads.index')" :vendedores="$vendedores" :ufs="$ufs"
-                           :cidades="$cidades" :origens="$origens" :escolha="$escolha" />
+    <x-avalia.filtro-leads :acao="route('leads.index')" :vendedores="$vendedores"
+                           :ufs="$ufs" :cidades="$cidades" :escolha="$escolha" />
 
     {{-- A tabela inteira dentro de um formulário, para a seleção das linhas
          virar ação em lote.

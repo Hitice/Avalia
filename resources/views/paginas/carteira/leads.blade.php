@@ -4,7 +4,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Leads</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Os leads que a administração distribuiu para você.
+            Leads, prospecção e controle.
         </p>
     </div>
 
@@ -15,13 +15,11 @@
             <x-avalia.cartao-indicador rotulo="Leads" :valor="number_format($total, 0, ',', '.')" />
 
             <x-avalia.cartao-indicador rotulo="Em prospecção" :valor="number_format($emAberto, 0, ',', '.')"
-                                       ajuda="Novos, em atendimento ou agendados"
                                        :href="route('carteira.leads', ['situacao' => 'em_aberto'])" />
 
             {{-- Vermelho e clicável: é a única linha da tela que pede ação hoje. --}}
             <x-avalia.cartao-indicador rotulo="Agendamento vencido" :valor="number_format($atrasados, 0, ',', '.')"
                                        :tom="$atrasados > 0 ? 'text-error-600 dark:text-error-500' : null"
-                                       ajuda="Passou da data marcada"
                                        :href="route('carteira.leads', ['situacao' => 'atrasado'])" />
 
             <x-avalia.cartao-indicador rotulo="Convertidos" :valor="number_format($convertidos, 0, ',', '.')"
@@ -31,7 +29,7 @@
         {{-- Sem o filtro de vendedor: a lista já é a dele, e oferecer a escolha
              sugeriria que existe a de outro para pedir. --}}
         <x-avalia.filtro-leads :acao="route('carteira.leads')" :ufs="$ufs" :cidades="$cidades"
-                               :origens="$origens" :escolha="$escolha" :com-vendedor="false" />
+                               :escolha="$escolha" :com-vendedor="false" />
     @endif
 
     <div class="cartao overflow-hidden">

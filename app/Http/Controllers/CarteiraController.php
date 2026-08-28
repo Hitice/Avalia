@@ -160,12 +160,10 @@ class CarteiraController extends Controller
             'atrasados' => (clone $dele)->agendamentoVencido()->count(),
             'convertidos' => (clone $dele)->where('situacao', SituacaoLead::Convertido->value)->count(),
 
-            // As opcoes dos filtros saem da propria lista dele: oferecer UF que
+            // As opcoes dos filtros saem da propria lista dele: oferecer UF em que
             // ele nao tem lead nenhum e oferecer uma tela vazia.
             'ufs' => (clone $dele)->whereNotNull('uf')->distinct()->orderBy('uf')->pluck('uf'),
             'cidades' => (clone $dele)->whereNotNull('cidade')->distinct()->orderBy('cidade')->pluck('cidade'),
-            'origens' => (clone $dele)->whereNotNull('origem')->distinct()->pluck('origem')
-                ->sortBy(fn (string $origem) => (int) $origem)->values(),
         ]);
     }
 

@@ -54,10 +54,10 @@ class LeadController extends Controller
             'teto' => self::TETO_DA_TELA,
 
             'vendedores' => Staff::where('papel', 'vendedor')->orderBy('nome')->get(),
+            // Cidade e UF saem da propria base: lista fechada nao erra grafia.
+            // Origem saiu junto com o seletor dela, e agora entra pela busca.
             'ufs' => Lead::query()->whereNotNull('uf')->distinct()->orderBy('uf')->pluck('uf'),
             'cidades' => Lead::query()->whereNotNull('cidade')->distinct()->orderBy('cidade')->pluck('cidade'),
-            'origens' => Lead::query()->whereNotNull('origem')->distinct()->pluck('origem')
-                ->sortBy(fn (string $origem) => (int) $origem)->values(),
         ]);
     }
 

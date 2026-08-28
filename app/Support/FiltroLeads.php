@@ -10,29 +10,25 @@ use Illuminate\Http\Request;
 /**
  * Filtros da base de leads.
  *
- * Irmao do FiltroClientes, e aqui o filtro faz mais do que procurar: e ele que
- * monta o recorte que vai ser compartilhado com um vendedor. "Os leads de
- * Uberlandia com telefone" e uma decisao comercial, e precisa caber no endereco
- * da tela para virar link e para a acao em lote agir sobre exatamente o que
- * esta na tela.
+ * Uma busca livre, mais cidade e UF. Quem procura um lead tem um dado na mao (o
+ * nome, o CNPJ, o telefone, o estagio) e nao sabe de antemao qual campo a tela
+ * espera: sete seletores obrigavam a escolher o campo antes de digitar, e
+ * escolher errado devolvia tela vazia sem dizer por que.
  *
- * A busca aceita nome, CNPJ ou codigo da base de origem no mesmo campo: quem
- * procura um lead tem um dos tres na mao e nao sabe qual a tela espera.
+ * Cidade e UF ficam como seletores proprios porque nao se procura por elas, se
+ * recorta por elas: a pergunta e "quem eu tenho em Uberlandia", e a resposta
+ * precisa da lista fechada do que existe na base, para nao errar a grafia.
+ *
+ * Os recortes que nao dao para digitar continuam existindo, mas entram pelo
+ * endereco em vez de por um seletor: os cartoes de numero da tela sao os links.
+ * "Sem vendedor" e "sem telefone" nao se escrevem numa busca de texto.
+ *
+ * O recorte inteiro vive na barra de enderecos, entao a tela vira link, a
+ * exportacao leva exatamente o que esta nela, e a acao em lote pode agir sobre o
+ * filtro inteiro e nao so sobre o que a tabela desenhou.
  */
 final class FiltroLeads
 {
-    /**
-     * Estagios do funil, mais dois recortes que nao sao estagio: o que segue em
-     * prospeccao, e o que passou da data marcada.
-     *
-     * @return array<string, string>
-     */
-    public static function situacoes(): array
-    {
-        return ['' => 'Todas', 'em_aberto' => 'Em aberto', 'atrasado' => 'Agendamento vencido']
-            + SituacaoLead::rotulos();
-    }
-
     /** @var array<string, string> */
     public const CONTATOS = [
         '' => 'Qualquer',
@@ -50,12 +46,24 @@ final class FiltroLeads
     ];
 
     /**
+     * Estagios do funil, mais dois recortes que nao sao estagio: o que segue em
+     * prospeccao, e o que passou da data marcada.
+     *
+     * @return array<string, string>
+     */
+    public static function situacoes(): array
+    {
+        return ['' => 'Todas', 'em_aberto' => 'Em aberto', 'atrasado' => 'Agendamento vencido']
+            + SituacaoLead::rotulos();
+    }
+
+    /**
      * O que o operador escolheu, ja normalizado.
      *
      * Valor fora das opcoes conhecidas volta ao padrao em vez de virar erro: o
      * endereco da tela e feito para ser colado e editado a mao.
      *
-     * @return array{busca: string, uf: string, cidade: string, origem: string, situacao: string, contato: string, documento: string, vendedor: string, removidos: bool}
+     * @return array{busca: string, uf: string, cidade: string, situacao: string, contato: string, documento: string, vendedor: string, removidos: bool}
      */
     public static function escolhido(Request $pedido): array
     {
@@ -68,7 +76,6 @@ final class FiltroLeads
             'busca' => trim((string) $pedido->query('busca', '')),
             'uf' => mb_strtoupper(trim((string) $pedido->query('uf', ''))),
             'cidade' => trim((string) $pedido->query('cidade', '')),
-            'origem' => trim((string) $pedido->query('origem', '')),
             'situacao' => array_key_exists($situacao, $situacoes) ? $situacao : '',
             'contato' => array_key_exists($contato, self::CONTATOS) ? $contato : '',
             'documento' => array_key_exists($documento, self::DOCUMENTOS) ? $documento : '',
@@ -88,22 +95,7 @@ final class FiltroLeads
         $escolha = self::escolhido($pedido);
 
         if ($escolha['busca'] !== '') {
-            $termo = '%'.$escolha['busca'].'%';
-            // Os digitos do CNPJ sao comparados sem mascara, porque o operador
-            // cola do jeito que recebeu.
-            $digitos = Documento::normalizarCnpj($escolha['busca']);
-
-            $leads->where(function (Builder $q) use ($termo, $digitos, $escolha) {
-                $q->where('nome', 'like', $termo)
-                    ->orWhere('codigo', $escolha['busca'])
-                    ->orWhere('cidade', 'like', $termo)
-                    ->orWhere('telefone', 'like', $termo)
-                    ->orWhere('email', 'like', $termo);
-
-                if ($digitos !== '') {
-                    $q->orWhere('cnpj', 'like', '%'.$digitos.'%');
-                }
-            });
+            self::buscar($leads, $escolha['busca']);
         }
 
         if ($escolha['uf'] !== '') {
@@ -112,10 +104,6 @@ final class FiltroLeads
 
         if ($escolha['cidade'] !== '') {
             $leads->where('cidade', $escolha['cidade']);
-        }
-
-        if ($escolha['origem'] !== '') {
-            $leads->where('origem', $escolha['origem']);
         }
 
         match ($escolha['situacao']) {
@@ -146,5 +134,47 @@ final class FiltroLeads
         }
 
         return $leads;
+    }
+
+    /**
+     * A busca de um campo so, contra tudo que o operador pode ter na mao.
+     *
+     * Inclui o estagio pelo nome que aparece na tela: quem digita "agendado"
+     * espera os agendados, e devolver nada ensinaria a nao confiar na busca.
+     *
+     * @param  Builder<Lead>  $leads
+     */
+    private static function buscar(Builder $leads, string $termo): void
+    {
+        $como = '%'.$termo.'%';
+
+        // Os digitos do CNPJ sao comparados sem mascara, porque o operador cola
+        // do jeito que recebeu.
+        $digitos = Documento::normalizarCnpj($termo);
+
+        $estagios = array_keys(array_filter(
+            SituacaoLead::rotulos(),
+            fn (string $rotulo) => mb_stripos($rotulo, $termo) !== false,
+        ));
+
+        $leads->where(function (Builder $q) use ($como, $digitos, $termo, $estagios) {
+            $q->where('nome', 'like', $como)
+                ->orWhere('codigo', $termo)
+                ->orWhere('cidade', 'like', $como)
+                ->orWhere('telefone', 'like', $como)
+                ->orWhere('email', 'like', $como)
+                ->orWhere('responsavel_nome', 'like', $como)
+                ->orWhere('origem', 'like', $como)
+                // UF casa exata: "SP" dentro de um LIKE acharia "Serra do Sul".
+                ->orWhere('uf', mb_strtoupper($termo));
+
+            if ($digitos !== '') {
+                $q->orWhere('cnpj', 'like', '%'.$digitos.'%');
+            }
+
+            if ($estagios !== []) {
+                $q->orWhereIn('situacao', $estagios);
+            }
+        });
     }
 }
