@@ -11,7 +11,7 @@
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $empresa->razao_social }}</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Competência {{ $competencia }}</p>
         </div>
-        <x-avalia.ajuda assunto="Painel">Falar com a Avalia</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Painel">Falar com a Avalia 360</x-avalia.ajuda>
     </div>
 
     {{-- Conta suspensa entra, mas nao consulta. A tela diz o porque em vez de

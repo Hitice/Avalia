@@ -19,7 +19,7 @@ final class DocumentoPdf
     {
         $pdf = (new Pdf)
             ->rodape(sprintf(
-                'Avalia · %s · versão %s · íntegra sha256 %s',
+                'Avalia 360 · %s · versão %s · íntegra sha256 %s',
                 $documento->tipo, $documento->versao, substr($documento->hashConteudo(), 0, 16),
             ))
             ->titulo($documento->titulo)
@@ -38,7 +38,7 @@ final class DocumentoPdf
 
         $pdf = (new Pdf)
             ->rodape(sprintf(
-                'Avalia · comprovante de aceite · íntegra sha256 %s',
+                'Avalia 360 · comprovante de aceite · íntegra sha256 %s',
                 substr($aceite->hash_conteudo, 0, 16),
             ))
             ->titulo('Comprovante de aceite')

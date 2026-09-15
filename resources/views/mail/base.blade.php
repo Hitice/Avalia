@@ -18,7 +18,7 @@
                         <td style="padding:30px 36px 6px 36px;">
                             <img src="https://avaliaone.com.br/images/email-gauge.png" width="28" height="28" alt=""
                                  style="vertical-align:middle;margin-right:8px;">
-                            <span style="font-size:22px;font-weight:bold;color:#3641f5;vertical-align:middle;">Avalia<span style="color:#98a2b3;">one</span></span>
+                            <span style="font-size:22px;font-weight:bold;color:#3641f5;vertical-align:middle;">Avalia<span style="color:#98a2b3;"> 360</span></span>
                         </td>
                     </tr>
                     <tr>
@@ -34,7 +34,7 @@
                     </tr>
                 </table>
                 <p style="margin:16px 0 0 0;color:#98a2b3;font-size:12px;">
-                    © {{ now()->year }} Avalia · avaliaone.com.br
+                    © {{ now()->year }} Avalia 360 · avaliaone.com.br
                 </p>
             </td>
         </tr>

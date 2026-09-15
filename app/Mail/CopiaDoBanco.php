@@ -35,7 +35,7 @@ class CopiaDoBanco extends Mailable
     public function content(): Content
     {
         return new Content(htmlString: sprintf(
-            '<p>Cópia diária do banco da Avalia: %d registros, gerada em %s.</p>'
+            '<p>Cópia diária do banco da Avalia 360: %d registros, gerada em %s.</p>'
             .'<p>Restauração: descompactar, e no servidor rodar <code>php artisan avalia:importar ARQUIVO</code> '
             .'com as tabelas já criadas por <code>php artisan migrate</code>.</p>',
             $this->registros,

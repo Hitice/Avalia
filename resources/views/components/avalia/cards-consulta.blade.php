@@ -93,7 +93,7 @@
                                 </p>
 
                                 <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                                    O resultado abre na hora, em relatório com a marca da Avalia:
+                                    O resultado abre na hora, em relatório com a marca da Avalia 360:
                                     score com régua de temperatura, identificação do titular,
                                     restrições da mais grave para a menos e o contexto de consultas
                                     recentes. O que a base não trouxer aparece dito com todas as

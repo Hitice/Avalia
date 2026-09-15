@@ -61,7 +61,7 @@ class CriarCobrancaAsaas
             'value' => $fatura->total_cents / 100,
             'dueDate' => $fatura->vencimento()->format('Y-m-d'),
             'externalReference' => 'fatura:'.$fatura->id,
-            'description' => 'Avalia - competência '.$fatura->competencia,
+            'description' => 'Avalia 360 - competência '.$fatura->competencia,
         ]);
 
         $cobranca->update([

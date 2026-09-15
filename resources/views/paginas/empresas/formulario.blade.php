@@ -186,7 +186,7 @@
                     <div>
                         <label for="adesao_valor" class="rotulo-campo">Taxa de adesão</label>
                         <input id="adesao_valor" name="adesao_valor" type="text" inputmode="decimal" class="campo" value="{{ old('adesao_valor', $empresa->adesao ? Dinheiro::numero($empresa->adesao->valor_cents) : '') }}" placeholder="0,00">
-                        <span class="ajuda-campo">O valor liquidado é dividido igualmente entre a Avalia e o vendedor.</span>
+                        <span class="ajuda-campo">O valor liquidado é dividido igualmente entre a Avalia 360 e o vendedor.</span>
                     </div>
                     <div>
                         <label for="adesao_parcelas" class="rotulo-campo">Parcelas da adesão</label>

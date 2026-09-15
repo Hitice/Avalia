@@ -10,7 +10,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Clientes</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                As empresas que contratam a Avalia e a situação de cada uma.
+                As empresas que contratam a Avalia 360 e a situação de cada uma.
             </p>
         </div>
 

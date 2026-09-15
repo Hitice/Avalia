@@ -40,7 +40,7 @@ final class FaturaPdf
         $empresa = $fatura->cliente;
 
         $pdf = (new Pdf)
-            ->rodape('Avalia · avaliaone.com.br · documento gerado em '.now()->format('d/m/Y H:i'))
+            ->rodape('Avalia 360 · avaliaone.com.br · documento gerado em '.now()->format('d/m/Y H:i'))
             ->marca(resource_path('marca/avaliaone.jpg'))
             ->titulo('Demonstrativo da fatura')
             // O CNPJ so entra quando existe: rotulo sem numero na frente e o
@@ -99,7 +99,7 @@ final class FaturaPdf
         $pdf->fecho(
             'Informações importantes',
             Laudo::ressalvasDaFatura($consultas, Consulta::DIAS_DE_RETENCAO),
-            'avaliaone.com.br · CNPJ 39.914.870/0001-01',
+            Empresa::assinatura(),
         );
 
         return $pdf->bytes();

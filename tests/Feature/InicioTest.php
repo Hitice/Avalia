@@ -81,7 +81,7 @@ it('recolhe o interesse da campanha por formulario, e nao por URL de conversa', 
     expect($html)->toContain(route('interesse.salvar'))
         ->toContain('Enviar pedido de contato')
         ->toContain('wa.me/')
-        ->toContain(rawurlencode('Quero contratar a Avalia'));
+        ->toContain(rawurlencode('Quero contratar a Avalia 360'));
 });
 
 it('veste o banner com a campanha vigente', function () {

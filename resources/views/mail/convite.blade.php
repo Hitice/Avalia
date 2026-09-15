@@ -1,22 +1,22 @@
 @extends('mail.base')
 
-@section('titulo', 'Seu acesso à Avalia')
+@section('titulo', 'Seu acesso à Avalia 360')
 
 @section('conteudo')
     @if ($operadorDe)
-        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia.</p>
+        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia 360.</p>
         <p style="margin:0 0 12px 0;">
             Seu acesso às consultas de {{ $operadorDe }} foi criado. Para começar, defina a sua senha:
         </p>
     @elseif ($ehEmpresa)
-        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia.</p>
+        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia 360.</p>
         <p style="margin:0 0 12px 0;">
             O acesso da sua empresa foi criado. Para começar a consultar, defina a sua senha:
         </p>
     @else
         <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo ao time de vendas.</p>
         <p style="margin:0 0 12px 0;">
-            Seu acesso ao Avaliaone foi criado. Para entrar, defina a sua senha:
+            Seu acesso à Avalia 360 foi criado. Para entrar, defina a sua senha:
         </p>
     @endif
 

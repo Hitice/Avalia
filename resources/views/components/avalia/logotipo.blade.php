@@ -8,13 +8,10 @@
     // tema da pagina. Antes isso era um seletor arbitrario no ponto de uso,
     // que quebrava calado se a estrutura interna daqui mudasse.
     'claro' => false,
-    // Com o sufixo do dominio em cinza: Avaliaone. E o nome publico; o
-    // wordmark curto continua valendo dentro do produto.
-    'one' => false,
 ])
 
 {{--
-    Marca da Avalia.
+    Marca da Avalia 360.
 
     O icone e um arco de medidor com o ponteiro apontando para a faixa alta,
     a leitura de risco que o produto entrega. Fica em azul da marca; o arco de
@@ -25,7 +22,7 @@
 --}}
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-2.5']) }}>
     <svg width="{{ $tamanho }}" height="{{ $tamanho }}" viewBox="0 0 32 32" fill="none"
-        role="img" aria-label="Avalia" class="shrink-0">
+        role="img" aria-label="Avalia 360" class="shrink-0">
         {{-- Escala --}}
         <path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="currentColor"
             class="text-gray-300 dark:text-gray-700" stroke-width="3" stroke-linecap="round" />
@@ -39,15 +36,13 @@
     </svg>
 
     @unless ($somenteIcone)
-        {{-- Sem diretiva no meio do texto: "Avalia@if" colado nao compila como
-             Blade (limite de palavra), mas o @endif compila, e sobrava um
-             endif orfao derrubando toda pagina com a logo. O ternario nao tem
-             esse problema. --}}
-        {{-- No lockup Avaliaone, a palavra Avalia sai no azul da marca sobre
-             tema claro; no escuro continua clara para nao sumir no fundo. --}}
-        <span class="leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : ($one ? 'text-brand-600 dark:text-white/90' : 'text-gray-800 dark:text-white/90') }}"
+        {{-- O lockup e um so: "Avalia" no azul da marca e "360" em cinza, como
+             no logotipo impresso. Antes o numero era opcional e o nome curto
+             valia dentro do produto, o que deixava duas marcas circulando ao
+             mesmo tempo. --}}
+        <span class="leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : 'text-brand-600 dark:text-white/90' }}"
               style="font-size: {{ $texto ?? '1.35rem' }}">
-            Avalia{{ '' }}<span class="{{ $one ? 'ml-1' : '' }} text-gray-300 dark:text-gray-400">{{ $one ? 'one' : '' }}</span>
+            Avalia<span class="ml-1 text-gray-300 dark:text-gray-400">360</span>
         </span>
     @endunless
 </span>

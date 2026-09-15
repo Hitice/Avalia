@@ -11,11 +11,11 @@
                     Voltar
                 </x-avalia.botao>
             </div>
-            <x-avalia.logotipo :tamanho="32" one class="mb-6" />
+            <x-avalia.logotipo :tamanho="32" class="mb-6" />
 
             <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">Defina sua senha</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Olá, {{ $nome }}. Escolha a senha do seu acesso à Avalia.
+                Olá, {{ $nome }}. Escolha a senha do seu acesso à Avalia 360.
             </p>
 
             <form method="POST" action="{{ $destino }}" class="mt-6 space-y-5" autocomplete="on">

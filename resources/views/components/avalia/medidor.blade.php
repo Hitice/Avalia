@@ -20,7 +20,7 @@
      esquerda (nivel zero) e gira ate a leitura. --}}
 
 <svg width="{{ $tamanho }}" height="{{ $tamanho }}" viewBox="0 0 32 32" fill="none"
-    role="img" aria-label="Medidor de risco da Avalia" {{ $attributes }}>
+    role="img" aria-label="Medidor de risco da Avalia 360" {{ $attributes }}>
     <defs>
         <linearGradient id="{{ $grad }}" x1="4.5" y1="22.5" x2="27.5" y2="22.5" gradientUnits="userSpaceOnUse">
             <stop offset="0" stop-color="var(--color-theme-pink-500)" />
