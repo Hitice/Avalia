@@ -2,7 +2,9 @@
 
 @section('content')
     <div class="relative flex min-h-screen items-center justify-center bg-gray-50 px-6 py-12 dark:bg-gray-950">
-        <x-avalia.tema class="absolute top-5 right-5" />
+        {{-- Sem topo nesta tela, o botao fica na mesma ponta que ocuparia
+             se houvesse: a distancia da borda e a mesma das outras. --}}
+        <x-avalia.tema class="absolute top-4 right-3 size-11 sm:right-4" />
 
         <div class="w-full max-w-md">
             <a href="{{ route('cobranca') }}" class="mb-8 flex items-center justify-center gap-2.5" aria-label="Avalia 360">

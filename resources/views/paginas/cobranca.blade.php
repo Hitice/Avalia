@@ -50,9 +50,7 @@
                      os mesmos dois botoes. O que falta aqui e o caminho de
                      volta: o 360 e uma parte da Avalia One, e quem entrou por
                      este endereco precisa achar a porta de casa. --}}
-                <nav class="flex items-center gap-3">
-                    <x-avalia.tema />
-
+                <nav class="flex items-center gap-3 pr-12 sm:pr-14 min-[1550px]:pr-0">
                     <a href="{{ route('inicio') }}" class="botao botao-secundario">
                         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5 5-5M18 12H6"/>
@@ -61,6 +59,11 @@
                     </a>
                 </nav>
             </div>
+
+            {{-- Na ponta extrema, fora do alinhamento das colunas, como na
+                 pagina inicial: e ferramenta da pagina, e nao passo do funil.
+                 O respiro a direita do nav reserva o lugar dele. --}}
+            <x-avalia.tema class="absolute top-1/2 right-3 size-11 -translate-y-1/2 sm:right-4" />
         </header>
 
         <main class="pt-[60px]">
@@ -83,7 +86,7 @@
                     </h1>
 
                     <p class="mt-5 max-w-2xl text-lg text-gray-500 dark:text-gray-400">
-                        Seu cliente fecha em até doze vezes mesmo sem limite no cartão.
+                        Seu cliente fecha em até 12x mesmo sem limite no cartão.
                         Você acompanha cada parcela, e a régua de cobrança é nossa.
                     </p>
 
@@ -248,7 +251,7 @@
                             </h2>
                             <p class="mt-4 text-gray-500 dark:text-gray-400">
                                 Metade do país não tem limite de cartão para uma compra de três mil reais,
-                                e boa parte dela tem renda para pagar em doze vezes. O parcelamento no
+                                e boa parte dela tem renda para pagar em 12x. O parcelamento no
                                 boleto alcança esse comprador sem mudar o seu preço.
                             </p>
 
@@ -302,7 +305,7 @@
                         <h2 class="text-2xl font-semibold tracking-tight">Para quem é</h2>
                         <ul class="mt-6 space-y-4">
                             @foreach ([
-                                ['Produtor de curso e mentoria', 'O aluno que não tem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em doze vezes.'],
+                                ['Produtor de curso e mentoria', 'O aluno que não tem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em 12x.'],
                                 ['Prestador de serviço recorrente', 'Clínica, escritório, assistência técnica: serviço fechado hoje, pago ao longo dos meses, sem antecipadora no meio.'],
                                 ['Quem já vende parcelado no caderno', 'Você já parcela na confiança. Aqui a análise vem antes, o contrato existe, e a cobrança não é você quem faz.'],
                             ] as [$titulo, $texto])

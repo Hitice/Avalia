@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="min-h-screen bg-gray-50 text-gray-800 dark:bg-gray-950 dark:text-white/90">
-        <header class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        <header class="relative border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
             <div class="mx-auto flex h-[60px] w-full max-w-4xl items-center justify-between px-6">
                 <span class="inline-flex items-center gap-2.5">
                     <x-avalia.logotipo :tamanho="30" texto="1.15rem" />
@@ -15,13 +15,15 @@
                 {{-- Quem vende e o produtor; a Avalia 360 processa. Dizer isso
                      aqui evita a duvida mais cara do checkout: "quem esta
                      cobrando de mim?" --}}
-                <div class="flex items-center gap-3">
-                    <span class="hidden text-sm text-gray-500 sm:inline dark:text-gray-400">
-                        Venda de {{ $oferta->produto->produtor->nome }}
-                    </span>
-                    <x-avalia.tema />
-                </div>
+                <span class="hidden pr-12 text-sm text-gray-500 sm:inline sm:pr-14 dark:text-gray-400">
+                    Venda de {{ $oferta->produto->produtor->nome }}
+                </span>
             </div>
+
+            {{-- Na ponta extrema, fora do alinhamento das colunas, como na
+                 pagina inicial: e ferramenta da pagina, e nao passo do funil.
+                 O respiro a direita do nav reserva o lugar dele. --}}
+            <x-avalia.tema class="absolute top-1/2 right-3 size-11 -translate-y-1/2 sm:right-4" />
         </header>
 
         <main class="mx-auto w-full max-w-4xl px-6 py-10">
