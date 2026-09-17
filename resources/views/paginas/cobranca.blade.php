@@ -51,11 +51,13 @@
                      volta: o 360 e uma parte da Avalia One, e quem entrou por
                      este endereco precisa achar a porta de casa. --}}
                 <nav class="flex items-center gap-3">
+                    <x-avalia.tema />
+
                     <a href="{{ route('inicio') }}" class="botao botao-secundario">
                         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5 5-5M18 12H6"/>
                         </svg>
-                        Sair
+                        Voltar
                     </a>
                 </nav>
             </div>

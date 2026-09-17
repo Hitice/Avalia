@@ -52,6 +52,7 @@ final class Convite
             'staff' => Staff::find($id),
             'empresa' => Cliente::find($id),
             'operador' => Operador::find($id),
+            'produtor' => \App\Models\Produtor::find($id),
             default => null,
         };
     }

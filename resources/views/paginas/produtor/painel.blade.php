@@ -14,6 +14,7 @@
                 </span>
 
                 <div class="flex items-center gap-4 text-sm">
+                    <x-avalia.tema />
                     <span class="hidden text-gray-500 sm:inline dark:text-gray-400">{{ $produtor->nome }}</span>
                     <form method="POST" action="{{ route('produtor.sair') }}">
                         @csrf

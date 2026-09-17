@@ -1,7 +1,9 @@
 @extends('layouts.fullscreen-layout', ['title' => 'Crie sua conta'])
 
 @section('content')
-    <div class="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-12 dark:bg-gray-950">
+    <div class="relative flex min-h-screen items-center justify-center bg-gray-50 px-6 py-12 dark:bg-gray-950">
+        <x-avalia.tema class="absolute top-5 right-5" />
+
         <div class="w-full max-w-md">
             <a href="{{ route('cobranca') }}" class="mb-8 flex items-center justify-center gap-2.5" aria-label="Avalia 360">
                 <x-avalia.logotipo :tamanho="36" texto="1.35rem" />

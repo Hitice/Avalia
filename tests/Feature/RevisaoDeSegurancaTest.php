@@ -86,3 +86,23 @@ it('desativa o catalogo do produtor em vez de apagar', function () {
         // A oferta continua no banco, e a venda antiga segue explicavel.
         ->and(Oferta360::withTrashed()->count())->toBe(1);
 });
+
+/**
+ * Toda tela publica alterna o tema.
+ *
+ * O botao vivia escrito a mao dentro da pagina inicial, e as telas do 360
+ * nasceram sem ele: o tema escuro existia e nao havia como sair dele. Este
+ * teste quebra quando alguem publica tela nova sem o componente, que e
+ * exatamente quando o esquecimento acontece.
+ */
+it('deixa trocar o tema em toda tela publica', function () {
+    $telas = [
+        route('inicio'),
+        route('cobranca'),
+        route('produtor.criar-conta'),
+    ];
+
+    foreach ($telas as $tela) {
+        $this->get($tela)->assertOk()->assertSee('$store.theme.toggle()', false);
+    }
+});

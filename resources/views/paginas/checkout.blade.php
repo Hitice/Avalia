@@ -15,9 +15,12 @@
                 {{-- Quem vende e o produtor; a Avalia 360 processa. Dizer isso
                      aqui evita a duvida mais cara do checkout: "quem esta
                      cobrando de mim?" --}}
-                <span class="text-sm text-gray-500 dark:text-gray-400">
-                    Venda de {{ $oferta->produto->produtor->nome }}
-                </span>
+                <div class="flex items-center gap-3">
+                    <span class="hidden text-sm text-gray-500 sm:inline dark:text-gray-400">
+                        Venda de {{ $oferta->produto->produtor->nome }}
+                    </span>
+                    <x-avalia.tema />
+                </div>
             </div>
         </header>
 

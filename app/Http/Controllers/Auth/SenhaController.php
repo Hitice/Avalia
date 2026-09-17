@@ -50,12 +50,18 @@ class SenhaController extends Controller
 
         Auditar::registrar('acesso.senha_definida', $conta, ['guarda' => $guarda]);
 
-        return redirect()->route('entrar')->with('ok', 'Senha definida. Entre com ela.');
+        // Cada conta volta para a porta por onde entra. O produtor do 360 nao
+        // tem conta no CRM: mandado para /entrar, ele tentaria ali a senha que
+        // acabou de definir, a tela recusaria, e ele concluiria que a
+        // redefinicao nao funcionou.
+        $porta = $guarda === 'produtor' ? 'cobranca' : 'entrar';
+
+        return redirect()->route($porta)->with('ok', 'Senha definida. Entre com ela.');
     }
 
     private function contaValida(Request $pedido, string $guarda, int $id): object
     {
-        abort_unless(in_array($guarda, ['staff', 'empresa', 'operador'], true), 404);
+        abort_unless(in_array($guarda, ['staff', 'empresa', 'operador', 'produtor'], true), 404);
 
         $conta = Convite::conta($guarda, $id);
 

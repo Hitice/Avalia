@@ -53,7 +53,31 @@ Vocabulario ja existente: `cartao`, `tabela`, `tabela-cabecalho`,
 `interruptor` + `interruptor-{ligado,desligado,bolinha}`, `menu-badge-embreve`.
 
 Componentes proprios em `resources/views/components/avalia/`: `botao`,
-`segmentado`, `interruptor`, `logotipo`.
+`segmentado`, `interruptor`, `logotipo`, `tema`.
+
+### Tela nova nasce com as tres partes
+
+Toda tela, publica ou nao, repete a mesma moldura. Nao ha licenca para inventar
+uma variacao por pagina: quem navega entre elas percebe a diferenca e conclui
+que saiu do site.
+
+- **Topo** de 60px (`h-[60px]`), conteudo em `mx-auto w-full max-w-[87rem] px-6`,
+  com a marca a esquerda. Nas telas do 360, a marca leva a etiqueta `360` ao
+  lado. A direita ficam, nesta ordem: `<x-avalia.tema />` e depois a acao da
+  tela (Voltar, Sair, Entrar).
+- **Interruptor de tema em TODA tela**, via `<x-avalia.tema />`. O componente
+  existe porque o botao vivia escrito a mao dentro da pagina inicial: as telas
+  do 360 nasceram sem ele, e o tema escuro existia sem jeito de alternar. Se a
+  tela tem topo, o botao vai no topo; se nao tem, vai solto no canto superior
+  direito (`class="absolute top-5 right-5"`).
+- **Rodape** com a marca a esquerda, contato a direita e, abaixo, uma linha de
+  registro: `© ano`, razao social, CNPJ e `Empresa::localidade()`. Endereco
+  completo so em documento (fatura, laudo, contrato), nunca no pe da pagina.
+
+O texto institucional sai sempre de `App\Support\Empresa` e de
+`config/empresa.php`, e nunca escrito na view: CNPJ e endereco copiados em tela
+foi exatamente o que deixou tres lugares com o numero velho quando a empresa
+trocou de CNPJ.
 
 Convencoes de interacao ja decididas:
 

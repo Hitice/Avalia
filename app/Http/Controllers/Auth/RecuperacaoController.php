@@ -40,6 +40,7 @@ class RecuperacaoController extends Controller
                     Convite::link($conta, $guarda),
                     ehEmpresa: $guarda !== 'staff',
                     operadorDe: $guarda === 'operador' ? $conta->cliente?->razao_social : null,
+                    redefinicao: true,
                 ));
             } catch (\Throwable $e) {
                 // Falha de envio nao pode virar resposta diferente: seria o
