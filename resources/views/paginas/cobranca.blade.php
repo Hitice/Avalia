@@ -56,8 +56,12 @@
                  tenho limite no cartão", e e esse o problema que se resolve. --}}
             <section class="mx-auto grid w-full max-w-[87rem] items-center gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.1fr_0.9fr]">
                 <div class="max-w-2xl">
-                    <span class="etiqueta gap-2 bg-brand-50 px-3 py-1 text-sm text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
-                        Avalia 360 · Cobrança
+                    {{-- A marca no lugar do rotulo escrito: o 360 se apresenta
+                         pelo proprio logotipo, e nao por uma etiqueta que
+                         repete em texto o que a marca ja diz. --}}
+                    <span class="inline-flex items-center gap-2.5">
+                        <x-avalia.logotipo :tamanho="36" texto="1.35rem" />
+                        <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
                     </span>
 
                     <h1 class="mt-5 text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
@@ -88,19 +92,25 @@
                     </ul>
                 </div>
 
-                {{-- A foto e recortada, com fundo transparente: a mancha
-                     circular atras existe para ela nao flutuar solta no branco,
-                     e muda de tom no tema escuro junto com o resto.
+                {{-- A foto e recortada e fica direto sobre o fundo da
+                     pagina, que ja e branco no tema claro e escuro no outro.
+                     Tinha uma mancha circular atras, e ela competia com o
+                     recorte em vez de ajuda-lo.
 
                      Escondida no telefone de proposito. Ali a coluna vira uma
                      so, e uma foto de 740px de altura empurraria o formulario
                      para fora da primeira dobra sem dizer nada que o texto ja
                      nao diga. --}}
-                <div class="relative hidden lg:block">
-                    <div class="absolute inset-x-8 top-8 bottom-0 rounded-[3rem] bg-brand-50 dark:bg-brand-500/10" aria-hidden="true"></div>
-                    <img src="{{ asset('images/business1.png') }}" width="555" height="740" decoding="async"
+                {{-- So no tema claro, e isso e provisorio: o arquivo que
+                     temos e um WebP com perdas que ja veio com o quadriculado
+                     desenhado por cima, e nao com transparencia. O recorte
+                     refeito aqui fecha bem sobre o branco, mas sobre fundo
+                     escuro os restos do quadriculado aparecem. Quando chegar um
+                     PNG com canal alfa de verdade, o `dark:hidden` sai. --}}
+                <div class="hidden lg:block dark:lg:hidden">
+                    <img src="{{ asset('images/business1.webp') }}" width="555" height="740" decoding="async"
                          alt="Dois profissionais atendendo clientes"
-                         class="relative mx-auto w-full max-w-md">
+                         class="mx-auto w-full max-w-lg">
                 </div>
             </section>
 

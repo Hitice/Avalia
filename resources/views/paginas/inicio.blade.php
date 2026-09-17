@@ -561,7 +561,7 @@
                 </div>
 
                 <a href="{{ route('cobranca') }}" class="botao botao-primario">
-                    Conhecer o Avalia 360
+                    Acesse
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5"/>
                     </svg>
