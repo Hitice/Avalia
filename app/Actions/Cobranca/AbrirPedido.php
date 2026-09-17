@@ -32,11 +32,14 @@ class AbrirPedido
 
         // Uma compra em aberto por documento. A contagem olha o pedido, e nao
         // a parcela: quem deve a compra anterior nao abre a proxima.
+        //
+        // A busca e pelo hash, no banco. Filtrar em PHP exigia carregar todos
+        // os pedidos em aberto da plataforma e decifrar o documento de cada um,
+        // a cada checkout.
         $emAberto = Pedido360::query()
+            ->where('cliente_documento_hash', Documento::hash($documento))
             ->whereIn('situacao', ['em_analise', 'aguardando_contrato', 'aguardando_entrada', 'efetivado'])
             ->where('situacao_financeira', '!=', 'quitado')
-            ->get()
-            ->filter(fn (Pedido360 $p) => Documento::normalizarCnpj($p->cliente_documento) === $documento)
             ->count();
 
         $decisao = AnaliseDeCredito::decidir([

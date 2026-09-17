@@ -23,7 +23,7 @@ class Pedido360 extends Model
 
     protected $fillable = [
         'chave', 'oferta_360_id', 'produtor_id',
-        'cliente_nome', 'cliente_documento', 'cliente_email', 'cliente_telefone',
+        'cliente_nome', 'cliente_documento', 'cliente_documento_hash', 'cliente_email', 'cliente_telefone',
         'cliente_nascimento', 'cliente_endereco',
         'situacao', 'situacao_financeira',
         'valor_total_cents', 'entrada_cents', 'parcelas', 'valor_parcela_cents', 'taxa_bps',
@@ -55,6 +55,15 @@ class Pedido360 extends Model
     protected static function booted(): void
     {
         static::creating(fn (self $pedido) => $pedido->chave ??= (string) Str::ulid());
+
+        // O hash e derivado do documento e acompanha qualquer mudanca dele.
+        // Deixar isso a cargo de quem grava seria esquecer em algum lugar, e o
+        // esquecimento aqui e silencioso: a busca simplesmente para de achar.
+        static::saving(function (self $pedido) {
+            if ($pedido->isDirty('cliente_documento')) {
+                $pedido->cliente_documento_hash = Documento::hash($pedido->cliente_documento);
+            }
+        });
     }
 
     /**

@@ -121,6 +121,32 @@ final class Documento
         ]);
     }
 
+    /**
+     * Impressao digital do documento, para procurar sem decifrar.
+     *
+     * Coluna cifrada nao se pesquisa nem se indexa: para achar "outro pedido
+     * deste CPF" era preciso carregar todos os pedidos em aberto e decifrar um
+     * por um, o que custa uma descriptografia por linha em cada checkout.
+     *
+     * O HMAC resolve os dois lados: e deterministico, entao indexa e compara;
+     * e depende da chave da aplicacao, entao quem le o banco sem a chave nao
+     * consegue testar CPFs ate achar o que casa. Hash puro, sem chave, cairia
+     * nesse ataque em minutos, porque o espaco de CPFs validos e pequeno.
+     *
+     * Depende de APP_KEY como os campos cifrados: rotacionar a chave exige
+     * reescrever os hashes junto.
+     */
+    public static function hash(?string $entrada): string
+    {
+        $documento = self::normalizarCnpj($entrada);
+
+        if ($documento === '') {
+            return '';
+        }
+
+        return hash_hmac('sha256', $documento, (string) config('app.key'));
+    }
+
     /** O documento formatado pelo que ele e: onze digitos viram CPF, o resto CNPJ. */
     public static function formatar(?string $entrada): string
     {

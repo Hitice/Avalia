@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** O que o produtor vende. As condicoes de venda ficam na oferta. */
 class Produto360 extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'produtos_360';
 
     protected $fillable = ['produtor_id', 'nome', 'descricao', 'valor_cents', 'dias_arrependimento', 'ativo'];

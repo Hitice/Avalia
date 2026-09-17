@@ -16,7 +16,11 @@ class AtualizarInadimplencia
         $agora = $agora ?? now();
         $afetadas = 0;
 
+        // O cliente vem junto porque o corpo do laco usa `$fatura->cliente`
+        // duas vezes: sem isto, a rotina diaria faz duas consultas por fatura
+        // aberta, e o custo cresce com a carteira inteira.
         Fatura::query()
+            ->with('cliente')
             ->whereIn('situacao_pagamento', [Fatura::PAGAMENTO_PENDENTE, Fatura::PAGAMENTO_VENCIDO])
             ->get()
             ->filter(fn (Fatura $fatura) => $fatura->vencimento() < $agora)
