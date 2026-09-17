@@ -236,7 +236,7 @@
         </main>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 pt-3 pb-0.5 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="24" />
                 </a>
@@ -245,7 +245,7 @@
 
             {{-- A identificacao inteira numa linha so, igual a da pagina
                  inicial: as duas paginas publicas fecham do mesmo jeito. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-4 text-center text-xs text-gray-400 dark:text-gray-500">
+            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs text-gray-400 dark:text-gray-500">
                 © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::endereco() }}
             </p>
         </footer>

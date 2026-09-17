@@ -111,7 +111,7 @@
                         <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm0 18.06h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.03-.2-.31a8.19 8.19 0 0 1-1.26-4.37c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Z"/>
                         </svg>
-                        Falar com um consultor
+                        Contato
                     </a>
                 </nav>
             </div>
@@ -582,7 +582,7 @@
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 pt-3 pb-0.5 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="24" />
                 </a>
@@ -599,7 +599,7 @@
                  CNPJ apareciam aqui e de novo na linha de cima, ao lado da
                  marca: o mesmo dado duas vezes engorda o rodape e nao informa
                  nada a mais. Em cima fica o contato, aqui o registro. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-4 text-center text-xs text-gray-400 dark:text-gray-500">
+            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs text-gray-400 dark:text-gray-500">
                 © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::endereco() }}
             </p>
         </footer>
