@@ -51,7 +51,7 @@ class RecuperacaoController extends Controller
         return back()->with('ok', 'Se este e-mail estiver cadastrado, o link de redefinição foi enviado. Ele vale por '.Convite::HORAS_DE_VALIDADE.' horas.');
     }
 
-    /** @return array{0: Staff|Cliente|\App\Models\Operador|null, 1: string} */
+    /** @return array{0: Staff|Cliente|\App\Models\Operador|\App\Models\Produtor|null, 1: string} */
     private function contaPor(string $email): array
     {
         $staff = Staff::where('email', $email)->where('ativo', true)->first();
@@ -70,6 +70,16 @@ class RecuperacaoController extends Controller
 
         if ($operador && $operador->podeEntrar()) {
             return [$operador, 'operador'];
+        }
+
+        // O produtor do 360 entra pela mesma porta de recuperacao. Sem isto, o
+        // link "esqueci minha senha" da tela dele responderia "se este e-mail
+        // estiver cadastrado" para um e-mail que esta, e ninguem receberia
+        // nada: o pior tipo de falha, a que parece ter funcionado.
+        $produtor = \App\Models\Produtor::where('email', $email)->first();
+
+        if ($produtor && $produtor->podeEntrar()) {
+            return [$produtor, 'produtor'];
         }
 
         return [null, ''];

@@ -142,7 +142,12 @@ it('entra pela caixa que fica no alto da pagina do 360', function () {
     $this->post(route('produtor.cadastrar'), cadastro());
     Auth::guard('produtor')->logout();
 
-    $this->get(route('cobranca'))->assertOk()->assertSee('Já é produtor?');
+    // A caixa de acesso segue o texto da entrada do CRM: quem usa os dois
+    // lados da casa nao deveria reaprender a entrar.
+    $this->get(route('cobranca'))->assertOk()
+        ->assertSee('Bem-vindo de volta')
+        ->assertSee('Esqueci minha senha')
+        ->assertSee('Solicite seu cadastro.');
 
     $this->from(route('cobranca'))
         ->post(route('produtor.entrar.enviar'), ['email' => 'marina@escola.com.br', 'senha' => 'senha-bem-grande'])
@@ -160,4 +165,38 @@ it('nao acende o erro do login no formulario de pre-cadastro', function () {
 
     expect($erros->getBag(ProdutorAcessoController::BAG)->has('email'))->toBeTrue()
         ->and($erros->getBag('default')->has('email'))->toBeFalse();
+});
+
+it('recusa documento que nao fecha os digitos no cadastro', function () {
+    // O documento saiu do formulario de contato, onde so afastava gente, e
+    // passou a ser exigido aqui, onde a conta de verdade nasce.
+    $this->post(route('produtor.cadastrar'), cadastro(['documento' => '111.111.111-11']))
+        ->assertSessionHasErrors('documento');
+
+    expect(Produtor::count())->toBe(0);
+});
+
+it('aceita CNPJ no lugar do CPF no cadastro', function () {
+    $this->post(route('produtor.cadastrar'), cadastro(['documento' => '39.914.870/0001-01']));
+
+    expect(Produtor::sole()->documento)->toBe('39914870000101');
+});
+
+it('leva a tela antiga de login de volta para a pagina do 360', function () {
+    // A tela propria saiu: a caixa de acesso mora na pagina, e um endereco
+    // separado so para os mesmos dois campos seria um clique a mais e um lugar
+    // a mais para o texto divergir. O nome da rota continua, para os links
+    // antigos e para o middleware.
+    $this->get('/produtor/entrar')->assertRedirect(route('cobranca'));
+});
+
+it('deixa o produtor recuperar a senha pela mesma porta das outras contas', function () {
+    // Sem isto, o link "esqueci minha senha" responderia "se este e-mail
+    // estiver cadastrado" para um e-mail que esta, e ninguem receberia nada.
+    $this->post(route('produtor.cadastrar'), cadastro());
+    Auth::guard('produtor')->logout();
+
+    $this->from(route('senha.esqueci'))
+        ->post(route('senha.esqueci.enviar'), ['email' => 'marina@escola.com.br'])
+        ->assertSessionHas('ok');
 });

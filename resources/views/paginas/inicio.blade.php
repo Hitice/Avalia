@@ -624,7 +624,7 @@
                 </a>
                 <p class="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
                     © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
-                    {{ Empresa::endereco() }}
+                    {{ Empresa::localidade() }}
                 </p>
                 <a class="flex items-center gap-1.5 hover:text-brand-500" href="mailto:{{ Empresa::email() }}">
                     {{ Empresa::email() }}

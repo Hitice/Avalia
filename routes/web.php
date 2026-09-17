@@ -92,7 +92,17 @@ Route::middleware('guest:produtor')->group(function () {
         ->middleware('throttle:10,1')
         ->name('produtor.cadastrar');
 
-    Route::get('/produtor/entrar', [ProdutorAcessoController::class, 'mostrarEntrada'])->name('produtor.entrar');
+    /*
+     * Nao ha tela propria de login do produtor: a caixa de acesso mora no alto
+     * da pagina do 360, que e onde ele chega de qualquer jeito. Uma segunda
+     * tela so para o mesmo par de campos seria um clique a mais e um lugar a
+     * mais para o texto divergir.
+     *
+     * A rota continua existindo como nome, e leva de volta a pagina: e para
+     * onde o middleware manda quem tenta o painel sem sessao, e para onde
+     * apontam os links antigos.
+     */
+    Route::get('/produtor/entrar', fn () => redirect()->route('cobranca'))->name('produtor.entrar');
 
     Route::post('/produtor/entrar', [ProdutorAcessoController::class, 'entrar'])
         ->middleware('throttle:10,1')

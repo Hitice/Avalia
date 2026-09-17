@@ -83,11 +83,6 @@ class ProdutorAcessoController extends Controller
         return redirect()->route('produtor.painel');
     }
 
-    public function mostrarEntrada()
-    {
-        return view('paginas.produtor.entrar');
-    }
-
     /**
      * A caixa de acesso existe em dois lugares: na tela propria e no alto da
      * pagina do 360, ao lado do formulario de pre-cadastro. Os dois tem campo

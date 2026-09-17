@@ -33,7 +33,9 @@
 
 @section('content')
     <div class="min-h-screen bg-white text-gray-800 dark:bg-gray-900 dark:text-white/90"
-         x-data="{ duvida: null }">
+         x-data="{ duvida: null, formulario: false }"
+         x-init="@if (session('cobranca_ok') || $errors->any()) formulario = true @endif"
+         @keydown.escape.window="formulario = false">
 
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
             <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
@@ -44,9 +46,17 @@
                     <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
                 </a>
 
+                {{-- O acesso mora na caixa do alto, entao o topo nao repete
+                     os mesmos dois botoes. O que falta aqui e o caminho de
+                     volta: o 360 e uma parte da Avalia One, e quem entrou por
+                     este endereco precisa achar a porta de casa. --}}
                 <nav class="flex items-center gap-3">
-                    <a href="{{ route('produtor.entrar') }}" class="botao botao-secundario">Entrar</a>
-                    <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario">Criar conta</a>
+                    <a href="{{ route('inicio') }}" class="botao botao-secundario">
+                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5 5-5M18 12H6"/>
+                        </svg>
+                        Sair
+                    </a>
                 </nav>
             </div>
         </header>
@@ -77,47 +87,63 @@
 
                     {{-- A caixa de acesso fica no alto, junto da promessa:
                          quem ja e produtor volta aqui todo dia para ver o que
-                         caiu, e obrigar essa pessoa a procurar o botao Entrar
-                         no topo e cobrar um clique de quem ja decidiu. --}}
+                         caiu, e obrigar essa pessoa a procurar um botao Entrar
+                         cobra um clique de quem ja decidiu.
+
+                         Mesmo texto e mesma ordem da entrada do CRM: quem usa
+                         os dois lados da casa nao deveria ter que reaprender a
+                         entrar. --}}
                     <form method="POST" action="{{ route('produtor.entrar.enviar') }}"
-                          class="cartao mt-8 max-w-md p-5">
+                          class="cartao mt-8 max-w-md p-6">
                         @csrf
 
-                        <p class="text-sm font-medium">Já é produtor? Entre na sua conta.</p>
+                        <h2 class="text-lg font-semibold tracking-tight">Bem-vindo de volta</h2>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Entre com seu e-mail e senha.</p>
 
                         @if ($errors->acessoProdutor->any())
-                            <div class="aviso aviso-erro mt-3">{{ $errors->acessoProdutor->first() }}</div>
+                            <div class="aviso aviso-erro mt-4">{{ $errors->acessoProdutor->first() }}</div>
                         @endif
 
-                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div class="mt-5 grid gap-4">
                             <div>
-                                <label for="acesso_email" class="rotulo-campo">E-mail</label>
+                                <label for="acesso_email" class="rotulo-campo">E-mail *</label>
                                 <input id="acesso_email" name="email" type="email" class="campo" required
-                                       autocomplete="username" value="{{ old('email', $errors->acessoProdutor->any() ? old('email') : '') }}">
+                                       autocomplete="username" value="{{ old('email') }}">
                             </div>
                             <div>
-                                <label for="acesso_senha" class="rotulo-campo">Senha</label>
+                                <label for="acesso_senha" class="rotulo-campo">Senha *</label>
                                 <input id="acesso_senha" name="senha" type="password" class="campo" required
                                        autocomplete="current-password">
                             </div>
                         </div>
 
-                        <div class="mt-4 flex flex-wrap items-center gap-4">
-                            <button type="submit" class="botao botao-primario botao-sm">Entrar</button>
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
                             <label class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                 <input type="checkbox" name="lembrar" value="1"
                                        class="size-4 rounded border-gray-300 accent-brand-500 dark:border-gray-600">
                                 Manter conectado
                             </label>
+
+                            <a href="{{ route('senha.esqueci') }}" class="text-sm text-brand-600 hover:underline dark:text-brand-400">
+                                Esqueci minha senha
+                            </a>
                         </div>
+
+                        <button type="submit" class="botao botao-primario mt-5 w-full">Entrar</button>
+
+                        <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                            Novo por aqui?
+                            <button type="button" @click="formulario = true"
+                                    class="font-medium text-brand-600 hover:underline dark:text-brand-400">
+                                Solicite seu cadastro.
+                            </button>
+                        </p>
                     </form>
 
-                    <div class="mt-8 flex flex-wrap items-center gap-3">
-                        <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario">Criar minha conta</a>
-                        <a href="{{ Suporte::whatsapp('Quero conhecer o Avalia 360') }}"
-                           target="_blank" rel="noopener noreferrer" class="botao botao-secundario">
+                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                        <button type="button" @click="formulario = true" class="botao botao-secundario">
                             Falar com a equipe
-                        </a>
+                        </button>
                     </div>
 
                     <ul class="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
@@ -223,82 +249,122 @@
                 </div>
             </section>
 
-            <section id="pre-cadastro" class="border-t border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
-                <div class="mx-auto w-full max-w-3xl px-6 py-16">
-                    <h2 class="text-2xl font-semibold tracking-tight">Pré-cadastro de produtor</h2>
-                    <p class="mt-2 text-gray-500 dark:text-gray-400">
-                        Conte o essencial e a equipe retorna com as condições para o seu tipo de venda.
-                        Retornamos em horário comercial.
-                    </p>
+        </main>
 
-                    @if (session('cobranca_ok'))
-                        <div class="aviso aviso-ok mt-6">
-                            Pedido recebido. A equipe do Avalia 360 entra em contato pelo WhatsApp informado.
-                        </div>
-                    @endif
+        {{-- O formulario vive num overlay, e nao no corpo da pagina.
 
-                    <form method="POST" action="{{ route('cobranca.pre-cadastro') }}" class="mt-8 grid gap-5 sm:grid-cols-2">
-                        @csrf
+             Como secao, ele ocupava uma dobra inteira que so interessa a quem
+             ja decidiu falar com alguem, e empurrava as duvidas para baixo. Em
+             overlay, quem quer preencher chama, e quem esta lendo continua
+             lendo. Esc, clique fora e o X fecham. --}}
+        <div x-cloak x-show="formulario" x-transition.opacity.duration.200ms
+             class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gray-900/60 p-4 py-10 backdrop-blur-sm"
+             @click.self="formulario = false" role="dialog" aria-modal="true" aria-label="Fale com a Avalia 360">
+            <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-6 py-6 shadow-theme-lg sm:px-8 dark:border-gray-700 dark:bg-gray-800">
+                <button type="button" @click="formulario = false" aria-label="Fechar"
+                        class="absolute top-4 right-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
 
-                        {{-- A isca. Fica fora da vista e sem rotulo alcancavel:
-                             pessoa nao ve, robo preenche tudo. --}}
-                        <input type="text" name="site" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+                <h2 class="text-xl font-semibold tracking-tight">Fale com a Avalia 360</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Preencha abaixo e um especialista entra em contato pelo WhatsApp informado,
+                    em horário comercial.
+                </p>
 
-                        <div class="sm:col-span-2">
-                            <label for="nome" class="rotulo-campo">Nome completo</label>
-                            <input id="nome" name="nome" type="text" class="campo" required value="{{ old('nome') }}">
-                            @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
-                        </div>
+                @if (session('cobranca_ok'))
+                    <div class="aviso aviso-ok mt-5">
+                        Pedido recebido. A equipe do Avalia 360 entra em contato pelo WhatsApp informado.
+                    </div>
+                @endif
 
+                <form method="POST" action="{{ route('cobranca.pre-cadastro') }}" class="mt-5 grid gap-4">
+                    @csrf
+
+                    {{-- A isca. Fora da vista e sem rotulo alcancavel: pessoa
+                         nao ve, robo preenche tudo. --}}
+                    <input type="text" name="site" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+
+                    <div>
+                        <label for="nome" class="rotulo-campo">Nome completo</label>
+                        <input id="nome" name="nome" type="text" class="campo" required value="{{ old('nome') }}">
+                        @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label for="documento" class="rotulo-campo">CPF ou CNPJ</label>
-                            <input id="documento" name="documento" type="text" class="campo" required value="{{ old('documento') }}">
-                            <span class="ajuda-campo">Pessoa física ou jurídica, tanto faz.</span>
-                            @error('documento') <span class="erro-campo">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div>
-                            <label for="whatsapp" class="rotulo-campo">WhatsApp</label>
+                            <label for="whatsapp" class="rotulo-campo">DDD + WhatsApp</label>
                             <input id="whatsapp" name="whatsapp" type="text" class="campo" required
                                    placeholder="(34) 99999-9999" value="{{ old('whatsapp') }}">
                             @error('whatsapp') <span class="erro-campo">{{ $message }}</span> @enderror
                         </div>
-
-                        <div class="sm:col-span-2">
-                            <label for="email" class="rotulo-campo">E-mail</label>
-                            <input id="email" name="email" type="email" class="campo" required value="{{ old('email') }}">
-                            @error('email') <span class="erro-campo">{{ $message }}</span> @enderror
-                        </div>
-
                         <div>
-                            <label for="ticket_medio" class="rotulo-campo">Ticket médio</label>
-                            <input id="ticket_medio" name="ticket_medio" type="text" class="campo" required
-                                   placeholder="2.500,00" value="{{ old('ticket_medio') }}">
-                            <span class="ajuda-campo">Quanto custa, em média, o que você vende.</span>
-                            @error('ticket_medio') <span class="erro-campo">{{ $message }}</span> @enderror
+                            <label for="instagram" class="rotulo-campo">Seu @ no Instagram</label>
+                            <input id="instagram" name="instagram" type="text" class="campo" required
+                                   placeholder="@seunegocio" value="{{ old('instagram') }}">
+                            @error('instagram') <span class="erro-campo">{{ $message }}</span> @enderror
                         </div>
+                    </div>
 
-                        <div>
-                            <label for="volume_mensal" class="rotulo-campo">Volume mensal estimado</label>
-                            <select id="volume_mensal" name="volume_mensal" class="campo" required>
-                                <option value="">Escolha uma faixa</option>
-                                @foreach ($volumes as $faixa)
-                                    <option value="{{ $faixa }}" @selected(old('volume_mensal') === $faixa)>{{ $faixa }}</option>
-                                @endforeach
-                            </select>
-                            @error('volume_mensal') <span class="erro-campo">{{ $message }}</span> @enderror
-                        </div>
+                    <div>
+                        <label for="email" class="rotulo-campo">E-mail</label>
+                        <input id="email" name="email" type="email" class="campo" required value="{{ old('email') }}">
+                        @error('email') <span class="erro-campo">{{ $message }}</span> @enderror
+                    </div>
 
-                        <div class="sm:col-span-2">
-                            <button type="submit" class="botao botao-primario">Enviar pré-cadastro</button>
-                            <p class="mt-3 text-xs text-gray-400 dark:text-gray-500">
-                                Seus dados ficam só com a Avalia One e servem apenas para este contato.
-                            </p>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        </main>
+                    <div>
+                        <label for="vende" class="rotulo-campo">O que você vende?</label>
+                        <select id="vende" name="vende" class="campo" required>
+                            <option value="">Escolha uma opção</option>
+                            @foreach ($vende as $opcao)
+                                <option value="{{ $opcao }}" @selected(old('vende') === $opcao)>{{ $opcao }}</option>
+                            @endforeach
+                        </select>
+                        @error('vende') <span class="erro-campo">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="papel" class="rotulo-campo">Qual o seu papel no negócio?</label>
+                        <select id="papel" name="papel" class="campo" required>
+                            <option value="">Escolha uma opção</option>
+                            @foreach ($papeis as $opcao)
+                                <option value="{{ $opcao }}" @selected(old('papel') === $opcao)>{{ $opcao }}</option>
+                            @endforeach
+                        </select>
+                        @error('papel') <span class="erro-campo">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="prazo" class="rotulo-campo">Quando quer começar a parcelar?</label>
+                        <select id="prazo" name="prazo" class="campo">
+                            <option value="">Prefiro não dizer agora</option>
+                            @foreach ($prazos as $opcao)
+                                <option value="{{ $opcao }}" @selected(old('prazo') === $opcao)>{{ $opcao }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="faturamento_ano" class="rotulo-campo">Faturamento no último ano</label>
+                        <select id="faturamento_ano" name="faturamento_ano" class="campo">
+                            <option value="">Prefiro não informar</option>
+                            @foreach ($faturamentos as $opcao)
+                                <option value="{{ $opcao }}" @selected(old('faturamento_ano') === $opcao)>{{ $opcao }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="submit" class="botao botao-primario mt-1 w-full">Enviar</button>
+
+                    <p class="text-xs text-gray-400 dark:text-gray-500">
+                        Seus dados ficam só com a Avalia One e servem apenas para este contato.
+                    </p>
+                </form>
+            </div>
+        </div>
+
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
@@ -307,7 +373,7 @@
                 </a>
                 <p class="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
                     © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
-                    {{ Empresa::endereco() }}
+                    {{ Empresa::localidade() }}
                 </p>
                 <a class="hover:text-brand-500" href="mailto:{{ Empresa::email() }}">{{ Empresa::email() }}</a>
             </div>

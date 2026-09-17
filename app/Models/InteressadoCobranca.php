@@ -18,7 +18,8 @@ class InteressadoCobranca extends Model
     protected $table = 'interessados_cobranca';
 
     protected $fillable = [
-        'nome', 'documento', 'email', 'whatsapp',
+        'nome', 'documento', 'email', 'whatsapp', 'instagram',
+        'vende', 'papel', 'prazo', 'faturamento_ano',
         'ticket_medio_cents', 'volume_mensal', 'origem', 'atendido_em',
     ];
 

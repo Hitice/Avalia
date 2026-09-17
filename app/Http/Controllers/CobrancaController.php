@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Mail\PreCadastroRecebido;
 use App\Models\InteressadoCobranca;
-use App\Support\Dinheiro;
-use App\Support\Documento;
 use App\Support\Empresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,17 +23,51 @@ use Illuminate\Validation\Rule;
  */
 class CobrancaController extends Controller
 {
-    /** Faixas de faturamento. Texto fechado: e resposta de formulario, nao conta. */
-    public const VOLUMES = [
-        'Até R$ 10 mil',
-        'R$ 10 mil a R$ 50 mil',
-        'R$ 50 mil a R$ 200 mil',
-        'Mais de R$ 200 mil',
+    /*
+     * As respostas possiveis de cada pergunta.
+     *
+     * Listas fechadas, e nao campo livre: sao respostas de formulario que a
+     * equipe vai ler em lote para decidir a quem ligar primeiro, e campo livre
+     * vira quarenta jeitos de escrever a mesma coisa.
+     */
+    public const VENDE = [
+        'Cursos online',
+        'Mentorias',
+        'Imersões e eventos',
+        'Serviços',
+        'Outro',
+    ];
+
+    public const PAPEIS = [
+        'Sou o dono do negócio',
+        'Sócio',
+        'Gestor ou equipe',
+        'Represento o produtor',
+    ];
+
+    public const PRAZOS = [
+        'Quero começar agora',
+        'Nos próximos 30 dias',
+        'Nos próximos 3 meses',
+        'Só pesquisando',
+    ];
+
+    public const FATURAMENTOS = [
+        'Até R$ 100 mil',
+        'R$ 100 mil a R$ 500 mil',
+        'R$ 500 mil a R$ 2 milhões',
+        'Mais de R$ 2 milhões',
+        'Prefiro não informar',
     ];
 
     public function mostrar()
     {
-        return view('paginas.cobranca', ['volumes' => self::VOLUMES]);
+        return view('paginas.cobranca', [
+            'vende' => self::VENDE,
+            'papeis' => self::PAPEIS,
+            'prazos' => self::PRAZOS,
+            'faturamentos' => self::FATURAMENTOS,
+        ]);
     }
 
     public function preCadastro(Request $pedido)
@@ -47,50 +79,48 @@ class CobrancaController extends Controller
         }
 
         $pedido->merge([
-            'documento' => Documento::normalizarCnpj($pedido->input('documento')),
             'email' => mb_strtolower(trim((string) $pedido->input('email'))),
             'whatsapp' => preg_replace('/\D/', '', (string) $pedido->input('whatsapp')) ?? '',
         ]);
 
+        // Nao se pede documento aqui. Quem preenche este formulario ainda
+        // esta decidindo, e CPF antes de falar com alguem e o campo que mais
+        // faz gente desistir no meio. O documento vem no cadastro da conta,
+        // quando ja existe interesse de verdade.
         $dados = $pedido->validate([
             'nome' => ['required', 'string', 'min:3', 'max:120'],
-            'documento' => [
-                'required', 'string',
-                fn ($atributo, $valor, $falhou) => Documento::documentoValido($valor)
-                    ? null
-                    : $falhou('Confira o CPF ou o CNPJ: os dígitos não fecham.'),
-            ],
             // Unico de verdade no banco. A mensagem nao diz "ja existe" por
             // acaso: confirmar cadastro a quem digita e-mail alheio entrega
             // quem e cliente nosso.
             'email' => ['required', 'email', 'max:150', Rule::unique('interessados_cobranca', 'email')],
             'whatsapp' => ['required', 'string', 'min:10', 'max:11'],
-            'ticket_medio' => ['required', 'string', 'max:30'],
-            'volume_mensal' => ['required', Rule::in(self::VOLUMES)],
+            'instagram' => ['required', 'string', 'max:60'],
+            'vende' => ['required', Rule::in(self::VENDE)],
+            'papel' => ['required', Rule::in(self::PAPEIS)],
+            'prazo' => ['nullable', Rule::in(self::PRAZOS)],
+            'faturamento_ano' => ['nullable', Rule::in(self::FATURAMENTOS)],
         ], [
             'nome.required' => 'Diga como podemos te chamar.',
-            'documento.required' => 'Informe o CPF ou o CNPJ.',
             'email.email' => 'Confira o e-mail informado.',
             'email.unique' => 'Já recebemos um pedido com este e-mail. Em breve falamos com você.',
             'whatsapp.required' => 'Informe o WhatsApp com DDD.',
             'whatsapp.min' => 'Informe o WhatsApp com DDD.',
-            'ticket_medio.required' => 'Informe o ticket médio.',
-            'volume_mensal.required' => 'Escolha uma faixa.',
+            'instagram.required' => 'Informe o @ do seu Instagram.',
+            'vende.required' => 'Escolha o que você vende.',
+            'papel.required' => 'Escolha o seu papel no negócio.',
         ]);
-
-        $centavos = Dinheiro::paraCentavos($dados['ticket_medio']);
-
-        if ($centavos === null || $centavos < 1) {
-            return back()->withInput()->withErrors(['ticket_medio' => 'Informe o ticket médio em reais.']);
-        }
 
         $interessado = InteressadoCobranca::create([
             'nome' => $dados['nome'],
-            'documento' => $dados['documento'],
             'email' => $dados['email'],
             'whatsapp' => $dados['whatsapp'],
-            'ticket_medio_cents' => $centavos,
-            'volume_mensal' => $dados['volume_mensal'],
+            // Com ou sem arroba, guardado sempre do mesmo jeito: a equipe
+            // procura por @fulano e por fulano, e as duas tem que achar.
+            'instagram' => '@'.ltrim(trim($dados['instagram']), '@'),
+            'vende' => $dados['vende'],
+            'papel' => $dados['papel'],
+            'prazo' => $dados['prazo'] ?? null,
+            'faturamento_ano' => $dados['faturamento_ano'] ?? null,
         ]);
 
         // O pedido ja esta no banco: e-mail que nao sai nao pode derrubar a

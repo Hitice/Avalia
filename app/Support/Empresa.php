@@ -52,6 +52,24 @@ final class Empresa
     }
 
     /**
+     * So a praca: cidade, estado e CEP.
+     *
+     * E o que o rodape precisa. Rua e numero no pe de toda pagina ocupam
+     * espaco para dizer o que ninguem foi ali procurar; quem precisa do
+     * endereco completo esta lendo um contrato ou uma fatura, e ali ele
+     * aparece inteiro.
+     */
+    public static function localidade(): string
+    {
+        $e = (array) config('empresa.endereco', []);
+
+        return trim(implode(' · ', array_filter([
+            trim(implode('/', array_filter([$e['cidade'] ?? null, $e['uf'] ?? null]))) ?: null,
+            isset($e['cep']) ? 'CEP '.$e['cep'] : null,
+        ])));
+    }
+
+    /**
      * A linha que identifica o emissor no pe de um documento.
      *
      * Site e CNPJ, nessa ordem: quem recebe o PDF procura primeiro onde falar
