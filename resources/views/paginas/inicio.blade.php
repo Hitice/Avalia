@@ -546,7 +546,7 @@
             <div class="cartao flex flex-wrap items-center justify-between gap-6 border-brand-100 bg-brand-25 dark:border-brand-500/20 dark:bg-brand-500/[0.07]">
                 <div class="max-w-2xl">
                     <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-600 dark:bg-gray-900 dark:text-brand-400">
-                        Novo · Avalia 360
+                        Avalia 360 · Cobrança
                     </span>
 
                     <h2 class="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
