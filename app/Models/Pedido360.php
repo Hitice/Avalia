@@ -6,6 +6,7 @@ use App\Support\Documento;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 /**
  * Uma venda parcelada, do pedido ate a ultima parcela.
@@ -21,7 +22,7 @@ class Pedido360 extends Model
     public const EXIGE_PARA_EFETIVAR = ['contrato_assinado_em', 'entrada paga'];
 
     protected $fillable = [
-        'oferta_360_id', 'produtor_id',
+        'chave', 'oferta_360_id', 'produtor_id',
         'cliente_nome', 'cliente_documento', 'cliente_email', 'cliente_telefone',
         'cliente_nascimento', 'cliente_endereco',
         'situacao', 'situacao_financeira',
@@ -49,6 +50,23 @@ class Pedido360 extends Model
             'efetivado_em' => 'datetime',
             'cancelado_em' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(fn (self $pedido) => $pedido->chave ??= (string) Str::ulid());
+    }
+
+    /**
+     * A URL publica usa a chave, e nunca o id.
+     *
+     * A pagina de resultado do checkout nao tem login, porque quem acabou de
+     * comprar nao tem conta. Com id sequencial, trocar o numero na barra de
+     * endereco mostrava a compra de outra pessoa.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'chave';
     }
 
     public function oferta(): BelongsTo

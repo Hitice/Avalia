@@ -387,7 +387,11 @@ class AreaClienteController extends Controller
     /** O documento em PDF, para leitura e arquivo. */
     public function documentoPdf(DocumentoLegal $documento)
     {
-        abort_unless($documento->ativo, 404);
+        // Ativo nao basta: a rota e da area do cliente, e documento marcado so
+        // para vendedor trata de comissao. Sem esta checagem, uma empresa
+        // logada lia os termos da equipe trocando o id na URL, que e
+        // sequencial e curto.
+        abort_unless($documento->ativo && ($documento->para_empresa || $documento->para_operador), 404);
 
         return response(DocumentoPdf::documento($documento), 200, [
             'Content-Type' => 'application/pdf',

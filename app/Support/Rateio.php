@@ -6,9 +6,13 @@ namespace App\Support;
  * Como um pagamento se reparte entre provedor, plataforma e produtor.
  *
  * A conta e sempre a mesma, e a ordem importa: do que o cliente pagou sai
- * primeiro a taxa do provedor (ele desconta antes de creditar), depois a taxa
- * da plataforma, e o que resta e do produtor. Inverter a ordem faria a
- * plataforma cobrar sobre dinheiro que nunca chegou.
+ * primeiro a taxa do provedor (ele desconta antes de creditar), e o que resta
+ * e dividido entre plataforma e produtor pelo percentual do split.
+ *
+ * Essa ordem NAO e escolha de estilo: e a ordem do provedor. O split
+ * percentual dele incide sobre o liquido, e o razao precisa chegar ao mesmo
+ * numero, senao o extrato do produtor e a nossa contabilidade contam
+ * historias diferentes sobre o mesmo pagamento.
  *
  * As quatro partes somam ZERO de propósito. O bruto entra positivo e as tres
  * saidas saem negativas, entao conferir um pedido e somar a coluna: se nao der
@@ -28,14 +32,19 @@ final class Rateio
     {
         $taxaProvedor = max(0, min($taxaProvedorCents, $pagoCents));
 
-        // A taxa da plataforma incide sobre o que o cliente pagou, e nao sobre
-        // o liquido: e o que o contrato diz e o que o produtor ve na proposta.
-        $taxaPlataforma = intdiv($pagoCents * $taxaBps, 10000);
+        // O repasse e calculado como o PROVEDOR calcula, e nao como seria mais
+        // intuitivo: o split percentual dele incide sobre o liquido, depois de
+        // descontada a taxa dele. Cobrar a taxa da plataforma sobre o bruto
+        // aqui fazia o razao divergir do que cai de verdade na carteira do
+        // produtor, e a diferenca era de 5% da taxa do provedor por parcela.
+        // Num carne de doze, isso vira discussao no extrato, que e o unico
+        // numero que o produtor confere todo mes.
+        $liquido = $pagoCents - $taxaProvedor;
+        $repasse = max(0, intdiv($liquido * (10000 - $taxaBps), 10000));
 
-        // O produtor nunca recebe negativo. Se as taxas comerem o pagamento
-        // inteiro (parcela minuscula, taxa fixa alta), o repasse e zero e a
-        // plataforma absorve a diferenca.
-        $repasse = max(0, $pagoCents - $taxaProvedor - $taxaPlataforma);
+        // O que sobra e da plataforma. Escrito por subtracao de proposito: e o
+        // que garante que as quatro partes fechem em zero mesmo quando a
+        // divisao sobra centavo, e quem absorve a sobra e quem cobra a taxa.
         $taxaPlataforma = $pagoCents - $taxaProvedor - $repasse;
 
         return [

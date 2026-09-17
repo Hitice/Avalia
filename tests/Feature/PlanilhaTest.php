@@ -445,3 +445,24 @@ it('celula vazia nao apaga o produto ja gravado', function () {
         ->and($resultado['produtos'])->toBe(0)
         ->and(Servico::firstWhere('codigo', 'scpc-bvs')->codigo_fornecedor)->toBe('SCORE_PF');
 });
+
+it('nao apaga o custo quando a celula vem vazia', function () {
+    // O ramo do preco ja protegia contra celula vazia; o do custo nao, e o
+    // estrago era silencioso e caro. Custo nulo faz o fechamento calcular
+    // lucro sem subtrair custo nenhum, e a comissao do vendedor sai inflada
+    // sobre dinheiro que nao existe.
+    $catalogo = Catalogo::factory()->comServico('scpc-bvs', [0 => 631, 90_000 => 493])->create();
+    $catalogo->precos()->update(['custo_cents' => 280]);
+
+    $caminho = planilhaTemporaria([
+        'Catalogo' => [['codigo', 'custo', 'sem minimo'], [['scpc-bvs', '', '7,99']]],
+    ]);
+
+    admin()->post(route('catalogo.planilha.importar'), [
+        'planilha' => new UploadedFile($caminho, 'catalogo.xlsx', null, null, true),
+    ])->assertSessionHas('ok');
+
+    // O preco mudou, que e o que a planilha trazia; o custo ficou como estava.
+    expect($catalogo->precoDe('scpc-bvs', 0))->toBe(799)
+        ->and($catalogo->precos()->pluck('custo_cents')->unique()->all())->toBe([280]);
+});

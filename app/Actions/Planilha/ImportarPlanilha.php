@@ -111,7 +111,13 @@ class ImportarPlanilha
                 foreach ($faixas as $faixa) {
                     $preco = $precos->get($servicoId.':'.$faixa);
 
-                    if ($preco && $custo !== $preco->custo_cents) {
+                    // Celula vazia NAO apaga o custo, pela mesma razao que
+                    // nao apaga o produto do fornecedor logo acima. Sem este
+                    // `!== null`, exportar a planilha, mexer so no preco e
+                    // reimportar zerava o custo de todas as faixas do servico,
+                    // e custo nulo vira lucro inflado no fechamento, com
+                    // comissao liberada sobre dinheiro que nao existe.
+                    if ($preco && $custo !== null && $custo !== $preco->custo_cents) {
                         $mudancas[$preco->id]['custo_cents'] = $custo;
                     }
                 }

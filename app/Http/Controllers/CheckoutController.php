@@ -44,6 +44,13 @@ class CheckoutController extends Controller
     {
         $oferta = Oferta360::where('slug', $slug)->where('ativa', true)->firstOrFail();
 
+        // As mesmas guardas de `mostrar()`, de novo: o produto pode ter sido
+        // desativado, ou o produtor bloqueado, entre abrir a pagina e apertar
+        // o botao. Sem isto, a venda era gravada com contrato aceito e ficava
+        // sem boleto para sempre, mostrando "Compra registrada" para quem
+        // nunca receberia cobranca.
+        abort_unless($oferta->produto->ativo && $oferta->produto->produtor->podeVender(), 404);
+
         if ($pedidoHttp->filled('site')) {
             return back()->with('checkout_ok', true);
         }
@@ -96,13 +103,25 @@ class CheckoutController extends Controller
             // O motivo tecnico fica no pedido, para auditoria; a tela diz o
             // suficiente para a pessoa entender e nao mais que isso. Detalhar
             // a regra aqui ensina quem quiser contorna-la.
-            return redirect()->route('checkout.resultado', $pedido->id);
+            return redirect()->route('checkout.resultado', $pedido);
         }
 
         $pedido->update(['contrato_assinado_em' => now(), 'situacao' => 'aguardando_entrada']);
 
+        $entrada = $pedido->entrada();
+
+        // Oferta sem entrada nunca deveria existir, e a validacao da oferta
+        // impede. Se chegar aqui assim mesmo, o pedido fica sem parcela zero e
+        // `podeParcelar()` jamais fica verdadeiro: o carne nunca nasceria e
+        // nada na tela diria o porque. Melhor o erro alto agora.
+        if ($entrada === null) {
+            Log::error('Pedido do 360 sem parcela de entrada', ['pedido' => $pedido->id]);
+
+            abort(422, 'Esta oferta está com a entrada mal configurada. Fale com quem vendeu.');
+        }
+
         try {
-            $emitir($pedido->entrada());
+            $emitir($entrada);
         } catch (\Throwable $erro) {
             // A venda esta gravada e o contrato aceito: boleto que nao saiu se
             // emite de novo, e perder o pedido inteiro por indisponibilidade
@@ -110,7 +129,7 @@ class CheckoutController extends Controller
             Log::warning('Entrada do 360 sem cobranca emitida', ['pedido' => $pedido->id, 'erro' => $erro->getMessage()]);
         }
 
-        return redirect()->route('checkout.resultado', $pedido->id);
+        return redirect()->route('checkout.resultado', $pedido);
     }
 
     /**

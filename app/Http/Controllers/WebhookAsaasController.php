@@ -36,7 +36,16 @@ class WebhookAsaasController extends Controller
         // sempre: o provedor reentregava, encontrava o registro e desistia, e o
         // pagamento ficava confirmado la e em aberto aqui, sem ninguem saber.
         if ($evento->wasRecentlyCreated || $evento->processado_em === null) {
-            $cobranca = CobrancaAsaas::where('asaas_charge_id', $pagamento['id'] ?? null)->first();
+            // `where(coluna, null)` vira `whereNull` no Eloquent, e
+            // `asaas_charge_id` e nulo em toda cobranca ainda nao emitida.
+            // Sem esta guarda, evento sem pagamento (ACCOUNT_STATUS_UPDATED,
+            // TRANSFER_*) casava com uma cobranca qualquer e sobrescrevia a
+            // situacao dela.
+            $idDaCobranca = $pagamento['id'] ?? null;
+
+            $cobranca = filled($idDaCobranca)
+                ? CobrancaAsaas::whereNotNull('asaas_charge_id')->where('asaas_charge_id', $idDaCobranca)->first()
+                : null;
             $evento->update(['cobranca_asaas_id' => $cobranca?->id]);
 
             if ($cobranca) {

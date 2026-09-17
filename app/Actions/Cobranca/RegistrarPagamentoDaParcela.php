@@ -26,14 +26,6 @@ class RegistrarPagamentoDaParcela
 
     public function __invoke(Parcela360 $parcela, array $pagamento, ?EventoAsaas $evento = null): void
     {
-        $jaLancado = Lancamento360::where('parcela_360_id', $parcela->id)
-            ->where('tipo', 'bruto')
-            ->exists();
-
-        if ($jaLancado) {
-            return;
-        }
-
         $pedido = $parcela->pedido;
 
         $pagoCents = isset($pagamento['value'])
@@ -53,6 +45,16 @@ class RegistrarPagamentoDaParcela
             : now()->toDateTimeImmutable();
 
         DB::transaction(function () use ($parcela, $pedido, $partes, $quando, $evento) {
+            // A trava e a linha, e nao um SELECT anterior: dois workers
+            // atendendo CONFIRMED e RECEIVED ao mesmo tempo passavam os dois
+            // por uma checagem feita antes da transacao, e o razao dobrava sem
+            // que a soma zero denunciasse.
+            $parcela = $parcela->newQuery()->lockForUpdate()->find($parcela->id);
+
+            if (Lancamento360::where('parcela_360_id', $parcela->id)->where('tipo', 'bruto')->exists()) {
+                return;
+            }
+
             foreach ($partes as $tipo => $valor) {
                 if ($valor === 0 && $tipo !== 'bruto') {
                     continue;

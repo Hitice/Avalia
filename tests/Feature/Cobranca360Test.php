@@ -227,8 +227,10 @@ it('da baixa na parcela e escreve o razao fechando em zero', function () {
         ->and($lancamentos->sum('valor_cents'))->toBe(0)
         ->and($lancamentos->firstWhere('tipo', 'bruto')->valor_cents)->toBe(30000)
         ->and($lancamentos->firstWhere('tipo', 'taxa_provedor')->valor_cents)->toBe(-349)
-        ->and($lancamentos->firstWhere('tipo', 'taxa_plataforma')->valor_cents)->toBe(-1500)
-        ->and($lancamentos->firstWhere('tipo', 'repasse')->valor_cents)->toBe(-28151);
+        // 95% dos 29.651 que sobraram depois da taxa do provedor, que e como
+        // o split dele calcula.
+        ->and($lancamentos->firstWhere('tipo', 'repasse')->valor_cents)->toBe(-28168)
+        ->and($lancamentos->firstWhere('tipo', 'taxa_plataforma')->valor_cents)->toBe(-1483);
 });
 
 it('nao paga a mesma parcela duas vezes quando o webhook reentrega', function () {

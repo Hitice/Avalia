@@ -105,7 +105,7 @@ it('fecha a compra, aceita o contrato e emite a entrada', function () {
     $oferta = ofertaPublicada();
 
     $this->post(route('checkout.fechar', $oferta->slug), compra())
-        ->assertRedirect(route('checkout.resultado', Pedido360::sole()->id));
+        ->assertRedirect(route('checkout.resultado', Pedido360::sole()));
 
     $pedido = Pedido360::sole();
 
@@ -227,4 +227,61 @@ it('nao gera o carne duas vezes quando o webhook reentrega', function () {
 it('calcula a entrada minima pela regra configurada', function () {
     expect(AnaliseDeCredito::entradaMinima(300000))->toBe(30000)
         ->and(AnaliseDeCredito::entradaMinima(99))->toBe(9);
+});
+
+/*
+|--------------------------------------------------------------------------
+| O que a revisao encontrou
+|--------------------------------------------------------------------------
+|
+| Cada teste daqui guarda um defeito real que existiu no codigo. Sem eles a
+| correcao se perde na proxima mexida, porque nenhum deles quebra por acidente.
+|
+*/
+
+it('nao deixa trocar o numero na URL para ver a compra de outro', function () {
+    // A pagina de resultado nao tem login, porque quem acabou de comprar nao
+    // tem conta. Com id sequencial, um laco de 1 a N lia nome, valor e link de
+    // boleto de todos os compradores de todos os produtores.
+    $oferta = ofertaPublicada();
+    $this->post(route('checkout.fechar', $oferta->slug), compra());
+
+    $pedido = Pedido360::sole();
+
+    expect($pedido->chave)->not->toBeNull()
+        ->and((string) $pedido->id)->not->toBe($pedido->chave);
+
+    $this->get('/pedido/'.$pedido->id)->assertNotFound();
+    $this->get(route('checkout.resultado', $pedido))->assertOk()->assertSee('Marina Costa');
+});
+
+it('fecha o checkout quando o produto e desativado no meio do caminho', function () {
+    // Entre abrir a pagina e apertar o botao, o produtor pode desligar o
+    // produto. Sem esta guarda o pedido era gravado com contrato aceito e
+    // ficava sem boleto para sempre, mostrando "Compra registrada".
+    $oferta = ofertaPublicada();
+    $oferta->produto->update(['ativo' => false]);
+
+    $this->post(route('checkout.fechar', $oferta->slug), compra())->assertNotFound();
+
+    expect(Pedido360::count())->toBe(0);
+});
+
+it('ignora evento do provedor que chega sem pagamento', function () {
+    // `where(coluna, null)` vira `whereNull`, e toda cobranca ainda nao
+    // emitida tem `asaas_charge_id` nulo: um ACCOUNT_STATUS_UPDATED casava com
+    // uma cobranca qualquer e sobrescrevia a situacao dela.
+    $oferta = ofertaPublicada();
+    $this->post(route('checkout.fechar', $oferta->slug), compra());
+
+    $entrada = Pedido360::sole()->entrada();
+    $entrada->cobranca->update(['asaas_charge_id' => null, 'situacao' => 'PENDING']);
+
+    $this->withHeader('asaas-access-token', 'token-de-teste')
+        ->postJson(route('webhooks.asaas'), ['id' => 'evt_sem_pagamento', 'event' => 'ACCOUNT_STATUS_UPDATED'])
+        ->assertOk();
+
+    expect($entrada->cobranca->fresh()->situacao)->toBe('PENDING')
+        ->and($entrada->fresh()->situacao)->toBe('aberta')
+        ->and(Lancamento360::count())->toBe(0);
 });
