@@ -91,11 +91,11 @@
              com a grade animada passando por baixo, o header translucido
              sumia na pagina. --}}
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95 dark:shadow-[0_6px_18px_rgb(0_0_0/0.45)]">
-            <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
+            <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
                 {{-- flex no proprio link: ancora inline alinha por baseline
                      e deixava a marca fora do prumo dos botoes. --}}
                 <a href="{{ route('inicio') }}" aria-label="Início" class="flex items-center">
-                    <x-avalia.logotipo :tamanho="44" texto="1.65rem" />
+                    <x-avalia.logotipo :tamanho="38" texto="1.45rem" />
                 </a>
 
                 <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14 min-[1550px]:pr-0">
@@ -137,7 +137,7 @@
              grade vira variável, calculada para a largura e a altura fecharem
              sem azulejo cortado na borda. As células acesas usam o mesmo
              passo, então continuam caindo exatamente dentro dos quadradinhos. --}}
-        <section class="grade-viva relative overflow-hidden pt-[72px]"
+        <section class="grade-viva relative overflow-hidden pt-[60px]"
                  x-data="{
                      ajustar() {
                          const r = this.$el.getBoundingClientRect();
@@ -582,11 +582,10 @@
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
-                    <x-avalia.logotipo :tamanho="28" />
+                    <x-avalia.logotipo :tamanho="24" />
                 </a>
-                <p>© {{ now()->year }} Avalia One · CNPJ {{ Empresa::cnpj() }}</p>
                 <a class="flex items-center gap-1.5 hover:text-brand-500" href="mailto:{{ Empresa::email() }}">
                     {{ Empresa::email() }}
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -596,12 +595,12 @@
                 </a>
             </div>
 
-            {{-- A identificacao completa do emissor fecha o rodape, abaixo da
-                 linha de contato: quem procura razao social e endereco procura
-                 exatamente aqui, e no topo do rodape isso roubaria a atencao
-                 do e-mail, que e o que a pagina quer que a pessoa use. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-5 text-center text-xs text-gray-400 dark:text-gray-500">
-                {{ Empresa::razaoSocial() }} · {{ Empresa::endereco() }}
+            {{-- Uma linha so com a identificacao inteira. Antes o nome e o
+                 CNPJ apareciam aqui e de novo na linha de cima, ao lado da
+                 marca: o mesmo dado duas vezes engorda o rodape e nao informa
+                 nada a mais. Em cima fica o contato, aqui o registro. --}}
+            <p class="mx-auto w-full max-w-[87rem] px-6 pb-4 text-center text-xs text-gray-400 dark:text-gray-500">
+                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::endereco() }}
             </p>
         </footer>
 

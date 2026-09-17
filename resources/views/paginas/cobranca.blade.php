@@ -36,9 +36,9 @@
          x-data="{ duvida: null }">
 
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
-            <div class="mx-auto flex h-[72px] w-full max-w-[87rem] items-center justify-between px-6">
+            <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
                 <a href="{{ route('inicio') }}" aria-label="Início" class="flex items-center gap-3">
-                    <x-avalia.logotipo :tamanho="40" texto="1.5rem" />
+                    <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
                     {{-- A etiqueta e o que separa o produto da marca: a casa e
                          Avalia One, e 360 e o nome da estrutura de cobranca. --}}
                     <span class="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
@@ -50,7 +50,7 @@
             </div>
         </header>
 
-        <main class="pt-[72px]">
+        <main class="pt-[60px]">
             {{-- Abertura. A promessa e a venda que hoje nao acontece, e nao a
                  tecnologia: quem vende curso ou serviço perde negocio no "não
                  tenho limite no cartão", e e esse o problema que se resolve. --}}
@@ -236,13 +236,18 @@
         </main>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-3 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
-                    <x-avalia.logotipo :tamanho="28" />
+                    <x-avalia.logotipo :tamanho="24" />
                 </a>
-                <p>© {{ now()->year }} Avalia One · CNPJ {{ Empresa::cnpj() }}</p>
                 <a class="hover:text-brand-500" href="mailto:{{ Empresa::email() }}">{{ Empresa::email() }}</a>
             </div>
+
+            {{-- A identificacao inteira numa linha so, igual a da pagina
+                 inicial: as duas paginas publicas fecham do mesmo jeito. --}}
+            <p class="mx-auto w-full max-w-[87rem] px-6 pb-4 text-center text-xs text-gray-400 dark:text-gray-500">
+                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::endereco() }}
+            </p>
         </footer>
     </div>
 @endsection
