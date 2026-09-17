@@ -32,6 +32,22 @@ class AsaasClient
         return $this->enviar('/payments', $dados);
     }
 
+    /**
+     * Cria a subconta do produtor do Avalia 360.
+     *
+     * A resposta traz `walletId` e `apiKey`, e a apiKey vem UMA VEZ SO: o
+     * provedor nao a devolve depois, e perde-la significa abrir outra
+     * subconta. Por isso quem chama grava antes de qualquer outra coisa.
+     *
+     * O split de cada cobranca aponta para o walletId daqui, e e isso que faz
+     * o dinheiro do cliente final cair na conta do produtor sem passar pela
+     * nossa.
+     */
+    public function criarSubconta(array $dados): array
+    {
+        return $this->enviar('/accounts', $dados);
+    }
+
     /** Os dados atuais de uma cobranca, para reemitir link e boleto. */
     public function cobranca(string $id): array
     {

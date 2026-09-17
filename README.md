@@ -90,6 +90,42 @@ de `APP_KEY`. Trocar a chave da aplicação torna esses campos ilegíveis, sem
 erro visível na tela: quem for rotacionar `APP_KEY` precisa reescrever esses
 registros antes.
 
+### Modelo de dados
+
+    produtores           quem vende parcelado; guarda a subconta no provedor
+      +- produtos_360    o que ele vende
+           +- ofertas_360    condições de venda (valor, parcelas, entrada, slug)
+                +- pedidos_360    a venda, com preço e taxa COPIADOS da oferta
+                     +- parcelas_360      número 0 é a entrada
+                     +- lancamentos_360   o razão, imutável
+
+Regras que o schema carrega:
+
+- **Preço e taxa são copiados** da oferta para o pedido na compra. Reajuste de
+  hoje não mexe em venda de ontem, a mesma regra que vale para consulta e
+  fatura no resto do sistema.
+- **A parcela só nasce depois de `efetivado`**, que exige contrato assinado e
+  entrada confirmada (`Pedido360::podeParcelar()`). Emitir boleto antes disso é
+  cobrar por um contrato que ninguém assinou.
+- **O razão é imutável**: `lancamentos_360` não tem `updated_at`, e estorno é
+  lançamento de sinal contrário. Saldo não é coluna em lugar nenhum, é a soma
+  da tabela.
+- **Os quatro lançamentos de um pagamento somam zero** (bruto, taxa do
+  provedor, taxa da plataforma, repasse). É a invariante que pega erro de
+  arredondamento sem ninguém reconferir extrato: `tests/Unit/RateioTest.php`.
+- **O split vai em percentual**, não em valor: se a cobrança mudar de valor
+  depois de criada, a divisão continua certa.
+- **Vencido vem do provedor**, não do nosso calendário. Relógio de servidor
+  decidindo dinheiro é como nasce divergência com o extrato.
+
+O dado pessoal do cliente final mora no pedido, cifrado, e não vira cadastro:
+quem compra de um produtor não entra na base da Avalia One.
+
+Testes da fase: `vendor/bin/pest --filter=Cobranca360` e `--filter=Rateio`.
+Nenhum deles fala com o provedor de verdade; a integração é mockada com
+`Http::fake`, porque teste que cria cobrança real cria cobrança que ninguém
+apaga.
+
 ## Licença
 
 Consulte [LICENSE](LICENSE).
