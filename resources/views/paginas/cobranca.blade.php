@@ -202,6 +202,100 @@
                 </div>
             </section>
 
+            {{-- O que a casa opera pelo produtor.
+
+                 Cada item aqui e uma coisa que o sistema faz hoje. Promessa de
+                 funcionalidade que ainda nao existe vira reclamacao na primeira
+                 semana, e quem atende e o mesmo time que vendeu. --}}
+            <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
+                <div class="max-w-3xl">
+                    <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+                        Você vende. A cobrança fica com a gente.
+                    </h2>
+                    <p class="mt-4 text-gray-500 dark:text-gray-400">
+                        Parcelar no boleto dá trabalho depois da venda: alguém precisa analisar quem
+                        compra, emitir os títulos todo mês, lembrar quem esqueceu e cobrar quem
+                        atrasou. É esse trabalho que a Avalia 360 assume.
+                    </p>
+                </div>
+
+                <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    @foreach ([
+                        ['Análise antes de aprovar', 'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito: documento conferido, histórico e limite por comprador.'],
+                        ['Contrato assinado', 'A venda só vira carnê depois do aceite registrado, com data e condições guardadas. Cobrança sem contrato é discussão na hora do atraso.'],
+                        ['Boletos emitidos no prazo', 'A entrada sai na hora da compra e as parcelas no dia que o cliente escolheu. Você não precisa lembrar de emitir nada.'],
+                        ['Cobrança de quem atrasa', 'Régua de lembrete antes e depois do vencimento. A negativação existe, e só acontece quando você manda.'],
+                        ['Repasse direto na sua conta', 'O dinheiro cai na sua conta no provedor, não na nossa. A taxa sai da parcela, e você vê a composição de cada real.'],
+                        ['Painel com o que falta receber', 'Vendas, parcelas em aberto, atrasos e o que já entrou. Os números saem do extrato, não de uma coluna que alguém atualiza.'],
+                    ] as [$titulo, $texto])
+                        <div class="cartao p-6">
+                            <h3 class="font-semibold">{{ $titulo }}</h3>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $texto }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- O argumento comercial, em efeitos verificaveis. Nenhum numero
+                 inventado de conversao: prometer porcentagem que ninguem mediu
+                 aqui e o tipo de frase que o cliente cobra depois. --}}
+            <section class="border-y border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
+                <div class="mx-auto w-full max-w-[87rem] px-6 py-16">
+                    <div class="grid gap-10 lg:grid-cols-2">
+                        <div>
+                            <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+                                O que muda quando o boleto parcela
+                            </h2>
+                            <p class="mt-4 text-gray-500 dark:text-gray-400">
+                                Metade do país não tem limite de cartão para uma compra de três mil reais,
+                                e boa parte dela tem renda para pagar em doze vezes. O parcelamento no
+                                boleto alcança esse comprador sem mudar o seu preço.
+                            </p>
+
+                            <button type="button" @click="formulario = true" class="botao botao-primario mt-8">
+                                Quero ampliar meu faturamento
+                            </button>
+                        </div>
+
+                        <ul class="grid gap-4 sm:grid-cols-2">
+                            @foreach ([
+                                'Alcança quem não tem limite no cartão',
+                                'Permite ticket maior sem assustar o comprador',
+                                'Menos gente desiste no meio do checkout',
+                                'Sua venda deixa de depender da bandeira',
+                                'Entrada e parcelas com datas que você conhece',
+                                'O preço do seu produto continua o mesmo',
+                            ] as $efeito)
+                                <li class="cartao flex items-start gap-3 p-5">
+                                    <svg class="mt-0.5 size-5 shrink-0 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+                                    <span class="text-sm">{{ $efeito }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            {{-- Por que esta casa, e nao outra. O argumento e o que ja existe
+                 aqui: a Avalia One opera consulta de credito desde antes do
+                 360, com contrato de bureau e regra de retencao. --}}
+            <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
+                <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Por que a Avalia 360</h2>
+
+                <div class="mt-8 grid gap-6 md:grid-cols-3">
+                    @foreach ([
+                        ['Crédito é o que a casa faz', 'A Avalia One já opera consulta de score e restrição para empresas que vendem a prazo. O 360 usa a mesma base para dizer quem pode parcelar.'],
+                        ['O dinheiro não passa por nós', 'O repasse vai direto para a sua conta no provedor de pagamento, em cada parcela paga. Nós ficamos com a taxa, e ela aparece discriminada.'],
+                        ['Você enxerga cada centavo', 'Toda parcela tem valor bruto, taxa do provedor, taxa da plataforma e repasse registrados. A conta fecha, e dá para conferir uma a uma.'],
+                    ] as [$titulo, $texto])
+                        <div class="cartao p-6">
+                            <h3 class="font-semibold">{{ $titulo }}</h3>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $texto }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
             <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
                 <div class="grid gap-10 lg:grid-cols-2">
                     <div>
