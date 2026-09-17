@@ -543,9 +543,9 @@
              A faixa leva para a pagina propria, e nao abre formulario aqui: o
              produtor precisa de contexto antes de dar CPF e ticket medio. --}}
         <section class="mx-auto w-full max-w-[87rem] px-6 pb-16">
-            <div class="cartao flex flex-wrap items-center justify-between gap-6 border-brand-100 bg-brand-25 dark:border-brand-500/20 dark:bg-brand-500/[0.07]">
+            <div class="cartao flex flex-wrap items-center justify-between gap-6 border-brand-100 bg-brand-25 p-6 lg:p-8 dark:border-brand-500/20 dark:bg-brand-500/[0.07]">
                 <div class="max-w-2xl">
-                    <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-600 dark:bg-gray-900 dark:text-brand-400">
+                    <span class="etiqueta bg-white font-semibold text-brand-600 dark:bg-gray-900 dark:text-brand-400">
                         Avalia 360 · Cobrança
                     </span>
 
@@ -587,7 +587,7 @@
         <div x-cloak x-show="avisoLegal" x-transition.opacity.duration.300ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="fecharAviso()" role="dialog" aria-modal="true" aria-label="Uso responsável da informação">
-            <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-theme-lg dark:bg-gray-900 sm:p-8">
+            <div class="w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-7 py-6 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
                 <h2 class="text-lg font-semibold tracking-tight">Uso responsável da informação</h2>
 
                 <p class="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
@@ -618,10 +618,14 @@
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 pt-3 pb-0.5 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="24" />
                 </a>
+                <p class="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+                    © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
+                    {{ Empresa::endereco() }}
+                </p>
                 <a class="flex items-center gap-1.5 hover:text-brand-500" href="mailto:{{ Empresa::email() }}">
                     {{ Empresa::email() }}
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -635,13 +639,6 @@
                  CNPJ apareciam aqui e de novo na linha de cima, ao lado da
                  marca: o mesmo dado duas vezes engorda o rodape e nao informa
                  nada a mais. Em cima fica o contato, aqui o registro. --}}
-            {{-- Quebra fixa, e nao a do navegador: quem procura a empresa
-                 procura nome e CNPJ, e endereco em cima da mesma linha empurra
-                 os dois para o meio de um paragrafo corrido. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
-                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
-                {{ Empresa::endereco() }}
-            </p>
         </footer>
 
         {{-- Popup dos pilares: um overlay so, com os tres assuntos num trilho

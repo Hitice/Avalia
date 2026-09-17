@@ -41,7 +41,7 @@
                     <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
                     {{-- A etiqueta e o que separa o produto da marca: a casa e
                          Avalia One, e 360 e o nome da estrutura de cobranca. --}}
-                    <span class="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
+                    <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
                 </a>
 
                 <nav class="flex items-center gap-3">
@@ -54,9 +54,9 @@
             {{-- Abertura. A promessa e a venda que hoje nao acontece, e nao a
                  tecnologia: quem vende curso ou serviço perde negocio no "não
                  tenho limite no cartão", e e esse o problema que se resolve. --}}
-            <section class="mx-auto w-full max-w-[87rem] px-6 py-16 sm:py-24">
-                <div class="max-w-3xl">
-                    <span class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-sm font-medium text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
+            <section class="mx-auto grid w-full max-w-[87rem] items-center gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.1fr_0.9fr]">
+                <div class="max-w-2xl">
+                    <span class="etiqueta gap-2 bg-brand-50 px-3 py-1 text-sm text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
                         Avalia 360 · Cobrança
                     </span>
 
@@ -87,6 +87,21 @@
                         @endforeach
                     </ul>
                 </div>
+
+                {{-- A foto e recortada, com fundo transparente: a mancha
+                     circular atras existe para ela nao flutuar solta no branco,
+                     e muda de tom no tema escuro junto com o resto.
+
+                     Escondida no telefone de proposito. Ali a coluna vira uma
+                     so, e uma foto de 740px de altura empurraria o formulario
+                     para fora da primeira dobra sem dizer nada que o texto ja
+                     nao diga. --}}
+                <div class="relative hidden lg:block">
+                    <div class="absolute inset-x-8 top-8 bottom-0 rounded-[3rem] bg-brand-50 dark:bg-brand-500/10" aria-hidden="true"></div>
+                    <img src="{{ asset('images/business1.png') }}" width="555" height="740" decoding="async"
+                         alt="Dois profissionais atendendo clientes"
+                         class="relative mx-auto w-full max-w-md">
+                </div>
             </section>
 
             <section class="border-y border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
@@ -99,7 +114,7 @@
                             ['n' => '2', 'titulo' => 'O cliente compra', 'texto' => 'Ele preenche os dados, passa pela análise, assina o contrato e paga a entrada em Pix ou boleto.'],
                             ['n' => '3', 'titulo' => 'As parcelas rodam', 'texto' => 'Emitimos os boletos seguintes no dia que o cliente escolheu, cobramos os atrasos e repassamos o que entra.'],
                         ] as $passo)
-                            <div class="cartao">
+                            <div class="cartao p-6">
                                 <span class="flex size-9 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white">{{ $passo['n'] }}</span>
                                 <h3 class="mt-4 font-semibold">{{ $passo['titulo'] }}</h3>
                                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $passo['texto'] }}</p>
@@ -236,19 +251,16 @@
         </main>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
-            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 pt-3 pb-0.5 text-sm text-gray-500 dark:text-gray-400">
+            <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="24" />
                 </a>
+                <p class="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+                    © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
+                    {{ Empresa::endereco() }}
+                </p>
                 <a class="hover:text-brand-500" href="mailto:{{ Empresa::email() }}">{{ Empresa::email() }}</a>
             </div>
-
-            {{-- A identificacao inteira numa linha so, igual a da pagina
-                 inicial: as duas paginas publicas fecham do mesmo jeito. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
-                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
-                {{ Empresa::endereco() }}
-            </p>
         </footer>
     </div>
 @endsection
