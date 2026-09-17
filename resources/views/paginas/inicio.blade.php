@@ -21,7 +21,7 @@
     // juntos para o card e o detalhe nunca divergirem.
     $pilares = [
         'dados' => [
-            'titulo' => 'Decida com dados',
+            'titulo' => 'Inteligência de dados',
             'resumo' => 'Pesquise o score e os dados públicos antes de fechar a venda a prazo. O resultado chega em segundos, direto no painel.',
             'detalhe' => 'Antes de parcelar, sua equipe pesquisa o CPF ou o CNPJ e recebe a pontuação e o histórico na hora. A Avalia One entrega a informação; a decisão de vender é sempre da sua empresa.',
             'itens' => [
@@ -35,7 +35,7 @@
         // Publico proprio, separado do credito: quem compra e vende veiculo
         // quer saber do carro, nao do score de ninguem.
         'veicular' => [
-            'titulo' => 'Conheça o veículo',
+            'titulo' => 'Informação veicular',
             'resumo' => 'Para quem compra e vende veículos: o histórico completo pela placa ou pelo chassi, antes de fechar negócio.',
             'detalhe' => 'O carro chega bonito, o problema vem no documento. Leilão, sinistro e gravame aparecem na consulta antes de aparecerem no prejuízo.',
             'itens' => [
@@ -46,15 +46,18 @@
             ],
             'icone' => 'M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v5a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-5M7.5 16h.01M16.5 16h.01',
         ],
-        'preco' => [
-            'titulo' => 'Pague pelo que usar',
-            'resumo' => 'Cada consulta tem preço definido em contrato, e o mês fecha em uma fatura única. Consumo e franquia à vista no painel, sem surpresa.',
-            'detalhe' => 'Nada de pacote que expira nem cobrança que aparece do nada. Quem usa pouco paga o mínimo do plano; quem usa muito sabe exatamente quanto.',
+        // O assunto aqui e a forma da resposta, e nao o preco: quem compara
+        // fornecedor de dado sofre com layout que muda a cada fonte, e e isso
+        // que se promete resolver. O preco por consulta continua dito no topo.
+        'organizados' => [
+            'titulo' => 'Dados organizados',
+            'resumo' => 'Consulta estruturada: os mesmos campos, na mesma ordem, em toda pesquisa. Sua equipe lê o resultado sem garimpar PDF de fornecedor.',
+            'detalhe' => 'Cada bureau responde de um jeito, e quem sofre com isso é quem lê. Aqui a resposta é padronizada antes de chegar até você: score, restrições e histórico caem sempre nos mesmos campos, no painel e no relatório, na consulta de hoje e na do ano passado.',
             'itens' => [
-                'Preço por consulta definido em contrato',
-                'Consumo e franquia à vista no painel',
-                'Fatura única no fim do mês',
-                'Composição aberta, consulta por consulta',
+                'Mesma estrutura de resposta, seja qual for a fonte',
+                'Relatório em PDF sempre no mesmo formato',
+                'Histórico guardado e comparável entre consultas',
+                'Protocolo e data em cada pesquisa, para conferência',
             ],
             'icone' => 'M9 7h9a2 2 0 012 2v9a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2zM7 15H6a2 2 0 01-2-2V5a2 2 0 012-2h8a2 2 0 012 2v1M11 12h5M11 15.5h5',
         ],
@@ -67,7 +70,8 @@
          x-data="{
              aberto: null,
              rolou: false,
-             pilares: ['dados', 'veicular', 'preco'],
+             avisoLegal: false,
+             pilares: ['dados', 'veicular', 'organizados'],
              arrasto: 0,
              inicioX: null,
              idxPilar() { return Math.max(0, this.pilares.indexOf(this.aberto)) },
@@ -75,6 +79,10 @@
              proximoPilar() { if (this.idxPilar() < 2) this.aberto = this.pilares[this.idxPilar() + 1] },
              comecaArrasto(e) { this.inicioX = e.clientX },
              moveArrasto(e) { if (this.inicioX !== null) this.arrasto = e.clientX - this.inicioX },
+             fecharAviso() {
+                 this.avisoLegal = false;
+                 try { localStorage.setItem('avalia-aviso-legal', '1') } catch (e) {}
+             },
              soltaArrasto() {
                  if (this.inicioX === null) return;
                  const d = this.arrasto;
@@ -84,8 +92,9 @@
                  else if (d > 60) this.anteriorPilar();
              },
          }"
-         x-init="@if (session('interesse_ok')) aberto = 'obrigado' @elseif ($errors->any() || request()->boolean('interesse')) aberto = 'campanha' @endif"
-         @keydown.escape.window="aberto = null">
+         x-init="@if (session('interesse_ok')) aberto = 'obrigado' @elseif ($errors->any() || request()->boolean('interesse')) aberto = 'campanha' @endif;
+                 try { if (aberto === null && !localStorage.getItem('avalia-aviso-legal')) avisoLegal = true } catch (e) {}"
+         @keydown.escape.window="aberto = null; fecharAviso()">
 
         {{-- Topo fixo. Sombra e fundo quase solido para separar do conteudo:
              com a grade animada passando por baixo, o header translucido
@@ -570,6 +579,33 @@
             </svg>
         </a>
 
+        {{-- O mesmo aviso, uma vez por visitante, na primeira visita.
+             Continua escrito no pe da pagina de proposito: popup dispensado
+             num clique nao delimita responsabilidade depois, e quem chega pela
+             segunda vez nao veria mais nada. Aqui ele ganha a atencao que a
+             letra pequena nao tem; la embaixo ele fica para sempre. --}}
+        <div x-cloak x-show="avisoLegal" x-transition.opacity.duration.300ms
+             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
+             @click.self="fecharAviso()" role="dialog" aria-modal="true" aria-label="Uso responsável da informação">
+            <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-theme-lg dark:bg-gray-900 sm:p-8">
+                <h2 class="text-lg font-semibold tracking-tight">Uso responsável da informação</h2>
+
+                <p class="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                    Informações destinadas a decisões de negócio do próprio contratante, na finalidade
+                    de proteção ao crédito (Lei nº 12.414/2011 e art. 7º, X, da LGPD).
+                </p>
+
+                <p class="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                    A Avalia One não concede empréstimos, não garante aprovação de crédito nem decide
+                    por seus clientes. Informações confidenciais, vedado o repasse.
+                </p>
+
+                <button type="button" @click="fecharAviso()" class="botao botao-primario mt-6 w-full">
+                    Entendi
+                </button>
+            </div>
+        </div>
+
         {{-- O aviso de uso responsavel fecha o conteudo, centralizado e fora
              do rodape: e nota legal, nao assinatura. As citacoes conferem:
              Lei 12.414/2011 e o Cadastro Positivo, e o art. 7, inciso X, da
@@ -599,8 +635,12 @@
                  CNPJ apareciam aqui e de novo na linha de cima, ao lado da
                  marca: o mesmo dado duas vezes engorda o rodape e nao informa
                  nada a mais. Em cima fica o contato, aqui o registro. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs text-gray-400 dark:text-gray-500">
-                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::endereco() }}
+            {{-- Quebra fixa, e nao a do navegador: quem procura a empresa
+                 procura nome e CNPJ, e endereco em cima da mesma linha empurra
+                 os dois para o meio de um paragrafo corrido. --}}
+            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
+                {{ Empresa::endereco() }}
             </p>
         </footer>
 

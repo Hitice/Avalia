@@ -245,8 +245,9 @@
 
             {{-- A identificacao inteira numa linha so, igual a da pagina
                  inicial: as duas paginas publicas fecham do mesmo jeito. --}}
-            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs text-gray-400 dark:text-gray-500">
-                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::endereco() }}
+            <p class="mx-auto w-full max-w-[87rem] px-6 pb-3 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
+                {{ Empresa::endereco() }}
             </p>
         </footer>
     </div>
