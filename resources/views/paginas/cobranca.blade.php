@@ -139,14 +139,16 @@
                      so, e uma foto de 740px de altura empurraria o formulario
                      para fora da primeira dobra sem dizer nada que o texto ja
                      nao diga. --}}
-                {{-- So no tema claro, e isso e provisorio: o arquivo que
-                     temos e um WebP com perdas que ja veio com o quadriculado
-                     desenhado por cima, e nao com transparencia. O recorte
-                     refeito aqui fecha bem sobre o branco, mas sobre fundo
-                     escuro os restos do quadriculado aparecem. Quando chegar um
-                     PNG com canal alfa de verdade, o `dark:hidden` sai. --}}
-                <div class="hidden lg:block dark:lg:hidden">
-                    <img src="{{ asset('images/business1.webp') }}" width="555" height="740" decoding="async"
+                {{-- Transparencia de verdade agora, entao a foto vale nos dois
+                     temas: ela fica direto sobre o fundo da pagina, branco num
+                     e escuro no outro.
+
+                     Escondida no telefone de proposito. Ali a coluna vira uma
+                     so, e 710px de foto empurrariam a caixa de acesso para
+                     fora da primeira dobra sem dizer nada que o texto ja nao
+                     diga. --}}
+                <div class="hidden lg:block">
+                    <img src="{{ asset('images/business1.png') }}" width="529" height="710" decoding="async"
                          alt="Dois profissionais atendendo clientes"
                          class="mx-auto w-full max-w-lg">
                 </div>
