@@ -128,3 +128,9 @@ it('barra o produtor bloqueado', function () {
 it('exige sessao para ver o painel', function () {
     $this->get(route('produtor.painel'))->assertRedirect();
 });
+
+it('manda o produtor deslogado para a porta dele, e nao para a do CRM', function () {
+    // Caindo em /entrar, ele tentaria a senha que acabou de criar numa tela
+    // que nunca vai aceita-la, e concluiria que o cadastro nao funcionou.
+    $this->get(route('produtor.painel'))->assertRedirect(route('produtor.entrar'));
+});

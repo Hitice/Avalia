@@ -28,7 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Visitante sem sessao vai para /entrar, e nao para a rota 'login'
         // que o Laravel assume por padrao e que aqui nao existe.
-        $middleware->redirectGuestsTo(fn () => route('entrar'));
+        // Cada area manda o visitante para a SUA porta. O produtor do 360 nao
+        // tem conta no CRM: caindo em /entrar, ele tentaria a senha que acabou
+        // de criar numa tela que nunca vai aceita-la.
+        $middleware->redirectGuestsTo(fn ($request) => $request->is('produtor', 'produtor/*')
+            ? route('produtor.entrar')
+            : route('entrar'));
 
         /*
          * E quem ja entrou volta para a area DELE.
