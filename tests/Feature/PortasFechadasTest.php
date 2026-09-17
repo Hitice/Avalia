@@ -25,6 +25,8 @@ uses(RefreshDatabase::class);
 const PORTAS_PUBLICAS = [
     'inicio' => 'apresentacao publica; quem tem sessao e redirecionado para o proprio painel',
     'interesse.salvar' => 'formulario de contato da campanha, com teto por origem e campo armadilha',
+    'cobranca' => 'apresentacao publica do Avalia 360, sem dado de ninguem na tela',
+    'cobranca.pre-cadastro' => 'pre-cadastro do produtor, com teto por origem e campo armadilha',
     'senha.esqueci' => 'formulario de recuperacao; a resposta e identica exista ou nao a conta',
     'senha.esqueci.enviar' => 'envio da recuperacao, com teto por origem',
     'senha.definir' => 'link do convite: assinatura temporaria barra forjado e vencido, carimbo barra usado',

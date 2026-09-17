@@ -23,7 +23,7 @@
         'dados' => [
             'titulo' => 'Decida com dados',
             'resumo' => 'Pesquise o score e os dados públicos antes de fechar a venda a prazo. O resultado chega em segundos, direto no painel.',
-            'detalhe' => 'Antes de parcelar, sua equipe pesquisa o CPF ou o CNPJ e recebe a pontuação e o histórico na hora. A Avalia 360 entrega a informação; a decisão de vender é sempre da sua empresa.',
+            'detalhe' => 'Antes de parcelar, sua equipe pesquisa o CPF ou o CNPJ e recebe a pontuação e o histórico na hora. A Avalia One entrega a informação; a decisão de vender é sempre da sua empresa.',
             'itens' => [
                 'Pontuação de score na versão mais recente do modelo',
                 'Tendência e estabilidade do comportamento ao longo do tempo',
@@ -106,7 +106,7 @@
                         Entrar
                     </x-avalia.botao>
 
-                    <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia 360') }}" target="_blank" rel="noopener noreferrer"
+                    <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia One') }}" target="_blank" rel="noopener noreferrer"
                        class="botao botao-primario hidden sm:inline-flex">
                         <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm0 18.06h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.03-.2-.31a8.19 8.19 0 0 1-1.26-4.37c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Z"/>
@@ -207,7 +207,7 @@
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
-                        <a href="{{ Suporte::whatsapp('Quero contratar a Avalia 360') }}" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ Suporte::whatsapp('Quero contratar a Avalia One') }}" target="_blank" rel="noopener noreferrer"
                            class="botao botao-primario">
                             <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Z"/>
@@ -526,9 +526,43 @@
             </div>
         </section>
 
+        {{-- O Avalia 360 entra depois da campanha e antes do fecho: quem
+             chegou ate aqui ja entendeu o que a casa faz, e e nesse ponto que
+             "tambem parcelamos a sua venda" vira oferta, e nao ruido no meio
+             da promessa de consulta.
+
+             A faixa leva para a pagina propria, e nao abre formulario aqui: o
+             produtor precisa de contexto antes de dar CPF e ticket medio. --}}
+        <section class="mx-auto w-full max-w-[87rem] px-6 pb-16">
+            <div class="cartao flex flex-wrap items-center justify-between gap-6 border-brand-100 bg-brand-25 dark:border-brand-500/20 dark:bg-brand-500/[0.07]">
+                <div class="max-w-2xl">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-600 dark:bg-gray-900 dark:text-brand-400">
+                        Novo · Avalia 360
+                    </span>
+
+                    <h2 class="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
+                        Seu cliente parcela no boleto e no Pix, sem cartão.
+                    </h2>
+
+                    <p class="mt-3 text-gray-500 dark:text-gray-400">
+                        O Avalia 360 é a estrutura de cobrança da Avalia One: análise antes
+                        de aprovar, contrato assinado, parcelas emitidas e régua de cobrança
+                        por nossa conta.
+                    </p>
+                </div>
+
+                <a href="{{ route('cobranca') }}" class="botao botao-primario">
+                    Conhecer o Avalia 360
+                    <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
         {{-- WhatsApp suspenso, discreto, no prumo do interruptor de tema. O
              assunto vai pre-escrito e nenhum dado pessoal entra na URL. --}}
-        <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia 360') }}" target="_blank" rel="noopener noreferrer"
+        <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia One') }}" target="_blank" rel="noopener noreferrer"
            aria-label="Conversar no WhatsApp"
            class="fixed right-4 bottom-5 z-40 flex size-11 items-center justify-center rounded-full bg-success-500 text-white shadow-theme-lg opacity-40 transition hover:scale-110 hover:bg-success-600 hover:opacity-100">
             <svg class="size-6 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -540,11 +574,11 @@
              do rodape: e nota legal, nao assinatura. As citacoes conferem:
              Lei 12.414/2011 e o Cadastro Positivo, e o art. 7, inciso X, da
              Lei 13.709/2018 e a base legal de protecao ao credito da LGPD. --}}
-        {{-- Duas linhas: a base legal numa, a delimitacao do que a Avalia 360 nao
+        {{-- Duas linhas: a base legal numa, a delimitacao do que a Avalia One nao
              faz na outra. --}}
         <p class="mx-auto w-full max-w-6xl px-6 pb-5 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
             Informações destinadas a decisões de negócio do próprio contratante, na finalidade de proteção ao crédito (Lei nº 12.414/2011 e art. 7º, X, da LGPD).<br>
-            A Avalia 360 não concede empréstimos, não garante aprovação de crédito nem decide por seus clientes. Informações confidenciais, vedado o repasse.
+            A Avalia One não concede empréstimos, não garante aprovação de crédito nem decide por seus clientes. Informações confidenciais, vedado o repasse.
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
@@ -552,7 +586,7 @@
                 <a href="{{ route('inicio') }}" aria-label="Início">
                     <x-avalia.logotipo :tamanho="28" />
                 </a>
-                <p>© {{ now()->year }} Avalia 360 · CNPJ {{ Empresa::cnpj() }}</p>
+                <p>© {{ now()->year }} Avalia One · CNPJ {{ Empresa::cnpj() }}</p>
                 <a class="flex items-center gap-1.5 hover:text-brand-500" href="mailto:{{ Empresa::email() }}">
                     {{ Empresa::email() }}
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -577,7 +611,7 @@
              Setinha, arrasto de mouse ou dedo, Esc e clique fora. --}}
         <div x-cloak x-show="pilares.includes(aberto)" x-transition.opacity.duration.500ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Sobre a Avalia 360">
+             @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Sobre a Avalia One">
             <div class="relative w-full max-w-4xl">
                 <button type="button" x-show="idxPilar() > 0" @click="anteriorPilar()" aria-label="Assunto anterior"
                         class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
@@ -730,7 +764,7 @@
                     </x-avalia.botao>
 
                     <p class="text-center text-xs text-gray-400 dark:text-gray-500">
-                        Retornamos em horário comercial. Seus dados ficam só com a Avalia 360.
+                        Retornamos em horário comercial. Seus dados ficam só com a Avalia One.
                     </p>
                 </form>
             </div>

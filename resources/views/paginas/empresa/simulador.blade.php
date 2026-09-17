@@ -12,7 +12,7 @@
                 Quanto sai o mês para o seu plano, antes de consultar. Nada aqui é cobrado.
             </p>
         </div>
-        <x-avalia.ajuda assunto="Simulador">Falar com a Avalia 360</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Simulador">Falar com a Avalia One</x-avalia.ajuda>
     </div>
 
     @if (! $plano)

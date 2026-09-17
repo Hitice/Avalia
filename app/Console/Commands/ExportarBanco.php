@@ -71,7 +71,7 @@ class ExportarBanco extends Command
 
         $saida = fopen($arquivo, 'w');
 
-        fwrite($saida, '-- Avalia 360: dados exportados em '.now()->format('d/m/Y H:i')."\n");
+        fwrite($saida, '-- Avalia One: dados exportados em '.now()->format('d/m/Y H:i')."\n");
         fwrite($saida, "-- Restaure com: php artisan migrate --force && php artisan avalia:importar ARQUIVO\n");
         fwrite($saida, "-- Somente dados. A estrutura vem das migrations.\n\n");
 

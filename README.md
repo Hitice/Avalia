@@ -66,6 +66,30 @@ preços e contratos. Ele não deve ser usado como fonte de dados em runtime.
 - Faça backup do PostgreSQL e teste a restauração periodicamente.
 - Gere os ativos com npm run build e otimize o Laravel no deploy.
 
+## Avalia 360 (cobrança)
+
+O Avalia 360 é a estrutura de venda parcelada em boleto e Pix da Avalia One.
+A fase entregue é a captação: a página pública e o pré-cadastro de produtor.
+
+Rotas:
+
+    GET  /cobranca                 apresentação do produto
+    POST /cobranca/pre-cadastro    pré-cadastro, com teto de 10 por minuto
+
+Para rodar só os testes do módulo:
+
+    vendor/bin/pest --filter=Cobranca
+
+O pré-cadastro grava em `interessados_cobranca` e avisa por e-mail o endereço
+de `config/empresa.php`. Nenhuma variável de ambiente nova foi introduzida:
+o envio usa a configuração de e-mail que já existe, e o destinatário sai do
+cadastro da empresa.
+
+Documento e WhatsApp são gravados cifrados (cast `encrypted`), então dependem
+de `APP_KEY`. Trocar a chave da aplicação torna esses campos ilegíveis, sem
+erro visível na tela: quem for rotacionar `APP_KEY` precisa reescrever esses
+registros antes.
+
 ## Licença
 
 Consulte [LICENSE](LICENSE).

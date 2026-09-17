@@ -4,7 +4,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Conexões</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Credenciais dos serviços que a Avalia 360 usa: cobrança, bureaus e consulta veicular.
+            Credenciais dos serviços que a Avalia One usa: cobrança, bureaus e consulta veicular.
             Ficam criptografadas e nunca voltam para a tela.
         </p>
     </div>

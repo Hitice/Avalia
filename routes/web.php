@@ -9,6 +9,7 @@ use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DocumentoController;
@@ -47,6 +48,19 @@ use Illuminate\Support\Facades\Route;
  * painel.
  */
 Route::get('/', InicioController::class)->name('inicio');
+
+/*
+ * O Avalia 360, a estrutura de cobranca da casa, tem pagina propria.
+ *
+ * Pagina separada, e nao uma secao a mais na inicial: quem procura vender
+ * parcelado nao esta procurando consulta de score, e misturar as duas
+ * promessas na mesma pagina faz as duas chegarem pela metade.
+ */
+Route::get('/cobranca', [CobrancaController::class, 'mostrar'])->name('cobranca');
+
+Route::post('/cobranca/pre-cadastro', [CobrancaController::class, 'preCadastro'])
+    ->middleware('throttle:10,1')
+    ->name('cobranca.pre-cadastro');
 
 // Pedido de contato da campanha. Teto por origem apertado: e o unico POST
 // publico que grava no banco, e formulario aberto e ima de robo.

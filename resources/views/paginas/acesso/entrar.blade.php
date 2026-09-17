@@ -235,10 +235,10 @@
                 <div class="placa-viva z-1 flex w-[25rem] flex-col items-center rounded-3xl bg-white/90 px-8 pt-6 pb-7 backdrop-blur-[2px] [filter:drop-shadow(0_2px_14px_rgb(0_0_0/0.65))]">
                     <x-avalia.medidor :tamanho="120" por-nivel class="-mb-4" style="--nivel: 0.82" />
                     {{-- So o wordmark, no padrao da marca sobre fundo claro:
-                         Avalia azul, 360 cinza. O branco de antes servia a
+                         Avalia azul, one cinza. O branco de antes servia a
                          placa translucida e sumiu quando ela ficou solida. --}}
                     <span class="mb-1.5 text-5xl leading-none font-semibold tracking-tight text-brand-500">
-                        Avalia<span class="ml-1.5 text-gray-400">360</span>
+                        Avalia<span class="ml-1.5 text-gray-400">one</span>
                     </span>
                     <p class="texto-bureau text-center font-medium">
                         Segurança para suas melhores escolhas.
@@ -342,7 +342,7 @@
                             </x-avalia.botao>
 
                             <p class="text-center text-xs text-gray-400 dark:text-gray-500">
-                                Retornamos em horário comercial. Seus dados ficam só com a Avalia 360.
+                                Retornamos em horário comercial. Seus dados ficam só com a Avalia One.
                             </p>
                         </form>
                     @endif

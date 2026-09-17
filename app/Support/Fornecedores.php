@@ -60,7 +60,7 @@ final class Fornecedores
             'serasa' => [
                 'nome' => 'Serasa Experian',
                 'categoria' => 'Bureau de crédito',
-                'descricao' => 'Consultas de crédito PF e PJ (Concentre, Relato, score), com as credenciais do contrato da Avalia 360.',
+                'descricao' => 'Consultas de crédito PF e PJ (Concentre, Relato, score), com as credenciais do contrato da Avalia One.',
                 'doc' => 'https://developer.serasaexperian.com.br/apis',
                 'campos' => [
                     ['chave' => 'client_id', 'rotulo' => 'Client ID', 'secreto' => false],
@@ -120,7 +120,7 @@ final class Fornecedores
             'quod' => [
                 'nome' => 'Quod',
                 'categoria' => 'Bureau de crédito',
-                'descricao' => 'Bureau criado pelos grandes bancos. Consultas de crédito PF e PJ com dado direto da fonte, no contrato da Avalia 360.',
+                'descricao' => 'Bureau criado pelos grandes bancos. Consultas de crédito PF e PJ com dado direto da fonte, no contrato da Avalia One.',
                 'doc' => 'https://www.quod.com.br',
                 'campos' => [
                     ['chave' => 'client_id', 'rotulo' => 'Client ID', 'secreto' => false],
@@ -132,7 +132,7 @@ final class Fornecedores
             'veicular' => [
                 'nome' => 'Consulta veicular',
                 'categoria' => 'Veicular',
-                'descricao' => 'Consultas veiculares do contrato da Avalia 360 (base estadual, BIN, gravame, leilão, sinistro, FIPE).',
+                'descricao' => 'Consultas veiculares do contrato da Avalia One (base estadual, BIN, gravame, leilão, sinistro, FIPE).',
                 'doc' => 'https://www.gov.br/transportes/pt-br/assuntos/transito',
                 'campos' => [
                     ['chave' => 'token', 'rotulo' => 'Token da API', 'secreto' => true],

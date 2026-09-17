@@ -11,7 +11,7 @@
 ])
 
 {{--
-    Marca da Avalia 360.
+    Marca da Avalia One.
 
     O icone e um arco de medidor com o ponteiro apontando para a faixa alta,
     a leitura de risco que o produto entrega. Fica em azul da marca; o arco de
@@ -22,7 +22,7 @@
 --}}
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-2.5']) }}>
     <svg width="{{ $tamanho }}" height="{{ $tamanho }}" viewBox="0 0 32 32" fill="none"
-        role="img" aria-label="Avalia 360" class="shrink-0">
+        role="img" aria-label="Avaliaone" class="shrink-0">
         {{-- Escala --}}
         <path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="currentColor"
             class="text-gray-300 dark:text-gray-700" stroke-width="3" stroke-linecap="round" />
@@ -36,13 +36,14 @@
     </svg>
 
     @unless ($somenteIcone)
-        {{-- O lockup e um so: "Avalia" no azul da marca e "360" em cinza, como
-             no logotipo impresso. Antes o numero era opcional e o nome curto
+        {{-- O lockup e um so: "Avalia" no azul da marca e "one" em cinza, como
+             no logotipo impresso. Antes o sufixo era opcional e o nome curto
              valia dentro do produto, o que deixava duas marcas circulando ao
-             mesmo tempo. --}}
+             mesmo tempo. O 360 nao entra aqui: e a marca da Cobranca, e tem
+             logotipo proprio. --}}
         <span class="leading-none font-semibold tracking-tight {{ $claro ? 'text-white' : 'text-brand-600 dark:text-white/90' }}"
               style="font-size: {{ $texto ?? '1.35rem' }}">
-            Avalia<span class="ml-1 text-gray-300 dark:text-gray-400">360</span>
+            Avalia<span class="text-gray-300 dark:text-gray-400">one</span>
         </span>
     @endunless
 </span>

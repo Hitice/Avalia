@@ -55,6 +55,82 @@ final class Documento
         return $cnpj === $base.self::verificadores($base);
     }
 
+    /**
+     * CPF: onze digitos com os dois verificadores conferindo.
+     *
+     * Conta diferente da do CNPJ de proposito. Aqui os pesos decrescem, de 10
+     * a 2 no primeiro digito e de 11 a 2 no segundo, e nao existe posicao
+     * alfanumerica: o CPF nunca recebeu essa mudanca.
+     */
+    public static function cpfValido(?string $entrada): bool
+    {
+        $cpf = preg_replace('/\D/', '', (string) $entrada) ?? '';
+
+        // Mesma armadilha do CNPJ: 111.111.111-11 passa na conta e nao existe.
+        if (strlen($cpf) !== 11 || preg_match('/^(\d)\1{10}$/', $cpf)) {
+            return false;
+        }
+
+        foreach ([9, 10] as $posicao) {
+            $soma = 0;
+
+            for ($i = 0; $i < $posicao; $i++) {
+                $soma += (int) $cpf[$i] * ($posicao + 1 - $i);
+            }
+
+            $resto = $soma % 11;
+
+            if ((int) $cpf[$posicao] !== ($resto < 2 ? 0 : 11 - $resto)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Aceita o produtor pessoa fisica ou juridica sem perguntar qual e.
+     *
+     * Quem se cadastra na Cobranca digita o documento que tem, e obrigar a
+     * escolher "CPF ou CNPJ" antes de digitar e um campo a mais para errar: o
+     * tamanho ja diz qual conta usar.
+     */
+    public static function documentoValido(?string $entrada): bool
+    {
+        $documento = self::normalizarCnpj($entrada);
+
+        return strlen($documento) === 11
+            ? self::cpfValido($documento)
+            : self::cnpjValido($documento);
+    }
+
+    /** 12345678909 -> "123.456.789-09" */
+    public static function formatarCpf(?string $entrada): string
+    {
+        $cpf = preg_replace('/\D/', '', (string) $entrada) ?? '';
+
+        if (strlen($cpf) !== 11) {
+            return $cpf;
+        }
+
+        return vsprintf('%s.%s.%s-%s', [
+            substr($cpf, 0, 3),
+            substr($cpf, 3, 3),
+            substr($cpf, 6, 3),
+            substr($cpf, 9, 2),
+        ]);
+    }
+
+    /** O documento formatado pelo que ele e: onze digitos viram CPF, o resto CNPJ. */
+    public static function formatar(?string $entrada): string
+    {
+        $documento = self::normalizarCnpj($entrada);
+
+        return strlen($documento) === 11
+            ? self::formatarCpf($documento)
+            : self::formatarCnpj($documento);
+    }
+
     /** Devolve os dois digitos verificadores de uma base de doze posicoes. */
     public static function verificadores(string $base): string
     {

@@ -226,7 +226,7 @@
             :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'text-center' : ''">
         <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
             Versão {{ config('app.version') }}<br>
-            © {{ now()->year }} Avalia 360. Todos os direitos reservados.
+            © {{ now()->year }} Avalia One. Todos os direitos reservados.
         </span>
         <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)" x-cloak>©</span>
     </footer>

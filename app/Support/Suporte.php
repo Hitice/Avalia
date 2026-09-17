@@ -28,7 +28,7 @@ final class Suporte
         $numero = preg_replace('/\D/', '', self::telefone()) ?? '';
 
         $texto = trim(implode(' ', array_filter([
-            'Olá, preciso de ajuda com a Avalia 360.',
+            'Olá, preciso de ajuda com a Avalia One.',
             $assunto ? "Assunto: {$assunto}." : null,
             $referencia ? "Referência: {$referencia}." : null,
         ])));

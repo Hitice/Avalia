@@ -11,7 +11,7 @@
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Calculadora</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Quanto um contrato rende para a Avalia 360, antes de ele existir.
+            Quanto um contrato rende para a Avalia One, antes de ele existir.
         </p>
     </div>
 
@@ -186,7 +186,7 @@
                                 </span>
                             </div>
                             <div>
-                                <span class="rotulo-grupo block">Avalia 360</span>
+                                <span class="rotulo-grupo block">Avalia One</span>
                                 <span class="mt-1 block font-medium text-gray-800 dark:text-white/90">
                                     {{ Dinheiro::brl($adesao['avalia_cents']) }}
                                 </span>

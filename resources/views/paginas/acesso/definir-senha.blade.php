@@ -15,7 +15,7 @@
 
             <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">Defina sua senha</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Olá, {{ $nome }}. Escolha a senha do seu acesso à Avalia 360.
+                Olá, {{ $nome }}. Escolha a senha do seu acesso à Avalia One.
             </p>
 
             <form method="POST" action="{{ $destino }}" class="mt-6 space-y-5" autocomplete="on">

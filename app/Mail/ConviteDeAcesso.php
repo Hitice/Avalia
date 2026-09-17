@@ -25,7 +25,7 @@ class ConviteDeAcesso extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Seu acesso à Avalia 360');
+        return new Envelope(subject: 'Seu acesso à Avalia One');
     }
 
     public function content(): Content

@@ -308,11 +308,11 @@ class AreaClienteController extends Controller
         } catch (\Throwable $e) {
             report($e);
 
-            return back()->with('erro', 'Não foi possível gerar a via agora. Fale com a Avalia 360.');
+            return back()->with('erro', 'Não foi possível gerar a via agora. Fale com a Avalia One.');
         }
 
         if (! $cobranca->invoice_url) {
-            return back()->with('erro', 'A via de pagamento ainda não está disponível. Fale com a Avalia 360.');
+            return back()->with('erro', 'A via de pagamento ainda não está disponível. Fale com a Avalia One.');
         }
 
         Auditar::registrar('fatura.segunda_via', $fatura);

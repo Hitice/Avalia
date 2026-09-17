@@ -31,7 +31,7 @@ final class ConsultaPdf
 {
     public static function resultado(Consulta $consulta, ?string $emitidoPor = null): string
     {
-        $emissor = $emitidoPor ?? $consulta->solicitante ?? 'Avalia 360';
+        $emissor = $emitidoPor ?? $consulta->solicitante ?? 'Avalia One';
         $resposta = (array) $consulta->resposta;
         $documento = Documento::mascarar($consulta->documento);
 
@@ -161,7 +161,7 @@ final class ConsultaPdf
                     'Este produto não retornou informações de '.self::lista($ausentes).'. '
                     .'A ausência aqui não significa ausência de ocorrências: significa que esta '
                     .'consulta não pesquisou essas bases. Para incluí-las, contrate o produto '
-                    .'correspondente com a Avalia 360.',
+                    .'correspondente com a Avalia One.',
                 );
         }
 
