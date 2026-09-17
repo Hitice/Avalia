@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\DB;
  */
 class RegistrarPagamentoDaParcela
 {
+    public function __construct(private readonly GerarCarne $gerarCarne) {}
+
     public function __invoke(Parcela360 $parcela, array $pagamento, ?EventoAsaas $evento = null): void
     {
         $jaLancado = Lancamento360::where('parcela_360_id', $parcela->id)
@@ -70,6 +72,14 @@ class RegistrarPagamentoDaParcela
             }
 
             $parcela->update(['situacao' => 'paga', 'paga_em' => $quando]);
+
+            // Entrada paga com contrato ja assinado fecha a venda na hora: o
+            // carne nasce aqui, e nao numa rotina noturna. Cliente que pagou a
+            // entrada quer ver o parcelamento no mesmo dia, e `GerarCarne`
+            // confere as duas condicoes antes de criar qualquer coisa.
+            if ($parcela->ehEntrada()) {
+                ($this->gerarCarne)($pedido->fresh());
+            }
 
             // Quitado quando nao sobra parcela em aberto. A entrada conta: ela
             // e a parcela zero, e pedido com entrada paga e carne quitado e

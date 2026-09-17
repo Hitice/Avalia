@@ -9,6 +9,7 @@ use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
@@ -57,6 +58,22 @@ Route::get('/', InicioController::class)->name('inicio');
  * promessas na mesma pagina faz as duas chegarem pela metade.
  */
 Route::get('/cobranca', [CobrancaController::class, 'mostrar'])->name('cobranca');
+
+/*
+ * O checkout de uma oferta do Avalia 360.
+ *
+ * Publico e sem login de proposito: quem compra chega por um link que o
+ * produtor mandou, e exigir cadastro antes de mostrar o preco e o jeito mais
+ * rapido de perder a venda. O que protege aqui e o teto por origem e o campo
+ * armadilha, como no resto dos formularios abertos.
+ */
+Route::get('/pay/{slug}', [CheckoutController::class, 'mostrar'])->name('checkout');
+
+Route::post('/pay/{slug}', [CheckoutController::class, 'fechar'])
+    ->middleware('throttle:10,1')
+    ->name('checkout.fechar');
+
+Route::get('/pedido/{pedido}', [CheckoutController::class, 'resultado'])->name('checkout.resultado');
 
 Route::post('/cobranca/pre-cadastro', [CobrancaController::class, 'preCadastro'])
     ->middleware('throttle:10,1')
