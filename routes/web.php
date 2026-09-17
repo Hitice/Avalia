@@ -24,6 +24,8 @@ use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
+use App\Http\Controllers\ProdutorAcessoController;
+use App\Http\Controllers\ProdutorPainelController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\WebhookAsaasController;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +76,33 @@ Route::post('/pay/{slug}', [CheckoutController::class, 'fechar'])
     ->name('checkout.fechar');
 
 Route::get('/pedido/{pedido}', [CheckoutController::class, 'resultado'])->name('checkout.resultado');
+
+/*
+ * A conta do produtor do Avalia 360.
+ *
+ * Guard proprio: ele nao consulta score nem recebe fatura nossa, e nao tem o
+ * que fazer nas telas de staff ou de empresa. O cadastro e auto-servico e
+ * entra como pendente; quem decide se ele pode vender e a aprovacao, nao o
+ * formulario.
+ */
+Route::middleware('guest:produtor')->group(function () {
+    Route::get('/produtor/criar-conta', [ProdutorAcessoController::class, 'mostrarCadastro'])->name('produtor.criar-conta');
+
+    Route::post('/produtor/criar-conta', [ProdutorAcessoController::class, 'cadastrar'])
+        ->middleware('throttle:10,1')
+        ->name('produtor.cadastrar');
+
+    Route::get('/produtor/entrar', [ProdutorAcessoController::class, 'mostrarEntrada'])->name('produtor.entrar');
+
+    Route::post('/produtor/entrar', [ProdutorAcessoController::class, 'entrar'])
+        ->middleware('throttle:10,1')
+        ->name('produtor.entrar.enviar');
+});
+
+Route::middleware(['auth:produtor', 'sessao:produtor'])->group(function () {
+    Route::get('/produtor', ProdutorPainelController::class)->name('produtor.painel');
+    Route::post('/produtor/sair', [ProdutorAcessoController::class, 'sair'])->name('produtor.sair');
+});
 
 Route::post('/cobranca/pre-cadastro', [CobrancaController::class, 'preCadastro'])
     ->middleware('throttle:10,1')

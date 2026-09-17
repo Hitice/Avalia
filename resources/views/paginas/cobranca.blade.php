@@ -45,7 +45,8 @@
                 </a>
 
                 <nav class="flex items-center gap-3">
-                    <a href="#pre-cadastro" class="botao botao-primario">Quero vender parcelado</a>
+                    <a href="{{ route('produtor.entrar') }}" class="botao botao-secundario">Entrar</a>
+                    <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario">Criar conta</a>
                 </nav>
             </div>
         </header>
@@ -75,7 +76,7 @@
                     </p>
 
                     <div class="mt-8 flex flex-wrap items-center gap-3">
-                        <a href="#pre-cadastro" class="botao botao-primario">Fazer meu pré-cadastro</a>
+                        <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario">Criar minha conta</a>
                         <a href="{{ Suporte::whatsapp('Quero conhecer o Avalia 360') }}"
                            target="_blank" rel="noopener noreferrer" class="botao botao-secundario">
                             Falar com a equipe

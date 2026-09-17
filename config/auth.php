@@ -26,6 +26,7 @@ return [
     | Duas naturezas de conta que nunca se misturam:
     |   staff   -> quem opera a Avalia (admin, vendedor)
     |   empresa -> o cliente contratante, que consulta e ve as proprias faturas
+    |   produtor -> quem vende parcelado pelo Avalia 360
     |
     | Tabelas e providers separados: nao existe caminho de codigo em que um
     | cliente seja resolvido como operador.
@@ -42,6 +43,15 @@ return [
             'driver' => 'session',
             'provider' => 'clientes',
         ],
+
+        // O produtor do Avalia 360. Guard proprio, e nao um papel dentro de
+        // staff ou empresa: ele nao consulta score nem recebe fatura nossa, e
+        // misturar os tres na mesma tabela faria cada tela ter que perguntar
+        // "voce e qual dos tres" antes de qualquer coisa.
+        'produtor' => [
+            'driver' => 'session',
+            'provider' => 'produtores',
+        ],
     ],
 
     'providers' => [
@@ -53,6 +63,11 @@ return [
         'clientes' => [
             'driver' => 'eloquent',
             'model' => App\Models\Cliente::class,
+        ],
+
+        'produtores' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Produtor::class,
         ],
     ],
 
