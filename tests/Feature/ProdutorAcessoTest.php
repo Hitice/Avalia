@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProdutorAcessoController;
 use App\Models\InteressadoCobranca;
 use App\Models\Produtor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -91,7 +92,7 @@ it('entra com a senha certa e recusa a errada', function () {
     Auth::guard('produtor')->logout();
 
     $this->post(route('produtor.entrar.enviar'), ['email' => 'marina@escola.com.br', 'senha' => 'errada'])
-        ->assertSessionHasErrors('email');
+        ->assertSessionHasErrors('email', null, ProdutorAcessoController::BAG);
 
     expect(Auth::guard('produtor')->check())->toBeFalse();
 
@@ -110,8 +111,10 @@ it('responde igual para e-mail que nao existe', function () {
     $comConta = $this->post(route('produtor.entrar.enviar'), ['email' => 'marina@escola.com.br', 'senha' => 'errada']);
     $semConta = $this->post(route('produtor.entrar.enviar'), ['email' => 'ninguem@lugar.com.br', 'senha' => 'errada']);
 
-    expect($comConta->getSession()->get('errors')->first('email'))
-        ->toBe($semConta->getSession()->get('errors')->first('email'));
+    $bag = ProdutorAcessoController::BAG;
+
+    expect($comConta->getSession()->get('errors')->getBag($bag)->first('email'))
+        ->toBe($semConta->getSession()->get('errors')->getBag($bag)->first('email'));
 });
 
 it('barra o produtor bloqueado', function () {
@@ -120,7 +123,7 @@ it('barra o produtor bloqueado', function () {
     Auth::guard('produtor')->logout();
 
     $this->post(route('produtor.entrar.enviar'), ['email' => 'marina@escola.com.br', 'senha' => 'senha-bem-grande'])
-        ->assertSessionHasErrors('email');
+        ->assertSessionHasErrors('email', null, ProdutorAcessoController::BAG);
 
     expect(Auth::guard('produtor')->check())->toBeFalse();
 });
@@ -133,4 +136,28 @@ it('manda o produtor deslogado para a porta dele, e nao para a do CRM', function
     // Caindo em /entrar, ele tentaria a senha que acabou de criar numa tela
     // que nunca vai aceita-la, e concluiria que o cadastro nao funcionou.
     $this->get(route('produtor.painel'))->assertRedirect(route('produtor.entrar'));
+});
+
+it('entra pela caixa que fica no alto da pagina do 360', function () {
+    $this->post(route('produtor.cadastrar'), cadastro());
+    Auth::guard('produtor')->logout();
+
+    $this->get(route('cobranca'))->assertOk()->assertSee('Já é produtor?');
+
+    $this->from(route('cobranca'))
+        ->post(route('produtor.entrar.enviar'), ['email' => 'marina@escola.com.br', 'senha' => 'senha-bem-grande'])
+        ->assertRedirect(route('produtor.painel'));
+});
+
+it('nao acende o erro do login no formulario de pre-cadastro', function () {
+    // Os dois formularios da pagina tem campo `email`. Sem bags separadas,
+    // errar a senha pintaria de vermelho o campo do pre-cadastro logo abaixo,
+    // que a pessoa nem tocou.
+    $resposta = $this->from(route('cobranca'))
+        ->post(route('produtor.entrar.enviar'), ['email' => 'ninguem@lugar.com.br', 'senha' => 'errada']);
+
+    $erros = $resposta->getSession()->get('errors');
+
+    expect($erros->getBag(ProdutorAcessoController::BAG)->has('email'))->toBeTrue()
+        ->and($erros->getBag('default')->has('email'))->toBeFalse();
 });

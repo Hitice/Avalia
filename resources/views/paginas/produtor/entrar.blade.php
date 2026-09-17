@@ -12,11 +12,11 @@
                 <h1 class="text-2xl font-semibold tracking-tight">Entrar</h1>
                 <p class="mt-2 text-gray-500 dark:text-gray-400">Acesse o painel do produtor.</p>
 
-                @if ($errors->any())
+                @if ($errors->acessoProdutor->any())
                     {{-- Uma mensagem so, igual para e-mail errado e senha
                          errada: separar as duas transforma a tela de login numa
                          consulta de quem tem conta aqui. --}}
-                    <div class="aviso aviso-erro mt-5">{{ $errors->first() }}</div>
+                    <div class="aviso aviso-erro mt-5">{{ $errors->acessoProdutor->first() }}</div>
                 @endif
 
                 <form method="POST" action="{{ route('produtor.entrar.enviar') }}" class="mt-6 grid gap-5">

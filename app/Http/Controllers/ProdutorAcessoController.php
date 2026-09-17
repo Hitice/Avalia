@@ -7,6 +7,7 @@ use App\Models\Produtor;
 use App\Support\Documento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -87,12 +88,21 @@ class ProdutorAcessoController extends Controller
         return view('paginas.produtor.entrar');
     }
 
+    /**
+     * A caixa de acesso existe em dois lugares: na tela propria e no alto da
+     * pagina do 360, ao lado do formulario de pre-cadastro. Os dois tem campo
+     * `email`, entao os erros daqui vao numa bag propria: sem isso, errar a
+     * senha acenderia o erro vermelho no formulario de baixo, que a pessoa nem
+     * tocou.
+     */
+    public const BAG = 'acessoProdutor';
+
     public function entrar(Request $pedido)
     {
-        $dados = $pedido->validate([
+        $dados = Validator::make($pedido->all(), [
             'email' => ['required', 'email'],
             'senha' => ['required', 'string'],
-        ]);
+        ])->validateWithBag(self::BAG);
 
         $produtor = Produtor::firstWhere('email', mb_strtolower(trim($dados['email'])));
 
@@ -102,7 +112,8 @@ class ProdutorAcessoController extends Controller
             ['email' => mb_strtolower(trim($dados['email'])), 'password' => $dados['senha']],
             $pedido->boolean('lembrar'),
         )) {
-            throw ValidationException::withMessages(['email' => 'E-mail ou senha não conferem.']);
+            throw ValidationException::withMessages(['email' => 'E-mail ou senha não conferem.'])
+                ->errorBag(self::BAG);
         }
 
         if (! $produtor->podeEntrar()) {
@@ -110,7 +121,7 @@ class ProdutorAcessoController extends Controller
 
             throw ValidationException::withMessages([
                 'email' => $produtor->motivoSuspensao() ?? 'Esta conta não pode entrar.',
-            ]);
+            ])->errorBag(self::BAG);
         }
 
         $pedido->session()->put('versao_produtor', $produtor->sessao_versao);

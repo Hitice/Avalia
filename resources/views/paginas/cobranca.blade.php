@@ -75,6 +75,43 @@
                         Você acompanha cada parcela, e a régua de cobrança é nossa.
                     </p>
 
+                    {{-- A caixa de acesso fica no alto, junto da promessa:
+                         quem ja e produtor volta aqui todo dia para ver o que
+                         caiu, e obrigar essa pessoa a procurar o botao Entrar
+                         no topo e cobrar um clique de quem ja decidiu. --}}
+                    <form method="POST" action="{{ route('produtor.entrar.enviar') }}"
+                          class="cartao mt-8 max-w-md p-5">
+                        @csrf
+
+                        <p class="text-sm font-medium">Já é produtor? Entre na sua conta.</p>
+
+                        @if ($errors->acessoProdutor->any())
+                            <div class="aviso aviso-erro mt-3">{{ $errors->acessoProdutor->first() }}</div>
+                        @endif
+
+                        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label for="acesso_email" class="rotulo-campo">E-mail</label>
+                                <input id="acesso_email" name="email" type="email" class="campo" required
+                                       autocomplete="username" value="{{ old('email', $errors->acessoProdutor->any() ? old('email') : '') }}">
+                            </div>
+                            <div>
+                                <label for="acesso_senha" class="rotulo-campo">Senha</label>
+                                <input id="acesso_senha" name="senha" type="password" class="campo" required
+                                       autocomplete="current-password">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap items-center gap-4">
+                            <button type="submit" class="botao botao-primario botao-sm">Entrar</button>
+                            <label class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                <input type="checkbox" name="lembrar" value="1"
+                                       class="size-4 rounded border-gray-300 accent-brand-500 dark:border-gray-600">
+                                Manter conectado
+                            </label>
+                        </div>
+                    </form>
+
                     <div class="mt-8 flex flex-wrap items-center gap-3">
                         <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario">Criar minha conta</a>
                         <a href="{{ Suporte::whatsapp('Quero conhecer o Avalia 360') }}"
