@@ -298,6 +298,17 @@
                         Se o seu cliente paga ao longo do tempo, o Avalia 360 é a estrutura que
                         sustenta essa venda.
                     </p>
+
+                    {{-- A chamada logo depois dos perfis: quem acabou de se
+                         reconhecer num deles esta no ponto mais quente da
+                         pagina, e ate aqui a unica saida era um link dentro da
+                         caixa de login. --}}
+                    <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario mt-6">
+                        Criar minha conta
+                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5"/>
+                        </svg>
+                    </a>
                 </div>
 
                 <div class="grid gap-6 md:grid-cols-3">
@@ -369,6 +380,30 @@
                 </div>
             </section>
 
+            {{-- O fim da pagina precisa de saida. Quem chegou aqui leu as
+                 duvidas inteiras e nao tinha nada para clicar: a escolha era
+                 rolar de volta ao topo ou fechar a aba.
+
+                 Dois caminhos, e nao um: quem decidiu cria a conta em quatro
+                 campos, e quem ainda quer conversar fala com a equipe. --}}
+            <section class="border-t border-gray-100 dark:border-gray-800">
+                <div class="mx-auto w-full max-w-[87rem] px-6 py-16 text-center">
+                    <h2 class="text-3xl font-semibold text-gray-800 dark:text-white">
+                        Comece a vender parcelado
+                    </h2>
+                    <p class="mx-auto mt-3 max-w-xl text-gray-500 dark:text-gray-400">
+                        A conta leva quatro campos. Os dados de recebimento a equipe pede depois,
+                        junto da aprovação.
+                    </p>
+
+                    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+                        <a href="{{ route('produtor.criar-conta') }}" class="botao botao-primario">Criar minha conta</a>
+                        <button type="button" @click="formulario = true" class="botao botao-secundario">
+                            Falar com a equipe
+                        </button>
+                    </div>
+                </div>
+            </section>
         </main>
 
         {{-- O detalhe de um cartao. Um overlay so para todos: o conteudo vem
