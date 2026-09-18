@@ -7,35 +7,29 @@
     // abre no popup: quem esta passando o olho le seis linhas, e quem se
     // interessou por uma delas le o paragrafo inteiro sem sair da pagina.
     $operacao = [
-        ['Análise antes de aprovar', 'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito.',
+        ['Análise antes de aprovar', 'M9 12l2 2 4-4M7.8 4.7a3.3 3.3 0 0 0 1.9-.8 3.3 3.3 0 0 1 4.6 0 3.3 3.3 0 0 0 1.9.8 3.3 3.3 0 0 1 3.1 3.1 3.3 3.3 0 0 0 .8 1.9 3.3 3.3 0 0 1 0 4.6 3.3 3.3 0 0 0-.8 1.9 3.3 3.3 0 0 1-3.1 3.1 3.3 3.3 0 0 0-1.9.8 3.3 3.3 0 0 1-4.6 0 3.3 3.3 0 0 0-1.9-.8 3.3 3.3 0 0 1-3.1-3.1 3.3 3.3 0 0 0-.8-1.9 3.3 3.3 0 0 1 0-4.6 3.3 3.3 0 0 0 .8-1.9 3.3 3.3 0 0 1 3.1-3.1z',
+         'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito.',
          'Documento conferido dígito a dígito, idade mínima, uma compra em aberto por comprador e a checagem de restrição. A decisão fica gravada com a versão da regra que decidiu, então dá para explicar uma recusa de seis meses atrás mesmo depois de a régua mudar.'],
-        ['Contrato assinado', 'A venda só vira carnê depois do aceite registrado, com data e condições guardadas.',
-         'O aceite guarda o que foi combinado: valor, entrada, número de parcelas e prazo de arrependimento. Cobrança sem contrato é discussão na hora do atraso, e quem perde a discussão é quem vendeu.'],
-        ['Boletos emitidos no prazo', 'A entrada sai na hora da compra e as parcelas no dia que o cliente escolheu.',
-         'O cliente escolhe o melhor dia entre 1 e 28, que existe em todo mês. A primeira parcela vence no mês seguinte ao da entrada, e o carnê inteiro nasce no momento em que a entrada é confirmada, sem rotina noturna e sem você emitir nada.'],
-        ['Cobrança de quem atrasa', 'Régua de lembrete antes e depois do vencimento, com negativação sob seu comando.',
-         'O vencimento não vem do nosso calendário: vem do provedor dizendo que o prazo passou sem pagamento. A negativação existe e nunca é automática. Ela acontece quando você manda, porque a relação com o cliente é sua.'],
-        ['Repasse direto na sua conta', 'O dinheiro cai na sua conta no provedor, e não na nossa.',
-         'Cada cobrança sai com o repasse já dividido: a sua parte vai para a sua carteira no provedor de pagamento no momento em que o cliente paga. Nós nunca ficamos com o dinheiro do seu cliente em trânsito.'],
-        ['Painel com o que falta receber', 'Vendas, parcelas em aberto, atrasos e o que já entrou.',
-         'Os números saem do extrato de lançamentos, e não de um campo que alguém atualiza. Toda parcela paga registra valor bruto, taxa do provedor, taxa da plataforma e repasse, e a soma tem que fechar. Quando não fecha, o sistema acusa.'],
-    ];
 
-    $pilares360 = [
-        ['Crédito é o que a casa faz', 'A Avalia One já opera consulta de score e restrição para quem vende a prazo.',
-         'O 360 não estreou em análise de crédito: ele usa a estrutura que já atende empresas que precisam decidir se vendem parcelado. A mesma régua, os mesmos contratos de bureau, a mesma regra de retenção de dado.'],
-        ['O dinheiro não passa por nós', 'O repasse vai direto para a sua conta no provedor, a cada parcela paga.',
-         'Sua conta de recebimento é sua, aberta no seu nome no provedor de pagamento. A divisão acontece dentro da cobrança, em percentual, então vale mesmo se o valor mudar depois de emitida.'],
-        ['Você enxerga cada centavo', 'Bruto, taxa do provedor, taxa da plataforma e repasse, registrados um a um.',
-         'Nenhum saldo é guardado em coluna: ele é sempre a soma dos lançamentos. Coluna de saldo é a primeira coisa a divergir do extrato, e quando diverge ninguém sabe qual dos dois está certo.'],
+        ['Contrato e boletos', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.6a1 1 0 01.7.3l4.4 4.4a1 1 0 01.3.7V19a2 2 0 01-2 2z',
+         'A venda só vira carnê depois do aceite. A entrada sai na hora e as parcelas no dia escolhido.',
+         'O aceite guarda valor, entrada, número de parcelas e prazo de arrependimento. O cliente escolhe o melhor dia entre 1 e 28, que existe em todo mês, e o carnê inteiro nasce no momento em que a entrada é confirmada. Você não emite nada.'],
+
+        ['Cobrança de quem atrasa', 'M12 8v5l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z',
+         'Régua de lembrete antes e depois do vencimento, com negativação sob seu comando.',
+         'O vencimento não vem do nosso calendário: vem do provedor dizendo que o prazo passou sem pagamento. A negativação existe e nunca é automática. Ela acontece quando você manda, porque a relação com o cliente é sua.'],
+
+        ['Repasse e painel', 'M3 17l5-5 4 4 8-9M16 7h5v5',
+         'O dinheiro cai na sua conta no provedor, e o painel mostra o que entrou e o que falta.',
+         'Cada cobrança sai com a divisão já feita: a sua parte vai para a sua carteira no momento em que o cliente paga. Toda parcela registra valor bruto, taxa do provedor, taxa da plataforma e repasse, e a soma tem que fechar. Quando não fecha, o sistema acusa.'],
     ];
 
     $perfis = [
-        ['Produtor de curso e mentoria', 'O aluno sem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em 12x.',
+        ['Produtor de curso e mentoria', 'M12 14l9-5-9-5-9 5 9 5zm0 0v7m-5-9.2V17c0 1.1 2.2 2 5 2s5-.9 5-2v-5.2', 'O aluno sem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em 12x.',
          'É a venda que você perde hoje sem saber: a pessoa quer, tem como pagar ao longo do ano, e trava na hora de comprometer o limite. O boleto parcelado alcança esse comprador sem mudar o preço do seu produto.'],
-        ['Prestador de serviço recorrente', 'Clínica, escritório, assistência técnica: serviço fechado hoje, pago ao longo dos meses.',
+        ['Prestador de serviço recorrente', 'M21 13.3A17.9 17.9 0 0110.7 3 2 2 0 019 1H6a2 2 0 00-2 2c0 9.4 7.6 17 17 17a2 2 0 002-2v-3a2 2 0 00-2-2z', 'Clínica, escritório, assistência técnica: serviço fechado hoje, pago ao longo dos meses.',
          'Sem antecipadora no meio e sem depender da máquina de cartão. O serviço é combinado uma vez, o contrato registra as condições, e a cobrança das parcelas roda sozinha enquanto você atende.'],
-        ['Quem já vende parcelado no caderno', 'Você já parcela na confiança. Aqui a análise vem antes e a cobrança não é você quem faz.',
+        ['Quem já vende parcelado no caderno', 'M12 6.3a7.5 7.5 0 00-5-1.8c-1.8 0-3.5.5-5 1.4v13a11 11 0 015-1.2c1.8 0 3.5.5 5 1.3m0-12.7a7.5 7.5 0 015-1.8c1.8 0 3.5.5 5 1.4v13a11 11 0 00-5-1.2c-1.8 0-3.5.5-5 1.3m0-12.7V19', 'Você já parcela na confiança. Aqui a análise vem antes e a cobrança não é você quem faz.',
          'A diferença entre parcelar no caderno e parcelar com estrutura é o que acontece quando alguém para de pagar. Aqui existe contrato, existe régua de cobrança e existe registro de tudo que foi combinado.'],
     ];
     use App\Support\Suporte;
@@ -112,12 +106,12 @@
                          distancia, e repeti-la logo abaixo gasta a primeira
                          linha da pagina dizendo de novo onde a pessoa esta, em
                          vez de dizer o que ela ganha. --}}
-                    <h1 class="text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
+                    <h1 class="entra-suave text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
                         Parcele no boleto e no Pix<br>
                         <span class="text-brand-500">sem depender do cartão.</span>
                     </h1>
 
-                    <p class="mt-5 max-w-2xl text-lg text-gray-500 dark:text-gray-400">
+                    <p class="entra-suave mt-5 max-w-2xl text-lg text-gray-500 dark:text-gray-400" style="animation-delay: 0.1s">
                         Seu cliente fecha em até 12x mesmo sem limite no cartão.
                         Você acompanha cada parcela, e a régua de cobrança é nossa.
                     </p>
@@ -131,7 +125,7 @@
                          os dois lados da casa nao deveria ter que reaprender a
                          entrar. --}}
                     <form method="POST" action="{{ route('produtor.entrar.enviar') }}"
-                          class="cartao mt-8 max-w-md p-6">
+                          class="entra-suave cartao mt-8 max-w-md p-6" style="animation-delay: 0.2s">
                         @csrf
 
                         <h2 class="text-lg font-semibold tracking-tight">Bem-vindo de volta</h2>
@@ -177,13 +171,13 @@
                         </p>
                     </form>
 
-                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                    <div class="entra-suave mt-6 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
                         <button type="button" @click="formulario = true" class="botao botao-secundario">
                             Falar com a equipe
                         </button>
                     </div>
 
-                    <ul class="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+                    <ul class="entra-suave mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 dark:text-gray-400" style="animation-delay: 0.4s">
                         @foreach (['Sem mensalidade', 'Taxa só na venda efetivada', 'Análise antes de aprovar'] as $item)
                             <li class="flex items-center gap-2">
                                 <svg class="size-4 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
@@ -221,7 +215,7 @@
                 <div class="mx-auto w-full max-w-[87rem] px-6 py-16">
                     <h2 class="text-2xl font-semibold tracking-tight">Como funciona</h2>
 
-                    <div class="mt-8 grid gap-6 md:grid-cols-3">
+                    <div class="grid gap-6 md:grid-cols-3">
                         @foreach ([
                             ['n' => '1', 'titulo' => 'Você cria a oferta', 'texto' => 'Informa o valor, em quantas vezes aceita parcelar e o quanto quer de entrada. Sai um link de checkout.'],
                             ['n' => '2', 'titulo' => 'O cliente compra', 'texto' => 'Ele preenche os dados, passa pela análise, assina o contrato e paga a entrada em Pix ou boleto.'],
@@ -243,27 +237,37 @@
                  funcionalidade que ainda nao existe vira reclamacao na primeira
                  semana, e quem atende e o mesmo time que vendeu. --}}
             <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
-                <div class="max-w-3xl">
-                    <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+                <div class="mb-8 max-w-3xl">
+                    <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
+                        Operação
+                    </span>
+                    <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">
                         Você vende. A cobrança fica com a gente.
                     </h2>
                     <p class="mt-4 text-gray-500 dark:text-gray-400">
-                        Parcelar no boleto dá trabalho depois da venda: alguém precisa analisar quem
-                        compra, emitir os títulos todo mês, lembrar quem esqueceu e cobrar quem
-                        atrasou. É esse trabalho que a Avalia 360 assume.
+                        Parcelar no boleto dá trabalho depois da venda: analisar quem compra, emitir
+                        os títulos todo mês e cobrar quem atrasou. A Avalia 360 assume esse trabalho,
+                        com a estrutura de crédito que a Avalia One já opera há anos.
                     </p>
                 </div>
 
-                <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    @foreach ($operacao as [$titulo, $resumo, $detalhe])
-                        <button type="button" class="cartao cartao-link p-6 text-left"
-                                @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe) }">
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($operacao as [$titulo, $icone, $resumo, $detalhe])
+                        <button type="button" @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe), icone: @js($icone) }"
+                                class="group cartao cursor-pointer p-7 text-left transition duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-theme-lg dark:hover:border-brand-500/50">
+                            <div class="mb-4 flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 transition duration-300 group-hover:bg-brand-500 group-hover:text-white dark:bg-brand-500/10 dark:text-brand-400 dark:group-hover:bg-brand-500 dark:group-hover:text-white">
+                                <svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icone }}"/>
+                                </svg>
+                            </div>
+
                             <h3 class="font-semibold">{{ $titulo }}</h3>
                             <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $resumo }}</p>
-                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-400">
-                                Ler mais
-                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+
+                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-500 opacity-0 transition duration-300 group-hover:opacity-100 dark:text-brand-400">
+                                Saiba mais
+                                <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5"/>
                                 </svg>
                             </span>
                         </button>
@@ -278,7 +282,10 @@
                 <div class="mx-auto w-full max-w-[87rem] px-6 py-16">
                     <div class="grid gap-10 lg:grid-cols-2">
                         <div>
-                            <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+                            <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
+                                Faturamento
+                            </span>
+                            <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">
                                 O que muda quando o boleto parcela
                             </h2>
                             <p class="mt-4 text-gray-500 dark:text-gray-400">
@@ -286,10 +293,6 @@
                                 e boa parte dela tem renda para pagar em 12x. O parcelamento no
                                 boleto alcança esse comprador sem mudar o seu preço.
                             </p>
-
-                            <button type="button" @click="formulario = true" class="botao botao-primario mt-8">
-                                Quero ampliar meu faturamento
-                            </button>
                         </div>
 
                         <ul class="grid gap-4 sm:grid-cols-2">
@@ -297,8 +300,6 @@
                                 'Alcança quem não tem limite no cartão',
                                 'Permite ticket maior sem assustar o comprador',
                                 'Menos gente desiste no meio do checkout',
-                                'Sua venda deixa de depender da bandeira',
-                                'Entrada e parcelas com datas que você conhece',
                                 'O preço do seu produto continua o mesmo',
                             ] as $efeito)
                                 <li class="cartao flex items-start gap-3 p-5">
@@ -311,45 +312,34 @@
                 </div>
             </section>
 
-            {{-- Por que esta casa, e nao outra. O argumento e o que ja existe
-                 aqui: a Avalia One opera consulta de credito desde antes do
-                 360, com contrato de bureau e regra de retencao. --}}
-            <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
-                <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Por que a Avalia 360</h2>
-
-                <div class="mt-8 grid gap-6 md:grid-cols-3">
-                    @foreach ($pilares360 as [$titulo, $resumo, $detalhe])
-                        <button type="button" class="cartao cartao-link p-6 text-left"
-                                @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe) }">
-                            <h3 class="font-semibold">{{ $titulo }}</h3>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $resumo }}</p>
-                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-400">
-                                Ler mais
-                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </span>
-                        </button>
-                    @endforeach
-                </div>
-            </section>
-
             {{-- "Para quem e" e as duvidas eram duas colunas lado a lado, e
                  a das duvidas tinha o dobro da altura: a pagina terminava
                  torta, com meia coluna vazia. Cada uma ganhou a sua faixa. --}}
             <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
-                <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Para quem é</h2>
+                <div class="mb-8">
+                    <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
+                        Perfis
+                    </span>
+                    <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">Para quem é</h2>
+                </div>
 
-                <div class="mt-8 grid gap-6 md:grid-cols-3">
-                    @foreach ($perfis as [$titulo, $resumo, $detalhe])
-                        <button type="button" class="cartao cartao-link p-6 text-left"
-                                @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe) }">
+                <div class="grid gap-6 md:grid-cols-3">
+                    @foreach ($perfis as [$titulo, $icone, $resumo, $detalhe])
+                        <button type="button" @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe), icone: @js($icone) }"
+                                class="group cartao cursor-pointer p-7 text-left transition duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-theme-lg dark:hover:border-brand-500/50">
+                            <div class="mb-4 flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-500 transition duration-300 group-hover:bg-brand-500 group-hover:text-white dark:bg-brand-500/10 dark:text-brand-400 dark:group-hover:bg-brand-500 dark:group-hover:text-white">
+                                <svg class="size-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icone }}"/>
+                                </svg>
+                            </div>
+
                             <h3 class="font-semibold">{{ $titulo }}</h3>
                             <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $resumo }}</p>
-                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-400">
-                                Ler mais
-                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+
+                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-500 opacity-0 transition duration-300 group-hover:opacity-100 dark:text-brand-400">
+                                Saiba mais
+                                <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5"/>
                                 </svg>
                             </span>
                         </button>
@@ -359,12 +349,17 @@
 
             <section class="border-t border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
                 <div class="mx-auto w-full max-w-3xl px-6 py-16">
-                    <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Perguntas frequentes</h2>
+                    <div class="mb-8">
+                        <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
+                            Dúvidas
+                        </span>
+                        <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">Perguntas frequentes</h2>
+                    </div>
 
                     {{-- Uma aberta por vez. Accordion e proposital: a lista
                          inteira aberta vira parede de texto, e quem chega ate
                          aqui tem uma duvida especifica, nao cinco. --}}
-                    <div class="mt-8 divide-y divide-gray-200 dark:divide-gray-800">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800">
                         @foreach ($duvidas as $i => $item)
                             <div>
                                 <button type="button" class="flex w-full items-center justify-between gap-4 py-4 text-left font-medium"
@@ -394,18 +389,37 @@
         <div x-cloak x-show="detalhe !== null" x-transition.opacity.duration.200ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="detalhe = null" role="dialog" aria-modal="true">
-            <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-7 py-6 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
-                <button type="button" @click="detalhe = null" aria-label="Fechar"
-                        class="absolute top-4 right-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                    </svg>
-                </button>
+            {{-- Mesma construcao do popup dos pilares da pagina inicial: a
+                 grade viva no cabecalho, o simbolo do assunto numa caixa e o
+                 texto no corpo branco. Duas caixas diferentes para a mesma
+                 funcao fariam a pessoa achar que mudou de site. --}}
+            <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
+                            <svg class="size-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" :d="detalhe?.icone"/>
+                            </svg>
+                        </div>
 
-                <h2 class="pr-8 text-lg font-semibold tracking-tight" x-text="detalhe?.titulo"></h2>
-                <p class="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400" x-text="detalhe?.texto"></p>
+                        <button type="button" @click="detalhe = null" aria-label="Fechar"
+                                class="text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
+                            <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                            </svg>
+                        </button>
+                    </div>
 
-                <button type="button" @click="detalhe = null" class="botao botao-secundario mt-6 w-full">Fechar</button>
+                    <h2 class="mt-4 text-xl font-semibold tracking-tight text-gray-800 dark:text-white" x-text="detalhe?.titulo"></h2>
+                </div>
+
+                <div class="p-7">
+                    <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300" x-text="detalhe?.texto"></p>
+
+                    <x-avalia.botao variante="secundario" class="mt-6 w-full" @click="detalhe = null" type="button">
+                        Fechar
+                    </x-avalia.botao>
+                </div>
             </div>
         </div>
 
