@@ -11,10 +11,6 @@
          'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito.',
          'Documento conferido dígito a dígito, idade mínima, uma compra em aberto por comprador e a checagem de restrição. A decisão fica gravada com a versão da regra que decidiu, então dá para explicar uma recusa de seis meses atrás mesmo depois de a régua mudar.'],
 
-        ['Contrato e boletos', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.6a1 1 0 01.7.3l4.4 4.4a1 1 0 01.3.7V19a2 2 0 01-2 2z',
-         'A venda só vira carnê depois do aceite. A entrada sai na hora e as parcelas no dia escolhido.',
-         'O aceite guarda valor, entrada, número de parcelas e prazo de arrependimento. O cliente escolhe o melhor dia entre 1 e 28, que existe em todo mês, e o carnê inteiro nasce no momento em que a entrada é confirmada. Você não emite nada.'],
-
         ['Cobrança de quem atrasa', 'M12 8v5l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z',
          'Régua de lembrete antes e depois do vencimento, com negativação sob seu comando.',
          'O vencimento não vem do nosso calendário: vem do provedor dizendo que o prazo passou sem pagamento. A negativação existe e nunca é automática. Ela acontece quando você manda, porque a relação com o cliente é sua.'],
@@ -53,10 +49,6 @@
         [
             'pergunta' => 'Qual é o custo?',
             'resposta' => 'Uma taxa por venda efetivada, combinada no cadastro, sem mensalidade e sem cobrança por proposta recusada. O valor sai do repasse, então não há boleto para você pagar.',
-        ],
-        [
-            'pergunta' => 'Meu cliente precisa de cartão de crédito?',
-            'resposta' => 'Não, e esse é o ponto. O parcelamento sai em boleto ou Pix, o que alcança quem não tem limite no cartão ou não quer comprometê-lo.',
         ],
     ];
 @endphp
@@ -275,40 +267,17 @@
                 </div>
             </section>
 
-            {{-- O argumento comercial, em efeitos verificaveis. Nenhum numero
-                 inventado de conversao: prometer porcentagem que ninguem mediu
-                 aqui e o tipo de frase que o cliente cobra depois. --}}
+            {{-- Uma frase, sem lista e sem cartao. Era uma secao inteira com
+                 cabecalho, paragrafo e quatro itens que repetiam em lista o que
+                 o paragrafo ja dizia. O argumento e forte o bastante para ficar
+                 sozinho. --}}
             <section class="border-y border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
-                <div class="mx-auto w-full max-w-[87rem] px-6 py-16">
-                    <div class="grid gap-10 lg:grid-cols-2">
-                        <div>
-                            <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
-                                Faturamento
-                            </span>
-                            <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">
-                                O que muda quando o boleto parcela
-                            </h2>
-                            <p class="mt-4 text-gray-500 dark:text-gray-400">
-                                Metade do país não tem limite de cartão para uma compra de três mil reais,
-                                e boa parte dela tem renda para pagar em 12x. O parcelamento no
-                                boleto alcança esse comprador sem mudar o seu preço.
-                            </p>
-                        </div>
-
-                        <ul class="grid gap-4 sm:grid-cols-2">
-                            @foreach ([
-                                'Alcança quem não tem limite no cartão',
-                                'Permite ticket maior sem assustar o comprador',
-                                'Menos gente desiste no meio do checkout',
-                                'O preço do seu produto continua o mesmo',
-                            ] as $efeito)
-                                <li class="cartao flex items-start gap-3 p-5">
-                                    <svg class="mt-0.5 size-5 shrink-0 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
-                                    <span class="text-sm">{{ $efeito }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                <div class="mx-auto w-full max-w-3xl px-6 py-14 text-center">
+                    <p class="text-xl leading-relaxed text-gray-600 sm:text-2xl dark:text-gray-300">
+                        Metade do país não tem limite de cartão para uma compra de três mil reais,
+                        e boa parte dela tem renda para pagar em 12x. O boleto parcelado alcança
+                        esse comprador <strong class="font-semibold text-gray-800 dark:text-white">sem mudar o seu preço</strong>.
+                    </p>
                 </div>
             </section>
 
