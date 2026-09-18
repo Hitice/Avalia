@@ -315,21 +315,32 @@
             </section>
 
             <section class="border-t border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
-                <div class="mx-auto w-full max-w-3xl px-6 py-16">
-                    <div class="mb-8">
+                {{-- Mesmo container das outras secoes, e nao uma coluna
+                     estreita no meio: a pagina inteira alinha em 87rem, e uma
+                     faixa centrada no fim quebrava o prumo bem no ponto em que
+                     a pessoa esta decidindo.
+
+                     O titulo fica na coluna da esquerda e as perguntas na
+                     direita, como o olho ja percorre o resto da pagina. --}}
+                <div class="mx-auto grid w-full max-w-[87rem] gap-10 px-6 py-16 lg:grid-cols-[0.8fr_1.2fr]">
+                    <div>
                         <span class="text-sm font-medium tracking-wide text-brand-500 uppercase dark:text-brand-400">
                             Dúvidas
                         </span>
                         <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">Perguntas frequentes</h2>
+                        <p class="mt-4 text-gray-500 dark:text-gray-400">
+                            As quatro que todo produtor faz antes de fechar. Se a sua não está aqui,
+                            fale com a equipe.
+                        </p>
                     </div>
 
                     {{-- Uma aberta por vez. Accordion e proposital: a lista
                          inteira aberta vira parede de texto, e quem chega ate
-                         aqui tem uma duvida especifica, nao cinco. --}}
+                         aqui tem uma duvida especifica, nao quatro. --}}
                     <div class="divide-y divide-gray-200 dark:divide-gray-800">
                         @foreach ($duvidas as $i => $item)
                             <div>
-                                <button type="button" class="flex w-full items-center justify-between gap-4 py-4 text-left font-medium"
+                                <button type="button" class="flex w-full items-center justify-between gap-4 py-5 text-left text-lg font-medium transition hover:text-brand-600 dark:hover:text-brand-400"
                                         @click="duvida = duvida === {{ $i }} ? null : {{ $i }}"
                                         :aria-expanded="duvida === {{ $i }}">
                                     {{ $item['pergunta'] }}
@@ -339,7 +350,7 @@
                                     </svg>
                                 </button>
                                 <p x-show="duvida === {{ $i }}" x-transition.opacity.duration.200ms
-                                   class="pb-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                   class="pb-5 text-gray-500 dark:text-gray-400">
                                     {{ $item['resposta'] }}
                                 </p>
                             </div>
