@@ -232,12 +232,13 @@
                         Operação
                     </span>
                     <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">
-                        Você vende. A cobrança fica com a gente.
+                        Você vende. O resto fica com a gente.
                     </h2>
                     <p class="mt-4 text-gray-500 dark:text-gray-400">
-                        Parcelar no boleto dá trabalho depois da venda: analisar quem compra, emitir
-                        os títulos todo mês e cobrar quem atrasou. A Avalia 360 assume esse trabalho,
-                        com a estrutura de crédito que a Avalia One já opera há anos.
+                        Vender parcelado cria uma operação que começa depois do fechamento: analisar
+                        o comprador, emitir os títulos a cada mês, conciliar os pagamentos e cobrar
+                        quem atrasa. O Avalia 360 executa essa operação com a mesma infraestrutura de
+                        análise de crédito que a Avalia One opera para empresas que vendem a prazo.
                     </p>
                 </div>
 
