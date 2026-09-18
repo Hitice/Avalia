@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\InteressadoCobranca;
 use App\Models\Produtor;
-use App\Support\Documento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -36,27 +35,28 @@ class ProdutorAcessoController extends Controller
         }
 
         $pedido->merge([
-            'documento' => Documento::normalizarCnpj($pedido->input('documento')),
             'email' => mb_strtolower(trim((string) $pedido->input('email'))),
             'whatsapp' => preg_replace('/\D/', '', (string) $pedido->input('whatsapp')) ?? '',
         ]);
 
+        // Quatro campos, e nenhum deles exige sair da tela para consultar algo.
+        // O documento saiu daqui: e o campo que faz a pessoa ir buscar o
+        // cartao, e quem levanta da cadeira no meio de um cadastro raramente
+        // volta. Ele e pedido na abertura da conta de recebimento, quando ja
+        // existe conversa e motivo.
+        //
+        // A confirmacao de senha tambem saiu, trocada pelo botao que mostra o
+        // que foi digitado: conferir com os proprios olhos resolve o mesmo
+        // problema sem um campo a mais.
         $dados = $pedido->validate([
             'nome' => ['required', 'string', 'min:3', 'max:150'],
-            'documento' => [
-                'required', 'string',
-                fn ($a, $v, $falhou) => Documento::documentoValido($v) ? null : $falhou('Confira o CPF ou o CNPJ.'),
-            ],
             'email' => ['required', 'email', 'max:150', Rule::unique('produtores', 'email')->whereNull('deleted_at')],
             'whatsapp' => ['required', 'string', 'min:10', 'max:11'],
-            // Oito e o minimo que o resto da casa exige. A confirmacao existe
-            // porque errar a senha no cadastro so aparece no proximo login, e
-            // ai a pessoa ja saiu da tela.
-            'senha' => ['required', 'string', 'min:8', 'confirmed'],
+            'senha' => ['required', 'string', 'min:8'],
         ], [
             'email.unique' => 'Já existe uma conta com este e-mail. Se for sua, entre por aqui.',
-            'senha.confirmed' => 'As senhas não conferem.',
             'senha.min' => 'A senha precisa de pelo menos 8 caracteres.',
+            'whatsapp.min' => 'Informe o WhatsApp com DDD.',
         ]);
 
         $produtor = Produtor::create($dados + ['situacao' => 'pendente']);

@@ -23,11 +23,9 @@ function cadastro(array $ajustes = []): array
 {
     return array_merge([
         'nome' => 'Marina Costa',
-        'documento' => '123.456.789-09',
         'email' => 'marina@escola.com.br',
         'whatsapp' => '(34) 99911-2233',
         'senha' => 'senha-bem-grande',
-        'senha_confirmation' => 'senha-bem-grande',
     ], $ajustes);
 }
 
@@ -37,7 +35,9 @@ it('cria a conta e ja entra no painel', function () {
     $produtor = Produtor::sole();
 
     expect($produtor->situacao)->toBe('pendente')
-        ->and($produtor->documento)->toBe('12345678909')
+        // O documento nao e pedido aqui: ele vem na abertura da conta de
+        // recebimento, quando ja existe conversa e motivo.
+        ->and($produtor->documento)->toBeNull()
         // Senha guardada com hash, nunca em claro.
         ->and($produtor->senha)->not->toBe('senha-bem-grande')
         ->and(Auth::guard('produtor')->id())->toBe($produtor->id);
@@ -77,14 +77,25 @@ it('recusa segundo cadastro com o mesmo e-mail', function () {
     expect(Produtor::count())->toBe(1);
 });
 
-it('exige senha confirmada e com tamanho', function () {
-    $this->post(route('produtor.cadastrar'), cadastro(['senha' => 'curta', 'senha_confirmation' => 'curta']))
-        ->assertSessionHasErrors('senha');
-
-    $this->post(route('produtor.cadastrar'), cadastro(['senha_confirmation' => 'outra-coisa']))
+it('exige senha com tamanho', function () {
+    // A confirmacao saiu, trocada pelo botao que mostra o que foi digitado:
+    // conferir com os proprios olhos resolve sem um campo a mais.
+    $this->post(route('produtor.cadastrar'), cadastro(['senha' => 'curta']))
         ->assertSessionHasErrors('senha');
 
     expect(Produtor::count())->toBe(0);
+});
+
+it('pede quatro campos, e nenhum deles manda a pessoa buscar documento', function () {
+    // CPF na primeira tela e o campo que faz levantar da cadeira, e quem
+    // levanta no meio de um cadastro raramente volta.
+    $this->get(route('produtor.criar-conta'))->assertOk()
+        ->assertSee('name="nome"', false)
+        ->assertSee('name="email"', false)
+        ->assertSee('name="whatsapp"', false)
+        ->assertSee('name="senha"', false)
+        ->assertDontSee('name="documento"', false)
+        ->assertDontSee('senha_confirmation', false);
 });
 
 it('entra com a senha certa e recusa a errada', function () {
@@ -165,38 +176,4 @@ it('nao acende o erro do login no formulario de pre-cadastro', function () {
 
     expect($erros->getBag(ProdutorAcessoController::BAG)->has('email'))->toBeTrue()
         ->and($erros->getBag('default')->has('email'))->toBeFalse();
-});
-
-it('recusa documento que nao fecha os digitos no cadastro', function () {
-    // O documento saiu do formulario de contato, onde so afastava gente, e
-    // passou a ser exigido aqui, onde a conta de verdade nasce.
-    $this->post(route('produtor.cadastrar'), cadastro(['documento' => '111.111.111-11']))
-        ->assertSessionHasErrors('documento');
-
-    expect(Produtor::count())->toBe(0);
-});
-
-it('aceita CNPJ no lugar do CPF no cadastro', function () {
-    $this->post(route('produtor.cadastrar'), cadastro(['documento' => '39.914.870/0001-01']));
-
-    expect(Produtor::sole()->documento)->toBe('39914870000101');
-});
-
-it('leva a tela antiga de login de volta para a pagina do 360', function () {
-    // A tela propria saiu: a caixa de acesso mora na pagina, e um endereco
-    // separado so para os mesmos dois campos seria um clique a mais e um lugar
-    // a mais para o texto divergir. O nome da rota continua, para os links
-    // antigos e para o middleware.
-    $this->get('/produtor/entrar')->assertRedirect(route('cobranca'));
-});
-
-it('deixa o produtor recuperar a senha pela mesma porta das outras contas', function () {
-    // Sem isto, o link "esqueci minha senha" responderia "se este e-mail
-    // estiver cadastrado" para um e-mail que esta, e ninguem receberia nada.
-    $this->post(route('produtor.cadastrar'), cadastro());
-    Auth::guard('produtor')->logout();
-
-    $this->from(route('senha.esqueci'))
-        ->post(route('senha.esqueci.enviar'), ['email' => 'marina@escola.com.br'])
-        ->assertSessionHas('ok');
 });

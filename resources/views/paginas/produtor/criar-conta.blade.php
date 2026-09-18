@@ -18,7 +18,8 @@
                     Você está a um passo de alavancar os resultados do seu lançamento!
                 </p>
                 <p class="mt-1 text-gray-500 dark:text-gray-400">
-                    Cadastre-se abaixo para criar a sua conta e dar início a uma parceria de sucesso:
+                    Quatro campos e você já entra. Os dados de recebimento a equipe pede depois,
+                    junto da aprovação.
                 </p>
 
                 <form method="POST" action="{{ route('produtor.cadastrar') }}" class="mt-6 grid gap-5">
@@ -27,39 +28,51 @@
 
                     <div>
                         <label for="nome" class="rotulo-campo">Nome completo</label>
-                        <input id="nome" name="nome" type="text" class="campo" required autofocus value="{{ old('nome') }}">
+                        <input id="nome" name="nome" type="text" class="campo" required autofocus
+                               autocomplete="name" value="{{ old('nome') }}">
                         @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label for="documento" class="rotulo-campo">CPF ou CNPJ</label>
-                        <input id="documento" name="documento" type="text" class="campo" required value="{{ old('documento') }}">
-                        @error('documento') <span class="erro-campo">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
                         <label for="email" class="rotulo-campo">E-mail</label>
-                        <input id="email" name="email" type="email" class="campo" required value="{{ old('email') }}">
+                        <input id="email" name="email" type="email" class="campo" required
+                               autocomplete="email" value="{{ old('email') }}">
                         @error('email') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label for="whatsapp" class="rotulo-campo">WhatsApp</label>
-                        <input id="whatsapp" name="whatsapp" type="text" class="campo" required
-                               placeholder="(34) 99999-9999" value="{{ old('whatsapp') }}">
+                        <input id="whatsapp" name="whatsapp" type="tel" class="campo" required
+                               autocomplete="tel" placeholder="(34) 99999-9999" value="{{ old('whatsapp') }}">
                         @error('whatsapp') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 
-                    <div>
+                    {{-- Mostrar o que foi digitado resolve o mesmo que um campo
+                         de confirmacao, sem pedir a senha duas vezes. Quem erra
+                         a senha no cadastro so descobre no proximo login, e ai
+                         ja saiu da tela. --}}
+                    <div x-data="{ vendo: false }">
                         <label for="senha" class="rotulo-campo">Senha</label>
-                        <input id="senha" name="senha" type="password" class="campo" required autocomplete="new-password">
+
+                        <div class="relative">
+                            <input id="senha" name="senha" class="campo pr-11" required
+                                   autocomplete="new-password" :type="vendo ? 'text' : 'password'">
+
+                            <button type="button" @click="vendo = ! vendo"
+                                    :aria-label="vendo ? 'Ocultar senha' : 'Mostrar senha'"
+                                    class="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
+                                <svg x-show="! vendo" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12S5.9 5.5 12 5.5 21.5 12 21.5 12 18.1 18.5 12 18.5 2.5 12 2.5 12z"/>
+                                </svg>
+                                <svg x-show="vendo" x-cloak class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M10.6 10.6a3 3 0 004.2 4.2M9.9 5.7A9.8 9.8 0 0112 5.5c6.1 0 9.5 6.5 9.5 6.5a17 17 0 01-3.4 4.3M6.3 7.8A17 17 0 002.5 12S5.9 18.5 12 18.5c1 0 1.9-.2 2.7-.5"/>
+                                </svg>
+                            </button>
+                        </div>
+
                         <span class="ajuda-campo">Pelo menos 8 caracteres.</span>
                         @error('senha') <span class="erro-campo">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <label for="senha_confirmation" class="rotulo-campo">Repita a senha</label>
-                        <input id="senha_confirmation" name="senha_confirmation" type="password" class="campo" required autocomplete="new-password">
                     </div>
 
                     <button type="submit" class="botao botao-primario w-full">Cadastrar</button>
