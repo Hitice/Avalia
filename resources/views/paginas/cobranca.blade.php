@@ -102,8 +102,8 @@
                     </h1>
 
                     <p class="entra-suave mt-5 max-w-2xl text-lg text-gray-500 dark:text-gray-400" style="animation-delay: 0.1s">
-                        Seu cliente fecha em até 12x mesmo sem limite no cartão.
-                        Você acompanha cada parcela, e a régua de cobrança é nossa.
+                        Seu cliente paga em até 12x mesmo sem limite no cartão.
+                        Você acompanha cada parcela, e nós gerenciamos a cobrança.
                     </p>
 
                     {{-- A caixa de acesso fica no alto, junto da promessa:
