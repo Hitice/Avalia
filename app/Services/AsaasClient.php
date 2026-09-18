@@ -48,6 +48,19 @@ class AsaasClient
         return $this->enviar('/accounts', $dados);
     }
 
+    /**
+     * Cria a assinatura de um servico cobrado todo mes.
+     *
+     * O provedor gera as cobrancas uma a uma ao longo da recorrencia, e nao
+     * todas de uma vez: e por isso que nao existe "carne" aqui. O split vai na
+     * assinatura e cada cobranca gerada o herda, entao a rede recebe na
+     * recorrencia inteira sem ninguem apurar nada por fora.
+     */
+    public function criarAssinatura(array $dados): array
+    {
+        return $this->enviar('/subscriptions', $dados);
+    }
+
     /** Os dados atuais de uma cobranca, para reemitir link e boleto. */
     public function cobranca(string $id): array
     {

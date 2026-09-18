@@ -18,7 +18,7 @@ class Parcela360 extends Model
     protected $table = 'parcelas_360';
 
     protected $fillable = [
-        'pedido_360_id', 'numero', 'valor_cents', 'vencimento',
+        'pedido_360_id', 'numero', 'competencia', 'valor_cents', 'vencimento',
         'situacao', 'paga_em', 'cobranca_asaas_id',
     ];
 

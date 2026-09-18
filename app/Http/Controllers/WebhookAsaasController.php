@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Cobranca\RegistrarMensalidade;
 use App\Actions\Cobranca\RegistrarPagamentoDaParcela;
 use App\Actions\Financeiro\RegistrarLiquidacao;
 use App\Models\CobrancaAsaas;
@@ -16,6 +17,7 @@ class WebhookAsaasController extends Controller
         Request $request,
         RegistrarLiquidacao $liquidar,
         RegistrarPagamentoDaParcela $baixarParcela,
+        RegistrarMensalidade $registrarMensalidade,
         AsaasClient $asaas,
     ) {
         // O token vem da tela de Conexoes (com o .env de reserva): o mesmo
@@ -46,6 +48,18 @@ class WebhookAsaasController extends Controller
             $cobranca = filled($idDaCobranca)
                 ? CobrancaAsaas::whereNotNull('asaas_charge_id')->where('asaas_charge_id', $idDaCobranca)->first()
                 : null;
+
+            // Cobranca de assinatura chega sem linha nossa: o provedor a criou
+            // sozinho quando o mes virou. Ela e registrada agora, senao o
+            // pagamento seria ignorado e o painel diria que nada foi pago
+            // enquanto o dinheiro cai na conta do parceiro.
+            if (! $cobranca && filled($pagamento['subscription'] ?? null)) {
+                $registrarMensalidade($pagamento);
+
+                $cobranca = CobrancaAsaas::whereNotNull('asaas_charge_id')
+                    ->where('asaas_charge_id', $idDaCobranca)
+                    ->first();
+            }
             $evento->update(['cobranca_asaas_id' => $cobranca?->id]);
 
             if ($cobranca) {

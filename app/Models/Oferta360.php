@@ -21,7 +21,7 @@ class Oferta360 extends Model
     protected $table = 'ofertas_360';
 
     protected $fillable = [
-        'produto_360_id', 'titulo', 'valor_cents', 'parcelas',
+        'produto_360_id', 'titulo', 'tipo', 'valor_cents', 'parcelas', 'meses',
         'entrada_cents', 'entrada_em_dias', 'slug', 'ativa',
     ];
 
@@ -30,6 +30,7 @@ class Oferta360 extends Model
         return [
             'valor_cents' => 'integer',
             'parcelas' => 'integer',
+            'meses' => 'integer',
             'entrada_cents' => 'integer',
             'entrada_em_dias' => 'integer',
             'ativa' => 'boolean',
@@ -41,6 +42,23 @@ class Oferta360 extends Model
         static::creating(function (self $oferta) {
             $oferta->slug ??= Str::lower(Str::random(10));
         });
+    }
+
+    /** Servico cobrado todo mes, em vez de venda dividida em parcelas. */
+    public function ehMensal(): bool
+    {
+        return $this->tipo === 'mensal';
+    }
+
+    /**
+     * O que o cliente paga por mes.
+     *
+     * Na mensalidade e o proprio valor da oferta: nao existe total a dividir,
+     * existe uma cobranca que se repete.
+     */
+    public function mensalidadeCents(): int
+    {
+        return $this->ehMensal() ? $this->valor_cents : $this->valorDaParcela();
     }
 
     public function produto(): BelongsTo

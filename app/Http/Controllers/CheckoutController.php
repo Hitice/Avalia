@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Cobranca\AbrirPedido;
+use App\Actions\Cobranca\AssinarServico;
 use App\Actions\Cobranca\EmitirCobrancaDaParcela;
 use App\Models\Oferta360;
 use App\Models\Pedido360;
@@ -40,8 +41,13 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function fechar(Request $pedidoHttp, string $slug, AbrirPedido $abrir, EmitirCobrancaDaParcela $emitir)
-    {
+    public function fechar(
+        Request $pedidoHttp,
+        string $slug,
+        AbrirPedido $abrir,
+        EmitirCobrancaDaParcela $emitir,
+        AssinarServico $assinar,
+    ) {
         $oferta = Oferta360::where('slug', $slug)->where('ativa', true)->firstOrFail();
 
         // As mesmas guardas de `mostrar()`, de novo: o produto pode ter sido
@@ -107,6 +113,18 @@ class CheckoutController extends Controller
         }
 
         $pedido->update(['contrato_assinado_em' => now(), 'situacao' => 'aguardando_entrada']);
+
+        // Servico cobrado todo mes nao tem entrada nem carne: vira assinatura,
+        // e o provedor gera a cobranca de cada mes na hora certa.
+        if ($oferta->ehMensal()) {
+            try {
+                $assinar($pedido);
+            } catch (\Throwable $erro) {
+                Log::warning('Assinatura do 360 nao criada', ['pedido' => $pedido->id, 'erro' => $erro->getMessage()]);
+            }
+
+            return redirect()->route('checkout.resultado', $pedido->fresh());
+        }
 
         $entrada = $pedido->entrada();
 

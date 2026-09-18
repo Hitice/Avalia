@@ -29,7 +29,7 @@ class Pedido360 extends Model
         'valor_total_cents', 'entrada_cents', 'parcelas', 'valor_parcela_cents', 'taxa_bps',
         'melhor_dia', 'analise_versao', 'analise_motivo', 'analise_em',
         'contrato_assinado_em', 'efetivado_em', 'cancelado_em', 'cancelamento_motivo',
-        'asaas_customer_id',
+        'asaas_customer_id', 'asaas_subscription_id',
     ];
 
     protected function casts(): array
