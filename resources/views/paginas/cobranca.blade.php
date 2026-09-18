@@ -28,8 +28,6 @@
         ['Quem já vende parcelado no caderno', 'M12 6.3a7.5 7.5 0 00-5-1.8c-1.8 0-3.5.5-5 1.4v13a11 11 0 015-1.2c1.8 0 3.5.5 5 1.3m0-12.7a7.5 7.5 0 015-1.8c1.8 0 3.5.5 5 1.4v13a11 11 0 00-5-1.2c-1.8 0-3.5.5-5 1.3m0-12.7V19', 'Você já parcela na confiança. Aqui a análise vem antes e a cobrança não é você quem faz.',
          'A diferença entre parcelar no caderno e parcelar com estrutura é o que acontece quando alguém para de pagar. Aqui existe contrato, existe régua de cobrança e existe registro de tudo que foi combinado.'],
     ];
-    use App\Support\Suporte;
-
     // As perguntas que o produtor faz antes de qualquer outra, na ordem em que
     // ele as faz. Vivem aqui, e nao soltas no markup, para a lista nao crescer
     // com pergunta repetida escrita de outro jeito.
