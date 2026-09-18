@@ -7,25 +7,25 @@
     // abre no popup: quem esta passando o olho le seis linhas, e quem se
     // interessou por uma delas le o paragrafo inteiro sem sair da pagina.
     $operacao = [
-        ['Análise antes de aprovar', 'M9 12l2 2 4-4M7.8 4.7a3.3 3.3 0 0 0 1.9-.8 3.3 3.3 0 0 1 4.6 0 3.3 3.3 0 0 0 1.9.8 3.3 3.3 0 0 1 3.1 3.1 3.3 3.3 0 0 0 .8 1.9 3.3 3.3 0 0 1 0 4.6 3.3 3.3 0 0 0-.8 1.9 3.3 3.3 0 0 1-3.1 3.1 3.3 3.3 0 0 0-1.9.8 3.3 3.3 0 0 1-4.6 0 3.3 3.3 0 0 0-1.9-.8 3.3 3.3 0 0 1-3.1-3.1 3.3 3.3 0 0 0-.8-1.9 3.3 3.3 0 0 1 0-4.6 3.3 3.3 0 0 0 .8-1.9 3.3 3.3 0 0 1 3.1-3.1z',
-         'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito.',
+        ['Análise de crédito', 'M9 12l2 2 4-4M7.8 4.7a3.3 3.3 0 0 0 1.9-.8 3.3 3.3 0 0 1 4.6 0 3.3 3.3 0 0 0 1.9.8 3.3 3.3 0 0 1 3.1 3.1 3.3 3.3 0 0 0 .8 1.9 3.3 3.3 0 0 1 0 4.6 3.3 3.3 0 0 0-.8 1.9 3.3 3.3 0 0 1-3.1 3.1 3.3 3.3 0 0 0-1.9.8 3.3 3.3 0 0 1-4.6 0 3.3 3.3 0 0 0-1.9-.8 3.3 3.3 0 0 1-3.1-3.1 3.3 3.3 0 0 0-.8-1.9 3.3 3.3 0 0 1 0-4.6 3.3 3.3 0 0 0 .8-1.9 3.3 3.3 0 0 1 3.1-3.1z',
+         'Documento, idade, restrição e limite por comprador, antes de a venda existir.',
          'Documento conferido dígito a dígito, idade mínima, uma compra em aberto por comprador e a checagem de restrição. A decisão fica gravada com a versão da regra que decidiu, então dá para explicar uma recusa de seis meses atrás mesmo depois de a régua mudar.'],
 
-        ['Cobrança de quem atrasa', 'M12 8v5l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z',
-         'Régua de lembrete antes e depois do vencimento, com negativação sob seu comando.',
+        ['Régua de cobrança', 'M12 8v5l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z',
+         'Lembrete antes do vencimento, cobrança depois dele, e negativação só quando você manda.',
          'O vencimento não vem do nosso calendário: vem do provedor dizendo que o prazo passou sem pagamento. A negativação existe e nunca é automática. Ela acontece quando você manda, porque a relação com o cliente é sua.'],
 
         ['Repasse e painel', 'M3 17l5-5 4 4 8-9M16 7h5v5',
-         'O dinheiro cai na sua conta no provedor, e o painel mostra o que entrou e o que falta.',
+         'O dinheiro cai na sua conta, e o painel mostra o que entrou e o que falta entrar.',
          'Cada cobrança sai com a divisão já feita: a sua parte vai para a sua carteira no momento em que o cliente paga. Toda parcela registra valor bruto, taxa do provedor, taxa da plataforma e repasse, e a soma tem que fechar. Quando não fecha, o sistema acusa.'],
     ];
 
     $perfis = [
-        ['Produtor de curso e mentoria', 'M12 14l9-5-9-5-9 5 9 5zm0 0v7m-5-9.2V17c0 1.1 2.2 2 5 2s5-.9 5-2v-5.2', 'O aluno sem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em 12x.',
+        ['Infoprodutores', 'M12 14l9-5-9-5-9 5 9 5zm0 0v7m-5-9.2V17c0 1.1 2.2 2 5 2s5-.9 5-2v-5.2', 'Cursos, mentorias e imersões. O aluno sem limite no cartão costuma ter renda para pagar em 12x.',
          'É a venda que você perde hoje sem saber: a pessoa quer, tem como pagar ao longo do ano, e trava na hora de comprometer o limite. O boleto parcelado alcança esse comprador sem mudar o preço do seu produto.'],
-        ['Prestador de serviço recorrente', 'M21 13.3A17.9 17.9 0 0110.7 3 2 2 0 019 1H6a2 2 0 00-2 2c0 9.4 7.6 17 17 17a2 2 0 002-2v-3a2 2 0 00-2-2z', 'Clínica, escritório, assistência técnica: serviço fechado hoje, pago ao longo dos meses.',
+        ['Prestadores de serviço', 'M21 13.3A17.9 17.9 0 0110.7 3 2 2 0 019 1H6a2 2 0 00-2 2c0 9.4 7.6 17 17 17a2 2 0 002-2v-3a2 2 0 00-2-2z', 'Clínica, escritório, assistência técnica. Serviço fechado hoje, pago ao longo dos meses.',
          'Sem antecipadora no meio e sem depender da máquina de cartão. O serviço é combinado uma vez, o contrato registra as condições, e a cobrança das parcelas roda sozinha enquanto você atende.'],
-        ['Quem já vende parcelado no caderno', 'M12 6.3a7.5 7.5 0 00-5-1.8c-1.8 0-3.5.5-5 1.4v13a11 11 0 015-1.2c1.8 0 3.5.5 5 1.3m0-12.7a7.5 7.5 0 015-1.8c1.8 0 3.5.5 5 1.4v13a11 11 0 00-5-1.2c-1.8 0-3.5.5-5 1.3m0-12.7V19', 'Você já parcela na confiança. Aqui a análise vem antes e a cobrança não é você quem faz.',
+        ['Quem já parcela no caderno', 'M12 6.3a7.5 7.5 0 00-5-1.8c-1.8 0-3.5.5-5 1.4v13a11 11 0 015-1.2c1.8 0 3.5.5 5 1.3m0-12.7a7.5 7.5 0 015-1.8c1.8 0 3.5.5 5 1.4v13a11 11 0 00-5-1.2c-1.8 0-3.5.5-5 1.3m0-12.7V19', 'Você já parcela na confiança. Aqui vem contrato, análise e cobrança junto.',
          'A diferença entre parcelar no caderno e parcelar com estrutura é o que acontece quando alguém para de pagar. Aqui existe contrato, existe régua de cobrança e existe registro de tudo que foi combinado.'],
     ];
     // As perguntas que o produtor faz antes de qualquer outra, na ordem em que
@@ -34,19 +34,19 @@
     $duvidas = [
         [
             'pergunta' => 'Quem assume o risco se o cliente não pagar?',
-            'resposta' => 'O risco é da sua operação, como em qualquer venda parcelada própria. O que o Avalia 360 faz é reduzir esse risco antes da venda, com a análise que a Avalia One já opera, e cuidar da régua de cobrança depois dela.',
+            'resposta' => 'O risco é da sua operação, como em qualquer venda parcelada própria. O Avalia 360 reduz esse risco antes da venda, com a análise de crédito, e cuida da cobrança depois dela.',
         ],
         [
             'pergunta' => 'Em quanto tempo o dinheiro entra?',
-            'resposta' => 'Cada parcela cai na sua conta conforme o cliente paga, no prazo do meio de pagamento: Pix no mesmo dia, boleto em um a dois dias úteis após a compensação.',
+            'resposta' => 'Cada parcela cai na sua conta conforme o cliente paga. Pix no mesmo dia, boleto em um a dois dias úteis após a compensação.',
         ],
         [
             'pergunta' => 'Preciso trocar meu sistema de vendas?',
-            'resposta' => 'Não. O checkout do Avalia 360 é um link. Você o envia como já envia o link de pagamento que usa hoje.',
+            'resposta' => 'Não. O checkout é um link, enviado do mesmo jeito que você já envia os seus.',
         ],
         [
             'pergunta' => 'Qual é o custo?',
-            'resposta' => 'Uma taxa por venda efetivada, combinada no cadastro, sem mensalidade e sem cobrança por proposta recusada. O valor sai do repasse, então não há boleto para você pagar.',
+            'resposta' => 'Uma taxa por venda efetivada, combinada no cadastro. Sem mensalidade, sem cobrança por proposta recusada, e o valor sai do repasse: não há boleto para você pagar.',
         ],
     ];
 @endphp
@@ -289,6 +289,10 @@
                         Perfis
                     </span>
                     <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">Para quem é</h2>
+                    <p class="mt-4 max-w-2xl text-gray-500 dark:text-gray-400">
+                        Se o seu cliente paga ao longo do tempo, o Avalia 360 é a estrutura que
+                        sustenta essa venda.
+                    </p>
                 </div>
 
                 <div class="grid gap-6 md:grid-cols-3">
