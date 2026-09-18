@@ -2,6 +2,42 @@
 
 @php
     use App\Support\Empresa;
+
+    // Cada bloco tem resumo e detalhe. O resumo cabe no cartao, o detalhe
+    // abre no popup: quem esta passando o olho le seis linhas, e quem se
+    // interessou por uma delas le o paragrafo inteiro sem sair da pagina.
+    $operacao = [
+        ['Análise antes de aprovar', 'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito.',
+         'Documento conferido dígito a dígito, idade mínima, uma compra em aberto por comprador e a checagem de restrição. A decisão fica gravada com a versão da regra que decidiu, então dá para explicar uma recusa de seis meses atrás mesmo depois de a régua mudar.'],
+        ['Contrato assinado', 'A venda só vira carnê depois do aceite registrado, com data e condições guardadas.',
+         'O aceite guarda o que foi combinado: valor, entrada, número de parcelas e prazo de arrependimento. Cobrança sem contrato é discussão na hora do atraso, e quem perde a discussão é quem vendeu.'],
+        ['Boletos emitidos no prazo', 'A entrada sai na hora da compra e as parcelas no dia que o cliente escolheu.',
+         'O cliente escolhe o melhor dia entre 1 e 28, que existe em todo mês. A primeira parcela vence no mês seguinte ao da entrada, e o carnê inteiro nasce no momento em que a entrada é confirmada, sem rotina noturna e sem você emitir nada.'],
+        ['Cobrança de quem atrasa', 'Régua de lembrete antes e depois do vencimento, com negativação sob seu comando.',
+         'O vencimento não vem do nosso calendário: vem do provedor dizendo que o prazo passou sem pagamento. A negativação existe e nunca é automática. Ela acontece quando você manda, porque a relação com o cliente é sua.'],
+        ['Repasse direto na sua conta', 'O dinheiro cai na sua conta no provedor, e não na nossa.',
+         'Cada cobrança sai com o repasse já dividido: a sua parte vai para a sua carteira no provedor de pagamento no momento em que o cliente paga. Nós nunca ficamos com o dinheiro do seu cliente em trânsito.'],
+        ['Painel com o que falta receber', 'Vendas, parcelas em aberto, atrasos e o que já entrou.',
+         'Os números saem do extrato de lançamentos, e não de um campo que alguém atualiza. Toda parcela paga registra valor bruto, taxa do provedor, taxa da plataforma e repasse, e a soma tem que fechar. Quando não fecha, o sistema acusa.'],
+    ];
+
+    $pilares360 = [
+        ['Crédito é o que a casa faz', 'A Avalia One já opera consulta de score e restrição para quem vende a prazo.',
+         'O 360 não estreou em análise de crédito: ele usa a estrutura que já atende empresas que precisam decidir se vendem parcelado. A mesma régua, os mesmos contratos de bureau, a mesma regra de retenção de dado.'],
+        ['O dinheiro não passa por nós', 'O repasse vai direto para a sua conta no provedor, a cada parcela paga.',
+         'Sua conta de recebimento é sua, aberta no seu nome no provedor de pagamento. A divisão acontece dentro da cobrança, em percentual, então vale mesmo se o valor mudar depois de emitida.'],
+        ['Você enxerga cada centavo', 'Bruto, taxa do provedor, taxa da plataforma e repasse, registrados um a um.',
+         'Nenhum saldo é guardado em coluna: ele é sempre a soma dos lançamentos. Coluna de saldo é a primeira coisa a divergir do extrato, e quando diverge ninguém sabe qual dos dois está certo.'],
+    ];
+
+    $perfis = [
+        ['Produtor de curso e mentoria', 'O aluno sem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em 12x.',
+         'É a venda que você perde hoje sem saber: a pessoa quer, tem como pagar ao longo do ano, e trava na hora de comprometer o limite. O boleto parcelado alcança esse comprador sem mudar o preço do seu produto.'],
+        ['Prestador de serviço recorrente', 'Clínica, escritório, assistência técnica: serviço fechado hoje, pago ao longo dos meses.',
+         'Sem antecipadora no meio e sem depender da máquina de cartão. O serviço é combinado uma vez, o contrato registra as condições, e a cobrança das parcelas roda sozinha enquanto você atende.'],
+        ['Quem já vende parcelado no caderno', 'Você já parcela na confiança. Aqui a análise vem antes e a cobrança não é você quem faz.',
+         'A diferença entre parcelar no caderno e parcelar com estrutura é o que acontece quando alguém para de pagar. Aqui existe contrato, existe régua de cobrança e existe registro de tudo que foi combinado.'],
+    ];
     use App\Support\Suporte;
 
     // As perguntas que o produtor faz antes de qualquer outra, na ordem em que
@@ -33,9 +69,9 @@
 
 @section('content')
     <div class="min-h-screen bg-white text-gray-800 dark:bg-gray-900 dark:text-white/90"
-         x-data="{ duvida: null, formulario: false }"
+         x-data="{ duvida: null, formulario: false, detalhe: null }"
          x-init="@if (session('cobranca_ok') || $errors->any()) formulario = true @endif"
-         @keydown.escape.window="formulario = false">
+         @keydown.escape.window="formulario = false; detalhe = null">
 
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
             <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
@@ -72,15 +108,11 @@
                  tenho limite no cartão", e e esse o problema que se resolve. --}}
             <section class="mx-auto grid w-full max-w-[87rem] items-center gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.1fr_0.9fr]">
                 <div class="max-w-2xl">
-                    {{-- A marca no lugar do rotulo escrito: o 360 se apresenta
-                         pelo proprio logotipo, e nao por uma etiqueta que
-                         repete em texto o que a marca ja diz. --}}
-                    <span class="inline-flex items-center gap-2.5">
-                        <x-avalia.logotipo :tamanho="36" texto="1.35rem" />
-                        <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
-                    </span>
-
-                    <h1 class="mt-5 text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
+                    {{-- Sem marca aqui. Ela esta no topo, a poucos pixels de
+                         distancia, e repeti-la logo abaixo gasta a primeira
+                         linha da pagina dizendo de novo onde a pessoa esta, em
+                         vez de dizer o que ela ganha. --}}
+                    <h1 class="text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">
                         Parcele no boleto e no Pix<br>
                         <span class="text-brand-500">sem depender do cartão.</span>
                     </h1>
@@ -223,18 +255,18 @@
                 </div>
 
                 <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    @foreach ([
-                        ['Análise antes de aprovar', 'Cada proposta passa pela mesma régua que a Avalia One usa em consulta de crédito: documento conferido, histórico e limite por comprador.'],
-                        ['Contrato assinado', 'A venda só vira carnê depois do aceite registrado, com data e condições guardadas. Cobrança sem contrato é discussão na hora do atraso.'],
-                        ['Boletos emitidos no prazo', 'A entrada sai na hora da compra e as parcelas no dia que o cliente escolheu. Você não precisa lembrar de emitir nada.'],
-                        ['Cobrança de quem atrasa', 'Régua de lembrete antes e depois do vencimento. A negativação existe, e só acontece quando você manda.'],
-                        ['Repasse direto na sua conta', 'O dinheiro cai na sua conta no provedor, não na nossa. A taxa sai da parcela, e você vê a composição de cada real.'],
-                        ['Painel com o que falta receber', 'Vendas, parcelas em aberto, atrasos e o que já entrou. Os números saem do extrato, não de uma coluna que alguém atualiza.'],
-                    ] as [$titulo, $texto])
-                        <div class="cartao p-6">
+                    @foreach ($operacao as [$titulo, $resumo, $detalhe])
+                        <button type="button" class="cartao cartao-link p-6 text-left"
+                                @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe) }">
                             <h3 class="font-semibold">{{ $titulo }}</h3>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $texto }}</p>
-                        </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $resumo }}</p>
+                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-400">
+                                Ler mais
+                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </button>
                     @endforeach
                 </div>
             </section>
@@ -286,69 +318,96 @@
                 <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Por que a Avalia 360</h2>
 
                 <div class="mt-8 grid gap-6 md:grid-cols-3">
-                    @foreach ([
-                        ['Crédito é o que a casa faz', 'A Avalia One já opera consulta de score e restrição para empresas que vendem a prazo. O 360 usa a mesma base para dizer quem pode parcelar.'],
-                        ['O dinheiro não passa por nós', 'O repasse vai direto para a sua conta no provedor de pagamento, em cada parcela paga. Nós ficamos com a taxa, e ela aparece discriminada.'],
-                        ['Você enxerga cada centavo', 'Toda parcela tem valor bruto, taxa do provedor, taxa da plataforma e repasse registrados. A conta fecha, e dá para conferir uma a uma.'],
-                    ] as [$titulo, $texto])
-                        <div class="cartao p-6">
+                    @foreach ($pilares360 as [$titulo, $resumo, $detalhe])
+                        <button type="button" class="cartao cartao-link p-6 text-left"
+                                @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe) }">
                             <h3 class="font-semibold">{{ $titulo }}</h3>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $texto }}</p>
-                        </div>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $resumo }}</p>
+                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-400">
+                                Ler mais
+                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </button>
                     @endforeach
                 </div>
             </section>
 
+            {{-- "Para quem e" e as duvidas eram duas colunas lado a lado, e
+                 a das duvidas tinha o dobro da altura: a pagina terminava
+                 torta, com meia coluna vazia. Cada uma ganhou a sua faixa. --}}
             <section class="mx-auto w-full max-w-[87rem] px-6 py-16">
-                <div class="grid gap-10 lg:grid-cols-2">
-                    <div>
-                        <h2 class="text-2xl font-semibold tracking-tight">Para quem é</h2>
-                        <ul class="mt-6 space-y-4">
-                            @foreach ([
-                                ['Produtor de curso e mentoria', 'O aluno que não tem limite no cartão para um curso de R$ 3 mil costuma ter renda para pagá-lo em 12x.'],
-                                ['Prestador de serviço recorrente', 'Clínica, escritório, assistência técnica: serviço fechado hoje, pago ao longo dos meses, sem antecipadora no meio.'],
-                                ['Quem já vende parcelado no caderno', 'Você já parcela na confiança. Aqui a análise vem antes, o contrato existe, e a cobrança não é você quem faz.'],
-                            ] as [$titulo, $texto])
-                                <li class="flex gap-3">
-                                    <svg class="mt-0.5 size-5 shrink-0 text-brand-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
-                                    <span>
-                                        <strong class="font-semibold">{{ $titulo }}</strong>
-                                        <span class="mt-1 block text-sm text-gray-500 dark:text-gray-400">{{ $texto }}</span>
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Para quem é</h2>
 
-                    <div>
-                        <h2 class="text-2xl font-semibold tracking-tight">Perguntas frequentes</h2>
+                <div class="mt-8 grid gap-6 md:grid-cols-3">
+                    @foreach ($perfis as [$titulo, $resumo, $detalhe])
+                        <button type="button" class="cartao cartao-link p-6 text-left"
+                                @click="detalhe = { titulo: @js($titulo), texto: @js($detalhe) }">
+                            <h3 class="font-semibold">{{ $titulo }}</h3>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $resumo }}</p>
+                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-400">
+                                Ler mais
+                                <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        </button>
+                    @endforeach
+                </div>
+            </section>
 
-                        {{-- Uma aberta por vez. Accordion e proposital: a lista
-                             inteira aberta vira parede de texto, e quem chega
-                             ate aqui tem uma duvida especifica, nao cinco. --}}
-                        <div class="mt-6 divide-y divide-gray-100 dark:divide-gray-800">
-                            @foreach ($duvidas as $i => $duvida)
-                                <div>
-                                    <button type="button" class="flex w-full items-center justify-between gap-4 py-4 text-left font-medium"
-                                            @click="duvida = duvida === {{ $i }} ? null : {{ $i }}"
-                                            :aria-expanded="duvida === {{ $i }}">
-                                        {{ $duvida['pergunta'] }}
-                                        <svg class="size-5 shrink-0 text-gray-400 transition" :class="duvida === {{ $i }} && 'rotate-180'"
-                                             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
-                                        </svg>
-                                    </button>
-                                    <p x-show="duvida === {{ $i }}" x-transition.opacity.duration.200ms class="pb-4 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $duvida['resposta'] }}
-                                    </p>
-                                </div>
-                            @endforeach
-                        </div>
+            <section class="border-t border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-950">
+                <div class="mx-auto w-full max-w-3xl px-6 py-16">
+                    <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Perguntas frequentes</h2>
+
+                    {{-- Uma aberta por vez. Accordion e proposital: a lista
+                         inteira aberta vira parede de texto, e quem chega ate
+                         aqui tem uma duvida especifica, nao cinco. --}}
+                    <div class="mt-8 divide-y divide-gray-200 dark:divide-gray-800">
+                        @foreach ($duvidas as $i => $item)
+                            <div>
+                                <button type="button" class="flex w-full items-center justify-between gap-4 py-4 text-left font-medium"
+                                        @click="duvida = duvida === {{ $i }} ? null : {{ $i }}"
+                                        :aria-expanded="duvida === {{ $i }}">
+                                    {{ $item['pergunta'] }}
+                                    <svg class="size-5 shrink-0 text-gray-400 transition" :class="duvida === {{ $i }} && 'rotate-180'"
+                                         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
+                                    </svg>
+                                </button>
+                                <p x-show="duvida === {{ $i }}" x-transition.opacity.duration.200ms
+                                   class="pb-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                    {{ $item['resposta'] }}
+                                </p>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </section>
 
         </main>
+
+        {{-- O detalhe de um cartao. Um overlay so para todos: o conteudo vem
+             do cartao clicado, entao acrescentar um assunto novo e acrescentar
+             uma linha no array la em cima, e nao mais um bloco de markup. --}}
+        <div x-cloak x-show="detalhe !== null" x-transition.opacity.duration.200ms
+             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
+             @click.self="detalhe = null" role="dialog" aria-modal="true">
+            <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-7 py-6 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <button type="button" @click="detalhe = null" aria-label="Fechar"
+                        class="absolute top-4 right-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
+
+                <h2 class="pr-8 text-lg font-semibold tracking-tight" x-text="detalhe?.titulo"></h2>
+                <p class="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400" x-text="detalhe?.texto"></p>
+
+                <button type="button" @click="detalhe = null" class="botao botao-secundario mt-6 w-full">Fechar</button>
+            </div>
+        </div>
 
         {{-- O formulario vive num overlay, e nao no corpo da pagina.
 
@@ -466,15 +525,19 @@
 
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
+            {{-- Sem marca no pe. Ela ja esta no topo, e a pagina nao e longa
+                 o bastante para alguem esquecer onde esta: no rodape ela so
+                 disputava espaco com o que se vem buscar aqui, que e o contato
+                 e o registro da empresa. --}}
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                <a href="{{ route('inicio') }}" aria-label="Início">
-                    <x-avalia.logotipo :tamanho="24" />
-                </a>
+                <a class="hover:text-brand-500" href="mailto:{{ Empresa::email() }}">{{ Empresa::email() }}</a>
+
                 <p class="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
                     © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
                     {{ Empresa::localidade() }}
                 </p>
-                <a class="hover:text-brand-500" href="mailto:{{ Empresa::email() }}">{{ Empresa::email() }}</a>
+
+                <a href="{{ route('inicio') }}" class="hover:text-brand-500">avaliaone.com.br</a>
             </div>
         </footer>
     </div>
