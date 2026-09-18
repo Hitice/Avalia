@@ -5,8 +5,8 @@ namespace App\Actions\Cobranca;
 use App\Models\CobrancaAsaas;
 use App\Models\Parcela360;
 use App\Services\AsaasClient;
+use App\Support\Cascata;
 use App\Support\Documento;
-use App\Support\Rateio;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -38,6 +38,12 @@ class EmitirCobrancaDaParcela
             throw new \RuntimeException('O produtor não tem carteira no provedor: não há para onde repassar.');
         }
 
+        // O split e montado ANTES de falar com o provedor. A validacao da
+        // cascata mora dentro dele, e uma linha que soma mais de 100% faria a
+        // cobranca ser recusada la na frente, depois de ja termos criado um
+        // cliente que ninguem vai usar.
+        $split = Cascata::split($produtor->linhaDeComissao());
+
         $clienteId = $pedido->asaas_customer_id ?: $this->cliente($pedido);
 
         $resposta = $this->asaas->criarCobranca([
@@ -51,10 +57,10 @@ class EmitirCobrancaDaParcela
             // Identificador nosso na ponta do provedor: e por ele que a
             // conciliacao acha a parcela quando o id da cobranca se perde.
             'externalReference' => 'p360-'.$parcela->id,
-            'split' => [[
-                'walletId' => $produtor->asaas_wallet_id,
-                'percentualValue' => Rateio::percentualDoProdutor($pedido->taxa_bps),
-            ]],
+            // A linha inteira vai num array so: quem vendeu, quem o trouxe e
+            // o topo. O provedor divide no momento em que o cliente paga, e o
+            // dinheiro nunca passa pela conta da casa.
+            'split' => $split,
         ]);
 
         return DB::transaction(function () use ($parcela, $pedido, $resposta) {

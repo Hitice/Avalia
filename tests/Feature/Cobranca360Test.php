@@ -40,6 +40,8 @@ function produtorPronto(): Produtor
         'email' => 'costa@escola.com.br',
         'situacao' => 'aprovado',
         'asaas_wallet_id' => 'wallet-do-produtor',
+        // 95% para quem vendeu; os 5% que sobram ficam com a casa.
+        'percentual_bps' => 9500,
         'aprovado_em' => now(),
     ]);
 }
@@ -150,8 +152,8 @@ it('emite a cobranca com o split apontando para a carteira do produtor', functio
 
         $corpo = $pedidoHttp->data();
 
-        // 5% de taxa deixam 95% para o produtor, em percentual e nao em valor:
-        // se a cobranca mudar de valor, a divisao continua certa.
+        // O split vem da linha de comissao, em percentual e nao em valor: se
+        // a cobranca mudar de valor, a divisao continua certa.
         return $corpo['split'][0]['walletId'] === 'wallet-do-produtor'
             && $corpo['split'][0]['percentualValue'] === 95.0
             && $corpo['value'] === 300.0;
@@ -228,7 +230,7 @@ it('da baixa na parcela e escreve o razao fechando em zero', function () {
         ->and($lancamentos->firstWhere('tipo', 'bruto')->valor_cents)->toBe(30000)
         ->and($lancamentos->firstWhere('tipo', 'taxa_provedor')->valor_cents)->toBe(-349)
         // 95% dos 29.651 que sobraram depois da taxa do provedor, que e como
-        // o split dele calcula.
+        // o split do provedor calcula.
         ->and($lancamentos->firstWhere('tipo', 'repasse')->valor_cents)->toBe(-28168)
         ->and($lancamentos->firstWhere('tipo', 'taxa_plataforma')->valor_cents)->toBe(-1483);
 });
@@ -282,4 +284,89 @@ it('so parcela depois de contrato assinado e entrada paga', function () {
 
     $pedido->entrada()->update(['situacao' => 'paga', 'paga_em' => now()]);
     expect($pedido->fresh()->podeParcelar())->toBeTrue();
+});
+
+/*
+|--------------------------------------------------------------------------
+| A rede
+|--------------------------------------------------------------------------
+|
+| Uma venda paga quem vendeu, quem o trouxe e o topo, na mesma cobranca. O
+| provedor divide no momento do pagamento, entao o dinheiro nunca passa pela
+| conta da casa.
+|
+*/
+
+it('divide a venda entre a linha inteira, do vendedor ao topo', function () {
+    Http::fake([
+        '*/customers' => Http::response(['id' => 'cus_1']),
+        '*/payments' => Http::response(['id' => 'pay_1', 'status' => 'PENDING']),
+    ]);
+
+    $topo = Produtor::create([
+        'nome' => 'Topo', 'email' => 'topo@rede.com.br', 'situacao' => 'aprovado',
+        'asaas_wallet_id' => 'w-topo', 'percentual_bps' => 5000,
+    ]);
+
+    $gerente = Produtor::create([
+        'pai_id' => $topo->id, 'nome' => 'Gerente', 'email' => 'gerente@rede.com.br',
+        'situacao' => 'aprovado', 'asaas_wallet_id' => 'w-gerente', 'percentual_bps' => 1000,
+    ]);
+
+    $vendedor = Produtor::create([
+        'pai_id' => $gerente->id, 'nome' => 'Vendedor', 'email' => 'vendedor@rede.com.br',
+        'situacao' => 'aprovado', 'asaas_wallet_id' => 'w-vendedor', 'percentual_bps' => 3000,
+    ]);
+
+    $pedido = pedidoComEntrada($vendedor);
+    app(EmitirCobrancaDaParcela::class)($pedido->entrada());
+
+    // A cobranca sai com os tres beneficiarios, na ordem em que a linha sobe.
+    Http::assertSent(function ($r) {
+        if (! str_contains($r->url(), '/payments')) {
+            return false;
+        }
+
+        return $r->data()['split'] === [
+            ['walletId' => 'w-vendedor', 'percentualValue' => 30.0],
+            ['walletId' => 'w-gerente', 'percentualValue' => 10.0],
+            ['walletId' => 'w-topo', 'percentualValue' => 50.0],
+        ];
+    });
+
+    avisaPagamento('PAYMENT_RECEIVED', $pedido->entrada()->fresh())->assertOk();
+
+    $repasses = Lancamento360::where('tipo', 'repasse')->get();
+
+    // Um lancamento por parceiro: extrato agregado ninguem consegue conferir.
+    expect($repasses)->toHaveCount(3)
+        ->and($repasses->firstWhere('beneficiario_id', $vendedor->id)->valor_cents)->toBe(-8895)
+        ->and($repasses->firstWhere('beneficiario_id', $gerente->id)->valor_cents)->toBe(-2965)
+        ->and($repasses->firstWhere('beneficiario_id', $topo->id)->valor_cents)->toBe(-14825)
+        // E o razao continua fechando em zero com a rede inteira dentro.
+        ->and(Lancamento360::sum('valor_cents'))->toBe(0);
+});
+
+it('recusa a venda quando a linha de comissao passa de cem por cento', function () {
+    // O provedor recusaria a cobranca inteira. Falhar aqui, com o nome do
+    // problema, poupa a investigacao de um erro generico dele.
+    //
+    // O fake registra qualquer chamada: o teste tambem prova que NENHUMA
+    // acontece, porque a conta e conferida antes de falar com o provedor.
+    Http::fake();
+    $topo = Produtor::create([
+        'nome' => 'Topo', 'email' => 'topo@rede.com.br', 'situacao' => 'aprovado',
+        'asaas_wallet_id' => 'w-topo', 'percentual_bps' => 6000,
+    ]);
+
+    $vendedor = Produtor::create([
+        'pai_id' => $topo->id, 'nome' => 'Vendedor', 'email' => 'vendedor@rede.com.br',
+        'situacao' => 'aprovado', 'asaas_wallet_id' => 'w-vendedor', 'percentual_bps' => 5000,
+    ]);
+
+    expect(fn () => app(EmitirCobrancaDaParcela::class)(pedidoComEntrada($vendedor)->entrada()))
+        ->toThrow(RuntimeException::class, 'acima de 100%');
+
+    // Nenhum cliente orfao criado la por causa de um erro de cadastro daqui.
+    Http::assertNothingSent();
 });

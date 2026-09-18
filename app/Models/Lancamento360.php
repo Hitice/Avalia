@@ -19,7 +19,7 @@ class Lancamento360 extends Model
     protected $table = 'lancamentos_360';
 
     protected $fillable = [
-        'pedido_360_id', 'parcela_360_id', 'tipo', 'valor_cents',
+        'pedido_360_id', 'parcela_360_id', 'beneficiario_id', 'tipo', 'valor_cents',
         'ocorrido_em', 'evento_asaas_id', 'descricao',
     ];
 
@@ -36,5 +36,11 @@ class Lancamento360 extends Model
     public function parcela(): BelongsTo
     {
         return $this->belongsTo(Parcela360::class, 'parcela_360_id');
+    }
+
+    /** Quem recebeu, quando a linha e de repasse. */
+    public function beneficiario(): BelongsTo
+    {
+        return $this->belongsTo(Produtor::class, 'beneficiario_id');
     }
 }
