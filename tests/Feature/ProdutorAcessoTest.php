@@ -158,7 +158,8 @@ it('entra pela caixa que fica no alto da pagina do 360', function () {
     $this->get(route('cobranca'))->assertOk()
         ->assertSee('Bem-vindo de volta')
         ->assertSee('Esqueci minha senha')
-        ->assertSee('Solicite seu cadastro.');
+        ->assertSee('Criar conta.')
+        ->assertSee(route('produtor.criar-conta'));
 
     $this->from(route('cobranca'))
         ->post(route('produtor.entrar.enviar'), ['email' => 'marina@escola.com.br', 'senha' => 'senha-bem-grande'])

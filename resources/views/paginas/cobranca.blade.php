@@ -152,12 +152,17 @@
 
                         <button type="submit" class="botao botao-primario mt-5 w-full">Entrar</button>
 
+                        {{-- Leva direto para a criacao da conta, e nao para o
+                             formulario de contato: quem esta na caixa de login
+                             ja decidiu entrar, e mandar essa pessoa esperar a
+                             ligacao de um especialista e trocar um cadastro de
+                             quatro campos por dois dias de espera. --}}
                         <p class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
                             Novo por aqui?
-                            <button type="button" @click="formulario = true"
-                                    class="font-medium text-brand-600 hover:underline dark:text-brand-400">
-                                Solicite seu cadastro.
-                            </button>
+                            <a href="{{ route('produtor.criar-conta') }}"
+                               class="font-medium text-brand-600 hover:underline dark:text-brand-400">
+                                Criar conta.
+                            </a>
                         </p>
                     </form>
 
