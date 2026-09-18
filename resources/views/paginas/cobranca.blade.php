@@ -209,7 +209,7 @@
                         @foreach ([
                             ['n' => '1', 'titulo' => 'Você cria a oferta', 'texto' => 'Informa o valor, a quantidade de parcelas e o valor de entrada. Com isso, um link de checkout personalizado é gerado para o cliente.'],
                             ['n' => '2', 'titulo' => 'O cliente recebe', 'texto' => 'Preenche os dados, passa pela análise, assina o contrato e paga a entrada no Pix ou boleto.'],
-                            ['n' => '3', 'titulo' => 'Você recebe todo mês', 'texto' => 'Emitimos os boletos no dia que o cliente escolheu, cobramos quem atrasa e repassamos cada parcela paga direto para a sua conta.'],
+                            ['n' => '3', 'titulo' => 'Você recebe', 'texto' => 'Emitimos os boletos na data estipulada, realizamos a cobrança e o pagamento entra na sua conta.'],
                         ] as $passo)
                             <div class="cartao p-6">
                                 <span class="flex size-9 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white">{{ $passo['n'] }}</span>
