@@ -66,14 +66,52 @@
             'atraso' => '4s', 'saida' => null, 'parado' => false],
     ];
 
-    // As linhas do terminal do "como funciona", com o instante em que cada uma
-    // comeca a ser escrita. Meio segundo entre elas: menos que isso as quatro
-    // saem juntas e nao parece digitacao, mais que isso a espera cansa.
-    $receita = [
-        ['chave' => 'gatilho:', 'valor' => 'nota_fiscal.recebida', 'atraso' => '0s'],
-        ['chave' => 'validar:', 'valor' => 'regras_fiscais.br', 'atraso' => '0.5s'],
-        ['chave' => 'conciliar:', 'valor' => 'extrato.bancario', 'atraso' => '1s'],
-        ['chave' => 'notificar:', 'valor' => 'equipe.financeiro', 'atraso' => '1.5s'],
+    // As tres operacoes que o terminal roda em rodizio, uma por vez, num ciclo
+    // de 24s. Uma so, repetindo para sempre, dizia que a casa faz uma coisa; o
+    // rodizio mostra tres frentes diferentes trabalhando, que e o que a secao
+    // ao lado promete.
+    //
+    // O atraso de cada bloco e o terco dele no ciclo. As linhas de dentro se
+    // escrevem sempre nos mesmos instantes, meio segundo entre elas: menos que
+    // isso as quatro saem juntas e nao parece digitacao, mais que isso cansa.
+    $tempos = ['0s', '0.5s', '1s', '1.5s'];
+
+    $operacoes = [
+        [
+            'arquivo' => 'fiscal.yaml',
+            'atraso' => '0s',
+            // Fica visivel para quem pediu menos movimento: e a operacao que o
+            // texto ao lado descreve.
+            'parada' => true,
+            'linhas' => [
+                ['gatilho:', 'nota_fiscal.recebida'],
+                ['validar:', 'regras_fiscais.br'],
+                ['conciliar:', 'extrato.bancario'],
+                ['notificar:', 'equipe.financeiro'],
+            ],
+        ],
+        [
+            'arquivo' => 'cobranca.yaml',
+            'atraso' => '8s',
+            'parada' => false,
+            'linhas' => [
+                ['gatilho:', 'parcela.venceu'],
+                ['consultar:', 'titulos_em_aberto'],
+                ['enviar:', 'lembrete.whatsapp'],
+                ['baixar:', 'extrato.conciliado'],
+            ],
+        ],
+        [
+            'arquivo' => 'atendimento.yaml',
+            'atraso' => '16s',
+            'parada' => false,
+            'linhas' => [
+                ['gatilho:', 'mensagem.recebida'],
+                ['classificar:', 'intencao_do_cliente'],
+                ['responder:', 'ura.voz_natural'],
+                ['transferir:', 'fila.atendente'],
+            ],
+        ],
     ];
 
 @endphp
@@ -331,8 +369,13 @@
                         ['Visão inteligente', 'Validações, respostas e rotinas acontecem automaticamente, seguindo as regras do seu negócio.'],
                         ['Equipe no controle', 'As exceções chegam a quem decide, com a informação pronta para a tomada de decisão.'],
                     ] as $passo => $etapa)
-                        <li class="flex items-start gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                            <span class="text-sm font-semibold text-brand-300">{{ str_pad($passo + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                        {{-- O contorno acende ao passar o mouse. Os tres cartoes
+                             sao blocos parados num fundo escuro, e sem resposta
+                             ao cursor a secao inteira parece uma imagem: o
+                             realce diz que ha algo vivo ali, mesmo que o cartao
+                             nao leve a lugar nenhum. --}}
+                        <li class="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 transition duration-200 hover:border-brand-400/60 hover:bg-white/[0.07]">
+                            <span class="text-sm font-semibold text-brand-300 transition group-hover:text-brand-200">{{ str_pad($passo + 1, 2, '0', STR_PAD_LEFT) }}</span>
                             <div>
                                 <h3 class="font-semibold text-white">{{ $etapa[0] }}</h3>
                                 <p class="mt-1 text-sm leading-relaxed text-white/60">{{ $etapa[1] }}</p>
@@ -345,16 +388,39 @@
                 {{-- O terminal, que se escreve sozinho e fecha em concluido.
                      Decorativo: o que ele diz ja esta nos tres passos ao lado. --}}
                 <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-5 font-mono text-sm" aria-hidden="true">
-                    <div class="flex items-center justify-between border-b border-white/10 pb-3 text-xs text-white/40">
-                        <span>automacao.yaml</span>
-                        <span>● ● ●</span>
+                    {{-- Os botoes da janela, do jeito que o sistema desenha: a
+                         esquerda, e o nome do arquivo centrado entre eles e o
+                         vao do mesmo tamanho do outro lado. --}}
+                    <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                        <span class="flex shrink-0 items-center gap-1.5">
+                            <i class="size-3 rounded-full bg-[#ff5f57]"></i>
+                            <i class="size-3 rounded-full bg-[#febc2e]"></i>
+                            <i class="size-3 rounded-full bg-[#28c840]"></i>
+                        </span>
+
+                        <span class="relative block h-4 flex-1 text-center text-xs text-white/40">
+                            @foreach ($operacoes as $operacao)
+                                <span class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-0"
+                                      style="--atraso: {{ $operacao['atraso'] }}">{{ $operacao['arquivo'] }}</span>
+                            @endforeach
+                        </span>
+
+                        <span class="w-12 shrink-0"></span>
                     </div>
 
-                    <div class="mt-4 space-y-2 leading-relaxed text-white/70">
-                        @foreach ($receita as $linha)
-                            <p class="digita" style="--atraso: {{ $linha['atraso'] }}">
-                                <span class="text-brand-300">{{ $linha['chave'] }}</span> {{ $linha['valor'] }}
-                            </p>
+                    {{-- As tres operacoes dividem o mesmo espaco, empilhadas.
+                         Altura fixa: sem ela o painel mudaria de tamanho a cada
+                         troca, e a coluna ao lado pularia junto. --}}
+                    <div class="relative mt-4 h-[7.5rem]">
+                        @foreach ($operacoes as $operacao)
+                            <div class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-0 space-y-2 leading-relaxed text-white/70"
+                                 style="--atraso: {{ $operacao['atraso'] }}">
+                                @foreach ($operacao['linhas'] as $indice => [$chave, $valor])
+                                    <p class="digita" style="--atraso: {{ $tempos[$indice] }}">
+                                        <span class="text-brand-300">{{ $chave }}</span> {{ $valor }}
+                                    </p>
+                                @endforeach
+                            </div>
                         @endforeach
                     </div>
 

@@ -1052,3 +1052,29 @@
   .fase-terminal { animation: none; opacity: 0; }
   .fase-terminal-parada { opacity: 1; }
 }
+
+/* O rodizio de operacoes do terminal.
+
+   Tres blocos ocupam o mesmo lugar e cada um aparece no seu terco de um ciclo
+   de 24s. O ciclo e multiplo exato dos 8s da digitacao, e isso nao e acaso:
+   quando um bloco entra, o relogio das linhas dele esta comecando, e elas se
+   escrevem do zero em vez de aparecer pela metade.
+
+   `steps(1)` de proposito: terminal nao faz fade entre um comando e o
+   proximo, ele troca. */
+@utility troca-operacao {
+  animation: troca-operacao 24s steps(1, end) infinite;
+  animation-delay: var(--atraso, 0s);
+  opacity: 0;
+}
+
+@keyframes troca-operacao {
+  0%            { opacity: 1; }
+  33.34%, 100%  { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sem movimento fica so a primeira operacao, escrita por inteiro. */
+  .troca-operacao { animation: none; opacity: 0; }
+  .troca-operacao-parada { opacity: 1; }
+}
