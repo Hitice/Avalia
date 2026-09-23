@@ -29,46 +29,51 @@
     // rodizio mostra tres frentes diferentes trabalhando, que e o que a secao
     // ao lado promete.
     //
-    // O atraso de cada bloco e o terco dele no ciclo. As linhas de dentro se
-    // escrevem sempre nos mesmos instantes, meio segundo entre elas: menos que
-    // isso as quatro saem juntas e nao parece digitacao, mais que isso cansa.
-    $tempos = ['0s', '0.5s', '1s', '1.5s'];
-
+    // Cada uma e um comando com a saida dele, e nao um trecho de arquivo
+    // parado: o comando se escreve, as linhas de resposta chegam uma a uma e o
+    // fecho confirma. Terminal de verdade e o que a secao esta dizendo que
+    // acontece, e mostrar um YAML nao dizia que algo estava sendo executado.
+    //
+    // O atraso de cada operacao e o terco dela no ciclo; os das linhas sao o
+    // instante em que cada resposta chega, dentro dos 8s da operacao.
     $operacoes = [
         [
-            'arquivo' => 'fiscal.yaml',
+            'nome' => 'fiscal',
             'atraso' => '0s',
             // Fica visivel para quem pediu menos movimento: e a operacao que o
             // texto ao lado descreve.
             'parada' => true,
-            'linhas' => [
-                ['gatilho:', 'nota_fiscal.recebida'],
-                ['validar:', 'regras_fiscais.br'],
-                ['conciliar:', 'extrato.bancario'],
-                ['notificar:', 'equipe.financeiro'],
+            'comando' => 'avalia run fiscal --evento=nota_fiscal.recebida',
+            'saidas' => [
+                ['linha' => 'validando contra regras_fiscais.br', 'atraso' => '1.4s'],
+                ['linha' => 'conciliando com extrato.bancario', 'atraso' => '2.2s'],
+                ['linha' => 'notificando equipe.financeiro', 'atraso' => '3s'],
             ],
+            'fecho' => 'lançamento conciliado',
         ],
         [
-            'arquivo' => 'cobranca.yaml',
+            'nome' => 'cobranca',
             'atraso' => '8s',
             'parada' => false,
-            'linhas' => [
-                ['gatilho:', 'parcela.venceu'],
-                ['consultar:', 'titulos_em_aberto'],
-                ['enviar:', 'lembrete.whatsapp'],
-                ['baixar:', 'extrato.conciliado'],
+            'comando' => 'avalia run cobranca --evento=parcela.venceu',
+            'saidas' => [
+                ['linha' => 'consultando titulos_em_aberto', 'atraso' => '1.4s'],
+                ['linha' => 'enviando lembrete.whatsapp', 'atraso' => '2.2s'],
+                ['linha' => 'aguardando extrato.conciliado', 'atraso' => '3s'],
             ],
+            'fecho' => 'régua em dia',
         ],
         [
-            'arquivo' => 'atendimento.yaml',
+            'nome' => 'atendimento',
             'atraso' => '16s',
             'parada' => false,
-            'linhas' => [
-                ['gatilho:', 'mensagem.recebida'],
-                ['classificar:', 'intencao_do_cliente'],
-                ['responder:', 'ura.voz_natural'],
-                ['transferir:', 'fila.atendente'],
+            'comando' => 'avalia run atendimento --evento=mensagem.recebida',
+            'saidas' => [
+                ['linha' => 'classificando intencao_do_cliente', 'atraso' => '1.4s'],
+                ['linha' => 'respondendo em ura.voz_natural', 'atraso' => '2.2s'],
+                ['linha' => 'transferindo para fila.atendente', 'atraso' => '3s'],
             ],
+            'fecho' => 'cliente atendido',
         ],
     ];
 
@@ -355,15 +360,12 @@
                 {{-- O terminal, que se escreve sozinho e fecha em concluido.
                      Decorativo: o que ele diz ja esta nos tres passos ao lado. --}}
                 <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-5 font-mono text-sm" aria-hidden="true">
-                    {{-- Nome do arquivo a esquerda, sinal de vida a direita. Os
-                         tres botoes de janela do sistema estiveram aqui e
-                         saiam do tom: eles dizem "isto e uma janela", e o que
-                         importa nesta caixa e que ela esta rodando. --}}
+                    {{-- Nome da operacao a esquerda, sinal de vida a direita. --}}
                     <div class="flex items-center gap-3 border-b border-white/10 pb-3">
                         <span class="relative block h-4 flex-1 text-xs text-white/40">
                             @foreach ($operacoes as $operacao)
                                 <span class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-0"
-                                      style="--atraso: {{ $operacao['atraso'] }}">{{ $operacao['arquivo'] }}</span>
+                                      style="--atraso: {{ $operacao['atraso'] }}">avalia@fluxo: {{ $operacao['nome'] }}</span>
                             @endforeach
                         </span>
 
@@ -373,19 +375,30 @@
                     {{-- As tres operacoes dividem o mesmo espaco, empilhadas.
                          Altura fixa: sem ela o painel mudaria de tamanho a cada
                          troca, e a coluna ao lado pularia junto. --}}
-                    <div class="relative mt-4 h-[7.5rem]">
+                    <div class="relative mt-4 h-[9.5rem] text-xs leading-relaxed sm:text-sm">
                         @foreach ($operacoes as $operacao)
-                            <div class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-0 space-y-2 leading-relaxed text-white/70"
+                            <div class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-0"
                                  style="--atraso: {{ $operacao['atraso'] }}">
-                                @foreach ($operacao['linhas'] as $indice => [$chave, $valor])
-                                    <p class="digita" style="--atraso: {{ $tempos[$indice] }}">
-                                        <span class="text-brand-300">{{ $chave }}</span> {{ $valor }}
-                                    </p>
-                                @endforeach
+                                {{-- O comando, que se escreve sozinho, com o cursor no fim. --}}
+                                <p class="flex items-baseline gap-2">
+                                    <span class="shrink-0 text-success-400">$</span>
+                                    <span class="digita min-w-0 text-white/90" style="--atraso: 0s">{{ $operacao['comando'] }}</span>
+                                    <i class="pisca inline-block h-3 w-1.5 shrink-0 bg-white/60"></i>
+                                </p>
+
+                                {{-- A resposta, uma linha por vez. --}}
+                                <div class="mt-2 space-y-1.5">
+                                    @foreach ($operacao['saidas'] as $saida)
+                                        <p class="surge-linha flex items-baseline gap-2 text-white/55" style="--atraso: {{ $saida['atraso'] }}">
+                                            <span class="shrink-0 text-brand-300">›</span>
+                                            <span class="min-w-0 truncate">{{ $saida['linha'] }}</span>
+                                            <span class="ml-auto shrink-0 text-success-400">ok</span>
+                                        </p>
+                                    @endforeach
+                                </div>
                             </div>
                         @endforeach
                     </div>
-
                     {{-- As duas fases se revezam no mesmo lugar: executando
                          enquanto as linhas se escrevem, concluido depois. Altura
                          fixa para a troca nao mexer no tamanho do painel. --}}
@@ -393,15 +406,19 @@
                         <span class="fase-terminal absolute inset-x-0 top-3 flex items-center gap-2 text-white/50" style="--atraso: 0s">
                             <i class="size-1.5 shrink-0 animate-pulse rounded-full bg-warning-400"></i>
                             executando
-                            <i class="pisca inline-block h-3 w-1.5 bg-white/60"></i>
                         </span>
 
-                        <span class="fase-terminal fase-terminal-parada absolute inset-x-0 top-3 flex items-center gap-2 text-success-400" style="--atraso: 4s">
-                            <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                            </svg>
-                            status: concluido
-                        </span>
+                        @foreach ($operacoes as $operacao)
+                            <span class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-x-0 top-3"
+                                  style="--atraso: {{ $operacao['atraso'] }}">
+                                <span class="fase-terminal flex items-center gap-2 text-success-400" style="--atraso: 4s">
+                                    <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                    </svg>
+                                    {{ $operacao['fecho'] }}
+                                </span>
+                            </span>
+                        @endforeach
                     </div>
                 </div>
             </div>

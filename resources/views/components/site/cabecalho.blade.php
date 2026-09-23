@@ -79,22 +79,33 @@
              entao sobe pela grade em degraus de 42px, apagando antes do topo e
              antes do icone da direita: e o mesmo movimento do diagrama do
              herói, mas aqui ele usa a textura da propria faixa como caminho. --}}
+        {{-- O trecho reto do caminho, do pe da faixa ate os 60% onde a escada
+             comeca. --}}
         <div class="absolute inset-x-0 bottom-0 h-px bg-white/10" aria-hidden="true">
+            <i class="risca-degrau absolute inset-0 hidden bg-brand-400/70 lg:block" style="--atraso: 0.4s"></i>
+            {{-- Tres em fila, e nao uma so: a da frente puxa e as outras duas
+                 vem atras, menores e mais apagadas. E a de frente que o traco
+                 acompanha; as outras sao o rastro dela. --}}
             <i class="corre-degrau absolute hidden size-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgb(50_213_131/0.6)] lg:block"
                style="--atraso: 0.4s"></i>
+            <i class="corre-degrau absolute hidden size-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-success-400/60 lg:block"
+               style="--atraso: 0.58s"></i>
+            <i class="corre-degrau absolute hidden size-1 -translate-x-1/2 translate-y-1/2 rounded-full bg-success-400/35 lg:block"
+               style="--atraso: 0.76s"></i>
         </div>
 
-        {{-- O traco que a bolinha deixa. Vive num SVG esticado sobre a faixa
-             inteira, entao o caminho e o mesmo em qualquer largura; o
-             `non-scaling-stroke` impede que o estica-e-puxa engrosse os
-             trechos verticais. So no desktop: a escada precisa dos 252px de
-             altura, que o celular nao tem. --}}
-        <svg class="pointer-events-none absolute inset-0 hidden h-full w-full text-brand-400 lg:block"
-             viewBox="0 0 100 252" preserveAspectRatio="none" aria-hidden="true">
+        {{-- A escada. A caixa tem o tamanho exato do desenho, 224 por 168, e o
+             viewBox tambem: sem esticar, o tracejado e medido nas mesmas
+             unidades em que a bolinha anda, e os dois chegam juntos a cada
+             canto. Esticado, eles descolavam nos trechos horizontais.
+
+             So no desktop: a escada precisa dos 252px de altura da faixa, que
+             o celular nao tem. --}}
+        <svg class="pointer-events-none absolute bottom-0 left-[60%] hidden h-[168px] w-[224px] text-brand-400 lg:block"
+             viewBox="0 0 224 168" aria-hidden="true">
             <path class="desenha-degrau" pathLength="100" style="--atraso: 0.4s"
-                  d="M0 251.5H60V210H65V168H70V126H75V84H80"
-                  fill="none" stroke="currentColor" stroke-opacity="0.7"
-                  stroke-width="1.5" vector-effect="non-scaling-stroke" />
+                  d="M0 168V126H56V84H112V42H168V0H224"
+                  fill="none" stroke="currentColor" stroke-opacity="0.7" stroke-width="1.5" />
         </svg>
     </div>
 

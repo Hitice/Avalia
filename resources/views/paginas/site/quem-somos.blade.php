@@ -15,7 +15,7 @@
             {{-- A foto acompanha o texto de abertura em vez de abrir a pagina
                  sozinha, e fica contida na coluna: o original tem 740px de
                  largura, e esticado de ponta a ponta ele sai borrado. --}}
-            <div class="grid items-center gap-10 lg:grid-cols-[1fr_auto]" data-revelar>
+            <div class="grid items-stretch gap-10 lg:grid-cols-[1fr_26rem]" data-revelar>
                 <div class="prosa">
                     <p>
                         A {{ Empresa::marca() }} é uma software house de produtos digitais, com foco
@@ -38,9 +38,13 @@
                     </p>
                 </div>
 
-                <figure class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 lg:w-[26rem]">
+                {{-- A foto acompanha a altura do texto ao lado, recortada pelo
+                     centro. Com altura propria ela deixava um degrau de espaco
+                     branco no pe da coluna. --}}
+                <figure class="min-h-[18rem] overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
                     <img src="{{ asset('images/site/equipe.jpg') }}" width="740" height="493" loading="lazy"
-                         alt="Cinco profissionais de negócios lado a lado, sorrindo" class="w-full">
+                         alt="Cinco profissionais de negócios lado a lado, sorrindo"
+                         class="h-full w-full object-cover">
                 </figure>
             </div>
 

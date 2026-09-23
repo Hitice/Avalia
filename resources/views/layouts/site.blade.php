@@ -72,11 +72,11 @@
     <header x-data="{ menu: false, rolou: false }"
             @scroll.window.passive="rolou = window.scrollY > 40"
             :class="rolou ? 'px-3 sm:px-6' : 'px-0'"
-            class="fixed inset-x-0 top-0 z-40 transition-all duration-300">
+            class="fixed inset-x-0 top-0 z-40 transition-[padding] duration-300">
         <div :class="rolou
                  ? 'mt-3 max-w-[64rem] rounded-full border-gray-200 bg-white/90 shadow-theme-lg backdrop-blur'
                  : 'mt-0 max-w-[87rem] rounded-none border-transparent bg-white shadow-theme-md'"
-             class="mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-all duration-300">
+             class="mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-300">
             <a href="{{ route('inicio') }}" aria-label="{{ Empresa::marca() }}, início" class="flex items-center">
                 <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
             </a>

@@ -1095,18 +1095,37 @@
   opacity: 0;
 }
 
+/* Os degraus tem largura fixa, 56px, e nao uma fracao da faixa. O traco que
+   acompanha a bolinha e desenhado num SVG, e SVG esticado mede o tracejado num
+   sistema deformado: em porcentagem, os dois descolavam justo nos trechos
+   horizontais, que sao os mais esticados. Com passo fixo, os dois andam nas
+   mesmas coordenadas. */
 @keyframes corre-degrau {
-  0%        { left: 0;   bottom: 0;     opacity: 0; }
+  0%        { left: 0;                    bottom: 0;     opacity: 0; }
   4%        { opacity: 1; }
-  40%       { left: 60%; bottom: 0; }
-  45%       { left: 60%; bottom: 42px; }
-  50%       { left: 65%; bottom: 42px; }
-  55%       { left: 65%; bottom: 84px; }
-  60%       { left: 70%; bottom: 84px; }
-  65%       { left: 70%; bottom: 126px; }
-  70%       { left: 75%; bottom: 126px; opacity: 1; }
-  76%       { left: 75%; bottom: 168px; opacity: 0.35; }
-  82%, 100% { left: 80%; bottom: 168px; opacity: 0; }
+  40%       { left: 60%;                  bottom: 0; }
+  45%       { left: 60%;                  bottom: 42px; }
+  50%       { left: calc(60% + 56px);     bottom: 42px; }
+  55%       { left: calc(60% + 56px);     bottom: 84px; }
+  60%       { left: calc(60% + 112px);    bottom: 84px; }
+  65%       { left: calc(60% + 112px);    bottom: 126px; }
+  70%       { left: calc(60% + 168px);    bottom: 126px; opacity: 1; }
+  76%       { left: calc(60% + 168px);    bottom: 168px; opacity: 0.35; }
+  82%, 100% { left: calc(60% + 224px);    bottom: 168px; opacity: 0; }
+}
+
+/* O trecho reto, do pe da faixa ate os 60% onde a escada comeca. */
+@utility risca-degrau {
+  transform-origin: left;
+  animation: risca-degrau 6s linear infinite;
+  animation-delay: var(--atraso, 0s);
+}
+
+@keyframes risca-degrau {
+  0%        { transform: scaleX(0); opacity: 1; }
+  40%, 70%  { transform: scaleX(0.6); opacity: 1; }
+  76%       { transform: scaleX(0.6); opacity: 0.35; }
+  82%, 100% { transform: scaleX(0.6); opacity: 0; }
 }
 
 /* A luz rosa no canto da faixa escura. O rosa e a outra ponta do degrade de
@@ -1118,33 +1137,30 @@
 
 @media (prefers-reduced-motion: reduce) {
   .corre-degrau { animation: none; opacity: 0; }
-  .desenha-degrau { animation: none; stroke-dashoffset: 40; opacity: 0.35; }
+  .desenha-degrau { animation: none; stroke-dashoffset: 50; opacity: 0.35; }
+  .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
 }
 
-/* O traco que desenha o caminho do pulso, degrau por degrau.
-
-   E um `path` de SVG com `pathLength="100"`, entao o recuo do tracejado vai de
-   100 a 0 conforme a linha se desenha. Os instantes abaixo sao os mesmos de
-   `corre-degrau`, e os valores sao a fracao do comprimento ja percorrida em
-   cada um deles: e isso que faz o traco chegar a cada canto no quadro exato em
-   que a bolinha chega. Mexer numa das duas sem recalcular a outra e o que faz
-   a linha adiantar ou atrasar em relacao a ela. */
 @utility desenha-degrau {
   stroke-dasharray: 100;
   animation: desenha-degrau 6s linear infinite;
   animation-delay: var(--atraso, 0s);
 }
 
+/* O caminho tem `pathLength="100"`, entao o recuo do tracejado e a fracao do
+   percurso que falta desenhar. Os valores abaixo sao o comprimento acumulado
+   em cada canto da escada (degraus de 42px na vertical e 56px na horizontal,
+   392 no total), nos mesmos instantes em que `corre-degrau` chega neles.
+   Mexer numa sem recalcular a outra descola o traco da bolinha. */
 @keyframes desenha-degrau {
-  0%        { stroke-dashoffset: 100;   opacity: 1; }
-  40%       { stroke-dashoffset: 75.76; }
-  45%       { stroke-dashoffset: 58.99; }
-  50%       { stroke-dashoffset: 56.97; }
-  55%       { stroke-dashoffset: 40; }
-  60%       { stroke-dashoffset: 37.98; }
-  65%       { stroke-dashoffset: 21.01; }
-  70%       { stroke-dashoffset: 18.99; opacity: 1; }
-  76%       { stroke-dashoffset: 2.02;  opacity: 0.35; }
+  0%, 40%   { stroke-dashoffset: 100;   opacity: 1; }
+  45%       { stroke-dashoffset: 89.29; }
+  50%       { stroke-dashoffset: 75; }
+  55%       { stroke-dashoffset: 64.29; }
+  60%       { stroke-dashoffset: 50; }
+  65%       { stroke-dashoffset: 39.29; }
+  70%       { stroke-dashoffset: 25;    opacity: 1; }
+  76%       { stroke-dashoffset: 14.29; opacity: 0.35; }
   82%, 100% { stroke-dashoffset: 0;     opacity: 0; }
 }
 
@@ -1195,11 +1211,33 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .desenha-degrau { animation: none; stroke-dashoffset: 40; opacity: 0.35; }
+  .desenha-degrau { animation: none; stroke-dashoffset: 50; opacity: 0.35; }
+  .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
 
   .com-js [data-revelar] {
     opacity: 1;
     transform: none;
     transition: none;
   }
+}
+
+/* A linha de saida do terminal, que surge quando chega a vez dela e fica.
+
+   O atraso e o instante em que ela aparece dentro do ciclo de 8s da operacao.
+   Como a operacao inteira some aos 8s, a linha nao precisa de saida propria:
+   quem apaga o bloco e `troca-operacao`. */
+@utility surge-linha {
+  opacity: 0;
+  animation: surge-linha 8s linear infinite;
+  animation-delay: var(--atraso, 0s);
+}
+
+@keyframes surge-linha {
+  0%, 1%   { opacity: 0; }
+  4%, 100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sem movimento, a saida inteira ja esta escrita. */
+  .surge-linha { animation: none; opacity: 1; }
 }
