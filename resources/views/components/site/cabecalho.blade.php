@@ -38,7 +38,11 @@
              a 60 quadros, e o efeito nao pagava o custo. --}}
         <i class="brilho-rosa pointer-events-none absolute -top-24 -right-24 size-80 rounded-full blur-2xl" aria-hidden="true"></i>
 
-        <div class="mx-auto flex h-full w-full max-w-[87rem] items-center gap-8 px-6 py-12 lg:py-0">
+        {{-- A folga de 76px no topo e o que a ilha ocupa: 12px de margem mais
+             os 60px dela, e uma sobra. Sem ela o titulo nasceria por baixo do
+             cabecalho. A altura da faixa nao muda, entao a grade continua
+             fechando em seis quadradinhos. --}}
+        <div class="mx-auto flex h-full w-full max-w-[87rem] items-center gap-8 px-6 pt-[76px] pb-12 lg:pb-0">
             <div class="min-w-0 flex-1">
                 @if ($selo)
                     @if ($href)

@@ -89,7 +89,7 @@
              a secao seguinte comecando a aparecer sem ninguem precisar rolar.
              No celular a altura volta a ser a do conteudo, que empilha. --}}
         <div class="grade-viva-escura lg:h-[336px]">
-            <div class="mx-auto grid h-full w-full max-w-[87rem] items-center gap-8 px-6 py-12 lg:grid-cols-2 lg:py-0">
+            <div class="mx-auto grid h-full w-full max-w-[87rem] items-center gap-8 px-6 pt-[76px] pb-12 lg:grid-cols-2 lg:pb-0">
                 <div class="entra-suave">
                     <span class="selo selo-claro">Software · Automação · Integração</span>
 

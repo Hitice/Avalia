@@ -116,24 +116,21 @@
                 },
             }"
             @scroll.window.passive="rolou = window.scrollY > 40"
-            :class="rolou ? 'bg-transparent px-3 sm:px-6' : 'bg-[#000] px-0'"
-            class="fixed inset-x-0 top-0 z-40 transition-colors duration-200">
-        {{-- A faixa preta do alto e o fundo do proprio `header`, e nao desta
-             caixa: aqui ela ficava presa nos 87rem do conteudo e deixava duas
-             tiras brancas nas laterais das telas largas.
+            class="fixed inset-x-0 top-0 z-40 px-3 sm:px-6">
+        {{-- A ilha e o unico estado do cabecalho: ela ja nasce redonda e solta,
+             flutuando por cima da faixa escura do topo. Antes havia uma barra
+             quadrada de largura inteira que virava ilha ao rolar, e essa troca
+             de forma no meio da rolagem nunca ficou boa.
 
-             Com o preto la fora, a ilha vira uma forma a parte, que so aparece
-             ao rolar. Ela ja nasce redonda, porque nao ha uma barra quadrada
-             virando ilha: ha uma barra que se apaga e uma ilha que acende.
+             O que a rolagem muda agora e so a densidade do vidro. No alto, a
+             ilha esta sobre a faixa escura e pode ser mais transparente; a
+             partir dali ela passa por cima do corpo branco da pagina, e o preto
+             precisa fechar para o texto continuar legivel.
 
-             Escura nos dois estados, e nao clara de um lado e escura do outro:
-             ao rolar, a ilha passa por cima da faixa preta do topo e logo
-             depois por cima do corpo branco da pagina, e cor de texto fixa e a
-             unica que se le nos dois fundos. --}}
-        <div :class="rolou
-                 ? 'mt-3 max-w-[64rem] rounded-full border-white/10 bg-[#000]/70 shadow-theme-lg backdrop-blur-xl'
-                 : 'mt-0 max-w-[87rem] rounded-full border-transparent bg-transparent'"
-             class="relative mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-300">
+             Escura nos dois casos, entao a cor do texto nao muda no meio do
+             caminho. --}}
+        <div :class="rolou ? 'bg-[#000]/80 shadow-theme-lg' : 'bg-[#000]/40 shadow-theme-md'"
+             class="relative mx-auto mt-3 flex h-[60px] w-full max-w-[64rem] items-center justify-between rounded-full border border-white/10 px-6 backdrop-blur-xl transition-colors duration-300">
             <a href="{{ route('inicio') }}" aria-label="{{ Empresa::marca() }}, início" class="flex items-center">
                 <x-avalia.logotipo :tamanho="34" texto="1.3rem" claro />
             </a>
@@ -221,7 +218,10 @@
         </div>
     </header>
 
-    <main id="conteudo" class="pt-[60px]">
+    {{-- Sem respiro no topo: a faixa escura de cada pagina comeca no alto e
+         passa por baixo da ilha. Quem reserva o espaco do cabecalho e a
+         propria faixa, que abre com 76px de folga. --}}
+    <main id="conteudo">
         @yield('content')
     </main>
 
