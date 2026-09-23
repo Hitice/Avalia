@@ -17,22 +17,23 @@
                  largura, e esticado de ponta a ponta ele sai borrado. --}}
             <div class="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
                 <div class="prosa">
-                <p>
-                    A {{ Empresa::marca() }} é uma software house de produtos digitais com foco em
-                    controle fiscal, finanças, marketing e investimentos.
-                </p>
-                <p>
-                    Desenvolvemos automações, atendimentos humanizados com IA e sistemas sob medida:
-                    do chat e da URA no WhatsApp à automação de processos, da análise de mercado à
-                    cobrança, do controle de produção a sites, SaaS e web apps.
-                </p>
-                <p>
-                    Trabalhamos lado a lado com a sua equipe: entendemos o processo antes de escrever
-                    a primeira linha de código e entregamos em etapas, para que o resultado apareça cedo.
-                </p>
-                <p>
-                    Além do trabalho sob demanda, mantemos plataformas próprias: o
-                    {{ Empresa::marcaCredito() }}, de pesquisa de score para venda a prazo, e o
+                    <p>
+                        A {{ Empresa::marca() }} é uma software house de produtos digitais, com foco
+                        em controle fiscal, finanças, marketing e investimentos.
+                    </p>
+                    <p>
+                        Desenvolvemos automações, atendimento humanizado com IA e sistemas sob medida:
+                        do chatbot à automação de processos, da análise de mercado à cobrança, do
+                        controle de produção a sites, SaaS e web apps.
+                    </p>
+                    <p>
+                        Trabalhamos lado a lado com a sua equipe: entendemos o processo antes de
+                        escrever código e validamos a cada etapa, para o resultado aparecer durante o
+                        projeto, e não só na entrega.
+                    </p>
+                    <p>
+                        Além do trabalho sob demanda, mantemos plataformas próprias: o
+                        {{ Empresa::marcaCredito() }}, de pesquisa de score para venda a prazo, e o
                         {{ Empresa::marcaCobranca() }}, de venda parcelada, cobrança e APIs.
                     </p>
                 </div>

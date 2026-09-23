@@ -119,7 +119,13 @@
                      empilhados viram uma coluna so aos olhos de quem rola; o
                      zigue-zague marca onde um assunto termina e o outro
                      comeca, sem precisar de mais uma linha divisoria. --}}
-                <article id="{{ $frente['ancora'] }}" class="grid scroll-mt-20 items-start gap-8 lg:grid-cols-2 lg:gap-14">
+                <article id="{{ $frente['ancora'] }}"
+                         @class([
+                             'grid scroll-mt-20 items-start gap-8 lg:gap-14',
+                             // Sem foto nao ha segunda coluna: a frente ocupa a
+                             // largura inteira em vez de deixar metade vazia.
+                             'lg:grid-cols-2' => $frente['imagem'],
+                         ])>
                     <div class="{{ $loop->even ? 'lg:order-last' : '' }}">
                         <span class="icone-caixa">
                             <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -135,21 +141,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
                             </svg>
                         </x-avalia.botao>
-                    </div>
-
-                    <div class="space-y-5">
-                        {{-- A foto entra recortada em 16:10 qualquer que seja o
-                             original: as sete vem de fontes diferentes, e sem o
-                             recorte cada bloco da pagina teria uma altura. --}}
-                        @if ($frente['imagem'])
-                            <figure class="overflow-hidden rounded-2xl border border-gray-200">
-                                <img src="{{ asset('images/softwares/'.$frente['imagem']) }}"
-                                     alt="{{ $frente['alt'] }}" width="1200" height="750" loading="lazy"
-                                     class="aspect-[16/10] w-full object-cover">
-                            </figure>
-                        @endif
-
-                        <ul class="cartao divide-y divide-gray-100">
+                        {{-- A lista fica com o texto, e nao embaixo da foto.
+                             Na coluna da imagem ela empurrava o bloco para
+                             baixo e deixava a outra metade vazia; aqui as duas
+                             colunas terminam mais perto uma da outra. --}}
+                        <ul class="cartao mt-8 divide-y divide-gray-100">
                             @foreach ($frente['itens'] as $item)
                                 <li class="flex items-start gap-3 p-5 text-sm leading-relaxed text-gray-600">
                                     <svg class="mt-0.5 size-5 shrink-0 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -160,6 +156,17 @@
                             @endforeach
                         </ul>
                     </div>
+
+                    {{-- A foto entra recortada em 16:10 qualquer que seja o
+                         original: as seis vem de fontes diferentes, e sem o
+                         recorte cada bloco da pagina teria uma altura. --}}
+                    @if ($frente['imagem'])
+                        <figure class="overflow-hidden rounded-2xl border border-gray-200">
+                            <img src="{{ asset('images/softwares/'.$frente['imagem']) }}"
+                                 alt="{{ $frente['alt'] }}" width="1200" height="750" loading="lazy"
+                                 class="aspect-[16/10] w-full object-cover">
+                        </figure>
+                    @endif
                 </article>
             @endforeach
         </div>
