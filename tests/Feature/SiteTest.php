@@ -219,3 +219,36 @@ it('entrega a foto de cada frente, e nenhuma sem texto alternativo', function ()
         expect($achados[0][$indice])->toMatch('/alt="[^"]+"/');
     }
 });
+
+it('abre o detalhe de cada frente na propria pagina inicial', function () {
+    // O cartao da vitrine abria a pagina de softwares e rolava ate a ancora,
+    // o que cobrava duas navegacoes de quem so queria saber o que uma frente
+    // faz: descer ate ela e voltar. Agora o detalhe vem num popup, e a pagina
+    // continua sendo o caminho de quem quer ler as sete de uma vez.
+    $html = $this->get('/')->assertOk()->getContent();
+
+    foreach (config('softwares') as $ancora => $frente) {
+        expect($html)->toContain("aberto = '{$ancora}'")
+            ->toContain("aberto === '{$ancora}'")
+            // O texto longo e a lista de escopo moram no popup.
+            ->toContain($frente['texto'])
+            ->toContain(route('site.softwares').'#'.$ancora);
+
+        foreach ($frente['itens'] as $item) {
+            expect($html)->toContain($item);
+        }
+    }
+});
+
+it('conta a mesma frente na vitrine e na pagina de softwares', function () {
+    // As duas telas liam listas escritas em lugares diferentes, e corrigir uma
+    // deixava a outra para tras. Hoje as duas leem config/softwares.php.
+    $vitrine = $this->get('/')->assertOk()->getContent();
+    $pagina = $this->get(route('site.softwares'))->assertOk()->getContent();
+
+    foreach (config('softwares') as $frente) {
+        expect($vitrine)->toContain($frente['titulo'])
+            ->and($pagina)->toContain($frente['titulo'])
+            ->and($pagina)->toContain($frente['texto']);
+    }
+});

@@ -990,14 +990,6 @@
    Topo das paginas do site e o terminal do "como funciona".
    --------------------------------------------------------------------------- */
 
-/* O brilho rosa no canto da faixa escura. O rosa e a outra ponta do degrade
-   de marca (o mesmo de `texto-bureau`), e entra aqui como luz, nao como
-   elemento: uma forma rosa desenhada competiria com o titulo, e a mancha so
-   tira o azul da monotonia. */
-@utility brilho-rosa {
-  background-image: radial-gradient(circle at center, rgb(238 70 188 / 0.45), transparent 70%);
-}
-
 /* O cursor que pisca no fim da ultima linha do terminal. `steps(2)` porque
    cursor que some suavemente nao parece cursor, parece falha de render. */
 @utility pisca {
@@ -1077,4 +1069,72 @@
   /* Sem movimento fica so a primeira operacao, escrita por inteiro. */
   .troca-operacao { animation: none; opacity: 0; }
   .troca-operacao-parada { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------------------
+   O pulso que sobe a grade, no pe da faixa das paginas.
+
+   Ele corre pela linha ate 60% da largura e entao sobe em degraus de 42px, o
+   passo da grade, alternando um degrau para cima e um trecho para a direita.
+   Some a 168px do pe, quatro quadradinhos: a faixa tem 252px, entao ele
+   apaga antes do topo, e para a direita nao passa de 80%, que e onde o icone
+   da pagina comeca.
+
+   Utilities proprias, e nao as do diagrama do herói: la o pulso atravessa o
+   conector inteiro, e mexer nas de la para caber a escada quebraria o
+   desenho da porta do dominio.
+   --------------------------------------------------------------------------- */
+
+@utility corre-degrau {
+  animation: corre-degrau 6s linear infinite;
+  animation-delay: var(--atraso, 0s);
+  opacity: 0;
+}
+
+@keyframes corre-degrau {
+  0%        { left: 0;   bottom: 0;     opacity: 0; }
+  4%        { opacity: 1; }
+  40%       { left: 60%; bottom: 0; }
+  45%       { left: 60%; bottom: 42px; }
+  50%       { left: 65%; bottom: 42px; }
+  55%       { left: 65%; bottom: 84px; }
+  60%       { left: 70%; bottom: 84px; }
+  65%       { left: 70%; bottom: 126px; }
+  70%       { left: 75%; bottom: 126px; opacity: 1; }
+  76%       { left: 75%; bottom: 168px; opacity: 0.35; }
+  82%, 100% { left: 80%; bottom: 168px; opacity: 0; }
+}
+
+/* O rastro na linha para junto com ele, aos 60%: riscar a largura inteira
+   diria que o pulso passou por onde ele nao passou. */
+@utility risca-degrau {
+  transform-origin: left;
+  animation: risca-degrau 6s linear infinite;
+  animation-delay: var(--atraso, 0s);
+}
+
+@keyframes risca-degrau {
+  0%, 4%    { transform: scaleX(0); opacity: 1; }
+  40%       { transform: scaleX(0.6); opacity: 1; }
+  70%       { transform: scaleX(0.6); opacity: 0.5; }
+  82%       { transform: scaleX(0.6); opacity: 0; }
+  83%, 100% { transform: scaleX(0); opacity: 0; }
+}
+
+/* A luz rosa segue o cursor dentro da faixa. A posicao vem do Alpine em
+   estilo inline; sem mouse, ela fica no canto de cima a direita, que e onde
+   sempre esteve. A transicao atrasa a luz de proposito: seguir o cursor no
+   mesmo quadro parece um cursor grande, e nao uma luz. */
+@utility brilho-rosa {
+  background-image: radial-gradient(circle at center,
+    rgb(238 70 188 / 0.55),
+    rgb(190 40 150 / 0.24) 45%,
+    transparent 72%);
+  transition: left 0.35s ease-out, top 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corre-degrau { animation: none; opacity: 0; }
+  .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
+  .brilho-rosa { transition: none; }
 }

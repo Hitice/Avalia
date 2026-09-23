@@ -19,12 +19,12 @@ class SiteController extends Controller
 {
     public function inicio()
     {
-        return view('paginas.site.inicio');
+        return view('paginas.site.inicio', ['softwares' => config('softwares')]);
     }
 
     public function softwares()
     {
-        return view('paginas.site.softwares');
+        return view('paginas.site.softwares', ['softwares' => config('softwares')]);
     }
 
     public function quemSomos()

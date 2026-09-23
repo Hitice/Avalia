@@ -6,48 +6,6 @@
 @php
     use App\Support\Empresa;
 
-    // A vitrine de softwares. Titulo, texto e ancora juntos, porque o cartao
-    // da home e a secao da pagina de softwares precisam dizer a mesma coisa:
-    // separados, o cartao prometia um nome e a secao entregava outro.
-    $softwares = [
-        [
-            'ancora' => 'rpa',
-            'titulo' => 'Automação de processos',
-            'texto' => 'Robôs que executam rotinas fiscais e financeiras e fazem sistemas diferentes trocarem informações, eliminando os erros comuns do trabalho manual.',
-            'icone' => 'M9 3h6a2 2 0 0 1 2 2v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h1V5a2 2 0 0 1 2-2ZM9 13h.01M15 13h.01M9.5 17h5',
-        ],
-        [
-            'ancora' => 'mercado',
-            'titulo' => 'Análise de mercado',
-            'texto' => 'Monitoramento contínuo do mercado e cotações de ativos atualizadas, no formato que sua equipe já usa.',
-            'icone' => 'M3 17l5-5 4 4 8-9M16 7h5v5',
-        ],
-        [
-            'ancora' => 'cobrancas',
-            'titulo' => 'Automação de cobranças',
-            'texto' => 'Gestão de alertas e cobranças, enviados no momento certo, com acompanhamento de cada pagamento em aberto.',
-            'icone' => 'M12 3v18M16 7.5c0-1.4-1.8-2.5-4-2.5S8 6.1 8 7.5 9.8 10 12 10s4 1.1 4 2.5S14.2 15 12 15s-4-1.1-4-2.5',
-        ],
-        [
-            'ancora' => 'ura',
-            'titulo' => 'Chat e atendimento humanizados',
-            'texto' => 'Segmentação de leads, atendimento ao cliente, chat inteligente e URA com voz natural gerada por IA, integrados aos seus sistemas.',
-            'icone' => 'M8 12h8M8 8.5h8M21 12a8 8 0 0 1-8 8H7l-4 3v-6.5A8 8 0 0 1 11 4h2a8 8 0 0 1 8 8Z',
-        ],
-        [
-            'ancora' => 'gestao',
-            'titulo' => 'Controle de produção e CRM',
-            'texto' => 'Acompanhamento da produção e um CRM enxuto, desenhados para o jeito que sua empresa trabalha.',
-            'icone' => 'M4 20V10m5 10V4m5 16v-7m5 7V8',
-        ],
-        [
-            'ancora' => 'desenvolvimento',
-            'titulo' => 'Sites, SaaS e web apps',
-            'texto' => 'Produtos digitais sob medida, do site institucional à plataforma SaaS, com a mesma engenharia das nossas automações.',
-            'icone' => 'm9 8-5 4 5 4M15 8l5 4-5 4',
-        ],
-    ];
-
     // Os tres estagios do diagrama do herói, e o instante em que cada um
     // acende dentro do ciclo de 6s. O conector parte meio segundo depois do no
     // que o alimenta e leva 2s para atravessar, entao o vizinho acende
@@ -117,6 +75,7 @@
 @endphp
 
 @section('content')
+    <div x-data="{ aberto: null }" @keydown.escape.window="aberto = null">
     {{-- Herói. A grade escura da marca ao fundo, a promessa na frente. --}}
     <section class="superficie-escura relative overflow-hidden">
         {{-- A faixa do herói mede oito quadradinhos de altura: 8 x 42px, o
@@ -301,26 +260,34 @@
                 </p>
             </div>
 
+            {{-- O cartao abre o detalhe aqui mesmo, num popup, em vez de mandar
+                 para a pagina de softwares e rolar ate a ancora.
+
+                 O salto para outra pagina cobrava duas navegacoes de quem so
+                 queria saber o que uma frente faz: descer ate ela e voltar. O
+                 popup traz a frente ao foco e devolve a vitrine inteira com um
+                 clique fora, que e o gesto que a pessoa ja faz. O mesmo padrao
+                 dos pilares da pagina do produto de score. --}}
             <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($softwares as $indice => $software)
-                    <a href="{{ route('site.softwares') }}#{{ $software['ancora'] }}" class="bloco group">
+                @foreach ($softwares as $ancora => $software)
+                    <button type="button" @click="aberto = '{{ $ancora }}'" class="bloco group text-left">
                         <div class="flex items-start justify-between">
                             <span class="icone-caixa">
                                 <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $software['icone'] }}" />
                                 </svg>
                             </span>
-                            <code class="text-xs font-medium text-gray-300">{{ str_pad($indice + 1, 2, '0', STR_PAD_LEFT) }}</code>
+                            <code class="text-xs font-medium text-gray-300">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</code>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900">{{ $software['titulo'] }}</h3>
-                        <p class="text-sm leading-relaxed text-gray-600">{{ $software['texto'] }}</p>
+                        <p class="text-sm leading-relaxed text-gray-600">{{ $software['resumo'] }}</p>
                         <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
                             Saiba mais
                             <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
                             </svg>
                         </span>
-                    </a>
+                    </button>
                 @endforeach
             </div>
 
@@ -387,24 +354,19 @@
                 {{-- O terminal, que se escreve sozinho e fecha em concluido.
                      Decorativo: o que ele diz ja esta nos tres passos ao lado. --}}
                 <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-5 font-mono text-sm" aria-hidden="true">
-                    {{-- Os botoes da janela, do jeito que o sistema desenha: a
-                         esquerda, e o nome do arquivo centrado entre eles e o
-                         vao do mesmo tamanho do outro lado. --}}
+                    {{-- Nome do arquivo a esquerda, sinal de vida a direita. Os
+                         tres botoes de janela do sistema estiveram aqui e
+                         saiam do tom: eles dizem "isto e uma janela", e o que
+                         importa nesta caixa e que ela esta rodando. --}}
                     <div class="flex items-center gap-3 border-b border-white/10 pb-3">
-                        <span class="flex shrink-0 items-center gap-1.5">
-                            <i class="size-3 rounded-full bg-[#ff5f57]"></i>
-                            <i class="size-3 rounded-full bg-[#febc2e]"></i>
-                            <i class="size-3 rounded-full bg-[#28c840]"></i>
-                        </span>
-
-                        <span class="relative block h-4 flex-1 text-center text-xs text-white/40">
+                        <span class="relative block h-4 flex-1 text-xs text-white/40">
                             @foreach ($operacoes as $operacao)
                                 <span class="troca-operacao {{ $operacao['parada'] ? 'troca-operacao-parada' : '' }} absolute inset-0"
                                       style="--atraso: {{ $operacao['atraso'] }}">{{ $operacao['arquivo'] }}</span>
                             @endforeach
                         </span>
 
-                        <span class="w-12 shrink-0"></span>
+                        <i class="size-2.5 shrink-0 rounded-full bg-success-400"></i>
                     </div>
 
                     {{-- As tres operacoes dividem o mesmo espaco, empilhadas.
@@ -495,4 +457,68 @@
             </div>
         </div>
     </section>
+    {{-- O detalhe da frente escolhida. Um overlay so, com o conteudo trocando:
+         sete overlays empilhados seriam sete copias da mesma moldura para
+         divergir. Fecha no clique fora, no Esc e no botao. --}}
+    <div x-cloak x-show="aberto !== null" x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
+         @click.self="aberto = null" role="dialog" aria-modal="true">
+        @foreach ($softwares as $ancora => $software)
+            <div x-cloak x-show="aberto === '{{ $ancora }}'" class="entra-popup relative w-full max-w-2xl">
+                <div class="cartao max-h-[85vh] overflow-y-auto p-6 sm:p-8">
+                    <button type="button" @click="aberto = null" aria-label="Fechar"
+                            class="absolute top-4 right-4 flex size-9 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">
+                        <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12M18 6 6 18" />
+                        </svg>
+                    </button>
+
+                    <span class="icone-caixa">
+                        <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $software['icone'] }}" />
+                        </svg>
+                    </span>
+
+                    <h3 class="mt-5 pr-10 text-2xl font-semibold tracking-tight text-gray-900">{{ $software['titulo'] }}</h3>
+                    <p class="mt-3 leading-relaxed text-gray-600">{{ $software['texto'] }}</p>
+
+                    @if ($software['imagem'])
+                        <figure class="mt-6 overflow-hidden rounded-xl border border-gray-200">
+                            <img src="{{ asset('images/softwares/'.$software['imagem']) }}"
+                                 alt="{{ $software['alt'] }}" width="1200" height="750" loading="lazy"
+                                 class="aspect-[16/10] w-full object-cover">
+                        </figure>
+                    @endif
+
+                    <ul class="mt-6 space-y-3">
+                        @foreach ($software['itens'] as $item)
+                            <li class="flex items-start gap-3 text-sm leading-relaxed text-gray-600">
+                                <svg class="mt-0.5 size-5 shrink-0 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                                {{ $item }}
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <div class="mt-8 flex flex-wrap gap-3">
+                        <x-avalia.botao :href="route('site.contato')">
+                            Solicitar proposta
+                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                        </x-avalia.botao>
+
+                        {{-- O caminho para a pagina continua existindo: quem
+                             quer ler as sete frentes de uma vez, e o buscador,
+                             precisam dele. --}}
+                        <x-avalia.botao variante="secundario" :href="route('site.softwares').'#'.$ancora">
+                            Ver todos os softwares
+                        </x-avalia.botao>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+    </div>
 @endsection

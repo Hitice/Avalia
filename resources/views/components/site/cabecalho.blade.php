@@ -25,9 +25,26 @@
          todas: faixa que encolhe conforme o tamanho do titulo faz o cabecalho
          pular de lugar a cada troca de pagina, e quem navega entre elas sente
          o site inteiro balancar. --}}
-    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]">
-        {{-- A luz rosa no canto, a outra ponta do degrade da marca. --}}
-        <i class="brilho-rosa pointer-events-none absolute -top-24 -right-24 size-80 rounded-full blur-2xl" aria-hidden="true"></i>
+    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]"
+         x-data="{
+             rx: '100%',
+             ry: '0%',
+             segue(e) {
+                 const faixa = $el.getBoundingClientRect();
+                 this.rx = (e.clientX - faixa.left) + 'px';
+                 this.ry = (e.clientY - faixa.top) + 'px';
+             },
+             solta() { this.rx = '100%'; this.ry = '0%'; },
+         }"
+         @mousemove="segue($event)" @mouseleave="solta()">
+        {{-- A luz rosa, a outra ponta do degrade da marca. Segue o cursor
+             dentro da faixa e volta ao canto quando o mouse sai; em tela de
+             toque ela simplesmente fica no canto, que e onde sempre esteve.
+
+             Entra como luz, e nao como elemento: uma forma rosa desenhada
+             competiria com o titulo, e a mancha so tira o azul da monotonia. --}}
+        <i class="brilho-rosa pointer-events-none absolute size-96 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+           :style="`left: ${rx}; top: ${ry}`" aria-hidden="true"></i>
 
         <div class="mx-auto flex h-full w-full max-w-[87rem] items-center gap-8 px-6 py-12 lg:py-0">
             <div class="min-w-0 flex-1">
@@ -69,12 +86,13 @@
             @endif
         </div>
 
-        {{-- A linha no pe da faixa, com o pulso atravessando: o mesmo movimento
-             do diagrama do herói, que e o que amarra as paginas a porta do
-             dominio. --}}
+        {{-- A linha no pe da faixa. O pulso corre por ela ate 60% da largura e
+             entao sobe pela grade em degraus de 42px, apagando antes do topo e
+             antes do icone da direita: e o mesmo movimento do diagrama do
+             herói, mas aqui ele usa a textura da propria faixa como caminho. --}}
         <div class="absolute inset-x-0 bottom-0 h-px bg-white/10" aria-hidden="true">
-            <i class="risca-fluxo absolute inset-0 bg-brand-400/70" style="--atraso: 0.4s"></i>
-            <i class="corre-fluxo absolute top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgb(50_213_131/0.6)]"
+            <i class="risca-degrau absolute inset-0 bg-brand-400/70" style="--atraso: 0.4s"></i>
+            <i class="corre-degrau absolute size-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgb(50_213_131/0.6)]"
                style="--atraso: 0.4s"></i>
         </div>
     </div>
