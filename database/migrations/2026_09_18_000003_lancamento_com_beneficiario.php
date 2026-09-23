@@ -25,9 +25,18 @@ return new class extends Migration
                 ->constrained('produtores')->nullOnDelete();
         });
 
+        // O novo indice nasce ANTES de o antigo sair, e a ordem nao e gosto.
+        // No MySQL o unico (parcela, tipo) e o indice que sustenta a chave
+        // estrangeira de parcela_360_id, e derrubar o indice que uma FK usa da
+        // erro 1553. Com o indice novo ja criado, a FK passa a se apoiar nele e
+        // o antigo sai sem reclamacao. No SQLite da suite a ordem era
+        // indiferente, e foi por isso que o defeito so apareceu ao publicar.
+        Schema::table('lancamentos_360', function (Blueprint $t) {
+            $t->unique(['parcela_360_id', 'tipo', 'beneficiario_id']);
+        });
+
         Schema::table('lancamentos_360', function (Blueprint $t) {
             $t->dropUnique(['parcela_360_id', 'tipo']);
-            $t->unique(['parcela_360_id', 'tipo', 'beneficiario_id']);
         });
     }
 

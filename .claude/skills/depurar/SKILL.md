@@ -10,27 +10,32 @@ sintoma sem reproduzir e adivinhacao.
 
 ## 1. Ter PHP na mao
 
-A maquina nao tem PHP no PATH, nem WSL, nem Docker. O binario portatil vive no
-scratchpad da sessao:
+No Mac o PHP esta instalado pelo Homebrew, em `/opt/homebrew/bin/php`. Ele nao
+entra no PATH do shell nao interativo desta ferramenta, entao chame pelo caminho
+inteiro.
 
 ```bash
-find /c/Users/PEDROF~1/AppData/Local/Temp/claude -iname "php.exe" 2>/dev/null | head -1
+PHP=/opt/homebrew/bin/php
+"$PHP" -d memory_limit=1G vendor/bin/pest                          # suite inteira, ~20s
+"$PHP" -d memory_limit=1G vendor/bin/pest --filter="parte do nome" # um teste so
+"$PHP" -d memory_limit=1G vendor/bin/pest 2>&1 | grep -aE "FAIL|Tests:"
 ```
 
-Se nao houver, baixe PHP NTS x64 de windows.php.net para o scratchpad e escreva
-um `php.ini` com `extension_dir=ext` e as extensoes `mbstring`, `openssl`,
-`pdo_sqlite`, `sqlite3`, `fileinfo`, `curl`, `zip`, `intl`. Sem `pdo_sqlite` a
-suite nao roda: `phpunit.xml` usa SQLite em memoria.
+Tres detalhes que custam tempo se forem descobertos no meio de um bug:
 
-```bash
-PHP=<caminho>/php.exe
-"$PHP" vendor/bin/pest                             # suite inteira, ~7s
-"$PHP" vendor/bin/pest --filter="parte do nome"    # um teste so
-"$PHP" vendor/bin/pest 2>&1 | grep -aE "FAILED|Tests:"   # so o placar
-```
+- **`-d memory_limit=1G` nao e enfeite.** Com o limite padrao de 128M a suite
+  morre em `PlanilhaTest` com "Allowed memory size exhausted", e o estouro
+  parece falha do teste que estava rodando.
+- **O PHP 8.5 enche a saida de `Deprecated`** vindos do vendor. O Pest conta
+  esses testes como `deprecated`, e nao como `passed`: placar com
+  "709 deprecated, 40 passed" e **suite verde**. O que importa e `failed`.
+- **O `-a` no grep e obrigatorio:** a saida do Pest tem bytes que o grep trata
+  como binario e engole o resultado.
 
-O `-a` no grep e obrigatorio: a saida do Pest tem bytes que o grep trata como
-binario e engole o resultado.
+O `.env` local aponta para um Postgres sem credenciais, entao pagina que
+consulta o banco devolve 500 em `artisan serve`. A suite nao sofre com isso
+(`phpunit.xml` usa SQLite em memoria), e paginas sem banco, como o site
+institucional, abrem normalmente.
 
 ## 2. Armadilhas ja pagas neste projeto
 
