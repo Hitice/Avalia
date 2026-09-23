@@ -118,19 +118,27 @@
             @scroll.window.passive="rolou = window.scrollY > 40"
             :class="rolou ? 'px-3 sm:px-6' : 'px-0'"
             class="fixed inset-x-0 top-0 z-40 transition-[padding] duration-300">
+        {{-- A ilha nasce redonda: o raio fica fora da transicao, entao ele
+             troca no mesmo quadro em que a largura comeca a encolher. Com o
+             raio dentro, a barra encolhia quadrada e so arredondava no fim.
+
+             Escura nos dois estados, e nao clara de um lado e escura do outro:
+             ao rolar, a ilha passa por cima da faixa preta do topo e depois
+             por cima do corpo branco da pagina. Cor de texto fixa e a unica
+             que se le nos dois fundos. --}}
         <div :class="rolou
-                 ? 'mt-3 max-w-[64rem] rounded-full border-gray-200 bg-white/90 shadow-theme-lg backdrop-blur'
-                 : 'mt-0 max-w-[87rem] rounded-none border-transparent bg-white shadow-theme-md'"
-             class="relative mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-300">
+                 ? 'mt-3 max-w-[64rem] rounded-full border-white/10 bg-gray-900/70 shadow-theme-lg backdrop-blur-xl'
+                 : 'mt-0 max-w-[87rem] rounded-none border-transparent bg-gray-900'"
+             class="relative mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-200">
             <a href="{{ route('inicio') }}" aria-label="{{ Empresa::marca() }}, início" class="flex items-center">
-                <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
+                <x-avalia.logotipo :tamanho="34" texto="1.3rem" claro />
             </a>
 
             <nav class="hidden items-center gap-1 lg:flex" aria-label="Principal">
                 @foreach ($menu as $item)
                     <a href="{{ route($item['rota']) }}"
                        @if ($atual === $item['rota']) aria-current="page" @endif
-                       class="rounded-lg px-3 py-2 text-sm font-medium transition {{ $atual === $item['rota'] ? 'text-brand-600' : 'text-gray-600 hover:text-gray-900' }}">
+                       class="rounded-lg px-3 py-2 text-sm font-medium transition {{ $atual === $item['rota'] ? 'text-white' : 'text-white/60 hover:text-white' }}">
                         {{ $item['rotulo'] }}
                     </a>
                 @endforeach
@@ -151,7 +159,7 @@
 
                 <button type="button" @click="menu = ! menu" :aria-expanded="menu ? 'true' : 'false'"
                         aria-controls="menu-celular" aria-label="Abrir menu"
-                        class="botao botao-secundario botao-sm botao-icone">
+                        class="botao botao-sm botao-icone border border-white/20 text-white transition hover:bg-white/10">
                     <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" x-show="! menu" d="M4 7h16M4 12h16M4 17h16" />
                         <path stroke-linecap="round" x-cloak x-show="menu" d="m6 6 12 12M18 6 6 18" />
@@ -194,12 +202,12 @@
             @endif
         </div>
         <div x-cloak x-show="menu" x-transition.opacity.duration.150ms id="menu-celular"
-             class="mx-auto mt-2 w-full max-w-[87rem] rounded-2xl border border-gray-200 bg-white/95 shadow-theme-lg backdrop-blur lg:hidden">
+             class="mx-auto mt-2 w-full max-w-[87rem] rounded-2xl border border-white/10 bg-gray-900/90 shadow-theme-lg backdrop-blur-xl lg:hidden">
             <nav class="flex flex-col px-4 py-3" aria-label="Principal">
                 @foreach ($menu as $item)
                     <a href="{{ route($item['rota']) }}"
                        @if ($atual === $item['rota']) aria-current="page" @endif
-                       class="rounded-lg px-2 py-2.5 text-sm font-medium transition {{ $atual === $item['rota'] ? 'text-brand-600' : 'text-gray-600 hover:text-gray-900' }}">
+                       class="rounded-lg px-2 py-2.5 text-sm font-medium transition {{ $atual === $item['rota'] ? 'text-white' : 'text-white/60 hover:text-white' }}">
                         {{ $item['rotulo'] }}
                     </a>
                 @endforeach
