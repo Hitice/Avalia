@@ -62,7 +62,7 @@ return [
         'rotulo' => 'Software House',
         'logradouro' => 'Rua Felipe Schmidt',
         'numero' => '303',
-        'complemento' => 'Sala 1003, Edifício Dias Velho',
+        'complemento' => 'Sala 1003',
         'bairro' => 'Centro',
         'cidade' => 'Florianópolis',
         'uf' => 'SC',

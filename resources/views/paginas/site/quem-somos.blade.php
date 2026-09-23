@@ -81,7 +81,7 @@
                 <div class="cartao p-6">
                     <h2 class="rotulo-grupo">{{ Empresa::bracoRotulo() }}</h2>
                     <p class="mt-3 leading-relaxed text-gray-600">{{ Empresa::bracoEndereco() }}</p>
-                    <p class="mt-2 text-sm text-gray-500">Unidade da mesma empresa, sem inscrição própria.</p>
+                    <p class="mt-2 text-sm text-gray-500">Braço institucional</p>
                 </div>
             </div>
         </div>
