@@ -56,8 +56,6 @@ return [
             'Emissão e envio automático de boletos',
             'Alertas de vencimento e cobranças pelo WhatsApp e por e-mail',
             'Acompanhamento de cada pagamento, com baixa automática',
-            'Negativação automática ao fim da régua, com a notificação prévia exigida por lei',
-            'Régua de cobrança ajustada ao seu negócio',
         ],
     ],
 
