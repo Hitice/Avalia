@@ -25,7 +25,10 @@
          todas: faixa que encolhe conforme o tamanho do titulo faz o cabecalho
          pular de lugar a cada troca de pagina, e quem navega entre elas sente
          o site inteiro balancar. --}}
-    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]">
+    {{-- `--subida` e o ponto onde o pulso para de correr reto e comeca a
+         subir a grade: 40% da largura mais seis quadradinhos de 42px. Mora
+         aqui porque as tres pecas do caminho a leem. --}}
+    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]" style="--subida: calc(40% + 252px)">
         {{-- A luz rosa no canto, a outra ponta do degrade da marca. Entra como
              luz, e nao como elemento: uma forma rosa desenhada competiria com
              o titulo, e a mancha so tira o azul da monotonia.
@@ -82,7 +85,7 @@
         {{-- O trecho reto do caminho, do pe da faixa ate os 60% onde a escada
              comeca. --}}
         <div class="absolute inset-x-0 bottom-0 h-px bg-white/10" aria-hidden="true">
-            <i class="risca-degrau absolute inset-0 hidden bg-brand-400/70 lg:block" style="--atraso: 0.4s"></i>
+            <i class="risca-degrau absolute inset-y-0 left-0 hidden bg-brand-400/70 lg:block" style="--atraso: 0.4s"></i>
             {{-- Tres em fila, e nao uma so: a da frente puxa e as outras duas
                  vem atras, menores e mais apagadas. E a de frente que o traco
                  acompanha; as outras sao o rastro dela. --}}
@@ -101,7 +104,7 @@
 
              So no desktop: a escada precisa dos 252px de altura da faixa, que
              o celular nao tem. --}}
-        <svg class="pointer-events-none absolute bottom-0 left-[60%] hidden h-[168px] w-[224px] text-brand-400 lg:block"
+        <svg class="pointer-events-none absolute bottom-0 hidden h-[168px] w-[224px] text-brand-400 lg:block" style="left: var(--subida)"
              viewBox="0 0 224 168" aria-hidden="true">
             <path class="desenha-degrau" pathLength="100" style="--atraso: 0.4s"
                   d="M0 168V126H56V84H112V42H168V0H224"

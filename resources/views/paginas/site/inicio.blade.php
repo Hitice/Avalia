@@ -182,8 +182,21 @@
          porta de cada negócio precisa aparecer aqui: quem chega pelo domínio
          procurando o sistema que já usa não devia ter que adivinhar por onde
          se entra. --}}
-    <section id="aplicacoes" class="scroll-mt-[60px] bg-gray-50 py-20 lg:py-24">
-        <div class="mx-auto w-full max-w-[87rem] px-6">
+    <section id="aplicacoes" class="relative scroll-mt-[60px] overflow-hidden bg-gray-50 py-20 lg:py-24">
+        {{-- Um pedaco da marca, grande e em rosa apagado, saindo pelo canto.
+
+             E o simbolo do medidor da propria Avalia, recortado pela borda: um
+             desenho generico ali seria enfeite, e este diz de quem e a pagina.
+             Fica atras do conteudo e fora da arvore de acessibilidade, porque
+             e textura, nao informacao. --}}
+        <svg class="pointer-events-none absolute -top-24 -right-32 hidden w-[34rem] text-theme-pink-500/10 lg:block"
+             viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            <path d="M16 22.5 22.3 14.6" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            <circle cx="16" cy="22.5" r="2.6" fill="currentColor" />
+        </svg>
+
+        <div class="relative mx-auto w-full max-w-[87rem] px-6">
             <div class="max-w-3xl">
                 <span class="indice">01 / Aplicações</span>
                 <h2 class="mt-3 text-title-sm font-semibold tracking-tight text-gray-900">

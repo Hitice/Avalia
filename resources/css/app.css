@@ -1090,42 +1090,47 @@
    --------------------------------------------------------------------------- */
 
 @utility corre-degrau {
-  animation: corre-degrau 6s linear infinite;
+  animation: corre-degrau 6s linear infinite backwards;
   animation-delay: var(--atraso, 0s);
   opacity: 0;
 }
 
-/* Os degraus tem largura fixa, 56px, e nao uma fracao da faixa. O traco que
+/* O ponto onde a escada comeca sai de `--subida`, posta na propria faixa: a
+   bolinha, o risco reto e o SVG da escada leem a mesma variavel, entao nao ha
+   como um deles ficar para tras quando o valor muda.
+   
+   Os degraus tem largura fixa, 56px, e nao uma fracao da faixa. O traco que
    acompanha a bolinha e desenhado num SVG, e SVG esticado mede o tracejado num
    sistema deformado: em porcentagem, os dois descolavam justo nos trechos
-   horizontais, que sao os mais esticados. Com passo fixo, os dois andam nas
-   mesmas coordenadas. */
+   horizontais, que sao os mais esticados. */
 @keyframes corre-degrau {
-  0%        { left: 0;                    bottom: 0;     opacity: 0; }
+  0%        { left: 0;                                bottom: 0;     opacity: 0; }
   4%        { opacity: 1; }
-  40%       { left: 60%;                  bottom: 0; }
-  45%       { left: 60%;                  bottom: 42px; }
-  50%       { left: calc(60% + 56px);     bottom: 42px; }
-  55%       { left: calc(60% + 56px);     bottom: 84px; }
-  60%       { left: calc(60% + 112px);    bottom: 84px; }
-  65%       { left: calc(60% + 112px);    bottom: 126px; }
-  70%       { left: calc(60% + 168px);    bottom: 126px; opacity: 1; }
-  76%       { left: calc(60% + 168px);    bottom: 168px; opacity: 0.35; }
-  82%, 100% { left: calc(60% + 224px);    bottom: 168px; opacity: 0; }
+  40%       { left: var(--subida);                    bottom: 0; }
+  45%       { left: var(--subida);                    bottom: 42px; }
+  50%       { left: calc(var(--subida) + 56px);       bottom: 42px; }
+  55%       { left: calc(var(--subida) + 56px);       bottom: 84px; }
+  60%       { left: calc(var(--subida) + 112px);      bottom: 84px; }
+  65%       { left: calc(var(--subida) + 112px);      bottom: 126px; }
+  70%       { left: calc(var(--subida) + 168px);      bottom: 126px; opacity: 1; }
+  76%       { left: calc(var(--subida) + 168px);      bottom: 168px; opacity: 0.35; }
+  82%, 100% { left: calc(var(--subida) + 224px);      bottom: 168px; opacity: 0; }
 }
 
-/* O trecho reto, do pe da faixa ate os 60% onde a escada comeca. */
+/* O trecho reto, do pe da faixa ate onde a escada comeca. Anima a largura, e
+   nao a escala: escala e fracao da faixa inteira, e o destino aqui tem uma
+   parte em porcentagem e outra em pixels. */
 @utility risca-degrau {
-  transform-origin: left;
-  animation: risca-degrau 6s linear infinite;
+  width: 0;
+  animation: risca-degrau 6s linear infinite backwards;
   animation-delay: var(--atraso, 0s);
 }
 
 @keyframes risca-degrau {
-  0%        { transform: scaleX(0); opacity: 1; }
-  40%, 70%  { transform: scaleX(0.6); opacity: 1; }
-  76%       { transform: scaleX(0.6); opacity: 0.35; }
-  82%, 100% { transform: scaleX(0.6); opacity: 0; }
+  0%        { width: 0;               opacity: 1; }
+  40%, 70%  { width: var(--subida);   opacity: 1; }
+  76%       { width: var(--subida);   opacity: 0.35; }
+  82%, 100% { width: var(--subida);   opacity: 0; }
 }
 
 /* A luz rosa no canto da faixa escura. O rosa e a outra ponta do degrade de
@@ -1138,12 +1143,16 @@
 @media (prefers-reduced-motion: reduce) {
   .corre-degrau { animation: none; opacity: 0; }
   .desenha-degrau { animation: none; stroke-dashoffset: 50; opacity: 0.35; }
-  .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
+  .risca-degrau { animation: none; width: var(--subida); opacity: 0.35; }
 }
 
 @utility desenha-degrau {
   stroke-dasharray: 100;
-  animation: desenha-degrau 6s linear infinite;
+  /* O recuo cheio precisa estar no estilo base, e nao so no primeiro quadro:
+     durante o atraso da animacao e o base que vale, e sem ele o caminho
+     aparecia inteiro desenhado antes de a animacao comecar. */
+  stroke-dashoffset: 100;
+  animation: desenha-degrau 6s linear infinite backwards;
   animation-delay: var(--atraso, 0s);
 }
 
@@ -1212,7 +1221,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .desenha-degrau { animation: none; stroke-dashoffset: 50; opacity: 0.35; }
-  .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
+  .risca-degrau { animation: none; width: var(--subida); opacity: 0.35; }
 
   .com-js [data-revelar] {
     opacity: 1;
