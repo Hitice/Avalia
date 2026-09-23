@@ -176,6 +176,72 @@
         <x-site.trilho />
     </section>
 
+    {{-- A vitrine de software sob demanda. --}}
+    <section class="py-20 lg:py-24">
+        <div class="mx-auto w-full max-w-[87rem] px-6">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div class="max-w-2xl">
+                    <span class="indice">01 / Softwares</span>
+                    <h2 class="mt-3 text-title-sm font-semibold tracking-tight text-gray-900">
+                        Mais produtividade à equipe, execução com <span class="texto-bureau">controle</span> e <span class="texto-bureau">precisão</span>.
+                    </h2>
+                </div>
+                <p class="max-w-md text-gray-600">
+                    Software personalizado para cada necessidade. Conectadas, as soluções compartilham
+                    dados, aumentam a produtividade e ganham escala.
+                </p>
+            </div>
+
+            {{-- O cartao abre o detalhe aqui mesmo, num popup, em vez de mandar
+                 para a pagina de softwares e rolar ate a ancora.
+
+                 O salto para outra pagina cobrava duas navegacoes de quem so
+                 queria saber o que uma frente faz: descer ate ela e voltar. O
+                 popup traz a frente ao foco e devolve a vitrine inteira com um
+                 clique fora, que e o gesto que a pessoa ja faz. O mesmo padrao
+                 dos pilares da pagina do produto de score. --}}
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($softwares as $ancora => $software)
+                    <button type="button" @click="aberto = '{{ $ancora }}'" class="bloco group text-left"
+                            data-revelar style="--atraso: {{ $loop->index * 0.07 }}s">
+                        <div class="flex items-start justify-between">
+                            <span class="icone-caixa">
+                                <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $software['icone'] }}" />
+                                </svg>
+                            </span>
+                            <code class="text-xs font-medium text-gray-300">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</code>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">{{ $software['titulo'] }}</h3>
+                        <p class="text-sm leading-relaxed text-gray-600">{{ $software['resumo'] }}</p>
+                        <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
+                            Saiba mais
+                            <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                        </span>
+                    </button>
+                @endforeach
+            </div>
+
+            <a href="{{ route('site.softwares') }}#rpa"
+               class="mt-5 flex items-center gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 transition hover:border-brand-300 hover:bg-white hover:shadow-theme-md">
+                <span class="icone-caixa">
+                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M7 7h10a4 4 0 0 1 0 8h-1M17 17H7a4 4 0 0 1 0-8h1" />
+                    </svg>
+                </span>
+                <span class="text-sm text-gray-600">
+                    <strong class="font-semibold text-gray-900">Conecte o que sua empresa já usa.</strong>
+                    Integramos ERP, bancos e APIs em uma única camada, sem substituir nenhum sistema.
+                </span>
+                <svg class="ml-auto size-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+            </a>
+        </div>
+    </section>
+
     {{-- As aplicações da casa.
 
          A holding opera negócios próprios e vende software sob demanda, e a
@@ -198,7 +264,7 @@
 
         <div class="relative mx-auto w-full max-w-[87rem] px-6">
             <div class="max-w-3xl">
-                <span class="indice">01 / Aplicações</span>
+                <span class="indice">02 / Aplicações</span>
                 <h2 class="mt-3 text-title-sm font-semibold tracking-tight text-gray-900">
                     Negócios próprios, <span class="texto-bureau">no ar</span> e em operação.
                 </h2>
@@ -254,72 +320,6 @@
                 <span class="text-sm text-gray-600">
                     <strong class="font-semibold text-gray-900">Já é cliente {{ Empresa::marca() }}?</strong>
                     Acesse aqui.
-                </span>
-                <svg class="ml-auto size-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-            </a>
-        </div>
-    </section>
-
-    {{-- A vitrine de software sob demanda. --}}
-    <section class="py-20 lg:py-24">
-        <div class="mx-auto w-full max-w-[87rem] px-6">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <div class="max-w-2xl">
-                    <span class="indice">02 / Softwares</span>
-                    <h2 class="mt-3 text-title-sm font-semibold tracking-tight text-gray-900">
-                        Mais produtividade à equipe, execução com <span class="texto-bureau">controle</span> e <span class="texto-bureau">precisão</span>.
-                    </h2>
-                </div>
-                <p class="max-w-md text-gray-600">
-                    Software personalizado para cada necessidade. Conectadas, as soluções compartilham
-                    dados, aumentam a produtividade e ganham escala.
-                </p>
-            </div>
-
-            {{-- O cartao abre o detalhe aqui mesmo, num popup, em vez de mandar
-                 para a pagina de softwares e rolar ate a ancora.
-
-                 O salto para outra pagina cobrava duas navegacoes de quem so
-                 queria saber o que uma frente faz: descer ate ela e voltar. O
-                 popup traz a frente ao foco e devolve a vitrine inteira com um
-                 clique fora, que e o gesto que a pessoa ja faz. O mesmo padrao
-                 dos pilares da pagina do produto de score. --}}
-            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($softwares as $ancora => $software)
-                    <button type="button" @click="aberto = '{{ $ancora }}'" class="bloco group text-left"
-                            data-revelar style="--atraso: {{ $loop->index * 0.07 }}s">
-                        <div class="flex items-start justify-between">
-                            <span class="icone-caixa">
-                                <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $software['icone'] }}" />
-                                </svg>
-                            </span>
-                            <code class="text-xs font-medium text-gray-300">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</code>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">{{ $software['titulo'] }}</h3>
-                        <p class="text-sm leading-relaxed text-gray-600">{{ $software['resumo'] }}</p>
-                        <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
-                            Saiba mais
-                            <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-                            </svg>
-                        </span>
-                    </button>
-                @endforeach
-            </div>
-
-            <a href="{{ route('site.softwares') }}#rpa"
-               class="mt-5 flex items-center gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 transition hover:border-brand-300 hover:bg-white hover:shadow-theme-md">
-                <span class="icone-caixa">
-                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6M7 7h10a4 4 0 0 1 0 8h-1M17 17H7a4 4 0 0 1 0-8h1" />
-                    </svg>
-                </span>
-                <span class="text-sm text-gray-600">
-                    <strong class="font-semibold text-gray-900">Conecte o que sua empresa já usa.</strong>
-                    Integramos ERP, bancos e APIs em uma única camada, sem substituir nenhum sistema.
                 </span>
                 <svg class="ml-auto size-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
@@ -440,9 +440,9 @@
 
     {{-- Quem somos, resumido. O texto inteiro mora na própria página. --}}
     <section class="py-20 lg:py-24">
-        <div class="mx-auto grid w-full max-w-[87rem] gap-10 px-6 lg:grid-cols-[auto_1fr] lg:gap-20">
-            <span class="indice">04 / Quem somos</span>
-            <div class="max-w-2xl">
+        <div class="mx-auto grid w-full max-w-[87rem] items-center gap-10 px-6 lg:grid-cols-[1fr_24rem] lg:gap-16">
+            <div data-revelar>
+                <span class="indice">04 / Quem somos</span>
                 <h2 class="text-title-sm font-semibold tracking-tight text-gray-900">
                     Tecnologia feita para a <span class="texto-bureau">rotina real</span> da sua empresa.
                 </h2>
@@ -464,14 +464,30 @@
                     </svg>
                 </a>
             </div>
+
+            {{-- A unica presenca humana da pagina. O resto dela e painel,
+                 diagrama e terminal, e uma pagina inteira de interface nao
+                 lembra que quem entrega o trabalho sao pessoas. --}}
+            <figure class="hidden overflow-hidden rounded-2xl border border-gray-200 lg:block" data-revelar style="--atraso: 0.1s">
+                <img src="{{ asset('images/site/equipe-reuniao.jpg') }}" width="1024" height="796" loading="lazy"
+                     alt="Equipe reunida em volta de uma mesa, conversando sobre o trabalho"
+                     class="aspect-[4/3] w-full object-cover">
+            </figure>
         </div>
     </section>
 
     {{-- Próximo passo. --}}
     <section class="pb-20 lg:pb-24">
         <div class="mx-auto w-full max-w-[87rem] px-6">
-            <div class="superficie-escura grade-viva-escura flex flex-col items-start gap-6 overflow-hidden rounded-2xl p-8 lg:flex-row lg:items-center lg:justify-between lg:p-12">
-                <div class="max-w-xl">
+            {{-- A foto entra por tras do fecho, bem escurecida: ela da
+                 profundidade a faixa sem disputar com o texto, que e o que
+                 precisa ser lido ali. A grade da marca continua por cima. --}}
+            <div class="superficie-escura relative flex flex-col items-start gap-6 overflow-hidden rounded-2xl p-8 lg:flex-row lg:items-center lg:justify-between lg:p-12">
+                <img src="{{ asset('images/site/infraestrutura.jpg') }}" alt="" aria-hidden="true" loading="lazy"
+                     class="absolute inset-0 size-full object-cover opacity-20">
+                <div class="grade-viva-escura absolute inset-0"></div>
+
+                <div class="relative max-w-xl">
                     <span class="indice indice-claro">Próximo passo</span>
                     <h2 class="mt-3 text-title-sm font-semibold tracking-tight">Vamos tirar uma rotina do caminho?</h2>
                     <p class="mt-3 leading-relaxed text-white/60">
@@ -479,7 +495,7 @@
                         proposta clara, com escopo e investimento definidos.
                     </p>
                 </div>
-                <x-avalia.botao :href="route('site.contato')" class="shrink-0">
+                <x-avalia.botao :href="route('site.contato')" class="relative shrink-0">
                     Solicitar proposta
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />

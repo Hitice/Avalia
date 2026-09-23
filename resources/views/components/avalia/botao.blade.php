@@ -15,6 +15,7 @@
     $variantes = [
         'primario' => 'botao-primario',
         'secundario' => 'botao-secundario',
+        'rosa' => 'botao-rosa',
     ];
 
     $tamanhos = [

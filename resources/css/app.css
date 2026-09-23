@@ -143,6 +143,7 @@
   --color-warning-950: #4e1d09;
 
   --color-theme-pink-500: #ee46bc;
+  --color-theme-pink-600: #d62fa6;
 
   --color-theme-purple-500: #7a5af8;
 
@@ -482,6 +483,12 @@
 
 @utility botao-primario {
   @apply bg-brand-500 text-white hover:bg-brand-600;
+}
+
+/* O rosa da marca no botao. Usado onde a acao precisa se separar do azul
+   que o resto da tela ja usa, como no convite que sai do cabecalho. */
+@utility botao-rosa {
+  @apply bg-theme-pink-500 text-white hover:bg-theme-pink-600;
 }
 
 @utility botao-secundario {

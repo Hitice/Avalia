@@ -181,10 +181,10 @@
 
                     <p class="pr-6 text-sm text-gray-600">
                         <strong class="block font-semibold text-gray-900">Já é cliente {{ Empresa::marca() }}?</strong>
-                        As duas plataformas da casa entram pela área do produtor.
+                        Acesse uma de nossas plataformas.
                     </p>
 
-                    <x-avalia.botao tamanho="sm" :href="route('area')" class="mt-3 w-full">
+                    <x-avalia.botao variante="rosa" tamanho="sm" :href="route('area')" class="mt-3 w-full">
                         Acessar
                         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />

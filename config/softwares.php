@@ -69,10 +69,8 @@ return [
         'resumo' => 'Segmentação de leads, atendimento ao cliente, chat inteligente e URA com voz natural gerada por IA, integrados aos seus sistemas.',
         'texto' => 'Da segmentação de leads ao atendimento ao cliente: chat inteligente, URA com voz natural gerada por IA e passagem para a sua equipe quando for preciso, integrados aos seus sistemas.',
         'icone' => 'M8 12h8M8 8.5h8M21 12a8 8 0 0 1-8 8H7l-4 3v-6.5A8 8 0 0 1 11 4h2a8 8 0 0 1 8 8Z',
-        // Sem foto: a que havia trazia o logotipo de outra empresa impresso no
-        // canto, e assinar uma secao nossa com marca de terceiro nao e opcao.
-        'imagem' => null,
-        'alt' => null,
+        'imagem' => 'ura.jpg',
+        'alt' => 'Três profissionais em uma reunião, dois deles apertando as mãos',
         'itens' => [
             'Segmentação e qualificação de leads',
             'Conversas em linguagem natural, no tom da sua marca',
