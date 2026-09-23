@@ -20,10 +20,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('lancamentos_360', function (Blueprint $t) {
-            $t->foreignId('beneficiario_id')->nullable()->after('parcela_360_id')
-                ->constrained('produtores')->nullOnDelete();
-        });
+        // Cada passo confere antes de agir porque esta migration ja parou no
+        // meio uma vez: a coluna entrou, a troca de indice falhou, e o
+        // `migrations` nao registrou nada. Sem as guardas, a tentativa
+        // seguinte morre em "Duplicate column name" e o banco fica travado
+        // nesse meio termo, com o deploy voltando sozinho toda vez.
+        if (! Schema::hasColumn('lancamentos_360', 'beneficiario_id')) {
+            Schema::table('lancamentos_360', function (Blueprint $t) {
+                $t->foreignId('beneficiario_id')->nullable()->after('parcela_360_id')
+                    ->constrained('produtores')->nullOnDelete();
+            });
+        }
 
         // O novo indice nasce ANTES de o antigo sair, e a ordem nao e gosto.
         // No MySQL o unico (parcela, tipo) e o indice que sustenta a chave
@@ -31,13 +38,17 @@ return new class extends Migration
         // erro 1553. Com o indice novo ja criado, a FK passa a se apoiar nele e
         // o antigo sai sem reclamacao. No SQLite da suite a ordem era
         // indiferente, e foi por isso que o defeito so apareceu ao publicar.
-        Schema::table('lancamentos_360', function (Blueprint $t) {
-            $t->unique(['parcela_360_id', 'tipo', 'beneficiario_id']);
-        });
+        if (! Schema::hasIndex('lancamentos_360', 'lancamentos_360_parcela_360_id_tipo_beneficiario_id_unique')) {
+            Schema::table('lancamentos_360', function (Blueprint $t) {
+                $t->unique(['parcela_360_id', 'tipo', 'beneficiario_id']);
+            });
+        }
 
-        Schema::table('lancamentos_360', function (Blueprint $t) {
-            $t->dropUnique(['parcela_360_id', 'tipo']);
-        });
+        if (Schema::hasIndex('lancamentos_360', 'lancamentos_360_parcela_360_id_tipo_unique')) {
+            Schema::table('lancamentos_360', function (Blueprint $t) {
+                $t->dropUnique(['parcela_360_id', 'tipo']);
+            });
+        }
     }
 
     public function down(): void
