@@ -100,7 +100,7 @@ return [
         'texto' => 'Produtos digitais sob medida, do site institucional à plataforma SaaS, com a mesma engenharia das nossas automações.',
         'icone' => 'm9 8-5 4 5 4M15 8l5 4-5 4',
         'imagem' => 'desenvolvimento.jpg',
-        'alt' => 'Desenvolvedor diante da bancada com notebook e dois monitores mostrando código',
+        'alt' => 'Três profissionais diante de um monitor, discutindo o diagrama de um sistema',
         'itens' => [
             'Sites institucionais e páginas de venda',
             'Plataformas SaaS e web apps sob medida',

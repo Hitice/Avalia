@@ -143,7 +143,9 @@
                     </a>
                 @endforeach
 
-                <x-avalia.botao class="ml-2" :href="route('area')">
+                {{-- Rosa, e nao azul: e a unica acao do cabecalho, e sobre a
+                     faixa preta o azul da marca some entre os cinzas. --}}
+                <x-avalia.botao variante="rosa" class="ml-2" :href="route('area')">
                     Área do produtor
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a1 1 0 011 1v16a1 1 0 01-1 1h-4M10 17l5-5-5-5M15 12H3" />
@@ -155,7 +157,7 @@
                  produtor fica fora dele: e a acao que traz quem ja e cliente,
                  e escondida atras de dois toques ela deixa de existir. --}}
             <div class="flex items-center gap-2 lg:hidden">
-                <x-avalia.botao tamanho="sm" :href="route('area')">Entrar</x-avalia.botao>
+                <x-avalia.botao variante="rosa" tamanho="sm" :href="route('area')">Entrar</x-avalia.botao>
 
                 <button type="button" @click="menu = ! menu" :aria-expanded="menu ? 'true' : 'false'"
                         aria-controls="menu-celular" aria-label="Abrir menu"
