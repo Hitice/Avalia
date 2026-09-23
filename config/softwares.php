@@ -14,23 +14,28 @@
  *
  * A ancora e o endereco da frente dentro da pagina de softwares. Renomear uma
  * chave aqui quebra o link de quem guardou o endereco antigo.
+ *
+ * Sao seis, e nao sete: automacao e integracao viraram uma so. Elas ja se
+ * sobrepunham (o terceiro item do RPA era integracao entre sistemas), e sete
+ * cartoes deixavam um sozinho na ultima linha da grade de tres colunas.
  */
 return [
 
     'rpa' => [
-        'titulo' => 'Automação de processos',
-        'resumo' => 'Robôs que executam rotinas fiscais e financeiras e fazem sistemas diferentes trocarem informações, eliminando os erros comuns do trabalho manual.',
-        'texto' => 'Robôs que executam rotinas fiscais e financeiras e fazem sistemas diferentes trocarem informações, sem digitação.',
+        'titulo' => 'Automação e integração de sistemas',
+        'resumo' => 'Robôs que executam rotinas fiscais e financeiras e integrações que fazem ERP, bancos e APIs trocarem informações, sem substituir nenhum sistema.',
+        'texto' => 'Robôs que executam rotinas fiscais e financeiras sem digitação, e integrações que ligam ERP, bancos, APIs e WhatsApp numa camada só. Começamos pelo levantamento junto à sua equipe: é ele que decide o que vale automatizar e o que vale apenas conectar.',
         'icone' => 'M9 3h6a2 2 0 0 1 2 2v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h1V5a2 2 0 0 1 2-2ZM9 13h.01M15 13h.01M9.5 17h5',
         'imagem' => 'rpa.jpg',
         'alt' => 'Código de automação projetado sobre a tela de um notebook enquanto alguém digita',
         'itens' => [
             'Rotinas fiscais executadas sem intervenção manual',
             'Fluxos financeiros automatizados, com registro de cada etapa',
-            'Integração entre sistemas que hoje não se comunicam',
+            'Integrações entre ERP, bancos, APIs e WhatsApp',
+            'Dados centralizados em uma fonte única e confiável',
+            'Painéis claros para acompanhar a operação',
         ],
     ],
-
     'mercado' => [
         'titulo' => 'Análise de mercado',
         'resumo' => 'Monitoramento contínuo do mercado e cotações de ativos atualizadas, no formato que sua equipe já usa.',
@@ -88,21 +93,6 @@ return [
             'Acompanhamento de cada etapa da produção',
             'CRM enxuto, apenas com o que sua equipe usa',
             'Fluxos desenhados a partir do processo da sua empresa',
-        ],
-    ],
-
-    'integracao' => [
-        'titulo' => 'Integração de sistemas',
-        'resumo' => 'Integramos ERP, bancos e APIs em uma única camada, sem substituir nenhum sistema.',
-        'texto' => 'Analisamos sua operação de perto, fazemos o levantamento das necessidades e desenvolvemos integrações que resolvem gargalos e centralizam os dados, sem substituir os sistemas que você já usa.',
-        'icone' => 'M9 12h6M7 7h10a4 4 0 0 1 0 8h-1M17 17H7a4 4 0 0 1 0-8h1',
-        'imagem' => 'integracao.jpg',
-        'alt' => 'Duas pessoas revisando código lado a lado em monitores de um escritório',
-        'itens' => [
-            'Levantamento das necessidades junto à sua equipe',
-            'Integrações entre ERP, bancos, APIs e WhatsApp',
-            'Dados centralizados em uma fonte única e confiável',
-            'Painéis claros para acompanhar a operação',
         ],
     ],
 

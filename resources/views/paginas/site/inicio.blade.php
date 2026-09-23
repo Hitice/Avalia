@@ -310,7 +310,7 @@
                 @endforeach
             </div>
 
-            <a href="{{ route('site.softwares') }}#integracao"
+            <a href="{{ route('site.softwares') }}#rpa"
                class="mt-5 flex items-center gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 transition hover:border-brand-300 hover:bg-white hover:shadow-theme-md">
                 <span class="icone-caixa">
                     <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">

@@ -27,7 +27,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $titulo }} · {{ Empresa::marca() }}</title>
+    <title>{{ Empresa::marca() }} · {{ $titulo }}</title>
+
+    {{-- O medidor da marca em laranja. Laranja, e nao o azul da casa: a aba
+         e um quadrado de 16px no meio de outros, e o azul se perde entre os
+         favicons de sistema. --}}
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <meta name="description" content="{{ $descricao }}">
     <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -69,14 +74,54 @@
          conteudo. Ao rolar, encolhe para uma ilha arredondada e solta, que
          flutua sobre o texto: e o mesmo gesto de um cabecalho que sai do
          caminho sem sumir, e diz sozinho que a pagina saiu do topo. --}}
-    <header x-data="{ menu: false, rolou: false }"
+    <header x-data="{
+                menu: false,
+                rolou: false,
+                convite: false,
+                jaMostrou: false,
+
+                /* Mostra uma vez, e so depois de a pessoa demonstrar interesse:
+                   rolando alem do herói ou ficando oito segundos na pagina.
+                   Convite na chegada interrompe quem ainda nao sabe o que o
+                   site e, que e exatamente o que o torna chato.
+
+                   A marca no navegador e gravada na hora em que ele aparece, e
+                   nao quando alguem fecha: quem ignorou tambem ja viu. */
+                init() {
+                    let visto = true;
+
+                    try {
+                        visto = !! localStorage.getItem('avalia-convite-produtor');
+                    } catch (e) {}
+
+                    if (visto) {
+                        return;
+                    }
+
+                    const abrir = () => {
+                        if (this.jaMostrou) return;
+
+                        this.jaMostrou = true;
+                        this.convite = true;
+
+                        try { localStorage.setItem('avalia-convite-produtor', '1') } catch (e) {}
+                    };
+
+                    const aoRolar = () => {
+                        if (window.scrollY > 400) abrir();
+                    };
+
+                    window.addEventListener('scroll', aoRolar, { passive: true });
+                    setTimeout(abrir, 8000);
+                },
+            }"
             @scroll.window.passive="rolou = window.scrollY > 40"
             :class="rolou ? 'px-3 sm:px-6' : 'px-0'"
             class="fixed inset-x-0 top-0 z-40 transition-[padding] duration-300">
         <div :class="rolou
                  ? 'mt-3 max-w-[64rem] rounded-full border-gray-200 bg-white/90 shadow-theme-lg backdrop-blur'
                  : 'mt-0 max-w-[87rem] rounded-none border-transparent bg-white shadow-theme-md'"
-             class="mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-300">
+             class="relative mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-300">
             <a href="{{ route('inicio') }}" aria-label="{{ Empresa::marca() }}, início" class="flex items-center">
                 <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
             </a>
@@ -113,8 +158,41 @@
                     </svg>
                 </button>
             </div>
-        </div>
+            {{-- O convite de quem ja e cliente.
 
+                 Balao ancorado no botao, e nao caixa no meio da tela: ele
+                 oferece sem bloquear, e quem nao quiser simplesmente continua
+                 lendo. Ao fechar, encolhe para o canto de onde saiu, que e o
+                 proprio botao. --}}
+            @if ($atual !== 'area')
+                <div x-cloak x-show="convite"
+                     x-transition:enter="transition duration-300 ease-out"
+                     x-transition:enter-start="translate-y-1 scale-90 opacity-0"
+                     x-transition:leave="transition duration-200 ease-in"
+                     x-transition:leave-end="scale-50 opacity-0"
+                     class="absolute top-full right-0 z-10 mt-3 w-72 origin-top-right rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg"
+                     role="status">
+                    <button type="button" @click="convite = false" aria-label="Fechar"
+                            class="absolute top-2.5 right-2.5 flex size-7 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">
+                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12M18 6 6 18" />
+                        </svg>
+                    </button>
+
+                    <p class="pr-6 text-sm text-gray-600">
+                        <strong class="block font-semibold text-gray-900">Já é cliente {{ Empresa::marca() }}?</strong>
+                        As duas plataformas da casa entram pela área do produtor.
+                    </p>
+
+                    <x-avalia.botao tamanho="sm" :href="route('area')" class="mt-3 w-full">
+                        Acessar
+                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                        </svg>
+                    </x-avalia.botao>
+                </div>
+            @endif
+        </div>
         <div x-cloak x-show="menu" x-transition.opacity.duration.150ms id="menu-celular"
              class="mx-auto mt-2 w-full max-w-[87rem] rounded-2xl border border-gray-200 bg-white/95 shadow-theme-lg backdrop-blur lg:hidden">
             <nav class="flex flex-col px-4 py-3" aria-label="Principal">

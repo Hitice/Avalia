@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="Avalia">
+  <!--
+    A marca da Avalia no icone da aba: o arco do medidor com o ponteiro na
+    faixa alta. Em laranja, e nao no azul da marca, porque a aba e um quadrado
+    de 16px no meio de outros: o azul se perde entre os favicons de sistema, e
+    o laranja se acha de canto de olho.
+
+    Traco mais grosso que o do logotipo da tela. No tamanho de uma aba, a
+    espessura de 3 some no antialiasing.
+  -->
+  <path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="#fb6514" stroke-opacity="0.35" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M4.5 22.5A11.5 11.5 0 0 1 16 11" stroke="#fb6514" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M16 22.5 22.3 14.6" stroke="#fb6514" stroke-width="3.6" stroke-linecap="round"/>
+  <circle cx="16" cy="22.5" r="3" fill="#fb6514"/>
+</svg>
