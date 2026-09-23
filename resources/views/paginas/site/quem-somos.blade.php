@@ -15,7 +15,7 @@
             {{-- A foto acompanha o texto de abertura em vez de abrir a pagina
                  sozinha, e fica contida na coluna: o original tem 740px de
                  largura, e esticado de ponta a ponta ele sai borrado. --}}
-            <div class="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
+            <div class="grid items-center gap-10 lg:grid-cols-[1fr_auto]" data-revelar>
                 <div class="prosa">
                     <p>
                         A {{ Empresa::marca() }} é uma software house de produtos digitais, com foco
@@ -44,7 +44,7 @@
                 </figure>
             </div>
 
-            <div class="mt-12 grid gap-5 lg:grid-cols-2">
+            <div class="mt-12 grid gap-5 lg:grid-cols-2" data-revelar>
                 <div class="cartao p-6">
                     <h2 class="rotulo-grupo">Áreas de foco</h2>
                     <ul class="mt-4 flex flex-wrap gap-2">
@@ -71,7 +71,7 @@
             {{-- Onde a casa fica. A matriz responde pelo CNPJ; Florianopolis e
                  o braco de software house, sem inscricao propria, e por isso
                  aparece como endereco e nao ao lado de um registro. --}}
-            <div class="mt-5 grid gap-5 lg:grid-cols-2">
+            <div class="mt-5 grid gap-5 lg:grid-cols-2" data-revelar>
                 <div class="cartao p-6">
                     <h2 class="rotulo-grupo">{{ Empresa::rotulo() }}</h2>
                     <p class="mt-3 leading-relaxed text-gray-600">{{ Empresa::endereco() }}</p>

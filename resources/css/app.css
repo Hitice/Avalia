@@ -14,6 +14,10 @@
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
 
+  /* So o site institucional usa estes dois; o sistema segue em Outfit. */
+  --font-sora: Sora, sans-serif;
+  --font-manrope: Manrope, sans-serif;
+
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
   --breakpoint-xsm: 425px;
@@ -874,7 +878,7 @@
    realce no hover e o mesmo de `cartao-link`, sem a borda dupla que sairia de
    empilhar as duas. */
 @utility bloco {
-  @apply flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-brand-300 hover:shadow-theme-md;
+  @apply flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-theme-lg;
 }
 
 /* A caixinha que carrega o icone no topo de cada bloco. */
@@ -1105,22 +1109,6 @@
   82%, 100% { left: 80%; bottom: 168px; opacity: 0; }
 }
 
-/* O rastro na linha para junto com ele, aos 60%: riscar a largura inteira
-   diria que o pulso passou por onde ele nao passou. */
-@utility risca-degrau {
-  transform-origin: left;
-  animation: risca-degrau 6s linear infinite;
-  animation-delay: var(--atraso, 0s);
-}
-
-@keyframes risca-degrau {
-  0%, 4%    { transform: scaleX(0); opacity: 1; }
-  40%       { transform: scaleX(0.6); opacity: 1; }
-  70%       { transform: scaleX(0.6); opacity: 0.5; }
-  82%       { transform: scaleX(0.6); opacity: 0; }
-  83%, 100% { transform: scaleX(0); opacity: 0; }
-}
-
 /* A luz rosa no canto da faixa escura. O rosa e a outra ponta do degrade de
    marca, o mesmo de `texto-bureau`. Fica parada: seguir o cursor custava uma
    repintura de tela cheia por quadro e pesava a pagina inteira. */
@@ -1130,5 +1118,88 @@
 
 @media (prefers-reduced-motion: reduce) {
   .corre-degrau { animation: none; opacity: 0; }
-  .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
+  .desenha-degrau { animation: none; stroke-dashoffset: 40; opacity: 0.35; }
+}
+
+/* O traco que desenha o caminho do pulso, degrau por degrau.
+
+   E um `path` de SVG com `pathLength="100"`, entao o recuo do tracejado vai de
+   100 a 0 conforme a linha se desenha. Os instantes abaixo sao os mesmos de
+   `corre-degrau`, e os valores sao a fracao do comprimento ja percorrida em
+   cada um deles: e isso que faz o traco chegar a cada canto no quadro exato em
+   que a bolinha chega. Mexer numa das duas sem recalcular a outra e o que faz
+   a linha adiantar ou atrasar em relacao a ela. */
+@utility desenha-degrau {
+  stroke-dasharray: 100;
+  animation: desenha-degrau 6s linear infinite;
+  animation-delay: var(--atraso, 0s);
+}
+
+@keyframes desenha-degrau {
+  0%        { stroke-dashoffset: 100;   opacity: 1; }
+  40%       { stroke-dashoffset: 75.76; }
+  45%       { stroke-dashoffset: 58.99; }
+  50%       { stroke-dashoffset: 56.97; }
+  55%       { stroke-dashoffset: 40; }
+  60%       { stroke-dashoffset: 37.98; }
+  65%       { stroke-dashoffset: 21.01; }
+  70%       { stroke-dashoffset: 18.99; opacity: 1; }
+  76%       { stroke-dashoffset: 2.02;  opacity: 0.35; }
+  82%, 100% { stroke-dashoffset: 0;     opacity: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Tipografia do site institucional.
+
+   Sora nos titulos e Manrope no corpo, so aqui. O sistema segue em Outfit: o
+   CRM, o login e o checkout sao telas de trabalho ja aprovadas, e repintar a
+   letra delas para acertar a vitrine seria pagar caro por um lugar onde
+   ninguem estava reclamando.
+
+   Regra sem camada de proposito: assim ela ganha da utility `font-*` do
+   Tailwind sem precisar de `!important`.
+   --------------------------------------------------------------------------- */
+.tipografia-site {
+  font-family: var(--font-manrope);
+}
+
+.tipografia-site h1,
+.tipografia-site h2,
+.tipografia-site h3,
+.tipografia-site .selo,
+.tipografia-site .indice {
+  font-family: var(--font-sora);
+  letter-spacing: -0.015em;
+}
+
+/* ---------------------------------------------------------------------------
+   Aparecer ao rolar.
+
+   O bloco sobe um passo e assenta quando entra na tela. O estado escondido so
+   vale quando o script esta de pe (`com-js`, posta pelo proprio app.js): sem
+   essa guarda, uma falha no JS deixaria a pagina inteira invisivel, que e bem
+   pior do que a pagina sem animacao.
+   --------------------------------------------------------------------------- */
+.com-js [data-revelar] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--atraso, 0s);
+}
+
+.com-js [data-revelar].revelado {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desenha-degrau { animation: none; stroke-dashoffset: 40; opacity: 0.35; }
+
+  .com-js [data-revelar] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

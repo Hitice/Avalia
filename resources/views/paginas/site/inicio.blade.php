@@ -190,7 +190,7 @@
             </div>
 
             <div class="mt-10 grid gap-6 lg:grid-cols-2">
-                <a href="{{ route('credito') }}" class="bloco group">
+                <a href="{{ route('credito') }}" class="bloco group" data-revelar>
                     <div class="flex items-center justify-between">
                         <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="credito" />
                         <span class="etiqueta etiqueta-sucesso">Em operação</span>
@@ -208,7 +208,7 @@
                     </span>
                 </a>
 
-                <a href="{{ route('cobranca') }}" class="bloco group">
+                <a href="{{ route('cobranca') }}" class="bloco group" data-revelar style="--atraso: 0.1s">
                     <div class="flex items-center justify-between">
                         <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="cobranca" />
                         <span class="etiqueta etiqueta-sucesso">Em operação</span>
@@ -270,7 +270,8 @@
                  dos pilares da pagina do produto de score. --}}
             <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($softwares as $ancora => $software)
-                    <button type="button" @click="aberto = '{{ $ancora }}'" class="bloco group text-left">
+                    <button type="button" @click="aberto = '{{ $ancora }}'" class="bloco group text-left"
+                            data-revelar style="--atraso: {{ $loop->index * 0.07 }}s">
                         <div class="flex items-start justify-between">
                             <span class="icone-caixa">
                                 <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">

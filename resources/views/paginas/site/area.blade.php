@@ -43,7 +43,7 @@
 
             <div class="grid gap-6 lg:grid-cols-2">
                 {{-- Porta do score. --}}
-                <div class="cartao flex flex-col p-8">
+                <div class="cartao flex flex-col p-8" data-revelar>
                     <x-avalia.logotipo :tamanho="38" texto="1.35rem" marca="credito" />
 
                     <h2 class="mt-6 text-xl font-semibold text-gray-900">Pesquisa de score para venda a prazo</h2>
@@ -78,7 +78,7 @@
                 </div>
 
                 {{-- Porta da cobranca. --}}
-                <div class="cartao flex flex-col p-8">
+                <div class="cartao flex flex-col p-8" data-revelar style="--atraso: 0.1s">
                     <x-avalia.logotipo :tamanho="38" texto="1.35rem" marca="cobranca" />
 
                     <h2 class="mt-6 text-xl font-semibold text-gray-900">Venda parcelada, cobrança e APIs</h2>

@@ -1,7 +1,9 @@
 <?php
 
+use App\Mail\ContatoRecebido;
 use App\Models\Interessado;
 use App\Support\Empresa;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -108,6 +110,8 @@ it('devolve 404 para artigo que nao existe', function () {
 */
 
 it('grava o pedido de contato do site na fila da administracao', function () {
+    Mail::fake();
+
     $this->from(route('site.contato'))
         ->post(route('site.contato.enviar'), pedidoDoSite())
         ->assertRedirect(route('site.contato'))
@@ -123,6 +127,25 @@ it('grava o pedido de contato do site na fila da administracao', function () {
         // O site nao pergunta o tamanho da equipe, e por isso a coluna aceita
         // nulo. Preencher com um valor qualquer seria inventar resposta.
         ->and($interessado->funcionarios)->toBeNull();
+
+    // O aviso vai para o e-mail do cadastro, e nao para um endereco escrito
+    // no controller: trocar o comercial da casa e mexer em config/empresa.php.
+    Mail::assertSent(ContatoRecebido::class, fn ($mensagem) => $mensagem->hasTo(Empresa::email())
+        && $mensagem->interessado->is($interessado));
+});
+
+it('nao perde o pedido quando o e-mail falha', function () {
+    // O registro e a linha no banco; o e-mail so adianta o retorno. Deixar a
+    // excecao subir faria o visitante ver erro por um pedido que foi recebido,
+    // e ainda o levaria a preencher tudo de novo, duplicando a linha.
+    Mail::shouldReceive('to')->andThrow(new RuntimeException('servidor de e-mail fora'));
+
+    $this->from(route('site.contato'))
+        ->post(route('site.contato.enviar'), pedidoDoSite())
+        ->assertRedirect(route('site.contato'))
+        ->assertSessionHas('contato_ok');
+
+    expect(Interessado::count())->toBe(1);
 });
 
 it('nao manda dado pessoal por URL de conversa', function () {

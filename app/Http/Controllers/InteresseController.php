@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContatoRecebido;
 use App\Models\Interessado;
 use App\Support\Auditar;
+use App\Support\Empresa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 /**
@@ -87,7 +91,25 @@ class InteresseController extends Controller
             'mensagem.min' => 'Conte um pouco mais sobre o que você precisa.',
         ]);
 
-        Interessado::create($dados + ['origem' => 'site']);
+        $interessado = Interessado::create($dados + ['origem' => 'site']);
+
+        /*
+         * O aviso ao comercial sai depois de o pedido estar gravado, e a falha
+         * dele nao derruba a resposta ao visitante.
+         *
+         * O registro e a linha no banco, que a administracao ja mostra na
+         * fila; o e-mail so adianta o retorno. Deixar a excecao subir faria o
+         * visitante ver um erro por causa de um pedido que foi recebido, e
+         * ainda o levaria a preencher tudo de novo, duplicando a linha.
+         */
+        try {
+            Mail::to(Empresa::email())->send(new ContatoRecebido($interessado));
+        } catch (\Throwable $e) {
+            Log::error('Contato do site gravado, mas o aviso por e-mail falhou.', [
+                'interessado' => $interessado->id,
+                'erro' => $e->getMessage(),
+            ]);
+        }
 
         return back()->with('contato_ok', true);
     }

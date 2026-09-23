@@ -14,7 +14,8 @@
         <div class="mx-auto w-full max-w-[87rem] px-6">
             <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($artigos as $artigo)
-                    <a href="{{ route('site.artigo', $artigo['slug']) }}" class="bloco group">
+                    <a href="{{ route('site.artigo', $artigo['slug']) }}" class="bloco group"
+                       data-revelar style="--atraso: {{ $loop->index * 0.08 }}s">
                         <span class="text-xs text-gray-500">
                             <time datetime="{{ $artigo['data'] }}">{{ $artigo['data_extenso'] }}</time>
                             · {{ $artigo['leitura'] }} de leitura

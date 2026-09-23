@@ -16,7 +16,7 @@
                      empilhados viram uma coluna so aos olhos de quem rola; o
                      zigue-zague marca onde um assunto termina e o outro
                      comeca, sem precisar de mais uma linha divisoria. --}}
-                <article id="{{ $ancora }}"
+                <article id="{{ $ancora }}" data-revelar
                          @class([
                              'grid scroll-mt-20 items-start gap-8 lg:gap-14',
                              // Sem foto nao ha segunda coluna: a frente ocupa a

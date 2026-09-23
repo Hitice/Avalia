@@ -80,10 +80,22 @@
              antes do icone da direita: e o mesmo movimento do diagrama do
              herói, mas aqui ele usa a textura da propria faixa como caminho. --}}
         <div class="absolute inset-x-0 bottom-0 h-px bg-white/10" aria-hidden="true">
-            <i class="risca-degrau absolute inset-0 bg-brand-400/70" style="--atraso: 0.4s"></i>
-            <i class="corre-degrau absolute size-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgb(50_213_131/0.6)]"
+            <i class="corre-degrau absolute hidden size-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgb(50_213_131/0.6)] lg:block"
                style="--atraso: 0.4s"></i>
         </div>
+
+        {{-- O traco que a bolinha deixa. Vive num SVG esticado sobre a faixa
+             inteira, entao o caminho e o mesmo em qualquer largura; o
+             `non-scaling-stroke` impede que o estica-e-puxa engrosse os
+             trechos verticais. So no desktop: a escada precisa dos 252px de
+             altura, que o celular nao tem. --}}
+        <svg class="pointer-events-none absolute inset-0 hidden h-full w-full text-brand-400 lg:block"
+             viewBox="0 0 100 252" preserveAspectRatio="none" aria-hidden="true">
+            <path class="desenha-degrau" pathLength="100" style="--atraso: 0.4s"
+                  d="M0 251.5H60V210H65V168H70V126H75V84H80"
+                  fill="none" stroke="currentColor" stroke-opacity="0.7"
+                  stroke-width="1.5" vector-effect="non-scaling-stroke" />
+        </svg>
     </div>
 
     <x-site.trilho />

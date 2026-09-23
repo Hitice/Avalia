@@ -39,6 +39,13 @@
     <meta property="og:description" content="{{ $descricao }}">
     <meta property="og:url" content="{{ url()->current() }}">
 
+    {{-- Sora e Manrope so aqui: o sistema segue em Outfit, e carregar duas
+         familias a mais nas telas de trabalho custaria sem ninguem pedir. --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -51,16 +58,25 @@
     o site usa e superficie escolhida no tema claro, e nao o tema escuro.
 --}}
 
-<body class="bg-white font-outfit text-gray-800 antialiased">
+<body class="tipografia-site bg-white text-gray-800 antialiased">
     <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-brand-600 focus:shadow-theme-md">
         Pular para o conteúdo
     </a>
 
-    {{-- Topo de 60px, o mesmo de toda tela do sistema. Fixo e quase solido:
-         com a grade animada do herói passando por baixo, o cabecalho
-         translucido sumia na pagina. --}}
-    <header x-data="{ menu: false }" class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur">
-        <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
+    {{-- Topo de 60px, o mesmo de toda tela do sistema.
+
+         No alto da pagina ele ocupa a largura inteira, alinhado com o
+         conteudo. Ao rolar, encolhe para uma ilha arredondada e solta, que
+         flutua sobre o texto: e o mesmo gesto de um cabecalho que sai do
+         caminho sem sumir, e diz sozinho que a pagina saiu do topo. --}}
+    <header x-data="{ menu: false, rolou: false }"
+            @scroll.window.passive="rolou = window.scrollY > 40"
+            :class="rolou ? 'px-3 sm:px-6' : 'px-0'"
+            class="fixed inset-x-0 top-0 z-40 transition-all duration-300">
+        <div :class="rolou
+                 ? 'mt-3 max-w-[64rem] rounded-full border-gray-200 bg-white/90 shadow-theme-lg backdrop-blur'
+                 : 'mt-0 max-w-[87rem] rounded-none border-transparent bg-white shadow-theme-md'"
+             class="mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-all duration-300">
             <a href="{{ route('inicio') }}" aria-label="{{ Empresa::marca() }}, início" class="flex items-center">
                 <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
             </a>
@@ -99,8 +115,9 @@
             </div>
         </div>
 
-        <div x-cloak x-show="menu" x-transition.opacity.duration.150ms id="menu-celular" class="border-t border-gray-100 lg:hidden">
-            <nav class="mx-auto flex w-full max-w-[87rem] flex-col px-6 py-3" aria-label="Principal">
+        <div x-cloak x-show="menu" x-transition.opacity.duration.150ms id="menu-celular"
+             class="mx-auto mt-2 w-full max-w-[87rem] rounded-2xl border border-gray-200 bg-white/95 shadow-theme-lg backdrop-blur lg:hidden">
+            <nav class="flex flex-col px-4 py-3" aria-label="Principal">
                 @foreach ($menu as $item)
                     <a href="{{ route($item['rota']) }}"
                        @if ($atual === $item['rota']) aria-current="page" @endif
