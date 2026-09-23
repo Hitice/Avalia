@@ -9,7 +9,7 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Acesso" titulo="Área do produtor">
+    <x-site.cabecalho selo="Acesso" icone="M15 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3" titulo="Área do produtor">
         As plataformas da casa têm contas separadas, uma para cada operação. Escolha por onde entrar.
     </x-site.cabecalho>
 

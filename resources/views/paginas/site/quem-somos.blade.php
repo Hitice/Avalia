@@ -8,7 +8,7 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Sobre" titulo="Quem somos" />
+    <x-site.cabecalho selo="Sobre" icone="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M13 7.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5a3 3 0 0 1 0 5" titulo="Quem somos" />
 
     <section class="py-16 lg:py-20">
         <div class="mx-auto w-full max-w-[87rem] px-6">

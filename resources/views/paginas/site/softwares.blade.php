@@ -94,7 +94,7 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Soluções" titulo="Softwares para cada rotina da sua operação">
+    <x-site.cabecalho selo="Soluções" icone="M4 6.5h6v6H4zM14 6.5h6v6h-6zM4 16h6v4H4zM14 16h6v4h-6z" titulo="Softwares para cada rotina da sua operação">
         Todo projeto começa pelo seu processo. Escolha uma frente ou combine várias: todas se
         integram entre si e aos sistemas que você já usa.
     </x-site.cabecalho>

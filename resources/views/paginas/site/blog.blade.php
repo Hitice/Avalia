@@ -5,7 +5,7 @@
 ])
 
 @section('content')
-    <x-site.cabecalho selo="Blog" titulo="Tecnologia na prática">
+    <x-site.cabecalho selo="Blog" icone="M5 4.5h11a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0 1.5 1.5H6.5A1.5 1.5 0 0 1 5 19zM8 8.5h5M8 12h5M8 15.5h3" titulo="Tecnologia na prática">
         Artigos diretos sobre automação, atendimento humanizado e tecnologia para empresas,
         escritos por quem desenvolve essas soluções.
     </x-site.cabecalho>

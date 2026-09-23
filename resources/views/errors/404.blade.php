@@ -9,7 +9,8 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Erro 404" titulo="Esta página saiu do fluxo.">
+    <x-site.cabecalho selo="Erro 404" titulo="Esta página saiu do fluxo."
+                      icone="M12 9v4.5M12 17h.01M10.3 4.3 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z">
         <x-slot:rodape>
             <p class="max-w-2xl text-lg leading-relaxed text-white/60">
                 O endereço que você acessou não existe ou mudou de lugar. Os caminhos abaixo levam

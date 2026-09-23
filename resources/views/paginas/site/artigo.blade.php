@@ -10,7 +10,8 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Blog" :href="route('site.blog')" :titulo="$artigo['manchete']">
+    <x-site.cabecalho selo="Blog" :href="route('site.blog')" :titulo="$artigo['manchete']"
+                      icone="M5 4.5h11a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0 1.5 1.5H6.5A1.5 1.5 0 0 1 5 19zM8 8.5h5M8 12h5M8 15.5h3">
         <x-slot:rodape>
             <p class="text-sm text-white/50">
                 <time datetime="{{ $artigo['data'] }}">{{ $artigo['data_extenso'] }}</time>

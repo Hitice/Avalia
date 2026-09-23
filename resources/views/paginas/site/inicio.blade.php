@@ -66,6 +66,16 @@
             'atraso' => '4s', 'saida' => null, 'parado' => false],
     ];
 
+    // As linhas do terminal do "como funciona", com o instante em que cada uma
+    // comeca a ser escrita. Meio segundo entre elas: menos que isso as quatro
+    // saem juntas e nao parece digitacao, mais que isso a espera cansa.
+    $receita = [
+        ['chave' => 'gatilho:', 'valor' => 'nota_fiscal.recebida', 'atraso' => '0s'],
+        ['chave' => 'validar:', 'valor' => 'regras_fiscais.br', 'atraso' => '0.5s'],
+        ['chave' => 'conciliar:', 'valor' => 'extrato.bancario', 'atraso' => '1s'],
+        ['chave' => 'notificar:', 'valor' => 'equipe.financeiro', 'atraso' => '1.5s'],
+    ];
+
     // Os termos que correm no pe do herói. A lista sai duplicada no trilho,
     // entao basta escrevê-la uma vez.
     $termos = [
@@ -309,20 +319,27 @@
         </div>
     </section>
 
-    {{-- Como funciona: do evento à decisão. --}}
+    {{-- Como funciona: do evento à decisão.
+
+         O cabecalho ocupa a largura inteira e as duas colunas comecam juntas
+         abaixo dele. Antes o titulo morava dentro da coluna da esquerda e o
+         terminal ficava centralizado na altura da secao: ele nascia no meio do
+         nada, sem alinhar com passo nenhum da lista ao lado. --}}
     <section class="superficie-escura grade-viva-escura">
-        <div class="mx-auto grid w-full max-w-[87rem] gap-12 px-6 py-20 lg:grid-cols-2 lg:py-24">
-            <div>
+        <div class="mx-auto w-full max-w-[87rem] px-6 py-20 lg:py-24">
+            <div class="max-w-2xl">
                 <span class="indice indice-claro">03 / Como funciona</span>
                 <h2 class="mt-3 text-title-sm font-semibold tracking-tight">
-                    Dados centralizados<br>em um painel limpo.
+                    Dados centralizados em um painel limpo.
                 </h2>
-                <p class="mt-4 max-w-md leading-relaxed text-white/60">
+                <p class="mt-4 leading-relaxed text-white/60">
                     A {{ Empresa::marca() }} cuida do caminho entre o evento e a decisão: recebe os dados,
                     aplica as regras e só aciona sua equipe quando é necessário.
                 </p>
+            </div>
 
-                <ol class="mt-8 space-y-3">
+            <div class="mt-10 grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
+                <ol class="space-y-3">
                     @foreach ([
                         ['Sistemas conectados', 'Fluxo de dados com integração segura entre múltiplas plataformas.'],
                         ['Visão inteligente', 'Validações, respostas e rotinas acontecem automaticamente, seguindo as regras do seu negócio.'],
@@ -338,18 +355,41 @@
                         </li>
                     @endforeach
                 </ol>
-            </div>
 
-            <div class="self-center rounded-2xl border border-white/10 bg-gray-950/60 p-5 font-mono text-sm" aria-hidden="true">
-                <div class="flex items-center justify-between border-b border-white/10 pb-3 text-xs text-white/40">
-                    <span>automacao.yaml</span>
-                    <span>● ● ●</span>
+                {{-- O terminal, que se escreve sozinho e fecha em concluido.
+                     Decorativo: o que ele diz ja esta nos tres passos ao lado. --}}
+                <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-5 font-mono text-sm" aria-hidden="true">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3 text-xs text-white/40">
+                        <span>automacao.yaml</span>
+                        <span>● ● ●</span>
+                    </div>
+
+                    <div class="mt-4 space-y-2 leading-relaxed text-white/70">
+                        @foreach ($receita as $linha)
+                            <p class="digita" style="--atraso: {{ $linha['atraso'] }}">
+                                <span class="text-brand-300">{{ $linha['chave'] }}</span> {{ $linha['valor'] }}
+                            </p>
+                        @endforeach
+                    </div>
+
+                    {{-- As duas fases se revezam no mesmo lugar: executando
+                         enquanto as linhas se escrevem, concluido depois. Altura
+                         fixa para a troca nao mexer no tamanho do painel. --}}
+                    <div class="relative mt-4 h-6 border-t border-white/10 pt-3 text-xs">
+                        <span class="fase-terminal absolute inset-x-0 top-3 flex items-center gap-2 text-white/50" style="--atraso: 0s">
+                            <i class="size-1.5 shrink-0 animate-pulse rounded-full bg-warning-400"></i>
+                            executando
+                            <i class="pisca inline-block h-3 w-1.5 bg-white/60"></i>
+                        </span>
+
+                        <span class="fase-terminal fase-terminal-parada absolute inset-x-0 top-3 flex items-center gap-2 text-success-400" style="--atraso: 4s">
+                            <svg class="size-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                            status: concluido
+                        </span>
+                    </div>
                 </div>
-                <pre class="mt-4 leading-loose text-white/70"><code><span class="text-brand-300">gatilho:</span> nota_fiscal.recebida
-<span class="text-brand-300">validar:</span> regras_fiscais.br
-<span class="text-brand-300">conciliar:</span> extrato.bancario
-<span class="text-brand-300">notificar:</span> equipe.financeiro
-<b class="text-success-400">status: concluido</b></code></pre>
             </div>
         </div>
     </section>

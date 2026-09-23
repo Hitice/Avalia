@@ -8,7 +8,7 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Institucional" titulo="Política de privacidade">
+    <x-site.cabecalho selo="Institucional" icone="M12 3 5 6v5.5c0 4.2 2.9 7.6 7 9.5 4.1-1.9 7-5.3 7-9.5V6zM9.5 12l1.8 1.8 3.5-3.6" titulo="Política de privacidade">
         <x-slot:rodape>
             <p class="text-sm text-white/50">Atualizada em 23 de setembro de 2026</p>
         </x-slot:rodape>

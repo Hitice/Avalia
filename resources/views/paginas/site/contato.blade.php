@@ -10,7 +10,7 @@
 @endphp
 
 @section('content')
-    <x-site.cabecalho selo="Contato" titulo="Fale conosco">
+    <x-site.cabecalho selo="Contato" icone="M8 11h8M8 14.5h5M20.5 12a8.5 8.5 0 0 1-8.5 8.5H4l2.2-2.9A8.5 8.5 0 1 1 20.5 12Z" titulo="Fale conosco">
         Conte o que você quer automatizar ou desenvolver. Respondemos com uma proposta clara,
         com escopo e investimento definidos.
     </x-site.cabecalho>
