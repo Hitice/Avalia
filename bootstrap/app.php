@@ -44,9 +44,16 @@ return Application::configure(basePath: dirname(__DIR__))
          * guest ve que ela esta autenticada e devolve para "/", sem fim. O
          * navegador para sozinho com ERR_TOO_MANY_REDIRECTS.
          */
-        $middleware->redirectUsersTo(fn () => Auth::guard('empresa')->check()
-            ? route('empresa.painel')
-            : route('painel'));
+        $middleware->redirectUsersTo(fn () => match (true) {
+            Auth::guard('empresa')->check() => route('empresa.painel'),
+            // O produtor entra depois da empresa na ordem de propósito: ele e
+            // uma empresa podem estar logados no mesmo navegador, e nesse caso
+            // quem pediu a tela de login do CRM quer o painel do CRM. Sem esta
+            // linha, o produtor logado que clicava "Entrar" na area do produtor
+            // caia no painel da gestao, que o recusa e devolve para /entrar.
+            Auth::guard('produtor')->check() => route('produtor.painel'),
+            default => route('painel'),
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         /*

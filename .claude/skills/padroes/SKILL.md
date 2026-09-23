@@ -65,7 +65,7 @@ que saiu do site.
   com a marca a esquerda. Nas telas do 360, a marca leva a etiqueta `360` ao
   lado. A direita fica a acao da tela (Voltar, Sair, Entrar), com
   `pr-12 sm:pr-14 min-[1550px]:pr-0` para reservar o canto.
-- **Interruptor de tema em TODA tela**, via `<x-avalia.tema />`, e sempre na
+- **Interruptor de tema em toda tela DO SISTEMA**, via `<x-avalia.tema />`, e sempre na
   PONTA EXTREMA: `class="absolute top-1/2 right-3 size-11 -translate-y-1/2
   sm:right-4"` dentro do `<header>` (que precisa ser `relative` ou `fixed`).
   Fora do alinhamento das colunas de proposito, porque e ferramenta da pagina e
@@ -84,6 +84,34 @@ O texto institucional sai sempre de `App\Support\Empresa` e de
 `config/empresa.php`, e nunca escrito na view: CNPJ e endereco copiados em tela
 foi exatamente o que deixou tres lugares com o numero velho quando a empresa
 trocou de CNPJ.
+
+### O site institucional e a excecao do tema
+
+A casa tem um site publico, em `paginas/site/`, sobre `layouts/site.blade.php`.
+Ele **vive no tema claro e so nele**, e por isso nao leva `<x-avalia.tema />` e
+nao escreve variante `dark:`. O preto que ele usa e superficie escolhida dentro
+do tema claro, e nao o tema escuro ligado: bastaria o navegador lembrar do
+escuro do CRM para o site abrir com metade de cada tema.
+
+A excecao e reconhecida pelo caminho em `TemaEscuroTest`, entao pagina nova do
+site nasce coberta. Fora desse diretorio a regra do interruptor continua
+valendo inteira, e `RevisaoDeSegurancaTest` cobra.
+
+### Tres marcas, e nenhuma escrita a mao
+
+- **Avalia**, a casa e a software house: `Empresa::marca()`
+- **Avalia One**, o produto de pesquisa de score: `Empresa::marcaCredito()`
+- **Avalia Gestor**, o de venda parcelada e cobranca: `Empresa::marcaCobranca()`
+
+O wordmark sai de `<x-avalia.logotipo marca="casa|credito|cobranca" />`, e a
+tela assina com a marca do produto a que ela pertence. As tres ja mudaram
+juntas uma vez: escritas a mao nas telas, sobrou "Avalia 360" em pagina que ja
+falava de outro produto.
+
+Nome de classe, tabela, rota e migration **nao** acompanham a troca de marca:
+`Produto360`, `Lancamento360` e `/cobranca` continuam com o nome que tem.
+Migration nao reescreve historia, e URL publica trocada e link quebrado no
+bolso de quem ja recebeu o antigo.
 
 Convencoes de interacao ja decididas:
 

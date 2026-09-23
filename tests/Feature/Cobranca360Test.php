@@ -15,7 +15,7 @@ uses(RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------
-| O dinheiro do Avalia 360
+| O dinheiro do Avalia Gestor
 |--------------------------------------------------------------------------
 |
 | O provedor e falso aqui de proposito: teste que fala com o Asaas de verdade

@@ -88,18 +88,24 @@ it('desativa o catalogo do produtor em vez de apagar', function () {
 });
 
 /**
- * Toda tela publica alterna o tema.
+ * Toda tela do sistema alterna o tema.
  *
- * O botao vivia escrito a mao dentro da pagina inicial, e as telas do 360
+ * O botao vivia escrito a mao dentro da pagina inicial, e as telas do Gestor
  * nasceram sem ele: o tema escuro existia e nao havia como sair dele. Este
  * teste quebra quando alguem publica tela nova sem o componente, que e
  * exatamente quando o esquecimento acontece.
+ *
+ * O site institucional fica de fora, e nao por esquecimento: ele vive no tema
+ * claro e so nele, por decisao de produto. Quem chega para ler o que a casa
+ * faz nao esta procurando interruptor; quem passa o dia dentro do sistema
+ * esta. As paginas do site que ficam de fora estao nomeadas em TemaEscuroTest.
  */
-it('deixa trocar o tema em toda tela publica', function () {
+it('deixa trocar o tema em toda tela do sistema', function () {
     $telas = [
-        route('inicio'),
+        route('credito'),
         route('cobranca'),
         route('produtor.criar-conta'),
+        route('entrar'),
     ];
 
     foreach ($telas as $tela) {

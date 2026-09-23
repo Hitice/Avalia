@@ -73,7 +73,7 @@ class WebhookAsaasController extends Controller
                 }
 
                 // A mesma cobranca serve fatura da Avalia One e parcela do
-                // Avalia 360; quem decide o que fazer e o vinculo que ela tem,
+                // Avalia Gestor; quem decide o que fazer e o vinculo que ela tem,
                 // e nao o tipo do evento.
                 $parcela = Parcela360::where('cobranca_asaas_id', $cobranca->id)->first();
 

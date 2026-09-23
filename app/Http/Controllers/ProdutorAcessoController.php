@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Entrada e cadastro do produtor no Avalia 360.
+ * Entrada e cadastro do produtor no Avalia Gestor.
  *
  * O cadastro e auto-servico e curto de proposito: nome, documento, contato e
  * senha. Pedir dados bancarios e faturamento antes de a pessoa conhecer o

@@ -104,7 +104,7 @@
                 {{-- flex no proprio link: ancora inline alinha por baseline
                      e deixava a marca fora do prumo dos botoes. --}}
                 <a href="{{ route('inicio') }}" aria-label="Início" class="flex items-center">
-                    <x-avalia.logotipo :tamanho="38" texto="1.45rem" />
+                    <x-avalia.logotipo :tamanho="38" texto="1.45rem" marca="credito" />
                 </a>
 
                 <nav class="flex items-center gap-2 pr-12 sm:gap-3 sm:pr-14 min-[1550px]:pr-0">
@@ -526,7 +526,7 @@
             </div>
         </section>
 
-        {{-- O Avalia 360 entra depois da campanha e antes do fecho: quem
+        {{-- O Avalia Gestor entra depois da campanha e antes do fecho: quem
              chegou ate aqui ja entendeu o que a casa faz, e e nesse ponto que
              "tambem parcelamos a sua venda" vira oferta, e nao ruido no meio
              da promessa de consulta.
@@ -537,7 +537,7 @@
             <div class="cartao flex flex-wrap items-center justify-between gap-6 border-brand-100 bg-brand-25 p-6 lg:p-8 dark:border-brand-500/20 dark:bg-brand-500/[0.07]">
                 <div class="max-w-2xl">
                     <span class="etiqueta bg-white font-semibold text-brand-600 dark:bg-gray-900 dark:text-brand-400">
-                        Avalia 360 · Cobrança
+                        {{ Empresa::marcaCobranca() }} · Cobrança
                     </span>
 
                     <h2 class="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -545,7 +545,7 @@
                     </h2>
 
                     <p class="mt-3 text-gray-500 dark:text-gray-400">
-                        O Avalia 360 é a estrutura de cobrança da Avalia One: análise antes
+                        O {{ Empresa::marcaCobranca() }} é a estrutura de cobrança da {{ Empresa::marca() }}: análise antes
                         de aprovar, contrato assinado, parcelas emitidas e régua de cobrança
                         por nossa conta.
                     </p>
@@ -611,7 +611,7 @@
         <footer class="border-t border-gray-100 dark:border-gray-800">
             <div class="mx-auto flex w-full max-w-[87rem] flex-wrap items-center justify-between gap-4 px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 <a href="{{ route('inicio') }}" aria-label="Início">
-                    <x-avalia.logotipo :tamanho="24" />
+                    <x-avalia.logotipo :tamanho="24" marca="credito" />
                 </a>
                 <p class="text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
                     © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}<br>
@@ -677,7 +677,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="{{ $pilar['icone'] }}"/>
                                             </svg>
                                         </div>
-                                        <x-avalia.logotipo :tamanho="26" />
+                                        <x-avalia.logotipo :tamanho="26" marca="credito" />
                                     </div>
                                     <h3 class="mt-5 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $pilar['titulo'] }}</h3>
                                     <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">{{ $pilar['detalhe'] }}</p>

@@ -11,7 +11,7 @@
                     Voltar
                 </x-avalia.botao>
             </div>
-            <x-avalia.logotipo :tamanho="32" class="mb-6" />
+            <x-avalia.logotipo :tamanho="32" class="mb-6" marca="credito" />
 
             <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">Esqueci minha senha</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">

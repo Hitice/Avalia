@@ -9,10 +9,10 @@
         <header class="relative border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
             <div class="mx-auto flex h-[60px] w-full max-w-4xl items-center justify-between px-6">
                 <span class="inline-flex items-center gap-2.5">
-                    <x-avalia.logotipo :tamanho="30" texto="1.15rem" />
+                    <x-avalia.logotipo :tamanho="30" texto="1.15rem" marca="cobranca" />
                     <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
                 </span>
-                {{-- Quem vende e o produtor; a Avalia 360 processa. Dizer isso
+                {{-- Quem vende e o produtor; a Avalia Gestor processa. Dizer isso
                      aqui evita a duvida mais cara do checkout: "quem esta
                      cobrando de mim?" --}}
                 <span class="hidden pr-12 text-sm text-gray-500 sm:inline sm:pr-14 dark:text-gray-400">
@@ -168,7 +168,7 @@
             </form>
 
             <p class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
-                Cobrança processada pela Avalia 360. Seus dados são usados para esta compra e para a cobrança das parcelas.
+                Cobrança processada pela {{ \App\Support\Empresa::marcaCobranca() }}. Seus dados são usados para esta compra e para a cobrança das parcelas.
             </p>
         </main>
     </div>

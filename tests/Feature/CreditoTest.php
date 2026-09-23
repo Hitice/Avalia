@@ -7,15 +7,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 /**
- * A unica pagina publica do sistema.
+ * A pagina publica do produto de pesquisa de score.
  *
- * O que estes testes guardam nao e o layout: e o que a pagina NAO pode conter.
- * Ela fica exposta a qualquer visitante, entao numero interno, nome de
- * fornecedor ou preco de tabela aparecendo aqui e vazamento para concorrente,
- * nao bug de tela.
+ * Era a raiz do dominio ate o site institucional assumir a porta. O que estes
+ * testes guardam nao e o layout: e o que a pagina NAO pode conter. Ela fica
+ * exposta a qualquer visitante, entao numero interno, nome de fornecedor ou
+ * preco de tabela aparecendo aqui e vazamento para concorrente, nao bug de
+ * tela.
  */
 it('apresenta a Avalia com as duas saidas', function () {
-    $this->get('/')
+    $this->get(route('credito'))
         ->assertOk()
         ->assertSee('Avalie o risco')
         ->assertSee('Quero contratar')
@@ -29,7 +30,7 @@ it('vende pesquisa de score com o aviso de uso responsavel, sem termo nublado', 
     // "consulta de credito" sao promessas juridicamente nubladas e ficam
     // banidas; o que se vende e pesquisa de score amarrada a negocio do
     // proprio contratante, com a decisao declarada como sendo do cliente.
-    $html = $this->get('/')->assertOk()->getContent();
+    $html = $this->get(route('credito'))->assertOk()->getContent();
 
     expect($html)->toContain('Pesquisa de score')
         ->toContain('venda a prazo')
@@ -45,7 +46,7 @@ it('marca o carrossel de consultas como simulacao e mascara os documentos', func
     // A vitrine mostra consultas acontecendo, e por isso mesmo precisa dizer
     // que e simulacao: pagina publica exibindo consulta que parecesse real
     // seria exatamente o vazamento que o produto promete impedir.
-    $resposta = $this->get('/')->assertOk()
+    $resposta = $this->get(route('credito'))->assertOk()
         ->assertSee('Simulação')
         ->assertSee('Casa Sul Materiais');
 
@@ -58,7 +59,7 @@ it('marca o carrossel de consultas como simulacao e mascara os documentos', func
 });
 
 it('nao vaza fornecedor, preco nem numero interno', function () {
-    $html = $this->get('/')->assertOk()->getContent();
+    $html = $this->get(route('credito'))->assertOk()->getContent();
 
     // Nomes de fornecedor nunca aparecem fora da administracao (PDD, secao 7),
     // e a pagina publica e o pior lugar possivel para o primeiro deslize.
@@ -73,7 +74,7 @@ it('nao vaza fornecedor, preco nem numero interno', function () {
 });
 
 it('recolhe o interesse da campanha por formulario, e nao por URL de conversa', function () {
-    $html = $this->get('/')->assertOk()->getContent();
+    $html = $this->get(route('credito'))->assertOk()->getContent();
 
     // A campanha abre um formulario que grava no nosso banco: nome e telefone
     // sao dado pessoal e nao viajam em URL de WhatsApp. Os links de conversa
@@ -93,7 +94,7 @@ it('veste o banner com a campanha vigente', function () {
         'ativa' => true,
     ]);
 
-    $this->get('/')->assertOk()
+    $this->get(route('credito'))->assertOk()
         ->assertSee('Adesão de agosto')
         ->assertSee('Taxa de adesão facilitada para quem contratar até o fim do mês.');
 });
@@ -114,7 +115,7 @@ it('ignora campanha desligada ou fora do periodo', function () {
         'ativa' => true,
     ]);
 
-    $this->get('/')->assertOk()
+    $this->get(route('credito'))->assertOk()
         ->assertDontSee('Campanha desligada')
         ->assertDontSee('Campanha encerrada')
         ->assertSee('Campanha de adesão aberta');
@@ -132,19 +133,23 @@ it('segura fora da vitrine campanha cujo texto vaza preco ou fornecedor', functi
         'ativa' => true,
     ]);
 
-    $html = $this->get('/')->assertOk()->getContent();
+    $html = $this->get(route('credito'))->assertOk()->getContent();
 
     expect($html)->not->toContain('R$')
         ->toContain('Campanha de adesão aberta');
 });
 
-it('leva cada sessao para o proprio painel sem mostrar a apresentacao', function () {
+it('mostra a apresentacao tambem a quem ja tem sessao', function () {
+    // A pagina do produto nao redireciona mais: ela e apresentacao, e o
+    // vendedor que quer mostra-la a um cliente nao pode ser jogado dentro do
+    // proprio painel ao abri-la. O atalho para o painel mora na area do
+    // produtor.
     $staff = Staff::factory()->admin()->create();
-    $this->actingAs($staff, 'staff')->get('/')->assertRedirect(route('painel'));
+    $this->actingAs($staff, 'staff')->get(route('credito'))->assertOk();
 
     $this->flushSession();
     app('auth')->forgetGuards();
 
     $empresa = Cliente::factory()->create();
-    $this->actingAs($empresa, 'empresa')->get('/')->assertRedirect(route('empresa.painel'));
+    $this->actingAs($empresa, 'empresa')->get(route('credito'))->assertOk();
 });

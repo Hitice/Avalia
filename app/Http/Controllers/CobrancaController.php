@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 /**
- * A pagina do Avalia 360 e o pre-cadastro de quem quer vender parcelado.
+ * A pagina do Avalia Gestor e o pre-cadastro de quem quer vender parcelado.
  *
- * O Avalia 360 e a estrutura de cobranca da Avalia One: o produtor vende
+ * O Avalia Gestor e a estrutura de cobranca da Avalia One: o produtor vende
  * parcelado no boleto e no Pix, e quem opera a regua de cobranca somos nos.
  *
  * A validacao fica aqui, e nao num FormRequest, pelo mesmo motivo do

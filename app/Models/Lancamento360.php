@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Uma linha do razao do Avalia 360. Nasce e nunca muda.
+ * Uma linha do razao do Avalia Gestor. Nasce e nunca muda.
  *
  * `UPDATED_AT` desligado porque a tabela nao tem a coluna, e nao tem de
  * proposito: lancamento que se atualiza deixa de explicar o saldo que alguem

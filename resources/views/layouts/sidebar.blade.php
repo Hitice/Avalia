@@ -69,10 +69,10 @@
         {{-- A marca leva a porta de entrada de quem esta logado. --}}
         <a href="{{ auth('empresa')->check() ? route('empresa.painel') : route('painel') }}">
             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                <x-avalia.logotipo :tamanho="40" />
+                <x-avalia.logotipo :tamanho="40" marca="credito" />
             </span>
             <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)">
-                <x-avalia.logotipo :tamanho="40" somente-icone />
+                <x-avalia.logotipo :tamanho="40" somente-icone marca="credito" />
             </span>
 
         </a>

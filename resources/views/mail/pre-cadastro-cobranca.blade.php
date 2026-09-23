@@ -1,9 +1,9 @@
 @extends('mail.base')
 
-@section('titulo', 'Novo pré-cadastro no Avalia 360')
+@section('titulo', 'Novo pré-cadastro no '.\App\Support\Empresa::marcaCobranca())
 
 @section('conteudo')
-    <p style="margin:0 0 12px 0;">Chegou um pedido novo pela página do Avalia 360.</p>
+    <p style="margin:0 0 12px 0;">Chegou um pedido novo pela página do {{ \App\Support\Empresa::marcaCobranca() }}.</p>
 
     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#344054;">
         <tr>

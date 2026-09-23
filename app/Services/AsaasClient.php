@@ -33,7 +33,7 @@ class AsaasClient
     }
 
     /**
-     * Cria a subconta do produtor do Avalia 360.
+     * Cria a subconta do produtor do Avalia Gestor.
      *
      * A resposta traz `walletId` e `apiKey`, e a apiKey vem UMA VEZ SO: o
      * provedor nao a devolve depois, e perde-la significa abrir outra

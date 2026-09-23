@@ -73,15 +73,25 @@ it('devolve quem ja esta dentro para a propria pagina, nao para o login', functi
 */
 
 it('manda a empresa autenticada para a area dela, e nao para a gestao', function () {
-    // A raiz resolve pelo guard: empresa vai para a area dela, staff para a
-    // gestao, visitante ve a apresentacao. Antes a raiz ERA a gestao, e a
-    // empresa que a abrisse caia num laco entre o auth:staff e o guest.
+    // Cada porta resolve pelo guard: a empresa vai para a area dela e o staff
+    // para a gestao. Antes a raiz ERA a gestao, e a empresa que a abrisse caia
+    // num laco entre o auth:staff e o guest.
+    //
+    // A raiz hoje e o site institucional e nao redireciona ninguem: e pagina
+    // de leitura, igual para visitante e para cliente. Quem tem sessao e quer
+    // trabalhar entra pela area do produtor, que oferece o atalho.
     $empresa = App\Models\Cliente::factory()->create();
 
     $this->actingAs($empresa, 'empresa')
         ->withSession(['versao_empresa' => $empresa->sessao_versao])
         ->get('/')
-        ->assertRedirect(route('empresa.painel'));
+        ->assertOk();
+
+    $this->actingAs($empresa, 'empresa')
+        ->withSession(['versao_empresa' => $empresa->sessao_versao])
+        ->get(route('area'))
+        ->assertOk()
+        ->assertSee(route('empresa.painel'));
 
     $this->actingAs($empresa, 'empresa')
         ->withSession(['versao_empresa' => $empresa->sessao_versao])

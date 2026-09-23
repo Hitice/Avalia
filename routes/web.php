@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AreaClienteController;
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RecuperacaoController;
@@ -13,11 +14,11 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
+use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
-use App\Http\Controllers\InicioController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PainelController;
@@ -27,8 +28,61 @@ use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
 use App\Http\Controllers\ServicoController;
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\WebhookAsaasController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Site institucional
+|--------------------------------------------------------------------------
+|
+| A porta do dominio e o site da casa, e nao o login.
+|
+| Quem digita o endereco sem estar logado e quase sempre alguem avaliando a
+| empresa: cliente indicado, contador do cliente, curioso. Cair direto num
+| formulario de senha diz "isto nao e para voce". O site diz o que a Avalia
+| faz, quais negocios ela opera e por onde se fala com ela.
+|
+| Nenhuma destas rotas olha a sessao: sao paginas de leitura, iguais para
+| visitante e para cliente. A porta de quem vem trabalhar e a area do produtor.
+|
+*/
+
+Route::get('/', [SiteController::class, 'inicio'])->name('inicio');
+Route::get('/softwares', [SiteController::class, 'softwares'])->name('site.softwares');
+Route::get('/quem-somos', [SiteController::class, 'quemSomos'])->name('site.quem-somos');
+Route::get('/blog', [SiteController::class, 'blog'])->name('site.blog');
+Route::get('/blog/{artigo}', [SiteController::class, 'artigo'])->name('site.artigo');
+Route::get('/perguntas-frequentes', [SiteController::class, 'perguntas'])->name('site.perguntas');
+Route::get('/privacidade', [SiteController::class, 'privacidade'])->name('site.privacidade');
+
+/*
+ * Os termos do site moram em /termos-de-uso, e nao em /termos.
+ *
+ * `/termos` ja e o aceite de termo do vendedor, atras do login da gestao.
+ * Duas paginas com o mesmo endereco e a mais silenciosa das trocas: uma delas
+ * simplesmente para de existir, e so o usuario descobre.
+ */
+Route::get('/termos-de-uso', [SiteController::class, 'termos'])->name('site.termos');
+
+Route::get('/contato', [SiteController::class, 'contato'])->name('site.contato');
+
+Route::post('/contato', [InteresseController::class, 'doSite'])
+    ->middleware('throttle:10,1')
+    ->name('site.contato.enviar');
+
+/*
+ * As portas das plataformas da casa, reunidas.
+ *
+ * Publica: ela existe justamente para quem ainda nao sabe por onde entrar, e
+ * pedir senha antes de listar as opcoes seria exigir a chave de uma porta para
+ * dizer quais portas existem.
+ */
+Route::get('/area-do-produtor', AreaController::class)->name('area');
+
+// Mapa do site, montado da mesma lista que a navegacao usa.
+Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('site.sitemap');
 
 /*
 |--------------------------------------------------------------------------
@@ -42,18 +96,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 /*
- * A porta do dominio e uma apresentacao, nao o login.
+ * A apresentacao do produto de pesquisa de score.
  *
- * Quem digita o endereco sem estar logado e quase sempre alguem avaliando o
- * produto: cliente indicado, contador do cliente, curioso. Cair direto num
- * formulario de senha diz "isto nao e para voce". A pagina inicial diz o que a
- * Avalia faz e para onde ir. Quem ja tem sessao nem a ve: segue para o proprio
- * painel.
+ * Era a raiz do dominio ate o site institucional assumir a porta. Continua
+ * publica e continua sem preco: apresentacao, e nao proposta.
  */
-Route::get('/', InicioController::class)->name('inicio');
+Route::get('/credito', CreditoController::class)->name('credito');
 
 /*
- * O Avalia 360, a estrutura de cobranca da casa, tem pagina propria.
+ * O Avalia Gestor, a estrutura de cobranca da casa, tem pagina propria.
  *
  * Pagina separada, e nao uma secao a mais na inicial: quem procura vender
  * parcelado nao esta procurando consulta de score, e misturar as duas
@@ -62,7 +113,7 @@ Route::get('/', InicioController::class)->name('inicio');
 Route::get('/cobranca', [CobrancaController::class, 'mostrar'])->name('cobranca');
 
 /*
- * O checkout de uma oferta do Avalia 360.
+ * O checkout de uma oferta do Avalia Gestor.
  *
  * Publico e sem login de proposito: quem compra chega por um link que o
  * produtor mandou, e exigir cadastro antes de mostrar o preco e o jeito mais
@@ -78,7 +129,7 @@ Route::post('/pay/{slug}', [CheckoutController::class, 'fechar'])
 Route::get('/pedido/{pedido}', [CheckoutController::class, 'resultado'])->name('checkout.resultado');
 
 /*
- * A conta do produtor do Avalia 360.
+ * A conta do produtor do Avalia Gestor.
  *
  * Guard proprio: ele nao consulta score nem recebe fatura nossa, e nao tem o
  * que fazer nas telas de staff ou de empresa. O cadastro e auto-servico e

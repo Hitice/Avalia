@@ -99,7 +99,7 @@
                         <th scope="col" class="px-5 py-3 text-left font-medium">Nome</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Empresa</th>
                         <th scope="col" class="px-5 py-3 text-left font-medium">Contato</th>
-                        <th scope="col" class="px-5 py-3 text-right font-medium">Funcionários</th>
+                        <th scope="col" class="px-5 py-3 text-left font-medium">Sobre</th>
                         <th scope="col" class="px-5 py-3 text-right font-medium"><span class="sr-only">Ações</span></th>
                     </tr></thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -112,7 +112,16 @@
                                     {{ $interessado->telefone }}
                                     <span class="block text-xs text-gray-400 dark:text-gray-500">{{ $interessado->email }}</span>
                                 </td>
-                                <td class="px-5 py-4 text-right text-gray-600 dark:text-gray-300">{{ $interessado->funcionarios }}</td>
+                                {{-- Um pedido traz a faixa de funcionarios, o outro traz assunto e
+                                     mensagem: os formularios perguntam coisas diferentes.
+                                     A coluna mostra o que aquele pedido tem, em vez de
+                                     ficar vazia para metade da fila. --}}
+                                <td class="px-5 py-4 text-left text-gray-600 dark:text-gray-300">
+                                    {{ $interessado->assunto ?? $interessado->funcionarios }}
+                                    @if ($interessado->mensagem)
+                                        <span class="block max-w-xs truncate text-xs text-gray-400 dark:text-gray-500" title="{{ $interessado->mensagem }}">{{ $interessado->mensagem }}</span>
+                                    @endif
+                                </td>
                                 <td class="px-5 py-4 text-right">
                                     {{-- Atender e tirar da fila: o registro fica para medir conversao. --}}
                                     <form method="POST" action="{{ route('interessados.atendido', $interessado) }}" class="inline">

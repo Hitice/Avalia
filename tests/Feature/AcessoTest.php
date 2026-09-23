@@ -142,27 +142,36 @@ it('nao deixa staff abrir a area da empresa', function () {
 });
 
 it('mostra a apresentacao ao visitante em vez do login', function () {
-    // A raiz do dominio e a pagina publica: quem chega sem sessao ve o que a
-    // Avalia faz, com o login a um clique. Cair direto no formulario de senha
-    // dizia "isto nao e para voce" a quem estava avaliando o produto.
+    // A raiz do dominio e o site da casa: quem chega sem sessao ve o que a
+    // Avalia faz, com a porta de entrada a um clique. Cair direto no
+    // formulario de senha dizia "isto nao e para voce" a quem estava
+    // avaliando a empresa.
     $this->get('/')->assertOk()
-        ->assertSee('Entrar')
-        ->assertSee('Quero contratar');
+        ->assertSee('Área do produtor')
+        ->assertSee(route('area'));
 });
 
 it('manda visitante do painel para a tela de entrada', function () {
     $this->get('/painel')->assertRedirect(route('entrar'));
 });
 
-it('leva cada sessao da raiz para o proprio painel', function () {
+it('oferece a cada sessao o atalho para o proprio painel', function () {
+    // O atalho mora na area do produtor, e nao na raiz: a raiz e o site da
+    // empresa, e quem esta logado tambem precisa poder le-lo. Atalho, e nao
+    // redirect, porque a mesma pessoa pode operar os dois negocios com contas
+    // diferentes: mandar direto para um painel esconderia a outra entrada.
     $staff = Staff::factory()->admin()->create();
-    $this->actingAs($staff, 'staff')->get('/')->assertRedirect(route('painel'));
+    $this->actingAs($staff, 'staff')->get(route('area'))
+        ->assertOk()
+        ->assertSee(route('painel'));
 
     $this->flushSession();
     app('auth')->forgetGuards();
 
     $cliente = Cliente::factory()->create();
-    $this->actingAs($cliente, 'empresa')->get('/')->assertRedirect(route('empresa.painel'));
+    $this->actingAs($cliente, 'empresa')->get(route('area'))
+        ->assertOk()
+        ->assertSee(route('empresa.painel'));
 });
 
 /*

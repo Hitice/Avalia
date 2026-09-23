@@ -25,25 +25,25 @@ function pedidoDeContato(array $ajustes = []): array
 }
 
 /**
- * A pagina publica do Avalia 360 e o pre-cadastro do produtor.
+ * A pagina publica do Avalia Gestor e o pre-cadastro do produtor.
  *
  * O que estes testes guardam: o pedido chega inteiro a quem vai retornar, o
  * dado pessoal nao fica legivel no banco, e o segundo POST publico do sistema
  * nao vira porta de robo nem de cadastro repetido.
  */
-it('apresenta o Avalia 360 com a promessa e o caminho do pre-cadastro', function () {
+it('apresenta o Avalia Gestor com a promessa e o caminho do pre-cadastro', function () {
     $this->get(route('cobranca'))->assertOk()
-        ->assertSee('Avalia 360')
+        ->assertSee('Avalia Gestor')
         ->assertSee('sem depender do cartão', false)
-        ->assertSee('Fale com a Avalia 360')
+        ->assertSee('Fale com a Avalia Gestor')
         ->assertSee('Como funciona');
 });
 
-it('chama o Avalia 360 na pagina inicial', function () {
+it('chama o Avalia Gestor na pagina inicial', function () {
     // A porta do dominio precisa levar ao produto novo, senao ele so existe
     // para quem ja sabe o endereco.
     $this->get('/')->assertOk()
-        ->assertSee('Avalia 360')
+        ->assertSee('Avalia Gestor')
         ->assertSee(route('cobranca'));
 });
 

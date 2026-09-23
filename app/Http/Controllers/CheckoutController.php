@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 /**
- * O checkout publico de uma oferta do Avalia 360.
+ * O checkout publico de uma oferta do Avalia Gestor.
  *
  * Uma pagina so, com os passos visiveis de uma vez. Wizard de quatro telas
  * perde gente em cada troca, e aqui cada abandono e uma venda que o produtor

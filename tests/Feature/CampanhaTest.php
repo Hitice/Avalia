@@ -25,7 +25,7 @@ function campanhaVigente(): Campanha
 it('encerra a campanha e ela sai da pagina publica no mesmo instante', function () {
     $campanha = campanhaVigente();
 
-    $this->get('/')->assertSee('Adesão de agosto');
+    $this->get(route('credito'))->assertSee('Adesão de agosto');
 
     admin()->from(route('campanhas.index'))
         ->post(route('campanhas.alternar', $campanha))
@@ -33,7 +33,7 @@ it('encerra a campanha e ela sai da pagina publica no mesmo instante', function 
         ->assertSessionHas('ok', 'Campanha encerrada.');
 
     expect($campanha->fresh()->ativa)->toBeFalse();
-    $this->get('/')->assertDontSee('Adesão de agosto');
+    $this->get(route('credito'))->assertDontSee('Adesão de agosto');
 });
 
 it('reabre campanha encerrada', function () {

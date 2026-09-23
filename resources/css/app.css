@@ -791,3 +791,127 @@
   .barra-cresce { animation: none; transform: scaleX(1); }
   .numero-conta { animation: none; --pontos: var(--alvo); }
 }
+
+/* ---------------------------------------------------------------------------
+   Site institucional.
+
+   As paginas publicas da casa: apresentacao, softwares, blog e os documentos.
+   Vivem no tema claro e so nele. O interruptor de tema e ferramenta de quem
+   trabalha no sistema o dia inteiro, e nao de quem chegou para ler o que a
+   Avalia faz; nas paginas do site o preto e desenho, uma superficie escolhida
+   dentro do tema claro, e nao o tema escuro ligado.
+
+   Por isso nenhuma utility daqui tem variante `dark:`: se tivesse, bastaria o
+   navegador lembrar do tema escuro do CRM para o site sair com duas metades.
+   --------------------------------------------------------------------------- */
+
+/* Superficie escura da marca, onde o topo de cada pagina se apoia. A textura
+   da grade entra por `grade-viva-escura`, que ja existe para o heroi. */
+@utility superficie-escura {
+  @apply bg-gray-900 text-white;
+}
+
+/* Etiqueta curta acima do titulo, que diz de que assunto a pagina trata. */
+@utility selo {
+  @apply inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium tracking-wide text-gray-600 uppercase;
+}
+
+/* A mesma etiqueta sobre a superficie escura. Variante, e nao classe extra no
+   ponto de uso, pelo motivo de sempre: escrita a mao em nove paginas, uma
+   sairia com outro cinza. */
+@utility selo-claro {
+  @apply border-white/15 bg-white/5 text-white/70;
+}
+
+/* Numeracao da secao: "01 / Softwares". Marca o lugar na leitura sem virar
+   mais um titulo competindo com o da secao. */
+@utility indice {
+  @apply text-brand-600 block text-xs font-semibold tracking-[0.18em] uppercase;
+}
+
+@utility indice-claro {
+  @apply text-brand-300;
+}
+
+/* Texto corrido longo: artigo do blog e documento juridico. A medida fica em
+   65 caracteres porque linha mais larga que isso faz o olho perder a proxima
+   ao voltar, e privacidade e termos sao exatamente o texto que ninguem quer
+   reler. */
+@utility prosa {
+  @apply max-w-[65ch] text-base leading-relaxed text-gray-600;
+
+  & h2 {
+    @apply mt-10 mb-3 text-xl font-semibold text-gray-900;
+  }
+
+  & p {
+    @apply mt-4;
+  }
+
+  & ul,
+  & ol {
+    @apply mt-4 space-y-2 pl-5;
+  }
+
+  & ul {
+    @apply list-disc;
+  }
+
+  & ol {
+    @apply list-decimal;
+  }
+
+  & strong {
+    @apply font-semibold text-gray-800;
+  }
+
+  & a {
+    @apply text-brand-600 underline underline-offset-2 hover:text-brand-700;
+  }
+}
+
+/* Item da vitrine de softwares: cartao que leva ao detalhe da solucao. O
+   realce no hover e o mesmo de `cartao-link`, sem a borda dupla que sairia de
+   empilhar as duas. */
+@utility bloco {
+  @apply flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-brand-300 hover:shadow-theme-md;
+}
+
+/* A caixinha que carrega o icone no topo de cada bloco. */
+@utility icone-caixa {
+  @apply bg-brand-50 text-brand-600 inline-flex size-11 items-center justify-center rounded-xl;
+}
+
+@utility icone-caixa-claro {
+  @apply bg-white/10 text-white;
+}
+
+/* Trilho de termos que corre sem fim no pe do heroi. Sao dois grupos
+   identicos lado a lado: quando o primeiro termina de sair, o segundo ja
+   ocupa o lugar dele e a emenda nao aparece. Deslocar metade da largura e o
+   que fecha o ciclo; qualquer outro valor produz o salto. */
+@utility trilho {
+  animation: trilho 42s linear infinite;
+}
+
+@keyframes trilho {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Pulso que percorre a linha entre dois nos do diagrama de fluxo. */
+@utility pulso {
+  animation: pulso 2.6s ease-in-out infinite;
+}
+
+@keyframes pulso {
+  0%   { transform: translateX(0); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(var(--percurso, 100%)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trilho { animation: none; }
+  .pulso { animation: none; opacity: 0; }
+}

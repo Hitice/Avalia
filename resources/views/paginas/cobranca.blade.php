@@ -1,4 +1,4 @@
-@extends('layouts.fullscreen-layout', ['title' => 'Avalia 360'])
+@extends('layouts.fullscreen-layout', ['title' => \App\Support\Empresa::marcaCobranca()])
 
 @php
     use App\Support\Empresa;
@@ -34,7 +34,7 @@
     $duvidas = [
         [
             'pergunta' => 'Quem assume o risco se o cliente não pagar?',
-            'resposta' => 'O risco é da sua operação, como em qualquer venda parcelada própria. O Avalia 360 reduz esse risco antes da venda, com a análise de crédito, e cuida da cobrança depois dela.',
+            'resposta' => 'O risco é da sua operação, como em qualquer venda parcelada própria. O '.Empresa::marcaCobranca().' reduz esse risco antes da venda, com a análise de crédito, e cuida da cobrança depois dela.',
         ],
         [
             'pergunta' => 'Em quanto tempo o dinheiro entra?',
@@ -60,7 +60,7 @@
         <header class="fixed inset-x-0 top-0 z-40 border-b border-gray-200 bg-white/95 shadow-theme-md backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
             <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
                 <a href="{{ route('inicio') }}" aria-label="Início" class="flex items-center gap-3">
-                    <x-avalia.logotipo :tamanho="34" texto="1.3rem" />
+                    <x-avalia.logotipo :tamanho="34" texto="1.3rem" marca="cobranca" />
                     {{-- A etiqueta e o que separa o produto da marca: a casa e
                          Avalia One, e 360 e o nome da estrutura de cobranca. --}}
                     <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
@@ -242,8 +242,9 @@
                     <p class="mt-4 text-gray-500 dark:text-gray-400">
                         Vender parcelado cria uma operação que começa depois do fechamento: analisar
                         o comprador, emitir os títulos a cada mês, conciliar os pagamentos e cobrar
-                        quem atrasa. O Avalia 360 executa essa operação com a mesma infraestrutura de
-                        análise de crédito que a Avalia One opera para empresas que vendem a prazo.
+                        quem atrasa. O {{ Empresa::marcaCobranca() }} executa essa operação com a mesma
+                        infraestrutura de análise de crédito que o {{ Empresa::marcaCredito() }} opera
+                        para empresas que vendem a prazo.
                     </p>
                 </div>
 
@@ -295,7 +296,7 @@
                     </span>
                     <h2 class="mt-1 text-3xl font-semibold text-gray-800 dark:text-white">Para quem é</h2>
                     <p class="mt-4 max-w-2xl text-gray-500 dark:text-gray-400">
-                        Se o seu cliente paga ao longo do tempo, o Avalia 360 é a estrutura que
+                        Se o seu cliente paga ao longo do tempo, o {{ Empresa::marcaCobranca() }} é a estrutura que
                         sustenta essa venda.
                     </p>
 
@@ -454,7 +455,7 @@
              lendo. Esc, clique fora e o X fecham. --}}
         <div x-cloak x-show="formulario" x-transition.opacity.duration.200ms
              class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gray-900/60 p-4 py-10 backdrop-blur-sm"
-             @click.self="formulario = false" role="dialog" aria-modal="true" aria-label="Fale com a Avalia 360">
+             @click.self="formulario = false" role="dialog" aria-modal="true" aria-label="Fale com a {{ Empresa::marcaCobranca() }}">
             <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-6 py-6 shadow-theme-lg sm:px-8 dark:border-gray-700 dark:bg-gray-800">
                 <button type="button" @click="formulario = false" aria-label="Fechar"
                         class="absolute top-4 right-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
@@ -463,7 +464,7 @@
                     </svg>
                 </button>
 
-                <h2 class="text-xl font-semibold tracking-tight">Fale com a Avalia 360</h2>
+                <h2 class="text-xl font-semibold tracking-tight">Fale com a {{ Empresa::marcaCobranca() }}</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Preencha abaixo e um especialista entra em contato pelo WhatsApp informado,
                     em horário comercial.
@@ -471,7 +472,7 @@
 
                 @if (session('cobranca_ok'))
                     <div class="aviso aviso-ok mt-5">
-                        Pedido recebido. A equipe do Avalia 360 entra em contato pelo WhatsApp informado.
+                        Pedido recebido. A equipe do {{ Empresa::marcaCobranca() }} entra em contato pelo WhatsApp informado.
                     </div>
                 @endif
 

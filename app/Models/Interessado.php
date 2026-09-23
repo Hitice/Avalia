@@ -16,7 +16,8 @@ class Interessado extends Model
     protected $table = 'interessados';
 
     protected $fillable = [
-        'nome', 'empresa', 'telefone', 'email', 'funcionarios', 'origem', 'atendido_em',
+        'nome', 'empresa', 'telefone', 'email', 'funcionarios',
+        'assunto', 'mensagem', 'origem', 'atendido_em',
     ];
 
     protected function casts(): array

@@ -23,9 +23,27 @@ uses(RefreshDatabase::class);
 
 /** Rotas que sao publicas de propósito, com a razao de cada uma. */
 const PORTAS_PUBLICAS = [
-    'inicio' => 'apresentacao publica; quem tem sessao e redirecionado para o proprio painel',
+    // O site institucional inteiro. Sao paginas de leitura, iguais para
+    // visitante e para cliente: nao ha dado de ninguem nelas, e exigir sessao
+    // para ler o que a empresa faz seria fechar a vitrine.
+    'inicio' => 'apresentacao publica da casa',
+    'site.softwares' => 'vitrine do que a casa desenvolve',
+    'site.quem-somos' => 'texto institucional',
+    'site.blog' => 'lista de artigos publicos',
+    'site.artigo' => 'artigo publico; o slug vem de lista fechada em config/blog.php',
+    'site.perguntas' => 'duvidas frequentes, sem dado de ninguem',
+    'site.privacidade' => 'politica de privacidade, que precisa ser legivel por qualquer um',
+    'site.termos' => 'termos de uso do site, pelo mesmo motivo',
+    'site.contato' => 'formulario de contato da casa',
+    'site.contato.enviar' => 'envio do contato, com teto por origem e campo armadilha',
+    'site.sitemap' => 'mapa do site para buscadores, so com endereco de pagina publica',
+    // A area do produtor existe para quem ainda nao sabe por onde entrar.
+    // Pedir senha antes de listar as opcoes seria exigir a chave de uma porta
+    // para dizer quais portas existem. Ela mostra portas, e nada mais.
+    'area' => 'reune as entradas das plataformas; nenhuma informacao de conta na tela',
+    'credito' => 'apresentacao publica do Avalia One, sem preco e sem fornecedor',
     'interesse.salvar' => 'formulario de contato da campanha, com teto por origem e campo armadilha',
-    'cobranca' => 'apresentacao publica do Avalia 360, sem dado de ninguem na tela',
+    'cobranca' => 'apresentacao publica do Avalia Gestor, sem dado de ninguem na tela',
     'cobranca.pre-cadastro' => 'pre-cadastro do produtor, com teto por origem e campo armadilha',
     'checkout' => 'checkout publico de uma oferta; mostra o que o produtor vende, nunca o que outro comprou',
     'checkout.fechar' => 'fechamento da compra, com teto por origem e campo armadilha',

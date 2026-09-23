@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Contracts\ContaAutenticavel;
 use App\Support\Documento;
+use App\Support\Empresa;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
- * Quem vende parcelado pelo Avalia 360.
+ * Quem vende parcelado pelo Avalia Gestor.
  *
  * A subconta no provedor e o que separa produtor cadastrado de produtor que
  * pode vender: sem `asaas_wallet_id` nao ha para onde o split mandar a parte
@@ -136,7 +137,7 @@ class Produtor extends Authenticatable implements ContaAutenticavel
     public function motivoSuspensao(): ?string
     {
         return match ($this->situacao) {
-            'bloqueado' => 'Acesso bloqueado pela administração. Fale com a Avalia 360.',
+            'bloqueado' => 'Acesso bloqueado pela administração. Fale com o '.Empresa::marcaCobranca().'.',
             'pendente' => 'Cadastro em análise. Você ainda não pode publicar ofertas.',
             default => null,
         };

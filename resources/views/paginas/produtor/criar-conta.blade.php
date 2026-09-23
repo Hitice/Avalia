@@ -7,8 +7,8 @@
         <x-avalia.tema class="absolute top-4 right-3 size-11 sm:right-4" />
 
         <div class="w-full max-w-md">
-            <a href="{{ route('cobranca') }}" class="mb-8 flex items-center justify-center gap-2.5" aria-label="Avalia 360">
-                <x-avalia.logotipo :tamanho="36" texto="1.35rem" />
+            <a href="{{ route('cobranca') }}" class="mb-8 flex items-center justify-center gap-2.5" aria-label="{{ \App\Support\Empresa::marcaCobranca() }}">
+                <x-avalia.logotipo :tamanho="36" texto="1.35rem" marca="cobranca" />
                 <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
             </a>
 

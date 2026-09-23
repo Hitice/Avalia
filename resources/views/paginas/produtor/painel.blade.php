@@ -9,7 +9,7 @@
         <header class="relative border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
             <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
                 <span class="inline-flex items-center gap-2.5">
-                    <x-avalia.logotipo :tamanho="30" texto="1.15rem" />
+                    <x-avalia.logotipo :tamanho="30" texto="1.15rem" marca="cobranca" />
                     <span class="etiqueta bg-brand-50 font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">360</span>
                 </span>
 
@@ -35,7 +35,7 @@
                 <div class="aviso aviso-alerta">
                     <strong>Cadastro em análise.</strong>
                     Assim que a sua conta de recebimento for aberta, você poderá publicar ofertas e vender parcelado.
-                    A equipe da Avalia 360 entra em contato pelo WhatsApp cadastrado.
+                    A equipe do {{ \App\Support\Empresa::marcaCobranca() }} entra em contato pelo WhatsApp cadastrado.
                 </div>
             @endunless
 

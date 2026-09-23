@@ -1,7 +1,7 @@
 <?php
 
 /*
- * As regras de dinheiro do Avalia 360.
+ * As regras de dinheiro do Avalia Gestor.
  *
  * Ficam aqui, e nao no codigo, porque mudam por decisao comercial e nao por
  * mudanca de programa: taxa, teto de parcelas e piso por parcela sao numeros
