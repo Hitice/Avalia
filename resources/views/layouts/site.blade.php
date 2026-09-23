@@ -116,20 +116,24 @@
                 },
             }"
             @scroll.window.passive="rolou = window.scrollY > 40"
-            :class="rolou ? 'px-3 sm:px-6' : 'px-0'"
-            class="fixed inset-x-0 top-0 z-40 transition-[padding] duration-300">
-        {{-- A ilha nasce redonda: o raio fica fora da transicao, entao ele
-             troca no mesmo quadro em que a largura comeca a encolher. Com o
-             raio dentro, a barra encolhia quadrada e so arredondava no fim.
+            :class="rolou ? 'bg-transparent px-3 sm:px-6' : 'bg-[#000] px-0'"
+            class="fixed inset-x-0 top-0 z-40 transition-colors duration-200">
+        {{-- A faixa preta do alto e o fundo do proprio `header`, e nao desta
+             caixa: aqui ela ficava presa nos 87rem do conteudo e deixava duas
+             tiras brancas nas laterais das telas largas.
+
+             Com o preto la fora, a ilha vira uma forma a parte, que so aparece
+             ao rolar. Ela ja nasce redonda, porque nao ha uma barra quadrada
+             virando ilha: ha uma barra que se apaga e uma ilha que acende.
 
              Escura nos dois estados, e nao clara de um lado e escura do outro:
-             ao rolar, a ilha passa por cima da faixa preta do topo e depois
-             por cima do corpo branco da pagina. Cor de texto fixa e a unica
-             que se le nos dois fundos. --}}
+             ao rolar, a ilha passa por cima da faixa preta do topo e logo
+             depois por cima do corpo branco da pagina, e cor de texto fixa e a
+             unica que se le nos dois fundos. --}}
         <div :class="rolou
-                 ? 'mt-3 max-w-[64rem] rounded-full border-white/10 bg-gray-900/70 shadow-theme-lg backdrop-blur-xl'
-                 : 'mt-0 max-w-[87rem] rounded-none border-transparent bg-gray-900'"
-             class="relative mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-200">
+                 ? 'mt-3 max-w-[64rem] rounded-full border-white/10 bg-[#000]/70 shadow-theme-lg backdrop-blur-xl'
+                 : 'mt-0 max-w-[87rem] rounded-full border-transparent bg-transparent'"
+             class="relative mx-auto flex h-[60px] w-full items-center justify-between border px-6 transition-[max-width,margin,background-color,border-color,box-shadow] duration-300">
             <a href="{{ route('inicio') }}" aria-label="{{ Empresa::marca() }}, início" class="flex items-center">
                 <x-avalia.logotipo :tamanho="34" texto="1.3rem" claro />
             </a>
@@ -204,7 +208,7 @@
             @endif
         </div>
         <div x-cloak x-show="menu" x-transition.opacity.duration.150ms id="menu-celular"
-             class="mx-auto mt-2 w-full max-w-[87rem] rounded-2xl border border-white/10 bg-gray-900/90 shadow-theme-lg backdrop-blur-xl lg:hidden">
+             class="mx-auto mt-2 w-full max-w-[87rem] rounded-2xl border border-white/10 bg-[#000]/90 shadow-theme-lg backdrop-blur-xl lg:hidden">
             <nav class="flex flex-col px-4 py-3" aria-label="Principal">
                 @foreach ($menu as $item)
                     <a href="{{ route($item['rota']) }}"
