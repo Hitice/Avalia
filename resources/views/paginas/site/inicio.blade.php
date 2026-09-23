@@ -48,6 +48,24 @@
         ],
     ];
 
+    // Os tres estagios do diagrama do herói, e o instante em que cada um
+    // acende dentro do ciclo de 6s. O conector parte meio segundo depois do no
+    // que o alimenta e leva 2s para atravessar, entao o vizinho acende
+    // exatamente quando o pulso chega nele: e esse encaixe que faz o desenho
+    // parecer um caminho, e nao tres luzes piscando fora de hora.
+    //
+    // `parado` marca o estagio que fica aceso para quem pediu menos movimento.
+    // O motor, e nao a entrada: parado no primeiro no, o desenho nao diz o que
+    // o fluxo faz.
+    $fluxo = [
+        ['papel' => 'ENTRADA', 'nome' => 'ERP', 'legenda' => 'Lendo as notas do ERP',
+            'atraso' => '0s', 'saida' => '0.55s', 'parado' => false],
+        ['papel' => 'MOTOR', 'nome' => Empresa::marca(), 'legenda' => 'Aplicando as regras do negócio',
+            'atraso' => '2s', 'saida' => '2.55s', 'parado' => true],
+        ['papel' => 'SAÍDA', 'nome' => 'Banco', 'legenda' => 'Conciliando lançamentos',
+            'atraso' => '4s', 'saida' => null, 'parado' => false],
+    ];
+
     // Os termos que correm no pe do herói. A lista sai duplicada no trilho,
     // entao basta escrevê-la uma vez.
     $termos = [
@@ -58,65 +76,92 @@
 
 @section('content')
     {{-- Herói. A grade escura da marca ao fundo, a promessa na frente. --}}
-    <section class="superficie-escura grade-viva-escura relative overflow-hidden">
-        <div class="mx-auto grid w-full max-w-[87rem] items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
-            <div class="entra-suave">
-                <span class="selo selo-claro">Software · Automação · Integração</span>
+    <section class="superficie-escura relative overflow-hidden">
+        {{-- A faixa do herói mede oito quadradinhos de altura: 8 x 42px, o
+             passo da grade. Altura fixa, e nao folga vertical, porque o que se
+             quer e exatamente isto: a grade fechando em oito linhas inteiras e
+             a secao seguinte comecando a aparecer sem ninguem precisar rolar.
+             No celular a altura volta a ser a do conteudo, que empilha. --}}
+        <div class="grade-viva-escura lg:h-[336px]">
+            <div class="mx-auto grid h-full w-full max-w-[87rem] items-center gap-8 px-6 py-12 lg:grid-cols-2 lg:py-0">
+                <div class="entra-suave">
+                    <span class="selo selo-claro">Software · Automação · Integração</span>
 
-                <h1 class="mt-6 text-title-sm font-semibold tracking-tight sm:text-title-md lg:text-title-lg">
-                    Sua empresa em <span class="texto-bureau">movimento.</span><br>
-                    Sem trabalho manual.
-                </h1>
+                    <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-title-sm lg:text-title-md">
+                        Sua empresa em <span class="texto-bureau">movimento.</span><br>
+                        Sem trabalho manual.
+                    </h1>
 
-                <p class="mt-5 max-w-lg text-lg leading-relaxed text-white/60">
-                    Criamos software sob medida que integra sua equipe, seus sistemas e seus dados.
-                </p>
+                    <p class="mt-4 max-w-md leading-relaxed text-white/60">
+                        Criamos software sob medida que integra sua equipe, seus sistemas e seus dados.
+                    </p>
 
-                <div class="mt-8 flex flex-wrap items-center gap-3">
-                    <x-avalia.botao :href="route('site.contato')">
-                        Mapear minha operação
-                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                    </x-avalia.botao>
+                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                        <x-avalia.botao :href="route('site.contato')">
+                            Mapear minha operação
+                            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                        </x-avalia.botao>
 
-                    <a href="#aplicacoes" class="botao border border-white/20 text-white transition hover:bg-white/10">
-                        Ver as aplicações
-                    </a>
-                </div>
-            </div>
-
-            {{-- O diagrama do fluxo: entrada, motor e saída. Decorativo, entao
-                 fica fora da arvore de acessibilidade: quem usa leitor de tela
-                 ja recebeu a mesma ideia no texto ao lado. --}}
-            <div class="flutua rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur" aria-hidden="true">
-                <div class="flex items-center justify-between border-b border-white/10 pb-3">
-                    <span class="flex items-center gap-2 text-sm text-white/70">
-                        <i class="size-2 rounded-full bg-success-400"></i>{{ strtolower(Empresa::marca()) }}.fluxo
-                    </span>
-                    <code class="etiqueta bg-success-500/15 text-success-400">EXECUTANDO</code>
-                </div>
-
-                <div class="grid grid-cols-3 gap-3 py-8">
-                    @foreach ([['ENTRADA', 'ERP'], ['MOTOR', Empresa::marca()], ['SAÍDA', 'Banco']] as [$papel, $nome])
-                        <div class="rounded-xl border border-white/10 bg-gray-900/60 p-3 text-center">
-                            <small class="block text-[10px] tracking-[0.18em] text-white/40">{{ $papel }}</small>
-                            <strong class="mt-1 block text-sm text-white">{{ $nome }}</strong>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="relative h-px bg-white/10">
-                    <i class="pulso absolute -top-[3px] size-1.5 rounded-full bg-brand-400" style="--percurso: 100%"></i>
-                </div>
-
-                <div class="mt-6">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-white/60">Conciliando lançamentos</span>
-                        <strong class="text-white">84%</strong>
+                        <a href="#aplicacoes" class="botao border border-white/20 text-white transition hover:bg-white/10">
+                            Ver as aplicações
+                        </a>
                     </div>
-                    <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <i class="barra-cresce barra-bureau block h-full w-[84%] rounded-full"></i>
+                </div>
+
+                {{-- O diagrama do fluxo: entrada, motor e saída. Decorativo, entao
+                     fica fora da arvore de acessibilidade: quem usa leitor de tela
+                     ja recebeu a mesma ideia no texto ao lado. --}}
+                <div class="flutua rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur" aria-hidden="true">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <span class="flex items-center gap-2 text-sm text-white/70">
+                            <i class="size-2 rounded-full bg-success-400"></i>{{ strtolower(Empresa::marca()) }}.fluxo
+                        </span>
+                        <code class="etiqueta bg-success-500/15 text-success-400">EXECUTANDO</code>
+                    </div>
+
+                    <div class="flex items-center py-6">
+                        @foreach ($fluxo as $estagio)
+                            <div class="relative min-w-0 flex-1 rounded-xl border border-white/10 bg-gray-900/60 p-2.5 text-center sm:p-3">
+                                {{-- O brilho da vez, por cima do cartao. --}}
+                                <i class="acende-no {{ $estagio['parado'] ? 'acende-no-parado' : '' }} absolute inset-0 rounded-xl bg-brand-500/15 ring-1 ring-brand-400/50"
+                                   style="--atraso: {{ $estagio['atraso'] }}"></i>
+
+                                <span class="relative block">
+                                    <small class="block text-[10px] tracking-[0.18em] text-white/40">{{ $estagio['papel'] }}</small>
+                                    <strong class="mt-1 block text-sm text-white">{{ $estagio['nome'] }}</strong>
+                                </span>
+                            </div>
+
+                            @if ($estagio['saida'])
+                                {{-- O trecho entre dois nos: a linha apagada, o rastro que o
+                                     pulso deixa e o pulso em si. --}}
+                                <div class="relative h-px w-10 shrink-0 bg-white/10 sm:w-14">
+                                    <i class="risca-fluxo absolute inset-0 bg-brand-400/70" style="--atraso: {{ $estagio['saida'] }}"></i>
+                                    <i class="corre-fluxo absolute top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-success-400 shadow-[0_0_10px_2px_rgb(50_213_131/0.6)]"
+                                       style="--atraso: {{ $estagio['saida'] }}"></i>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between gap-3 text-sm">
+                            {{-- As tres legendas dividem a mesma linha, empilhadas, e cada
+                                 uma aparece na vez do seu no. Altura fixa: sem ela, a troca
+                                 de frase mexeria na altura do painel inteiro. --}}
+                            <span class="relative block h-5 min-w-0 flex-1">
+                                @foreach ($fluxo as $estagio)
+                                    <span class="troca-legenda {{ $estagio['parado'] ? 'troca-legenda-parada' : '' }} absolute inset-0 truncate text-white/60"
+                                          style="--atraso: {{ $estagio['atraso'] }}">{{ $estagio['legenda'] }}</span>
+                                @endforeach
+                            </span>
+                            <strong class="shrink-0 text-white">84%</strong>
+                        </div>
+                        <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                            <i class="barra-cresce barra-bureau block h-full w-[84%] rounded-full"></i>
+                        </div>
                     </div>
                 </div>
             </div>

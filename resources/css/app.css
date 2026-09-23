@@ -899,19 +899,89 @@
   to   { transform: translateX(-50%); }
 }
 
-/* Pulso que percorre a linha entre dois nos do diagrama de fluxo. */
-@utility pulso {
-  animation: pulso 2.6s ease-in-out infinite;
+/* ---------------------------------------------------------------------------
+   O diagrama de fluxo do heroi: entrada, motor e saida.
+
+   As tres pecas dividem UM ciclo de 6s, e cada uma entra na sua vez pelo
+   proprio atraso, escrito em estilo inline. E o atraso, e nao um keyframe por
+   peca, que faz o dado parecer percorrer o caminho: o no acende, o pulso sai
+   dele, chega no vizinho, e o vizinho acende. Tres animacoes independentes
+   dariam tres piscadas sem relacao entre si, que e o que a versao anterior
+   fazia com um ponto parado no meio de uma linha.
+   --------------------------------------------------------------------------- */
+
+/* O no da vez: o brilho vive num elemento proprio por cima do cartao, e nao na
+   cor de fundo dele. Animar a cor obrigaria a repetir aqui o fundo e a borda
+   que as classes do Blade ja definem, e os dois valores sairiam do lugar no
+   primeiro ajuste de tema. */
+@utility acende-no {
+  animation: acende-no 6s ease-in-out infinite;
+  animation-delay: var(--atraso, 0s);
+  opacity: 0;
 }
 
-@keyframes pulso {
-  0%   { transform: translateX(0); opacity: 0; }
-  12%  { opacity: 1; }
-  88%  { opacity: 1; }
-  100% { transform: translateX(var(--percurso, 100%)); opacity: 0; }
+@keyframes acende-no {
+  0%, 2%    { opacity: 0; }
+  9%, 17%   { opacity: 1; }
+  26%, 100% { opacity: 0; }
+}
+
+/* O pulso que atravessa a linha entre dois nos. Anima `left`, e nao
+   `translateX`: a linha estica com a largura do painel, e uma distancia em
+   pixels erraria o destino justo nas telas onde o painel e mais largo. */
+@utility corre-fluxo {
+  animation: corre-fluxo 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation-delay: var(--atraso, 0s);
+  opacity: 0;
+}
+
+@keyframes corre-fluxo {
+  0%         { left: 0%; opacity: 0; }
+  5%         { opacity: 1; }
+  28%        { opacity: 1; }
+  33%, 100%  { left: 100%; opacity: 0; }
+}
+
+/* O rastro que a linha guarda depois que o pulso passa, e que se apaga antes
+   da volta: sem ele o caminho percorrido some no mesmo quadro e o trecho
+   parece nunca ter sido usado. */
+@utility risca-fluxo {
+  transform-origin: left;
+  animation: risca-fluxo 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation-delay: var(--atraso, 0s);
+}
+
+@keyframes risca-fluxo {
+  0%, 5%    { transform: scaleX(0); opacity: 1; }
+  33%       { transform: scaleX(1); opacity: 1; }
+  48%       { transform: scaleX(1); opacity: 0; }
+  49%, 100% { transform: scaleX(0); opacity: 0; }
+}
+
+/* A legenda do estagio. Os tres textos ocupam a mesma linha, empilhados, e
+   cada um aparece na vez do seu no: assim a frase muda junto com o desenho em
+   vez de contar uma etapa que ja passou. */
+@utility troca-legenda {
+  animation: troca-legenda 6s ease-in-out infinite;
+  animation-delay: var(--atraso, 0s);
+  opacity: 0;
+}
+
+@keyframes troca-legenda {
+  0%, 2%    { opacity: 0; }
+  8%, 26%   { opacity: 1; }
+  32%, 100% { opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .trilho { animation: none; }
-  .pulso { animation: none; opacity: 0; }
+  .corre-fluxo { animation: none; opacity: 0; }
+  .risca-fluxo { animation: none; transform: scaleX(1); opacity: 0.35; }
+
+  /* Sem movimento, o painel para no estagio do meio: o motor aceso e a
+     legenda dele. Parar com tudo apagado deixaria o desenho sem sentido. */
+  .acende-no { animation: none; opacity: 0; }
+  .acende-no-parado { opacity: 1; }
+  .troca-legenda { animation: none; opacity: 0; }
+  .troca-legenda-parada { opacity: 1; }
 }
