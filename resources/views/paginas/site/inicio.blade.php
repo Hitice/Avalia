@@ -83,13 +83,19 @@
     <div x-data="{ aberto: null }" @keydown.escape.window="aberto = null">
     {{-- Herói. A grade escura da marca ao fundo, a promessa na frente. --}}
     <section class="superficie-escura relative overflow-hidden">
-        {{-- A faixa do herói mede oito quadradinhos de altura: 8 x 42px, o
-             passo da grade. Altura fixa, e nao folga vertical, porque o que se
-             quer e exatamente isto: a grade fechando em oito linhas inteiras e
-             a secao seguinte comecando a aparecer sem ninguem precisar rolar.
+        {{-- A faixa do herói mede dez quadradinhos de altura: 10 x 42px, o
+             passo da grade. Eram oito, e a ilha do cabecalho, que flutua por
+             cima, tomava dois deles: devolvidos aqui, a folga de cima volta a
+             ser a de baixo. Altura fixa, e nao folga vertical, porque o que se
+             quer e exatamente isto: a grade fechando em linhas inteiras e a
+             secao seguinte comecando a aparecer sem ninguem precisar rolar.
              No celular a altura volta a ser a do conteudo, que empilha. --}}
-        <div class="grade-viva-escura lg:h-[336px]">
-            <div class="mx-auto grid h-full w-full max-w-[87rem] items-center gap-8 px-6 pt-[76px] pb-12 lg:grid-cols-2 lg:pb-0">
+        <div class="grade-viva-escura lg:h-[420px]">
+            {{-- No desktop a folga do topo sobe um quadradinho alem do que a
+                 ilha ocupa: a faixa da home e mais alta que a das outras
+                 paginas, e com a mesma folga delas o titulo nascia colado no
+                 cabecalho. --}}
+            <div class="mx-auto grid h-full w-full max-w-[87rem] items-center gap-8 px-6 pt-[76px] pb-12 lg:grid-cols-2 lg:pt-[118px] lg:pb-0">
                 <div class="entra-suave">
                     <span class="selo selo-claro">Software · Automação · Integração</span>
 
