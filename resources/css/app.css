@@ -1121,20 +1121,14 @@
   83%, 100% { transform: scaleX(0); opacity: 0; }
 }
 
-/* A luz rosa segue o cursor dentro da faixa. A posicao vem do Alpine em
-   estilo inline; sem mouse, ela fica no canto de cima a direita, que e onde
-   sempre esteve. A transicao atrasa a luz de proposito: seguir o cursor no
-   mesmo quadro parece um cursor grande, e nao uma luz. */
+/* A luz rosa no canto da faixa escura. O rosa e a outra ponta do degrade de
+   marca, o mesmo de `texto-bureau`. Fica parada: seguir o cursor custava uma
+   repintura de tela cheia por quadro e pesava a pagina inteira. */
 @utility brilho-rosa {
-  background-image: radial-gradient(circle at center,
-    rgb(238 70 188 / 0.55),
-    rgb(190 40 150 / 0.24) 45%,
-    transparent 72%);
-  transition: left 0.35s ease-out, top 0.35s ease-out;
+  background-image: radial-gradient(circle at center, rgb(238 70 188 / 0.45), transparent 70%);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .corre-degrau { animation: none; opacity: 0; }
   .risca-degrau { animation: none; transform: scaleX(0.6); opacity: 0.35; }
-  .brilho-rosa { transition: none; }
 }

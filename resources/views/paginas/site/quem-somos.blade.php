@@ -73,7 +73,7 @@
                  aparece como endereco e nao ao lado de um registro. --}}
             <div class="mt-5 grid gap-5 lg:grid-cols-2">
                 <div class="cartao p-6">
-                    <h2 class="rotulo-grupo">Matriz</h2>
+                    <h2 class="rotulo-grupo">{{ Empresa::rotulo() }}</h2>
                     <p class="mt-3 leading-relaxed text-gray-600">{{ Empresa::endereco() }}</p>
                     <p class="mt-2 text-sm text-gray-500">CNPJ {{ Empresa::cnpj() }}</p>
                 </div>

@@ -25,26 +25,15 @@
          todas: faixa que encolhe conforme o tamanho do titulo faz o cabecalho
          pular de lugar a cada troca de pagina, e quem navega entre elas sente
          o site inteiro balancar. --}}
-    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]"
-         x-data="{
-             rx: '100%',
-             ry: '0%',
-             segue(e) {
-                 const faixa = $el.getBoundingClientRect();
-                 this.rx = (e.clientX - faixa.left) + 'px';
-                 this.ry = (e.clientY - faixa.top) + 'px';
-             },
-             solta() { this.rx = '100%'; this.ry = '0%'; },
-         }"
-         @mousemove="segue($event)" @mouseleave="solta()">
-        {{-- A luz rosa, a outra ponta do degrade da marca. Segue o cursor
-             dentro da faixa e volta ao canto quando o mouse sai; em tela de
-             toque ela simplesmente fica no canto, que e onde sempre esteve.
+    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]">
+        {{-- A luz rosa no canto, a outra ponta do degrade da marca. Entra como
+             luz, e nao como elemento: uma forma rosa desenhada competiria com
+             o titulo, e a mancha so tira o azul da monotonia.
 
-             Entra como luz, e nao como elemento: uma forma rosa desenhada
-             competiria com o titulo, e a mancha so tira o azul da monotonia. --}}
-        <i class="brilho-rosa pointer-events-none absolute size-96 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
-           :style="`left: ${rx}; top: ${ry}`" aria-hidden="true"></i>
+             Ela ja seguiu o cursor, e a faixa ficou pesada: um borrao de 384px
+             reposicionado a cada movimento do mouse e repintura de tela cheia
+             a 60 quadros, e o efeito nao pagava o custo. --}}
+        <i class="brilho-rosa pointer-events-none absolute -top-24 -right-24 size-80 rounded-full blur-2xl" aria-hidden="true"></i>
 
         <div class="mx-auto flex h-full w-full max-w-[87rem] items-center gap-8 px-6 py-12 lg:py-0">
             <div class="min-w-0 flex-1">

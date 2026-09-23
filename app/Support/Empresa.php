@@ -73,6 +73,12 @@ final class Empresa
         return self::localidadeDe((array) config('empresa.endereco', []));
     }
 
+    /** O rotulo da sede, que a distingue do braco quando os dois aparecem juntos. */
+    public static function rotulo(): string
+    {
+        return (string) config('empresa.endereco.rotulo', '');
+    }
+
     /** O rotulo do braco, que diz o que se faz ali. */
     public static function bracoRotulo(): string
     {

@@ -173,7 +173,7 @@
                             <circle cx="12" cy="10" r="2.5" />
                         </svg>
                         <span>
-                            {{ Empresa::localidade() }}<br>
+                            {{ Empresa::rotulo() }} · {{ Empresa::localidade() }}<br>
                             {{ Empresa::bracoRotulo() }} · {{ Empresa::bracoLocalidade() }}
                         </span>
                     </li>
@@ -181,12 +181,13 @@
             </div>
         </div>
 
-        {{-- A linha de registro: ano, razao social, CNPJ e praca. O endereco
-             completo fica em documento (fatura, laudo, contrato), e nao no pe
-             de toda pagina. --}}
+        {{-- A linha de registro: ano, razao social e CNPJ, centrados. A praca
+             saiu daqui quando as duas pracas ganharam rotulo na coluna de
+             contato: repetida, ela so alongava o pe da pagina. O endereco
+             completo fica em documento (fatura, laudo, contrato). --}}
         <div class="border-t border-white/10">
-            <p class="mx-auto w-full max-w-[87rem] px-6 py-5 text-xs leading-relaxed text-white/40">
-                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }} · {{ Empresa::localidade() }}
+            <p class="mx-auto w-full max-w-[87rem] px-6 py-5 text-center text-xs leading-relaxed text-white/40">
+                © {{ now()->year }} {{ Empresa::razaoSocial() }} · CNPJ {{ Empresa::cnpj() }}
             </p>
         </div>
     </footer>

@@ -39,6 +39,7 @@ return [
     'telefone' => '(34) 9983-4072',
 
     'endereco' => [
+        'rotulo' => 'Matriz',
         'logradouro' => 'Av Princesa Isabel',
         'numero' => '1331',
         'complemento' => 'Casa 1',
