@@ -226,8 +226,7 @@
                     Negócios próprios, <span class="texto-bureau">no ar</span> e em operação.
                 </h2>
                 <p class="mt-4 text-lg leading-relaxed text-gray-600">
-                    Além do software sob medida, a {{ Empresa::marca() }} mantém as próprias plataformas.
-                    Quem já é cliente entra por aqui.
+                    Conheça nossas plataformas em destaque.
                 </p>
             </div>
 
@@ -276,8 +275,8 @@
                     </svg>
                 </span>
                 <span class="text-sm text-gray-600">
-                    <strong class="font-semibold text-gray-900">Já tem conta em uma das plataformas?</strong>
-                    A área do produtor reúne as duas entradas num lugar só.
+                    <strong class="font-semibold text-gray-900">Já é cliente {{ Empresa::marca() }}?</strong>
+                    Acesse aqui.
                 </span>
                 <svg class="ml-auto size-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
