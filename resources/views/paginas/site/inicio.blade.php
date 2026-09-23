@@ -16,11 +16,11 @@
     // O motor, e nao a entrada: parado no primeiro no, o desenho nao diz o que
     // o fluxo faz.
     $fluxo = [
-        ['papel' => 'ENTRADA', 'nome' => 'ERP', 'legenda' => 'Lendo as notas do ERP',
+        ['papel' => 'ENTRADA', 'nome' => 'ERP', 'legenda' => 'Lendo as notas do ERP', 'pct' => 31,
             'atraso' => '0s', 'saida' => '0.55s', 'parado' => false],
-        ['papel' => 'MOTOR', 'nome' => Empresa::marca(), 'legenda' => 'Aplicando as regras do negócio',
+        ['papel' => 'MOTOR', 'nome' => Empresa::marca(), 'legenda' => 'Aplicando as regras do negócio', 'pct' => 68,
             'atraso' => '2s', 'saida' => '2.55s', 'parado' => true],
-        ['papel' => 'SAÍDA', 'nome' => 'Banco', 'legenda' => 'Conciliando lançamentos',
+        ['papel' => 'SAÍDA', 'nome' => 'Banco', 'legenda' => 'Conciliando lançamentos', 'pct' => 94,
             'atraso' => '4s', 'saida' => null, 'parado' => false],
     ];
 
@@ -163,10 +163,23 @@
                                           style="--atraso: {{ $estagio['atraso'] }}">{{ $estagio['legenda'] }}</span>
                                 @endforeach
                             </span>
-                            <strong class="shrink-0 text-white">84%</strong>
+                            {{-- O numero anda com o estagio, e nao fica parado
+                                 num valor so: parado, ele dizia que o painel e
+                                 uma foto. Sobe a cada etapa porque e progresso
+                                 de uma operacao, e nao um numero sorteado. --}}
+                            <strong class="relative block h-5 w-11 shrink-0 text-right text-white">
+                                @foreach ($fluxo as $estagio)
+                                    <span class="troca-legenda {{ $estagio['parado'] ? 'troca-legenda-parada' : '' }} absolute inset-0"
+                                          style="--atraso: {{ $estagio['atraso'] }}">{{ $estagio['pct'] }}%</span>
+                                @endforeach
+                            </strong>
                         </div>
-                        <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                            <i class="barra-cresce barra-bureau block h-full w-[84%] rounded-full"></i>
+
+                        <div class="relative mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                            @foreach ($fluxo as $estagio)
+                                <i class="troca-legenda {{ $estagio['parado'] ? 'troca-legenda-parada' : '' }} barra-bureau absolute inset-y-0 left-0 rounded-full"
+                                   style="--atraso: {{ $estagio['atraso'] }}; width: {{ $estagio['pct'] }}%"></i>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -249,13 +262,15 @@
          procurando o sistema que já usa não devia ter que adivinhar por onde
          se entra. --}}
     <section id="aplicacoes" class="relative scroll-mt-[60px] overflow-hidden bg-gray-50 py-20 lg:py-24">
-        {{-- Um pedaco da marca, grande e em rosa apagado, saindo pelo canto.
+        {{-- Um pedaco da marca, grande e em rosa apagado, saindo pelo canto de
+             baixo. Encostada no pe da secao, e nao no topo: la ela disputava
+             com o titulo, que e a primeira coisa a ser lida.
 
              E o simbolo do medidor da propria Avalia, recortado pela borda: um
              desenho generico ali seria enfeite, e este diz de quem e a pagina.
              Fica atras do conteudo e fora da arvore de acessibilidade, porque
              e textura, nao informacao. --}}
-        <svg class="pointer-events-none absolute -top-24 -right-32 hidden w-[34rem] text-theme-pink-500/10 lg:block"
+        <svg class="pointer-events-none absolute -right-28 -bottom-32 hidden w-[30rem] text-theme-pink-500/[0.07] lg:block"
              viewBox="0 0 32 32" fill="none" aria-hidden="true">
             <path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
             <path d="M16 22.5 22.3 14.6" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
@@ -335,7 +350,7 @@
          terminal ficava centralizado na altura da secao: ele nascia no meio do
          nada, sem alinhar com passo nenhum da lista ao lado. --}}
     <section class="superficie-escura grade-viva-escura">
-        <div class="mx-auto w-full max-w-[87rem] px-6 py-20 lg:py-24">
+        <div class="mx-auto w-full max-w-[87rem] px-6 py-14 lg:py-16">
             <div class="max-w-2xl">
                 <span class="indice indice-claro">03 / Como funciona</span>
                 <h2 class="mt-3 text-title-sm font-semibold tracking-tight">
@@ -351,8 +366,8 @@
                 <ol class="space-y-3">
                     @foreach ([
                         ['Sistemas conectados', 'Fluxo de dados com integração segura entre múltiplas plataformas.'],
-                        ['Visão inteligente', 'Validações, respostas e rotinas acontecem automaticamente, seguindo as regras do seu negócio.'],
-                        ['Equipe no controle', 'As exceções chegam a quem decide, com a informação pronta para a tomada de decisão.'],
+                        ['Visão inteligente', 'Validações e rotinas rodam sozinhas, nas regras do seu negócio.'],
+                        ['Equipe no controle', 'A exceção chega a quem decide, com a informação pronta.'],
                     ] as $passo => $etapa)
                         {{-- O contorno acende ao passar o mouse. Os tres cartoes
                              sao blocos parados num fundo escuro, e sem resposta

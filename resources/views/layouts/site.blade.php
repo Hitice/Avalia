@@ -32,7 +32,11 @@
     {{-- O medidor da marca em laranja. Laranja, e nao o azul da casa: a aba
          e um quadrado de 16px no meio de outros, e o azul se perde entre os
          favicons de sistema. --}}
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    {{-- A versao no endereco existe porque o navegador guarda favicon com
+         teimosia: sem ela, quem ja abriu o site continua vendo o icone antigo
+         por tempo indeterminado. --}}
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=2" type="image/svg+xml">
+    <link rel="mask-icon" href="{{ asset('favicon.svg') }}?v=2" color="#fb6514">
     <meta name="description" content="{{ $descricao }}">
     <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -147,7 +151,7 @@
                 {{-- Rosa, e nao azul: e a unica acao do cabecalho, e sobre a
                      faixa preta o azul da marca some entre os cinzas. --}}
                 <x-avalia.botao variante="rosa" class="ml-2" :href="route('area')">
-                    Área do produtor
+                    Acesso
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a1 1 0 011 1v16a1 1 0 01-1 1h-4M10 17l5-5-5-5M15 12H3" />
                     </svg>
@@ -158,7 +162,7 @@
                  produtor fica fora dele: e a acao que traz quem ja e cliente,
                  e escondida atras de dois toques ela deixa de existir. --}}
             <div class="flex items-center gap-2 lg:hidden">
-                <x-avalia.botao variante="rosa" tamanho="sm" :href="route('area')">Entrar</x-avalia.botao>
+                <x-avalia.botao variante="rosa" tamanho="sm" :href="route('area')">Acesso</x-avalia.botao>
 
                 <button type="button" @click="menu = ! menu" :aria-expanded="menu ? 'true' : 'false'"
                         aria-controls="menu-celular" aria-label="Abrir menu"

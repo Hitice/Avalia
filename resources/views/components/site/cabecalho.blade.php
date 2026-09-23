@@ -20,15 +20,17 @@
 --}}
 
 <section class="superficie-escura">
-    {{-- A faixa mede seis quadradinhos de altura: 6 x 42px, o passo da grade,
-         como o herói da porta do dominio mede oito. Altura fixa e igual em
+    {{-- A faixa mede oito quadradinhos de altura: 8 x 42px, o passo da grade,
+         os mesmos do herói da porta do dominio. Eram seis, e a ilha do
+         cabecalho, que flutua por cima, comia dois deles: o conteudo descia e
+         a faixa ficava apertada em cima. Altura fixa e igual em
          todas: faixa que encolhe conforme o tamanho do titulo faz o cabecalho
          pular de lugar a cada troca de pagina, e quem navega entre elas sente
          o site inteiro balancar. --}}
     {{-- `--subida` e o ponto onde o pulso para de correr reto e comeca a
          subir a grade: 40% da largura mais seis quadradinhos de 42px. Mora
          aqui porque as tres pecas do caminho a leem. --}}
-    <div class="grade-viva-escura relative overflow-hidden lg:h-[252px]" style="--subida: calc(40% + 252px)">
+    <div class="grade-viva-escura relative overflow-hidden lg:h-[336px]" style="--subida: calc(40% + 252px)">
         {{-- A luz rosa no canto, a outra ponta do degrade da marca. Entra como
              luz, e nao como elemento: uma forma rosa desenhada competiria com
              o titulo, e a mancha so tira o azul da monotonia.
