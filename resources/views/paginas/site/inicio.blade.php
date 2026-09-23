@@ -76,12 +76,6 @@
         ['chave' => 'notificar:', 'valor' => 'equipe.financeiro', 'atraso' => '1.5s'],
     ];
 
-    // Os termos que correm no pe do herói. A lista sai duplicada no trilho,
-    // entao basta escrevê-la uma vez.
-    $termos = [
-        'Atendimento humanizado', 'Automação de processos', 'Análise de mercado', 'Cobranças',
-        'Integração de sistemas', 'Controle de produção', 'CRM', 'Sites e SaaS',
-    ];
 @endphp
 
 @section('content')
@@ -177,15 +171,7 @@
             </div>
         </div>
 
-        {{-- Trilho de termos. Dois grupos identicos: o segundo cobre a saida
-             do primeiro, entao o laco nao tem emenda visivel. --}}
-        <div class="overflow-hidden border-t border-white/10 py-4" aria-hidden="true">
-            <div class="trilho flex w-max items-center gap-8 text-sm whitespace-nowrap text-white/40">
-                @foreach (array_merge($termos, $termos, $termos, $termos) as $termo)
-                    <span class="flex items-center gap-8">{{ $termo }}<i class="size-1 rounded-full bg-brand-500"></i></span>
-                @endforeach
-            </div>
-        </div>
+        <x-site.trilho />
     </section>
 
     {{-- As aplicações da casa.

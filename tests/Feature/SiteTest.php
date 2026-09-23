@@ -192,3 +192,30 @@ function pedidoDoSite(array $troca = []): array
         'mensagem' => 'Gastamos meio dia por semana na conciliação do extrato com os títulos.',
     ], $troca);
 }
+
+/*
+|--------------------------------------------------------------------------
+| As fotos da pagina de softwares
+|--------------------------------------------------------------------------
+*/
+
+it('entrega a foto de cada frente, e nenhuma sem texto alternativo', function () {
+    $html = $this->get(route('site.softwares'))->assertOk()->getContent();
+
+    preg_match_all('#<img[^>]+src="[^"]*/images/softwares/([^"]+)"[^>]*>#', $html, $achados);
+
+    // Se a lista vier vazia o teste passaria calado: sem esta linha, apagar
+    // todas as fotos da pagina nao quebraria nada.
+    expect($achados[1])->not->toBeEmpty();
+
+    foreach ($achados[1] as $indice => $arquivo) {
+        // Arquivo que nao existe vira um 404 silencioso: a pagina continua
+        // respondendo 200 e so quem abre percebe o buraco.
+        expect(file_exists(public_path('images/softwares/'.$arquivo)))
+            ->toBeTrue("falta public/images/softwares/{$arquivo}");
+
+        // A foto ilustra o assunto da secao, entao quem le por leitor de tela
+        // perde contexto sem a descricao.
+        expect($achados[0][$indice])->toMatch('/alt="[^"]+"/');
+    }
+});

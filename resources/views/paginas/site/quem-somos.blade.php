@@ -12,7 +12,11 @@
 
     <section class="py-16 lg:py-20">
         <div class="mx-auto w-full max-w-[87rem] px-6">
-            <div class="prosa">
+            {{-- A foto acompanha o texto de abertura em vez de abrir a pagina
+                 sozinha, e fica contida na coluna: o original tem 740px de
+                 largura, e esticado de ponta a ponta ele sai borrado. --}}
+            <div class="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
+                <div class="prosa">
                 <p>
                     A {{ Empresa::marca() }} é uma software house de produtos digitais com foco em
                     controle fiscal, finanças, marketing e investimentos.
@@ -29,8 +33,14 @@
                 <p>
                     Além do trabalho sob demanda, mantemos plataformas próprias: o
                     {{ Empresa::marcaCredito() }}, de pesquisa de score para venda a prazo, e o
-                    {{ Empresa::marcaCobranca() }}, de venda parcelada, cobrança e APIs.
-                </p>
+                        {{ Empresa::marcaCobranca() }}, de venda parcelada, cobrança e APIs.
+                    </p>
+                </div>
+
+                <figure class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 lg:w-[26rem]">
+                    <img src="{{ asset('images/site/equipe.jpg') }}" width="740" height="493" loading="lazy"
+                         alt="Cinco profissionais de negócios lado a lado, sorrindo" class="w-full">
+                </figure>
             </div>
 
             <div class="mt-12 grid gap-5 lg:grid-cols-2">
