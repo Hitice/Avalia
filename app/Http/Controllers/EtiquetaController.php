@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Actions\Etiquetas\AlternarEtiqueta;
 use App\Actions\Etiquetas\BaixarEtiqueta;
 use App\Actions\Etiquetas\CriarEtiquetaAvulsa;
-use App\Actions\Etiquetas\ExcluirEtiqueta;
 use App\Actions\Etiquetas\GerarLote;
 use App\Actions\Etiquetas\RenovarEtiqueta;
 use App\Actions\Etiquetas\VenderEtiqueta;
@@ -61,10 +60,29 @@ class EtiquetaController extends Controller
             ->paginate(25)
             ->withQueryString();
 
+        // Com uma campanha escolhida, a tabela ganha o pacote dela: o ZIP
+        // precisa da tiragem INTEIRA, e a tabela mostra 25 por pagina.
+        $campanha = LoteEtiqueta::find($pedido->query('lote'));
+
         return view('paginas.etiquetas.index', [
             'etiquetas' => $etiquetas,
+            // So os da pagina atual: a miniatura e desenhada no navegador, e
+            // mandar mil codigos para desenhar 25 seria trabalho jogado fora.
+            'miniaturas' => $etiquetas->getCollection()->map(fn (Etiqueta $etiqueta) => [
+                'codigo' => $etiqueta->codigo,
+                'url' => $etiqueta->urlParaQr(),
+                'arquivo' => $etiqueta->nomeDeArquivo(),
+            ])->values(),
             'lotes' => LoteEtiqueta::orderByDesc('id')->get(),
             'situacoes' => SituacaoEtiqueta::rotulos(),
+            'campanha' => $campanha,
+            'pacote' => $campanha?->etiquetas()->get()->map(fn (Etiqueta $etiqueta) => [
+                'sequencia' => $etiqueta->sequencia,
+                'codigo' => $etiqueta->codigo,
+                // Maiuscula pelo modo alfanumerico do QR. Ver CodigoCurto.
+                'url' => $etiqueta->urlParaQr(),
+                'arquivo' => $etiqueta->nomeDeArquivo(),
+            ]),
             'filtros' => ['busca' => $busca, 'situacao' => $pedido->query('situacao'), 'lote' => $pedido->query('lote')],
         ]);
     }
@@ -99,7 +117,9 @@ class EtiquetaController extends Controller
             'observacao' => null,
         ]);
 
-        return redirect()->route('etiquetas.lotes.ficha', $tiragem)
+        // Cai na tabela ja filtrada pela campanha: e la que o pacote da
+        // grafica e baixado, e e la que os codigos serao cadastrados depois.
+        return redirect()->route('etiquetas.index', ['lote' => $tiragem->id])
             ->with('ok', "{$tiragem->quantidade} códigos gerados. Baixe o pacote e mande imprimir.");
     }
 
@@ -191,17 +211,6 @@ class EtiquetaController extends Controller
         $renovar($etiqueta, Dinheiro::paraCentavos($pedido->input('valor')));
 
         return back()->with('ok', 'Renovada até '.$etiqueta->refresh()->vence_em->format('d/m/Y').'.');
-    }
-
-    /** Apaga o codigo em branco que nunca apontou para lugar nenhum. */
-    public function excluir(Etiqueta $etiqueta, ExcluirEtiqueta $excluir)
-    {
-        $codigo = $etiqueta->codigo;
-
-        $excluir($etiqueta);
-
-        return redirect()->route('etiquetas.index')
-            ->with('ok', "Código {$codigo} apagado.");
     }
 
     public function baixar(Request $pedido, Etiqueta $etiqueta, BaixarEtiqueta $baixar)

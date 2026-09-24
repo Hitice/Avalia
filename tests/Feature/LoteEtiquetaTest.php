@@ -22,7 +22,7 @@ uses(RefreshDatabase::class);
 */
 
 it('abre a tiragem com a quantidade pedida, toda em branco', function () {
-    admin()->post(route('etiquetas.lotes.salvar'), [
+    admin()->post(route('etiquetas.gerar'), [
         'titulo' => 'Códigos de balcão',
         'quantidade' => 25,
     ])->assertRedirect();
@@ -44,7 +44,7 @@ it('abre a tiragem com a quantidade pedida, toda em branco', function () {
 it('numera as plaquinhas em sequencia, a partir de um', function () {
     // A sequencia e o que nomeia o arquivo dentro do ZIP e a linha do CSV que
     // o Print Merge do Corel casa com ele.
-    admin()->post(route('etiquetas.lotes.salvar'), [
+    admin()->post(route('etiquetas.gerar'), [
         'titulo' => 'Tiragem', 'quantidade' => 10,
     ]);
 
@@ -53,7 +53,7 @@ it('numera as plaquinhas em sequencia, a partir de um', function () {
 
 it('nunca repete um codigo, nem dentro nem entre tiragens', function () {
     foreach (range(1, 3) as $vez) {
-        admin()->post(route('etiquetas.lotes.salvar'), [
+        admin()->post(route('etiquetas.gerar'), [
             'titulo' => "Tiragem {$vez}", 'quantidade' => 60,
         ]);
     }
@@ -77,7 +77,7 @@ it('deixa o banco recusar codigo repetido, e nao so o sorteio', function () {
 it('recusa tiragem acima do teto', function () {
     // Quem desenha os arquivos e o navegador de quem pediu, e acima do teto a
     // aba fica presa por minutos montando imagem.
-    admin()->post(route('etiquetas.lotes.salvar'), [
+    admin()->post(route('etiquetas.gerar'), [
         'titulo' => 'Exagero',
         'quantidade' => config('etiquetas.lote_maximo') + 1,
     ])->assertSessionHasErrors('quantidade');
@@ -86,7 +86,7 @@ it('recusa tiragem acima do teto', function () {
 });
 
 it('registra a tiragem na auditoria', function () {
-    admin()->post(route('etiquetas.lotes.salvar'), [
+    admin()->post(route('etiquetas.gerar'), [
         'titulo' => 'Tiragem', 'quantidade' => 5,
     ]);
 
@@ -99,20 +99,23 @@ it('registra a tiragem na auditoria', function () {
 |--------------------------------------------------------------------------
 */
 
-it('entrega a ficha com o endereco do QR em maiusculo', function () {
-    admin()->post(route('etiquetas.lotes.salvar'), [
+it('entrega o pacote da campanha dentro da propria tabela', function () {
+    // Nao ha mais tela de tiragem: escolhida a campanha no filtro, o pacote da
+    // grafica aparece acima da tabela. Uma tela so, em vez de duas que o
+    // operador precisava lembrar qual fazia o que.
+    admin()->post(route('etiquetas.gerar'), [
         'titulo' => 'Tiragem', 'quantidade' => 3,
     ]);
 
     $lote = LoteEtiqueta::sole();
     $primeira = $lote->etiquetas()->first();
 
-    $resposta = admin()->get(route('etiquetas.lotes.ficha', $lote))->assertOk();
+    $resposta = admin()->get(route('etiquetas.index', ['lote' => $lote->id]))->assertOk();
 
     // Confere o que o navegador recebe, e nao o HTML escapado: o `@js` do
     // Blade codifica duas vezes, e um teste que persegue barra invertida so
     // guarda o formato do escape, nunca o conteudo.
-    $payload = $resposta->viewData('etiquetas')->first();
+    $payload = $resposta->viewData('pacote')->first();
 
     expect($payload['url'])->toBe($primeira->urlParaQr())
         // Maiuscula pelo modo alfanumerico do QR, que e bem mais compacto.
@@ -122,13 +125,23 @@ it('entrega a ficha com o endereco do QR em maiusculo', function () {
         ->and($payload['arquivo'])->toBe('0001-'.$primeira->codigo);
 });
 
-it('mantem o vendedor fora das tiragens', function () {
+it('mantem o vendedor fora da geracao', function () {
     // Aqui se decide para onde aponta a placa que esta no balcao de um
     // cliente. Nao e acao de carteira.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
-    comoVendedor($vendedor)->get(route('etiquetas.lotes.index'))->assertForbidden();
-    comoVendedor($vendedor)->get(route('etiquetas.lotes.criar'))->assertForbidden();
+    comoVendedor($vendedor)->post(route('etiquetas.gerar'), ['quantidade' => 5])->assertForbidden();
+});
+
+it('so monta o pacote quando ha campanha escolhida', function () {
+    admin()->post(route('etiquetas.gerar'), ['titulo' => 'Campanha', 'quantidade' => 4]);
+
+    expect(admin()->get(route('etiquetas.index'))->viewData('pacote'))->toBeNull();
+
+    $lote = LoteEtiqueta::sole();
+
+    expect(admin()->get(route('etiquetas.index', ['lote' => $lote->id]))->viewData('pacote'))
+        ->toHaveCount(4);
 });
 
 /*

@@ -22,7 +22,6 @@ use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
-use App\Http\Controllers\LoteController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
@@ -418,13 +417,6 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware('admin')->prefix('etiquetas')->name('etiquetas.')->group(function () {
         Route::get('/', [EtiquetaController::class, 'index'])->name('index');
 
-        // As tiragens vem ANTES de /{etiqueta}: sem isso, `lotes` seria lido
-        // como o codigo de uma plaquinha chamada "lotes".
-        Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
-        Route::get('/lotes/nova', [LoteController::class, 'criar'])->name('lotes.criar');
-        Route::post('/lotes', [LoteController::class, 'salvar'])->name('lotes.salvar');
-        Route::get('/lotes/{lote}', [LoteController::class, 'ficha'])->name('lotes.ficha');
-
         // O fluxo, na ordem em que ele acontece: gera, imprime, vende, e so
         // entao diz para onde cada codigo leva.
         Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
@@ -435,7 +427,6 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/{etiqueta}/alternar', [EtiquetaController::class, 'alternar'])->name('alternar');
         Route::post('/{etiqueta}/renovar', [EtiquetaController::class, 'renovar'])->name('renovar');
         Route::post('/{etiqueta}/baixar', [EtiquetaController::class, 'baixar'])->name('baixar');
-        Route::delete('/{etiqueta}', [EtiquetaController::class, 'excluir'])->name('excluir');
     });
 
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');

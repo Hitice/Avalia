@@ -300,10 +300,10 @@ it('nao oferece o formulario de destino numa plaquinha baixada', function () {
 
     admin()->get(route('etiquetas.ficha', $baixada))
         ->assertOk()
-        // "Encerrada" e nao "Baixada" na tela: "baixar" foi lido como fazer
-        // download, e o botao que tira a plaquinha de circulacao para sempre
-        // nao pode ser confundido com o que salva um arquivo.
-        ->assertSee('Plaquinha encerrada')
+        // "Encerrado" e nao "Baixado" na tela: "baixar" foi lido como fazer
+        // download, e o botao que tira o codigo de circulacao para sempre nao
+        // pode ser confundido com o que salva um arquivo.
+        ->assertSee('Código encerrado')
         ->assertDontSee('Salvar destino');
 });
 
@@ -320,56 +320,6 @@ it('desenha o codigo da plaquinha na propria ficha', function () {
         // O endereco impresso, legivel embaixo do codigo: quando o cliente
         // liga, a primeira pergunta e qual o codigo da plaquinha dele.
         ->assertSee('/q/K7M2PX');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Apagar, e so onde apagar e legitimo
-|--------------------------------------------------------------------------
-*/
-
-it('apaga o codigo em branco que nunca apontou para lugar nenhum', function () {
-    // O caso real: gerou cem por engano, ou gerou de teste. Nao ha placa no
-    // balcao de ninguem, nao ha cliente esperando e nao ha o que explicar.
-    $etiqueta = Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
-
-    admin()->delete(route('etiquetas.excluir', $etiqueta))->assertRedirect(route('etiquetas.index'));
-
-    expect(Etiqueta::where('codigo', 'K7M2PX')->exists())->toBeFalse()
-        // A auditoria e gravada antes do apagamento: depois nao ha entidade
-        // para o rastro apontar, e sobraria uma linha orfa.
-        ->and(Auditoria::where('acao', 'etiquetas.excluida')->count())->toBe(1);
-});
-
-it('recusa apagar codigo que ja foi para a rua', function () {
-    // Alguem pode ter a placa dele na gaveta, e apagar o registro devolveria o
-    // numero ao sorteio.
-    $etiqueta = Etiqueta::factory()->ativa()->create(['codigo' => 'K7M2PX']);
-
-    admin()->delete(route('etiquetas.excluir', $etiqueta))
-        ->assertRedirect()
-        ->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'Encerrar'));
-
-    expect(Etiqueta::where('codigo', 'K7M2PX')->exists())->toBeTrue();
-});
-
-it('recusa apagar codigo em branco que ja apontou alguma vez', function () {
-    // Voltou para em branco por algum caminho, mas a historia existe.
-    $etiqueta = Etiqueta::factory()->create();
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://loja.com.br']);
-    $etiqueta->update(['situacao' => SituacaoEtiqueta::EmBranco]);
-
-    admin()->delete(route('etiquetas.excluir', $etiqueta))->assertSessionHas('erro');
-
-    expect(Etiqueta::whereKey($etiqueta->id)->exists())->toBeTrue();
-});
-
-it('so oferece excluir no codigo que pode ser apagado', function () {
-    $virgem = Etiqueta::factory()->create();
-    $vendida = Etiqueta::factory()->ativa()->create();
-
-    admin()->get(route('etiquetas.ficha', $virgem))->assertSee('Excluir código')->assertDontSee('Encerrar plaquinha');
-    admin()->get(route('etiquetas.ficha', $vendida))->assertSee('Encerrar plaquinha')->assertDontSee('Excluir código');
 });
 
 it('nao leva o Avalia One para dentro da ferramenta', function () {

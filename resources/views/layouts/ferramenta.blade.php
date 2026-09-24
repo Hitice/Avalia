@@ -46,15 +46,9 @@
             </a>
 
             <nav class="flex items-center gap-1" aria-label="Ferramenta">
-                <a href="{{ route('etiquetas.index') }}"
-                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.index') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
-                    Códigos
-                </a>
-                <a href="{{ route('etiquetas.lotes.index') }}"
-                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.lotes.*') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
-                    Tiragens
-                </a>
-
+                {{-- Uma tela so. A tiragem virou um filtro da tabela, e nao
+                     uma secao a parte: com duas telas o operador precisava
+                     lembrar de qual delas fazia o que. --}}
                 {{-- Nenhum caminho para o CRM daqui, de proposito. O QR
                      dinamico e negocio proprio: um link para o Avalia One no
                      cabecalho diria que ele e um modulo de la. Quem precisa do

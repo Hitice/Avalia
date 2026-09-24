@@ -66,7 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
 Alpine.data('tiragem', (dados) => ({
     etiquetas: dados.etiquetas,
     pasta: dados.pasta,
-    mm: 30,
+    // 50mm sempre. O tamanho do arquivo nao decide o tamanho da peca: quem
+    // monta a arte no Corel escala o vetor para o que a placa pedir, e um
+    // campo a mais na tela so pedia uma decisao que nao muda nada.
+    mm: 50,
     logo: true,
     gerando: false,
     feito: 0,
@@ -87,7 +90,7 @@ Alpine.data('tiragem', (dados) => ({
         const { svg } = await import('./qr.js');
 
         this.$refs.prova.innerHTML = svg(this.etiquetas[0].url, {
-            mm: Math.max(10, Math.min(200, Number(this.mm) || 30)),
+            mm: Math.max(10, Math.min(200, Number(this.mm) || 50)),
             logo: this.logo,
         });
     },
@@ -103,7 +106,7 @@ Alpine.data('tiragem', (dados) => ({
             const zip = await qr.pacote(
                 this.pasta,
                 this.etiquetas,
-                { mm: Number(this.mm) || 30, logo: this.logo },
+                { mm: Number(this.mm) || 50, logo: this.logo },
                 (feito) => { this.feito = feito; },
             );
 
@@ -130,7 +133,7 @@ Alpine.data('gerador', (inicial = {}) => ({
     // Sem argumento e o gerador publico, onde a pessoa digita. Com argumento e
     // a ficha de uma plaquinha, cujo endereco ja existe e nao se digita.
     conteudo: inicial.conteudo ?? '',
-    mm: inicial.mm ?? 40,
+    mm: inicial.mm ?? 50,
     logo: inicial.logo ?? false,
     nome: inicial.nome ?? 'qrcode',
 
@@ -142,7 +145,7 @@ Alpine.data('gerador', (inicial = {}) => ({
     },
 
     tamanho() {
-        return Math.max(10, Math.min(200, Number(this.mm) || 40));
+        return Math.max(10, Math.min(200, Number(this.mm) || 50));
     },
 
     async desenhar() {
@@ -173,6 +176,49 @@ Alpine.data('gerador', (inicial = {}) => ({
         const qr = await import('./qr.js');
 
         qr.baixar(await qr.png(this.conteudo, { pixels: 1200, logo: this.logo }), `${this.nome}.png`);
+    },
+}));
+
+/*
+ * As miniaturas do QR na tabela.
+ *
+ * Desenhadas aqui, e nao guardadas como imagem: o desenho e determinado pelo
+ * codigo, entao guardar arquivo seria manter copia de algo que se refaz em um
+ * milissegundo. Uma pagina tem 25 linhas, e as 25 saem juntas.
+ */
+Alpine.data('miniaturas', (lista) => ({
+    async init() {
+        const { svg } = await import('./qr.js');
+
+        lista.forEach((item) => {
+            const alvo = document.getElementById(`qr-${item.codigo}`);
+
+            if (alvo) {
+                alvo.innerHTML = svg(item.url, { mm: 14, logo: true });
+            }
+        });
+    },
+
+    /** O arquivo de verdade sai em 50mm, nao no tamanho da miniatura. */
+    async baixar(codigo, tipo) {
+        const item = lista.find((linha) => linha.codigo === codigo);
+
+        if (! item) {
+            return;
+        }
+
+        const qr = await import('./qr.js');
+
+        if (tipo === 'png') {
+            qr.baixar(await qr.png(item.url, { pixels: 1200, logo: true }), `${item.arquivo}.png`);
+
+            return;
+        }
+
+        qr.baixar(
+            new Blob([qr.svg(item.url, { mm: 50, logo: true })], { type: 'image/svg+xml' }),
+            `${item.arquivo}.svg`,
+        );
     },
 }));
 

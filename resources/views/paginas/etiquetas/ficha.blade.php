@@ -14,8 +14,10 @@
                 {{ $etiqueta->codigo }}
             </h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                {{ $etiqueta->titulo ?? 'Sem apelido' }} ·
-                {{ $etiqueta->lote ? 'Tiragem '.$etiqueta->lote->codigo.', nº '.$etiqueta->sequencia : 'Código avulso' }}
+                {{ $etiqueta->titulo ?? $etiqueta->lote?->titulo ?? 'Sem campanha' }}
+                @if ($etiqueta->sequencia)
+                    · nº {{ $etiqueta->sequencia }}
+                @endif
             </p>
         </div>
 
@@ -28,12 +30,12 @@
         <div class="space-y-5">
             @if ($etiqueta->situacao === SituacaoEtiqueta::Baixada)
                 {{-- Botao que so serve para receber recusa e botao quebrado aos
-                     olhos de quem clica. Plaquinha baixada nao volta, entao a
+                     olhos de quem clica. Codigo encerrado nao volta, entao a
                      tela diz isso em vez de oferecer o formulario. --}}
                 <div class="cartao p-6">
-                    <h2 class="rotulo-grupo">Plaquinha encerrada</h2>
+                    <h2 class="rotulo-grupo">Código encerrado</h2>
                     <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-300">
-                        Esta plaquinha foi encerrada e não volta a circular. O código fica reservado para
+                        Este código foi encerrado e não volta a circular. O código fica reservado para
                         sempre: reciclado, ele mandaria a freguesia do cliente antigo, que ainda tem
                         a placa velha em algum lugar, para a loja de um estranho.
                     </p>
@@ -49,7 +51,7 @@
                 @method('PUT')
 
                 <div>
-                    <h2 class="rotulo-grupo">Para onde esta plaquinha leva</h2>
+                    <h2 class="rotulo-grupo">Para onde este código leva</h2>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         O endereço impresso não muda nunca. Só este campo muda, e vale em até um minuto.
                     </p>
@@ -64,42 +66,15 @@
                     @error('destino')<p class="erro-campo">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="grid gap-5 sm:grid-cols-2">
-                    <div>
-                        <label for="titulo" class="rotulo-campo">Apelido interno</label>
-                        <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
-                               value="{{ old('titulo', $etiqueta->titulo) }}">
-                    </div>
-
-                    <div>
-                        <label for="cliente_nome" class="rotulo-campo">Cliente</label>
-                        <input id="cliente_nome" name="cliente_nome" type="text" maxlength="150" class="campo"
-                               value="{{ old('cliente_nome', $etiqueta->cliente_nome) }}">
-                    </div>
-
-                    <div>
-                        <label for="cliente_contato" class="rotulo-campo">Contato</label>
-                        <input id="cliente_contato" name="cliente_contato" type="text" maxlength="150" class="campo"
-                               value="{{ old('cliente_contato', $etiqueta->cliente_contato) }}">
-                    </div>
-
-                    @if ($etiqueta->vendida_em === null)
-                        <div>
-                            <label for="valor" class="rotulo-campo">Valor cobrado</label>
-                            <input id="valor" name="valor" type="text" class="campo"
-                                   value="{{ old('valor', Dinheiro::numero((int) config('etiquetas.precos.placa_cents'))) }}">
-                            {{-- Gravado na venda, e nao lido da tabela depois:
-                                 reajuste de hoje nao reescreve o que foi
-                                 cobrado ontem. --}}
-                            <p class="ajuda-campo">Fica gravado nesta plaquinha, e não muda quando a tabela mudar.</p>
-                        </div>
-                    @endif
+                <div>
+                    <label for="titulo" class="rotulo-campo">Campanha</label>
+                    <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
+                           value="{{ old('titulo', $etiqueta->titulo) }}"
+                           placeholder="ex: Campanha Floripa 2026">
                 </div>
 
                 <div>
-                    <x-avalia.botao>
-                        {{ $etiqueta->vendida_em === null ? 'Vender e pôr no ar' : 'Salvar destino' }}
-                    </x-avalia.botao>
+                    <x-avalia.botao>Salvar destino</x-avalia.botao>
                 </div>
             </form>
             @endif
@@ -135,7 +110,7 @@
         </div>
 
         <div class="space-y-5">
-            {{-- O codigo desta plaquinha, desenhado aqui no navegador. Existe
+            {{-- O codigo, desenhado aqui no navegador. Existe
                  desde que a etiqueta nasce, mesmo em branco: o negocio inteiro
                  depende de imprimir primeiro e vender depois. --}}
             <div class="cartao p-6"
@@ -150,13 +125,8 @@
                     {{ $etiqueta->url() }}
                 </p>
 
-                <div class="mt-5">
-                    <label for="qr-mm" class="rotulo-campo">Lado do código, em milímetros</label>
-                    <input id="qr-mm" type="number" min="10" max="200" x-model.number="mm" class="campo">
-                    <p class="ajuda-campo">É o tamanho com que o SVG cai no CorelDRAW.</p>
-                </div>
 
-                <label class="mt-4 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <label class="mt-5 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                     <input type="checkbox" x-model="logo" class="size-4 rounded border-gray-300">
                     Marca da Avalia no miolo
                 </label>
@@ -250,40 +220,17 @@
                 </div>
             @endif
 
-            {{-- Apagar so existe para o codigo que nunca chegou a existir
-                 para ninguem: em branco, sem destino e sem leitura. E o caso
-                 de gerar cem por engano. Depois que aponta para algum lugar,
-                 alguem pode ter a placa na gaveta, e o caminho passa a ser
-                 encerrar, que mantem o numero reservado. --}}
-            @if ($etiqueta->situacao === SituacaoEtiqueta::EmBranco && $etiqueta->destinos->isEmpty() && $etiqueta->total_acessos === 0)
-                <form method="POST" action="{{ route('etiquetas.excluir', $etiqueta) }}" class="cartao grid gap-4 p-6"
-                      x-data x-on:submit="$event.submitter && confirm('Apagar o código {{ $etiqueta->codigo }}? Ele nunca apontou para lugar nenhum.') || $event.preventDefault()">
-                    @csrf
-                    @method('DELETE')
-
-                    <div>
-                        <h2 class="rotulo-grupo">Apagar este código</h2>
-                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            Ele está em branco e nunca apontou para lugar nenhum, então não há
-                            nada em campo para quebrar.
-                        </p>
-                    </div>
-
-                    <div>
-                        <x-avalia.botao variante="secundario" tamanho="sm">Excluir código</x-avalia.botao>
-                    </div>
-                </form>
-            @elseif ($etiqueta->situacao !== SituacaoEtiqueta::Baixada)
+            @if ($etiqueta->situacao !== SituacaoEtiqueta::Baixada)
                 <form method="POST" action="{{ route('etiquetas.baixar', $etiqueta) }}" class="cartao grid gap-4 p-6">
                     @csrf
 
                     <div>
-                        <h2 class="rotulo-grupo">Encerrar a plaquinha</h2>
+                        <h2 class="rotulo-grupo">Encerrar o código</h2>
                         {{-- Nao e exclusao, pela regra da casa. E o codigo nao
                              volta ao bolo: reciclado, mandaria a freguesia do
                              cliente antigo para a loja de um estranho. --}}
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            Placa quebrada, cliente que saiu. Não volta a circular, e o código
+                            Cliente que saiu, peça que sumiu. Não volta a circular, e o número
                             fica reservado para sempre.
                         </p>
                     </div>
@@ -294,7 +241,7 @@
                     </div>
 
                     <div>
-                        <x-avalia.botao variante="secundario" tamanho="sm">Encerrar plaquinha</x-avalia.botao>
+                        <x-avalia.botao variante="secundario" tamanho="sm">Encerrar código</x-avalia.botao>
                     </div>
                 </form>
             @endif
