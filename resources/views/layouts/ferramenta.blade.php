@@ -87,15 +87,11 @@
                     Tiragens
                 </a>
 
-                {{-- A volta para o CRM. Existe porque o login e o mesmo, e
-                     quem entra aqui pela porta do site pode precisar do outro
-                     lado sem passar de novo pela senha. --}}
-                <a href="{{ route('painel') }}"
-                   class="ml-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 transition hover:text-gray-700 dark:hover:text-white/90">
-                    Avalia One
-                </a>
-
-                <form method="POST" action="{{ route('sair') }}" class="ml-1">
+                {{-- Nenhum caminho para o CRM daqui, de proposito. O QR
+                     dinamico e negocio proprio: um link para o Avalia One no
+                     cabecalho diria que ele e um modulo de la. Quem precisa do
+                     outro lado digita o endereco; a sessao e a mesma. --}}
+                <form method="POST" action="{{ route('sair') }}" class="ml-2">
                     @csrf
                     <button type="submit" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90">
                         Sair

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Etiquetas\AlternarEtiqueta;
 use App\Actions\Etiquetas\BaixarEtiqueta;
 use App\Actions\Etiquetas\CriarEtiquetaAvulsa;
+use App\Actions\Etiquetas\ExcluirEtiqueta;
 use App\Actions\Etiquetas\GerarLote;
 use App\Actions\Etiquetas\RenovarEtiqueta;
 use App\Actions\Etiquetas\VenderEtiqueta;
@@ -190,6 +191,17 @@ class EtiquetaController extends Controller
         $renovar($etiqueta, Dinheiro::paraCentavos($pedido->input('valor')));
 
         return back()->with('ok', 'Renovada até '.$etiqueta->refresh()->vence_em->format('d/m/Y').'.');
+    }
+
+    /** Apaga o codigo em branco que nunca apontou para lugar nenhum. */
+    public function excluir(Etiqueta $etiqueta, ExcluirEtiqueta $excluir)
+    {
+        $codigo = $etiqueta->codigo;
+
+        $excluir($etiqueta);
+
+        return redirect()->route('etiquetas.index')
+            ->with('ok', "Código {$codigo} apagado.");
     }
 
     public function baixar(Request $pedido, Etiqueta $etiqueta, BaixarEtiqueta $baixar)

@@ -250,7 +250,30 @@
                 </div>
             @endif
 
-            @if ($etiqueta->situacao !== SituacaoEtiqueta::Baixada)
+            {{-- Apagar so existe para o codigo que nunca chegou a existir
+                 para ninguem: em branco, sem destino e sem leitura. E o caso
+                 de gerar cem por engano. Depois que aponta para algum lugar,
+                 alguem pode ter a placa na gaveta, e o caminho passa a ser
+                 encerrar, que mantem o numero reservado. --}}
+            @if ($etiqueta->situacao === SituacaoEtiqueta::EmBranco && $etiqueta->destinos->isEmpty() && $etiqueta->total_acessos === 0)
+                <form method="POST" action="{{ route('etiquetas.excluir', $etiqueta) }}" class="cartao grid gap-4 p-6"
+                      x-data x-on:submit="$event.submitter && confirm('Apagar o código {{ $etiqueta->codigo }}? Ele nunca apontou para lugar nenhum.') || $event.preventDefault()">
+                    @csrf
+                    @method('DELETE')
+
+                    <div>
+                        <h2 class="rotulo-grupo">Apagar este código</h2>
+                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            Ele está em branco e nunca apontou para lugar nenhum, então não há
+                            nada em campo para quebrar.
+                        </p>
+                    </div>
+
+                    <div>
+                        <x-avalia.botao variante="secundario" tamanho="sm">Excluir código</x-avalia.botao>
+                    </div>
+                </form>
+            @elseif ($etiqueta->situacao !== SituacaoEtiqueta::Baixada)
                 <form method="POST" action="{{ route('etiquetas.baixar', $etiqueta) }}" class="cartao grid gap-4 p-6">
                     @csrf
 

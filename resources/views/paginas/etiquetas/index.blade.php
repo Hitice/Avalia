@@ -9,7 +9,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">QR Code dinâmico</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Gere, imprima e venda. Só depois da venda você diz para onde cada código leva.
+                Gere, baixe e cadastre a URL no futuro.
             </p>
         </div>
 
@@ -26,10 +26,10 @@
             @csrf
 
             <div>
-                <h2 class="rotulo-grupo">1 · Gerar os códigos</h2>
+                <h2 class="rotulo-grupo">1 · Gerar novo QR Code em branco</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Nascem em branco, sem destino. É essa a ideia: imprimir antes de saber para
-                    quem vai.
+                    Digite a quantidade de códigos a serem gerados. Para geração única, basta
+                    gerar 1 unidade.
                 </p>
             </div>
 
@@ -42,49 +42,49 @@
                 </div>
 
                 <div class="min-w-[12rem] flex-1">
-                    <label for="titulo" class="rotulo-campo">Apelido (opcional)</label>
+                    <label for="titulo" class="rotulo-campo">Campanha</label>
                     <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
-                           value="{{ old('titulo') }}" placeholder="Acrílico 4cm, gráfica do centro">
+                           value="{{ old('titulo') }}" placeholder="ex: Campanha Floripa 2026">
                 </div>
 
                 <x-avalia.botao>Gerar</x-avalia.botao>
             </div>
 
             @error('quantidade')<p class="erro-campo">{{ $message }}</p>@enderror
-
-            <p class="ajuda-campo">
-                Um código abre a ficha dele, com o QR para baixar. Mais de um abre uma tiragem, com
-                o pacote numerado e o CSV que o CorelDRAW lê.
-            </p>
         </form>
 
         <form method="POST" action="{{ route('etiquetas.apontar-codigo') }}" class="cartao grid gap-4 p-6">
             @csrf
 
             <div>
-                <h2 class="rotulo-grupo">2 · Vendeu? Cadastre a URL</h2>
+                <h2 class="rotulo-grupo">2 · Área de cadastro</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Leia o código impresso na plaquinha e diga para onde ele deve levar.
+                    Vendeu? Leia o código impresso e diga para onde ele deve levar.
                 </p>
             </div>
 
             <div>
-                <label for="codigo" class="rotulo-campo">Código da plaquinha</label>
+                <label for="codigo" class="rotulo-campo">Código impresso</label>
                 <input id="codigo" name="codigo" type="text" maxlength="20" required
                        value="{{ old('codigo') }}"
                        class="campo font-mono tracking-widest uppercase" placeholder="K7M2PX">
                 @error('codigo')<p class="erro-campo">{{ $message }}</p>@enderror
             </div>
 
+            {{-- O botao ao lado do campo, e nao embaixo: os dois formam uma
+                 acao so, e quem acabou de digitar a URL ja tem o cursor ali. --}}
             <div>
                 <label for="destino-rapido" class="rotulo-campo">Para onde leva</label>
-                <input id="destino-rapido" name="destino" type="text" required class="campo"
-                       value="{{ old('destino') }}" placeholder="https://wa.me/5531999999999">
-                @error('destino')<p class="erro-campo">{{ $message }}</p>@enderror
-            </div>
 
-            <div>
-                <x-avalia.botao>Cadastrar destino</x-avalia.botao>
+                <div class="flex flex-wrap items-center gap-3">
+                    <input id="destino-rapido" name="destino" type="text" required
+                           class="campo min-w-[12rem] flex-1"
+                           value="{{ old('destino') }}" placeholder="https://wa.me/5531999999999">
+
+                    <x-avalia.botao class="shrink-0">Cadastrar destino</x-avalia.botao>
+                </div>
+
+                @error('destino')<p class="erro-campo">{{ $message }}</p>@enderror
             </div>
         </form>
     </div>

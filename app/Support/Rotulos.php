@@ -110,6 +110,7 @@ final class Rotulos
         'etiquetas.alternada' => 'Plaquinha suspensa ou reativada',
         'etiquetas.renovada' => 'Plaquinha renovada por mais um ano',
         'etiquetas.baixada' => 'Plaquinha baixada de vez',
+        'etiquetas.excluida' => 'Código em branco apagado',
         'clientes.exportados' => 'Carteira de clientes exportada',
         'faturas.exportadas' => 'Faturas exportadas em planilha',
         'cobranca.criada' => 'Cobrança emitida',
