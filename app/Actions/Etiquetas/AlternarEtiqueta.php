@@ -25,7 +25,7 @@ class AlternarEtiqueta
         $nova = match ($etiqueta->situacao) {
             SituacaoEtiqueta::Ativa => SituacaoEtiqueta::Suspensa,
             SituacaoEtiqueta::Suspensa => SituacaoEtiqueta::Ativa,
-            default => throw new Recusa('Só plaquinha ativa ou suspensa pode ser ligada e desligada.'),
+            default => throw new Recusa('Só etiqueta ativa ou suspensa pode ser ligada e desligada.'),
         };
 
         $etiqueta->update(['situacao' => $nova]);

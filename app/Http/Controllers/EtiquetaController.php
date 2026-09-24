@@ -135,7 +135,7 @@ class EtiquetaController extends Controller
         if (! $etiqueta) {
             return back()->withInput()->with('erro',
                 'Não achei o código '.mb_strtoupper(trim((string) $pedido->input('codigo')))
-                .'. Confira na plaquinha: as letras I, L, O e U não são usadas.');
+                .'. Confira na etiqueta: as letras I, L, O e U não são usadas.');
         }
 
         $vender($etiqueta, [
@@ -183,7 +183,7 @@ class EtiquetaController extends Controller
             'valor_cents' => Dinheiro::paraCentavos($dados['valor'] ?? null),
         ]);
 
-        return back()->with('ok', 'Plaquinha apontada.');
+        return back()->with('ok', 'Etiqueta apontada com sucesso.');
     }
 
     public function alternar(Etiqueta $etiqueta, AlternarEtiqueta $alternar)
@@ -191,8 +191,8 @@ class EtiquetaController extends Controller
         $alternar($etiqueta);
 
         return back()->with('ok', $etiqueta->situacao === SituacaoEtiqueta::Ativa
-            ? 'Plaquinha no ar de novo.'
-            : 'Plaquinha suspensa. Quem ler a placa vê o aviso, e não um erro.');
+            ? 'Etiqueta no ar de novo.'
+            : 'Etiqueta suspensa. Quem ler o código vê o aviso, e não um erro.');
     }
 
     public function renovar(Request $pedido, Etiqueta $etiqueta, RenovarEtiqueta $renovar)

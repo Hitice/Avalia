@@ -29,7 +29,7 @@ class VenderEtiqueta
     public function __invoke(Etiqueta $etiqueta, array $dados): Etiqueta
     {
         if ($etiqueta->situacao === SituacaoEtiqueta::Baixada) {
-            throw new Recusa('Esta plaquinha foi baixada: o código fica reservado para sempre e ela não volta a circular.');
+            throw new Recusa('Esta etiqueta foi encerrada: o código fica reservado para sempre e não volta a circular.');
         }
 
         ($this->apontar)($etiqueta, $dados['destino']);

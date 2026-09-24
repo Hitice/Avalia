@@ -53,7 +53,7 @@
                 <div>
                     <h2 class="rotulo-grupo">Para onde este código leva</h2>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        O endereço impresso não muda nunca. Só este campo muda, e vale em até um minuto.
+                        O código impresso é permanente. Alterações de destino entram em até um minuto.
                     </p>
                 </div>
 

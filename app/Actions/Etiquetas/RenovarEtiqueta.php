@@ -24,7 +24,7 @@ class RenovarEtiqueta
     public function __invoke(Etiqueta $etiqueta, ?int $valorCents = null): Etiqueta
     {
         if ($etiqueta->vendida_em === null) {
-            throw new Recusa('Plaquinha que nunca foi vendida não tem o que renovar.');
+            throw new Recusa('Etiqueta que nunca foi cadastrada não tem o que renovar.');
         }
 
         $meses = (int) config('etiquetas.validade_meses');
