@@ -342,3 +342,22 @@ it('resolve a operacao inteira numa pagina so', function () {
         ->assertSee('Código impresso')
         ->assertSee('Padaria do Zé', false);
 });
+
+it('so apaga tudo quando alguem confirma por escrito', function () {
+    // Comando destrutivo que roda so com o nome e comando que um dia entra
+    // numa lista de rotina por engano.
+    admin()->post(route('etiquetas.gerar'), ['quantidade' => 5]);
+    $etiqueta = Etiqueta::first();
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://loja.com.br']);
+
+    $this->artisan('avalia:etiquetas-limpar')->assertSuccessful();
+
+    expect(Etiqueta::count())->toBe(5);
+
+    $this->artisan('avalia:etiquetas-limpar --confirmar')->assertSuccessful();
+
+    // Some tudo, inclusive o que pendurava nas chaves estrangeiras.
+    expect(Etiqueta::count())->toBe(0)
+        ->and(App\Models\LoteEtiqueta::count())->toBe(0)
+        ->and(DestinoEtiqueta::count())->toBe(0);
+});
