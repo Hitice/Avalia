@@ -23,9 +23,8 @@ uses(RefreshDatabase::class);
 
 it('abre a tiragem com a quantidade pedida, toda em branco', function () {
     admin()->post(route('etiquetas.lotes.salvar'), [
-        'titulo' => 'Plaquinhas de balcão',
+        'titulo' => 'Códigos de balcão',
         'quantidade' => 25,
-        'tipo' => 'qr_nfc',
     ])->assertRedirect();
 
     $lote = LoteEtiqueta::sole();
@@ -38,8 +37,7 @@ it('abre a tiragem com a quantidade pedida, toda em branco', function () {
     // alguem depois de vendida.
     $lote->etiquetas->each(function (Etiqueta $etiqueta) {
         expect($etiqueta->situacao)->toBe(SituacaoEtiqueta::EmBranco)
-            ->and($etiqueta->destino)->toBeNull()
-            ->and($etiqueta->tipo)->toBe('qr_nfc');
+            ->and($etiqueta->destino)->toBeNull();
     });
 });
 
@@ -47,7 +45,7 @@ it('numera as plaquinhas em sequencia, a partir de um', function () {
     // A sequencia e o que nomeia o arquivo dentro do ZIP e a linha do CSV que
     // o Print Merge do Corel casa com ele.
     admin()->post(route('etiquetas.lotes.salvar'), [
-        'titulo' => 'Tiragem', 'quantidade' => 10, 'tipo' => 'qr',
+        'titulo' => 'Tiragem', 'quantidade' => 10,
     ]);
 
     expect(Etiqueta::orderBy('sequencia')->pluck('sequencia')->all())->toBe(range(1, 10));
@@ -56,7 +54,7 @@ it('numera as plaquinhas em sequencia, a partir de um', function () {
 it('nunca repete um codigo, nem dentro nem entre tiragens', function () {
     foreach (range(1, 3) as $vez) {
         admin()->post(route('etiquetas.lotes.salvar'), [
-            'titulo' => "Tiragem {$vez}", 'quantidade' => 60, 'tipo' => 'qr',
+            'titulo' => "Tiragem {$vez}", 'quantidade' => 60,
         ]);
     }
 
@@ -82,7 +80,6 @@ it('recusa tiragem acima do teto', function () {
     admin()->post(route('etiquetas.lotes.salvar'), [
         'titulo' => 'Exagero',
         'quantidade' => config('etiquetas.lote_maximo') + 1,
-        'tipo' => 'qr',
     ])->assertSessionHasErrors('quantidade');
 
     expect(LoteEtiqueta::count())->toBe(0)->and(Etiqueta::count())->toBe(0);
@@ -90,7 +87,7 @@ it('recusa tiragem acima do teto', function () {
 
 it('registra a tiragem na auditoria', function () {
     admin()->post(route('etiquetas.lotes.salvar'), [
-        'titulo' => 'Tiragem', 'quantidade' => 5, 'tipo' => 'qr',
+        'titulo' => 'Tiragem', 'quantidade' => 5,
     ]);
 
     expect(Auditoria::where('acao', 'etiquetas.lote.gerado')->count())->toBe(1);
@@ -104,7 +101,7 @@ it('registra a tiragem na auditoria', function () {
 
 it('entrega a ficha com o endereco do QR em maiusculo', function () {
     admin()->post(route('etiquetas.lotes.salvar'), [
-        'titulo' => 'Tiragem', 'quantidade' => 3, 'tipo' => 'qr',
+        'titulo' => 'Tiragem', 'quantidade' => 3,
     ]);
 
     $lote = LoteEtiqueta::sole();
@@ -147,14 +144,14 @@ it('poe as plaquinhas na lateral, sem esconder atras de um pai', function () {
     $painel = admin()->get(route('painel'))->assertOk();
 
     // A lateral monta href com caminho relativo, e nao com a URL inteira.
-    $painel->assertSee('Plaquinhas')->assertSee('href="/etiquetas"', false);
+    $painel->assertSee('QR dinâmico')->assertSee('href="/etiquetas"', false);
 
     expect($painel->getContent())->not->toContain('Serviços digitais');
 });
 
-it('nao mostra plaquinhas ao vendedor', function () {
+it('nao mostra o QR dinamico ao vendedor', function () {
     // Menu que leva a 403 ensina o operador a ignorar o menu.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
-    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertDontSee('Plaquinhas');
+    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertDontSee('QR dinâmico');
 });

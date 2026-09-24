@@ -425,7 +425,10 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/lotes', [LoteController::class, 'salvar'])->name('lotes.salvar');
         Route::get('/lotes/{lote}', [LoteController::class, 'ficha'])->name('lotes.ficha');
 
-        Route::post('/avulsa', [EtiquetaController::class, 'avulsa'])->name('avulsa');
+        // O fluxo, na ordem em que ele acontece: gera, imprime, vende, e so
+        // entao diz para onde cada codigo leva.
+        Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
+        Route::post('/apontar', [EtiquetaController::class, 'apontarPorCodigo'])->name('apontar-codigo');
 
         Route::get('/{etiqueta}', [EtiquetaController::class, 'ficha'])->name('ficha');
         Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');

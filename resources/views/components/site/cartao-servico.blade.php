@@ -35,7 +35,11 @@
         {{ $servico['titulo'] }}
 
         @if ($servico['selo'])
-            <span class="etiqueta etiqueta-sucesso">{{ $servico['selo'] }}</span>
+            <span @class([
+                'etiqueta',
+                'etiqueta-premium' => $servico['selo'] === 'Premium',
+                'etiqueta-sucesso' => $servico['selo'] !== 'Premium',
+            ])>{{ $servico['selo'] }}</span>
         @endif
     </h3>
 

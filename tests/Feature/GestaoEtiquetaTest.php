@@ -166,8 +166,10 @@ it('acha a plaquinha pelo codigo digitado errado', function () {
         ->assertSee('K7M2P1');
 });
 
-it('cria um codigo avulso, sem tiragem', function () {
-    admin()->post(route('etiquetas.avulsa'), ['titulo' => 'Cliente sem placa', 'tipo' => 'qr'])
+it('gera um codigo sozinho sem abrir tiragem', function () {
+    // Tiragem de uma unidade seria uma linha vazia de sentido na lista de
+    // producao. Um formulario so para os dois casos; por dentro eles divergem.
+    admin()->post(route('etiquetas.gerar'), ['quantidade' => 1, 'titulo' => 'Cliente sem placa'])
         ->assertRedirect();
 
     $etiqueta = Etiqueta::sole();
@@ -175,6 +177,58 @@ it('cria um codigo avulso, sem tiragem', function () {
     expect($etiqueta->lote_id)->toBeNull()
         ->and($etiqueta->sequencia)->toBeNull()
         ->and($etiqueta->situacao)->toBe(SituacaoEtiqueta::EmBranco);
+});
+
+it('gera cem de uma vez, e ai abre tiragem', function () {
+    admin()->post(route('etiquetas.gerar'), ['quantidade' => 100])->assertRedirect();
+
+    expect(Etiqueta::count())->toBe(100)
+        ->and(App\Models\LoteEtiqueta::count())->toBe(1)
+        // A tiragem e o que da o pacote numerado para a grafica.
+        ->and(Etiqueta::whereNull('lote_id')->count())->toBe(0);
+});
+
+/*
+|--------------------------------------------------------------------------
+| O passo de depois da venda
+|--------------------------------------------------------------------------
+|
+| Quem acabou de vender tem a plaquinha na mao e le o codigo dela. Procurar
+| essa placa numa lista de mil seria o caminho longo para a unica coisa que ele
+| quer fazer.
+|
+*/
+
+it('cadastra a url pelo codigo impresso', function () {
+    Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
+
+    admin()->post(route('etiquetas.apontar-codigo'), [
+        'codigo' => 'k7m2px',
+        'destino' => 'wa.me/5531999999999',
+    ])->assertRedirect();
+
+    $etiqueta = Etiqueta::sole();
+
+    expect($etiqueta->destino)->toBe('https://wa.me/5531999999999')
+        ->and($etiqueta->situacao)->toBe(SituacaoEtiqueta::Ativa);
+});
+
+it('conserta a letra parecida no codigo digitado', function () {
+    // Quem le "1" no acrilico digita "I". O alfabeto exclui as duas de
+    // proposito, e a leitura desfaz a troca.
+    Etiqueta::factory()->create(['codigo' => 'K7M2P1']);
+
+    admin()->post(route('etiquetas.apontar-codigo'), [
+        'codigo' => 'K7M2PI', 'destino' => 'https://loja.com.br',
+    ])->assertRedirect();
+
+    expect(Etiqueta::sole()->destino)->toBe('https://loja.com.br');
+});
+
+it('diz o que conferir quando o codigo nao existe', function () {
+    admin()->post(route('etiquetas.apontar-codigo'), [
+        'codigo' => 'ZZZZZZ', 'destino' => 'https://loja.com.br',
+    ])->assertRedirect()->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'I, L, O e U'));
 });
 
 it('registra na auditoria tudo que muda a plaquinha', function () {

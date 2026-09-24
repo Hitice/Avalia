@@ -52,7 +52,7 @@ class MenuHelper
             // comeca fechado, e modulo que so aparece depois de um clique num
             // pai e modulo que ninguem acha. E a mesma licao que tirou as
             // telas do vendedor de dentro de Carteira, algumas linhas acima.
-            ['icon' => 'qr', 'name' => 'Plaquinhas', 'path' => '/etiquetas', 'papeis' => ['admin']],
+            ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas', 'papeis' => ['admin']],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Etiquetas\AlternarEtiqueta;
 use App\Actions\Etiquetas\BaixarEtiqueta;
 use App\Actions\Etiquetas\CriarEtiquetaAvulsa;
+use App\Actions\Etiquetas\GerarLote;
 use App\Actions\Etiquetas\RenovarEtiqueta;
 use App\Actions\Etiquetas\VenderEtiqueta;
 use App\Enums\SituacaoEtiqueta;
@@ -14,7 +15,6 @@ use App\Support\CodigoCurto;
 use App\Support\Destino;
 use App\Support\Dinheiro;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 /**
  * As plaquinhas, uma a uma.
@@ -26,7 +26,15 @@ use Illuminate\Validation\Rule;
  */
 class EtiquetaController extends Controller
 {
-    private const TIPOS = ['qr' => 'Só QR Code', 'qr_nfc' => 'QR Code e tag NFC', 'nfc' => 'Só tag NFC'];
+    /*
+     * So QR, por enquanto.
+     *
+     * A coluna `tipo` continua na tabela e a tag NFC continua prevista: ela
+     * usaria o MESMO endereco do QR, entao nada do que esta gravado aqui muda
+     * quando ela voltar. O que saiu foi a escolha na tela, que pedia uma
+     * decisao sobre algo que ainda nao existe.
+     */
+    private const TIPO = 'qr';
 
     public function index(Request $pedido)
     {
@@ -56,30 +64,84 @@ class EtiquetaController extends Controller
             'etiquetas' => $etiquetas,
             'lotes' => LoteEtiqueta::orderByDesc('id')->get(),
             'situacoes' => SituacaoEtiqueta::rotulos(),
-            'tipos' => self::TIPOS,
             'filtros' => ['busca' => $busca, 'situacao' => $pedido->query('situacao'), 'lote' => $pedido->query('lote')],
         ]);
     }
 
-    /** Um codigo so, sem tiragem: o QR dinamico vendido sem placa. */
-    public function avulsa(Request $pedido, CriarEtiquetaAvulsa $criar)
+    /**
+     * Gera um codigo, ou cem.
+     *
+     * Um formulario so para os dois casos, porque para quem usa e a mesma
+     * coisa com um numero diferente. Por dentro eles divergem: um codigo
+     * sozinho nao abre tiragem, porque tiragem de uma unidade seria uma linha
+     * vazia de sentido na lista de producao, e cem abrem, porque e a tiragem
+     * que da o pacote numerado para a grafica.
+     */
+    public function gerar(Request $pedido, CriarEtiquetaAvulsa $criar, GerarLote $lote)
     {
         $dados = $pedido->validate([
+            'quantidade' => ['required', 'integer', 'min:1', 'max:'.config('etiquetas.lote_maximo')],
             'titulo' => ['nullable', 'string', 'max:120'],
-            'tipo' => ['required', Rule::in(array_keys(self::TIPOS))],
         ]);
 
-        $etiqueta = $criar($dados);
+        if ((int) $dados['quantidade'] === 1) {
+            $etiqueta = $criar(['titulo' => $dados['titulo'] ?? null, 'tipo' => self::TIPO]);
+
+            return redirect()->route('etiquetas.ficha', $etiqueta)
+                ->with('ok', "Código {$etiqueta->codigo} gerado. Baixe o QR e mande imprimir.");
+        }
+
+        $tiragem = $lote([
+            'titulo' => ($dados['titulo'] ?? null) ?: 'Tiragem de '.$dados['quantidade'],
+            'quantidade' => (int) $dados['quantidade'],
+            'tipo' => self::TIPO,
+            'observacao' => null,
+        ]);
+
+        return redirect()->route('etiquetas.lotes.ficha', $tiragem)
+            ->with('ok', "{$tiragem->quantidade} códigos gerados. Baixe o pacote e mande imprimir.");
+    }
+
+    /**
+     * O passo de depois da venda: o codigo impresso, e para onde ele leva.
+     *
+     * Existe porque e assim que o trabalho acontece de verdade. Quem acabou de
+     * vender tem a plaquinha na mao e le o codigo dela; procurar essa placa
+     * numa lista de mil seria o caminho longo para a unica coisa que ele quer
+     * fazer.
+     */
+    public function apontarPorCodigo(Request $pedido, VenderEtiqueta $vender)
+    {
+        $pedido->validate([
+            'codigo' => ['required', 'string', 'max:20'],
+            'destino' => ['required', 'string', 'max:'.Destino::TAMANHO_MAXIMO],
+        ]);
+
+        $codigo = CodigoCurto::normalizar($pedido->input('codigo'));
+        $etiqueta = $codigo === '' ? null : Etiqueta::firstWhere('codigo', $codigo);
+
+        if (! $etiqueta) {
+            return back()->withInput()->with('erro',
+                'Não achei o código '.mb_strtoupper(trim((string) $pedido->input('codigo')))
+                .'. Confira na plaquinha: as letras I, L, O e U não são usadas.');
+        }
+
+        $vender($etiqueta, [
+            'destino' => $pedido->input('destino'),
+            'titulo' => null,
+            'cliente_nome' => null,
+            'cliente_contato' => null,
+            'valor_cents' => null,
+        ]);
 
         return redirect()->route('etiquetas.ficha', $etiqueta)
-            ->with('ok', "Código {$etiqueta->codigo} criado. Aponte para onde ele deve levar.");
+            ->with('ok', "Pronto. {$etiqueta->codigo} agora leva para {$etiqueta->refresh()->destino}.");
     }
 
     public function ficha(Etiqueta $etiqueta)
     {
         return view('paginas.etiquetas.ficha', [
             'etiqueta' => $etiqueta->load(['lote', 'destinos' => fn ($q) => $q->orderByDesc('id'), 'renovacoes']),
-            'tipos' => self::TIPOS,
             'acessos' => $etiqueta->acessos()->orderByDesc('dia')->limit(30)->get(),
         ]);
     }

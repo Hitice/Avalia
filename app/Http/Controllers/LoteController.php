@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Actions\Etiquetas\GerarLote;
 use App\Models\LoteEtiqueta;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 /**
  * As tiragens de plaquinha.
@@ -18,20 +17,24 @@ use Illuminate\Validation\Rule;
  */
 class LoteController extends Controller
 {
-    /** Os tipos de plaquinha que uma tiragem pode ter. */
-    private const TIPOS = ['qr' => 'Só QR Code', 'qr_nfc' => 'QR Code e tag NFC', 'nfc' => 'Só tag NFC'];
+    /*
+     * So QR. A coluna `tipo` continua na tabela e a tag NFC continua prevista,
+     * usando o MESMO endereco do QR: nada do que esta gravado muda quando ela
+     * voltar. O que saiu foi a escolha na tela, que pedia decisao sobre algo
+     * que ainda nao existe.
+     */
+    private const TIPO = 'qr';
 
     public function index()
     {
         return view('paginas.etiquetas.lotes.index', [
             'lotes' => LoteEtiqueta::withCount('etiquetas')->orderByDesc('id')->paginate(20),
-            'tipos' => self::TIPOS,
         ]);
     }
 
     public function criar()
     {
-        return view('paginas.etiquetas.lotes.formulario', ['tipos' => self::TIPOS]);
+        return view('paginas.etiquetas.lotes.formulario');
     }
 
     public function salvar(Request $pedido, GerarLote $gerar)
@@ -41,11 +44,10 @@ class LoteController extends Controller
             // O teto existe porque quem desenha e o navegador de quem pediu:
             // acima disto a aba fica presa por minutos montando imagem.
             'quantidade' => ['required', 'integer', 'min:1', 'max:'.config('etiquetas.lote_maximo')],
-            'tipo' => ['required', Rule::in(array_keys(self::TIPOS))],
             'observacao' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $lote = $gerar($dados);
+        $lote = $gerar($dados + ['tipo' => self::TIPO]);
 
         return redirect()->route('etiquetas.lotes.ficha', $lote)
             ->with('ok', "Tiragem {$lote->codigo} aberta com {$lote->quantidade} plaquinhas.");
@@ -71,7 +73,6 @@ class LoteController extends Controller
         return view('paginas.etiquetas.lotes.ficha', [
             'lote' => $lote,
             'etiquetas' => $etiquetas,
-            'tipos' => self::TIPOS,
         ]);
     }
 }

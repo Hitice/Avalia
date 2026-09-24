@@ -15,22 +15,27 @@
  * `publico` false mantem a entrada registrada sem mostrar cartao: serve para o
  * servico que ja esta decidido e ainda nao esta pronto, sem espalhar "em
  * breve" pela vitrine.
+ *
+ * O editor de tag NFC saiu daqui e vive so em docs/SERVICOS-DIGITAIS.md ate
+ * voltar a ser prioridade. Entrada parada no catalogo vira codigo que ninguem
+ * le e que todo mundo tem que entender ao passar por perto.
  */
 return [
 
     'plaquinhas' => [
-        'titulo' => 'Plaquinhas de QR Code e NFC',
-        'resumo' => 'A placa no balcão leva o cliente para onde você quiser, e o destino pode mudar depois de impressa.',
-        'texto' => 'Uma plaquinha de acrílico com QR Code e tag NFC, apontando para o seu WhatsApp, '
-            .'o seu Instagram, a sua avaliação no Google ou o seu cardápio. O endereço é nosso e é '
-            .'permanente: quando você quiser mandar o cliente para outro lugar, a gente troca no '
-            .'sistema e a mesma placa passa a levar para lá. Nada é reimpresso.',
-        'icone' => 'M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 4h2m-2-4h6m-2 4v2',
+        'titulo' => 'Gerador de QR Code dinâmico',
+        'resumo' => 'O código impresso é permanente, e o destino dele muda quando você quiser, sem reimprimir nada.',
+        'texto' => 'Gere os códigos, mande imprimir e venda. Só depois da venda você informa para onde '
+            .'cada um deve levar: o WhatsApp do cliente, o Instagram dele, a avaliação no Google, o '
+            .'cardápio. O endereço é nosso e é permanente, então trocar o destino é trocar um campo '
+            .'no sistema, e a placa que já está no balcão continua valendo.',
+        // QR com a seta de recomeço: o codigo e o mesmo, o destino gira.
+        'icone' => 'M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 1.5a3.5 3.5 0 1 0 3.5 3.5m0-3.5V12m0 3.5H17',
         'rota' => 'digitais.plaquinhas',
         // Abre o acesso da administracao no proprio cartao e leva a ferramenta
         // de criar codigo. Apelido, e nao endereco: ver LoginController.
         'porta' => 'plaquinhas',
-        'selo' => null,
+        'selo' => 'Premium',
         'publico' => true,
     ],
 
@@ -47,16 +52,4 @@ return [
         'publico' => true,
     ],
 
-    // Decidido, ainda nao construido. Fica registrado aqui para nascer com o
-    // resto quando chegar a vez, e nao aparece na vitrine ate la.
-    'nfc' => [
-        'titulo' => 'Editor de tag NFC',
-        'resumo' => 'Grave endereço, contato ou Wi-Fi numa tag NFC pelo navegador do celular.',
-        'texto' => '',
-        'icone' => 'M6 8.5a8 8 0 0 1 0 7M9.5 6a12 12 0 0 1 0 12M13 3.5a16 16 0 0 1 0 17M17 12h.01',
-        'rota' => null,
-        'porta' => null,
-        'selo' => null,
-        'publico' => false,
-    ],
 ];

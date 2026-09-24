@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Nova tiragem'])
+@extends('layouts.ferramenta', ['title' => 'Nova tiragem'])
 
 @section('content')
     <div class="mb-6">
@@ -32,19 +32,6 @@
             @error('quantidade')<p class="erro-campo">{{ $message }}</p>@enderror
         </div>
 
-        <div>
-            <label for="tipo" class="rotulo-campo">O que vai na plaquinha</label>
-            <select id="tipo" name="tipo" class="campo">
-                @foreach ($tipos as $valor => $rotulo)
-                    <option value="{{ $valor }}" @selected(old('tipo') === $valor)>{{ $rotulo }}</option>
-                @endforeach
-            </select>
-            <p class="ajuda-campo">
-                A tag NFC é gravada com o mesmo endereço do QR, então ela nunca precisa ser regravada
-                depois da venda.
-            </p>
-            @error('tipo')<p class="erro-campo">{{ $message }}</p>@enderror
-        </div>
 
         <div>
             <label for="observacao" class="rotulo-campo">Observação</label>

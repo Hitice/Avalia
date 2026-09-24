@@ -436,6 +436,13 @@
   @apply inline-flex rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap;
 }
 
+/* O selo do servico pago, ao lado do gratuito na mesma grade. Cor da marca, e
+   nao o verde de "sucesso": verde ali leria como "ativo", e o que a etiqueta
+   diz e outra coisa, que este custa dinheiro. */
+@utility etiqueta-premium {
+  @apply bg-brand-500/10 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400;
+}
+
 @utility etiqueta-neutra {
   @apply bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400;
 }

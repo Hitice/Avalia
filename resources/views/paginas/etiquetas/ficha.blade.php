@@ -5,7 +5,7 @@
     $estado = $etiqueta->estado();
 @endphp
 
-@extends('layouts.app', ['title' => 'Plaquinha '.$etiqueta->codigo])
+@extends('layouts.ferramenta', ['title' => 'Código '.$etiqueta->codigo])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -15,8 +15,7 @@
             </h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {{ $etiqueta->titulo ?? 'Sem apelido' }} ·
-                {{ $tipos[$etiqueta->tipo] ?? $etiqueta->tipo }} ·
-                {{ $etiqueta->lote ? 'Tiragem '.$etiqueta->lote->codigo.', nº '.$etiqueta->sequencia : 'Avulso' }}
+                {{ $etiqueta->lote ? 'Tiragem '.$etiqueta->lote->codigo.', nº '.$etiqueta->sequencia : 'Código avulso' }}
             </p>
         </div>
 

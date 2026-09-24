@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Tiragem '.$lote->codigo])
+@extends('layouts.ferramenta', ['title' => 'Tiragem '.$lote->codigo])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -7,7 +7,7 @@
                 Tiragem {{ $lote->codigo }}
             </h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                {{ $lote->titulo }} · {{ $tipos[$lote->tipo] ?? $lote->tipo }} ·
+                {{ $lote->titulo }} ·
                 {{ $etiquetas->count() }} {{ $etiquetas->count() === 1 ? 'plaquinha' : 'plaquinhas' }}
                 @if ($lote->observacao)
                     · {{ $lote->observacao }}

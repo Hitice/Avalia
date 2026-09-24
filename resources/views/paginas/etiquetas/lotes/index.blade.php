@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Tiragens'])
+@extends('layouts.ferramenta', ['title' => 'Tiragens'])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -20,7 +20,6 @@
                 <thead class="tabela-cabecalho">
                     <tr>
                         <th scope="col" class="tabela-th text-left">Tiragem</th>
-                        <th scope="col" class="tabela-th text-left">Tipo</th>
                         <th scope="col" class="tabela-th text-right">Plaquinhas</th>
                         <th scope="col" class="tabela-th text-left">Aberta em</th>
                         <th scope="col" class="tabela-th text-right"><span class="sr-only">Ações</span></th>
@@ -34,9 +33,6 @@
                                 <span class="font-medium text-gray-800 dark:text-white/90">{{ $lote->codigo }}</span>
                                 <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{{ $lote->titulo }}</span>
                             </td>
-                            <td class="tabela-td">
-                                <span class="etiqueta etiqueta-neutra">{{ $tipos[$lote->tipo] ?? $lote->tipo }}</span>
-                            </td>
                             <td class="tabela-td text-right tabular-nums">{{ $lote->etiquetas_count }}</td>
                             <td class="tabela-td">{{ $lote->created_at->format('d/m/Y') }}</td>
                             <td class="tabela-td text-right whitespace-nowrap">
@@ -47,7 +43,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="tabela-vazia">
+                            <td colspan="4" class="tabela-vazia">
                                 Abra uma tiragem para gerar os códigos, baixar os arquivos e mandar imprimir.
                             </td>
                         </tr>

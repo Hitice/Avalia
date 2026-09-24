@@ -2,47 +2,92 @@
     use App\Support\Dinheiro;
 @endphp
 
-@extends('layouts.app', ['title' => 'Plaquinhas'])
+@extends('layouts.ferramenta', ['title' => 'Códigos'])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Plaquinhas</h1>
+            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">QR Code dinâmico</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Cada código é um endereço permanente. Trocar para onde ele leva não reimprime nada.
+                Gere, imprima e venda. Só depois da venda você diz para onde cada código leva.
             </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-            <x-avalia.botao variante="secundario" :href="route('etiquetas.lotes.index')">Tiragens</x-avalia.botao>
-            <x-avalia.botao variante="secundario" :href="route('etiquetas.lotes.criar')">Gerar em lote</x-avalia.botao>
-        </div>
+        <x-avalia.botao variante="secundario" :href="route('etiquetas.lotes.index')">Tiragens</x-avalia.botao>
     </div>
 
     @include('paginas.catalogo.avisos')
 
-    {{-- Um codigo so, sem tiragem: e o QR dinamico vendido sem placa. Fica no
-         topo da lista, e nao numa tela propria, porque e um campo e um botao. --}}
-    <form method="POST" action="{{ route('etiquetas.avulsa') }}" class="cartao mb-5 flex flex-wrap items-end gap-3 p-5">
-        @csrf
+    {{-- Os dois passos lado a lado, na ordem em que acontecem. Um formulario
+         so para gerar um ou cem, porque para quem usa e a mesma coisa com um
+         numero diferente. --}}
+    <div class="mb-5 grid gap-5 lg:grid-cols-2">
+        <form method="POST" action="{{ route('etiquetas.gerar') }}" class="cartao grid gap-4 p-6">
+            @csrf
 
-        <div class="min-w-[16rem] flex-1">
-            <label for="avulsa-titulo" class="rotulo-campo">Criar um código avulso</label>
-            <input id="avulsa-titulo" name="titulo" type="text" maxlength="120" class="campo"
-                   placeholder="Apelido interno: Padaria do Zé, balcão">
-        </div>
+            <div>
+                <h2 class="rotulo-grupo">1 · Gerar os códigos</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Nascem em branco, sem destino. É essa a ideia: imprimir antes de saber para
+                    quem vai.
+                </p>
+            </div>
 
-        <div>
-            <label for="avulsa-tipo" class="rotulo-campo">Tipo</label>
-            <select id="avulsa-tipo" name="tipo" class="campo">
-                @foreach ($tipos as $valor => $rotulo)
-                    <option value="{{ $valor }}">{{ $rotulo }}</option>
-                @endforeach
-            </select>
-        </div>
+            <div class="flex flex-wrap items-end gap-3">
+                <div class="w-28">
+                    <label for="quantidade" class="rotulo-campo">Quantos</label>
+                    <input id="quantidade" name="quantidade" type="number" min="1"
+                           max="{{ config('etiquetas.lote_maximo') }}" required
+                           value="{{ old('quantidade', 1) }}" class="campo">
+                </div>
 
-        <x-avalia.botao>Criar código</x-avalia.botao>
-    </form>
+                <div class="min-w-[12rem] flex-1">
+                    <label for="titulo" class="rotulo-campo">Apelido (opcional)</label>
+                    <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
+                           value="{{ old('titulo') }}" placeholder="Acrílico 4cm, gráfica do centro">
+                </div>
+
+                <x-avalia.botao>Gerar</x-avalia.botao>
+            </div>
+
+            @error('quantidade')<p class="erro-campo">{{ $message }}</p>@enderror
+
+            <p class="ajuda-campo">
+                Um código abre a ficha dele, com o QR para baixar. Mais de um abre uma tiragem, com
+                o pacote numerado e o CSV que o CorelDRAW lê.
+            </p>
+        </form>
+
+        <form method="POST" action="{{ route('etiquetas.apontar-codigo') }}" class="cartao grid gap-4 p-6">
+            @csrf
+
+            <div>
+                <h2 class="rotulo-grupo">2 · Vendeu? Cadastre a URL</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Leia o código impresso na plaquinha e diga para onde ele deve levar.
+                </p>
+            </div>
+
+            <div>
+                <label for="codigo" class="rotulo-campo">Código da plaquinha</label>
+                <input id="codigo" name="codigo" type="text" maxlength="20" required
+                       value="{{ old('codigo') }}"
+                       class="campo font-mono tracking-widest uppercase" placeholder="K7M2PX">
+                @error('codigo')<p class="erro-campo">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label for="destino-rapido" class="rotulo-campo">Para onde leva</label>
+                <input id="destino-rapido" name="destino" type="text" required class="campo"
+                       value="{{ old('destino') }}" placeholder="https://wa.me/5531999999999">
+                @error('destino')<p class="erro-campo">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <x-avalia.botao>Cadastrar destino</x-avalia.botao>
+            </div>
+        </form>
+    </div>
 
     <form method="GET" class="cartao mb-5 flex flex-wrap items-end gap-3 p-5">
         <div class="min-w-[16rem] flex-1">

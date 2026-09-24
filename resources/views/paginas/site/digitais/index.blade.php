@@ -1,6 +1,6 @@
 @extends('layouts.site', [
     'titulo' => 'Serviços digitais',
-    'descricao' => 'Plaquinhas de QR Code e NFC com destino que muda depois de impressas, e gerador de QR Code grátis em SVG e PNG.',
+    'descricao' => 'QR Code dinâmico, cujo destino muda depois de impresso, e gerador de QR Code grátis em SVG e PNG.',
 ])
 
 @section('content')

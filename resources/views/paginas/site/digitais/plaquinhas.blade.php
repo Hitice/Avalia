@@ -6,8 +6,8 @@
 @endphp
 
 @extends('layouts.site', [
-    'titulo' => 'Plaquinhas de QR Code e NFC',
-    'descricao' => 'Plaquinha de acrílico com QR Code e tag NFC. O destino muda quando você quiser, sem reimprimir nada.',
+    'titulo' => 'Gerador de QR Code dinâmico',
+    'descricao' => 'QR Code cujo destino muda depois de impresso. Gere, mande imprimir, venda, e só então diga para onde cada código leva.',
     // A aba do menu continua marcada nas paginas de dentro da frente.
     'secao' => 'digitais.index',
 ])
@@ -19,7 +19,7 @@
         <x-slot:rodape>
             <div class="mt-6 flex flex-wrap items-center gap-3">
                 <x-avalia.botao :href="route('site.contato')">
-                    Quero as plaquinhas
+                    Quero usar
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
@@ -38,9 +38,10 @@
                 <div class="prosa">
                     <p>{{ $servico['texto'] }}</p>
                     <p>
-                        O QR e a tag NFC levam ao mesmo endereço. Quem tem Android encosta o celular
-                        e abre; quem tem iPhone também, do XS em diante, sem instalar nada. E quem
-                        preferir aponta a câmera para o QR.
+                        A diferença para um QR comum é só uma, e é a que importa: o código comum
+                        carrega o endereço do cliente dentro do próprio desenho, então trocar de
+                        endereço é reimprimir tudo. Aqui o desenho carrega um endereço nosso, e o
+                        do cliente fica num campo que a gente edita.
                     </p>
                 </div>
 
@@ -52,10 +53,10 @@
 
                     <p class="mt-4 text-3xl font-semibold tracking-tight text-gray-900">
                         {{ Dinheiro::brl($precos['placa_cents']) }}
-                        <span class="text-base font-normal text-gray-500">por plaquinha</span>
+                        <span class="text-base font-normal text-gray-500">por código</span>
                     </p>
                     <p class="mt-2 text-sm leading-relaxed text-gray-600">
-                        A placa e o primeiro ano de serviço. Depois,
+                        O código e o primeiro ano de serviço. Depois,
                         {{ Dinheiro::brl($precos['renovacao_cents']) }} por ano para o endereço
                         continuar de pé.
                     </p>
@@ -63,8 +64,8 @@
                     <ul class="mt-6 space-y-3 border-t border-gray-100 pt-6 text-sm leading-relaxed text-gray-600">
                         @foreach ([
                             'Trocas de destino sem limite, e sem reimprimir',
-                            'QR Code e tag NFC no mesmo endereço',
-                            'Contagem de leituras',
+                            'SVG em vetor e PNG, no tamanho em milímetros que você pedir',
+                            'Contagem de leituras, por dia',
                             'O código é seu e nunca vai para outro cliente',
                         ] as $item)
                             <li class="flex items-start gap-3">
@@ -82,9 +83,9 @@
 
             <div class="mt-8 grid gap-5 md:grid-cols-3">
                 @foreach ([
-                    ['01', 'A placa chega pronta', 'Com o código já gravado no QR e na tag NFC. O endereço é da '.Empresa::marca().', e é permanente.'],
-                    ['02', 'Você diz para onde aponta', 'WhatsApp, Instagram, avaliação no Google, cardápio, o site. A gente aponta e está no ar.'],
-                    ['03', 'Mudou? A gente troca', 'O cliente novo, a promoção que acabou, o número que mudou. A mesma placa passa a levar para o lugar novo.'],
+                    ['01', 'Gere os códigos', 'Um, ou cem de uma vez. Saem em SVG e PNG, numerados, com o CSV que o CorelDRAW lê para imprimir a tiragem inteira.'],
+                    ['02', 'Imprima e venda', 'Os códigos nascem em branco, sem destino. É essa a ideia: imprimir antes de saber para quem vai.'],
+                    ['03', 'Cadastre o destino', 'Vendeu, leu o código impresso e informou a URL. Mudou depois? Troca o campo, e a placa que já está no balcão passa a levar para o lugar novo.'],
                 ] as [$numero, $titulo, $texto])
                     <div class="bloco p-7" data-revelar>
                         <span class="indice indice-claro">{{ $numero }}</span>
@@ -96,8 +97,8 @@
         </div>
     </section>
 
-    <x-site.chamada titulo="Quer as plaquinhas no seu balcão?" acao="Falar com a Avalia">
-        Diga quantas você precisa e para onde elas devem apontar. A gente produz, entrega e deixa
+    <x-site.chamada titulo="Quer os códigos no seu balcão?" acao="Falar com a Avalia">
+        Diga quantos você precisa e para onde eles devem apontar. A gente gera, entrega e deixa
         funcionando.
     </x-site.chamada>
 @endsection
