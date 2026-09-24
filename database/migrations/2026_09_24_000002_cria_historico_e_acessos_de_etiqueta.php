@@ -16,12 +16,17 @@ use Illuminate\Support\Facades\Schema;
  * porta de loja movimentada geraria dezenas de milhares de linhas por mes numa
  * hospedagem compartilhada, e a pergunta que o cliente faz e "quantas leituras
  * no mes", nunca "quem leu as 14h03".
+ *
+ * Cada `create` e guardado por `hasTable`. Publicacao que roda duas vezes ao
+ * mesmo tempo, ou que morre no meio, deixa a tabela criada sem a migration
+ * registrada: dai em diante toda publicacao falha em "table already exists" e
+ * volta atras sozinha. Ja aconteceu nesta base, com coluna em vez de tabela.
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('destinos_etiqueta', function (Blueprint $t) {
+        Schema::hasTable('destinos_etiqueta') || Schema::create('destinos_etiqueta', function (Blueprint $t) {
             $t->id();
             $t->foreignId('etiqueta_id')->constrained('etiquetas')->restrictOnDelete();
             $t->string('destino', 1000);
@@ -36,7 +41,7 @@ return new class extends Migration
             $t->index(['etiqueta_id', 'vigorou_ate']);
         });
 
-        Schema::create('renovacoes_etiqueta', function (Blueprint $t) {
+        Schema::hasTable('renovacoes_etiqueta') || Schema::create('renovacoes_etiqueta', function (Blueprint $t) {
             $t->id();
             $t->foreignId('etiqueta_id')->constrained('etiquetas')->restrictOnDelete();
 
@@ -51,7 +56,7 @@ return new class extends Migration
             $t->index('etiqueta_id');
         });
 
-        Schema::create('acessos_etiqueta', function (Blueprint $t) {
+        Schema::hasTable('acessos_etiqueta') || Schema::create('acessos_etiqueta', function (Blueprint $t) {
             $t->id();
             $t->foreignId('etiqueta_id')->constrained('etiquetas')->restrictOnDelete();
             $t->date('dia');

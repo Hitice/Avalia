@@ -27,6 +27,24 @@
 
     <div class="grid gap-5 lg:grid-cols-[1fr_22rem]">
         <div class="space-y-5">
+            @if ($etiqueta->situacao === SituacaoEtiqueta::Baixada)
+                {{-- Botao que so serve para receber recusa e botao quebrado aos
+                     olhos de quem clica. Plaquinha baixada nao volta, entao a
+                     tela diz isso em vez de oferecer o formulario. --}}
+                <div class="cartao p-6">
+                    <h2 class="rotulo-grupo">Plaquinha baixada</h2>
+                    <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-300">
+                        Esta plaquinha saiu de circulação e não volta. O código fica reservado para
+                        sempre: reciclado, ele mandaria a freguesia do cliente antigo, que ainda tem
+                        a placa velha em algum lugar, para a loja de um estranho.
+                    </p>
+                    @if ($etiqueta->destino)
+                        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                            Apontava para <span class="text-gray-700 dark:text-gray-300">{{ $etiqueta->destino }}</span>.
+                        </p>
+                    @endif
+                </div>
+            @else
             <form method="POST" action="{{ route('etiquetas.apontar', $etiqueta) }}" class="cartao grid gap-5 p-6">
                 @csrf
                 @method('PUT')
@@ -85,6 +103,7 @@
                     </x-avalia.botao>
                 </div>
             </form>
+            @endif
 
             @if ($etiqueta->destinos->isNotEmpty())
                 <div class="cartao overflow-hidden">

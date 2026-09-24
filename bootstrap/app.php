@@ -62,6 +62,21 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         /*
+         * Recusa de regra de negocio volta como aviso, e nunca como 500.
+         *
+         * "Esta plaquinha foi baixada" e um pedido que o sistema entendeu e
+         * negou, com um motivo que a pessoa consegue ler. Servido como erro
+         * interno, ele ensina o operador que a tela quebra sozinha, e esconde
+         * no log a unica frase que resolveria a duvida dele.
+         *
+         * Aqui, e nao num try/catch por controller: assim toda Action futura
+         * nasce com o mesmo tratamento, sem ninguem precisar lembrar.
+         */
+        $exceptions->render(fn (\App\Exceptions\Recusa $e, Request $request) => $request->expectsJson()
+            ? response()->json(['message' => $e->getMessage()], 422)
+            : back()->withInput()->with('erro', $e->getMessage()));
+
+        /*
          * Token CSRF expirado devolve uma tela "Page Expired" que nao diz nada
          * a quem esta tentando entrar. Acontece na situacao mais banal: deixar
          * a tela de login aberta por mais tempo que SESSION_LIFETIME e so

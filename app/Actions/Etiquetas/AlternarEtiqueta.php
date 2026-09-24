@@ -3,6 +3,7 @@
 namespace App\Actions\Etiquetas;
 
 use App\Enums\SituacaoEtiqueta;
+use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Support\Auditar;
 
@@ -24,7 +25,7 @@ class AlternarEtiqueta
         $nova = match ($etiqueta->situacao) {
             SituacaoEtiqueta::Ativa => SituacaoEtiqueta::Suspensa,
             SituacaoEtiqueta::Suspensa => SituacaoEtiqueta::Ativa,
-            default => throw new \RuntimeException('Só plaquinha ativa ou suspensa pode ser alternada.'),
+            default => throw new Recusa('Só plaquinha ativa ou suspensa pode ser ligada e desligada.'),
         };
 
         $etiqueta->update(['situacao' => $nova]);

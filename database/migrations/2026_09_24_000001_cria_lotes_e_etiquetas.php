@@ -18,12 +18,17 @@ use Illuminate\Support\Facades\Schema;
  * `valor_cents` fica gravado na venda, e nao lido do config na hora de
  * mostrar: reajuste de hoje nao pode reescrever o que foi cobrado ontem, que e
  * a mesma regra da consulta e da fatura.
+ *
+ * Cada `create` e guardado por `hasTable`. Publicacao que roda duas vezes ao
+ * mesmo tempo, ou que morre no meio, deixa a tabela criada sem a migration
+ * registrada: dai em diante toda publicacao falha em "table already exists" e
+ * volta atras sozinha. Ja aconteceu nesta base, com coluna em vez de tabela.
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('lotes_etiquetas', function (Blueprint $t) {
+        Schema::hasTable('lotes_etiquetas') || Schema::create('lotes_etiquetas', function (Blueprint $t) {
             $t->id();
             $t->string('codigo', 20)->unique();
             $t->string('titulo', 120);
@@ -34,7 +39,7 @@ return new class extends Migration
             $t->timestamps();
         });
 
-        Schema::create('etiquetas', function (Blueprint $t) {
+        Schema::hasTable('etiquetas') || Schema::create('etiquetas', function (Blueprint $t) {
             $t->id();
 
             // Seis caracteres Crockford. Guardado em maiusculo; quem procura

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Etiquetas;
 
+use App\Exceptions\Recusa;
 use App\Models\DestinoEtiqueta;
 use App\Models\Etiqueta;
 use App\Support\Auditar;
@@ -29,7 +30,7 @@ class ApontarEtiqueta
         $novo = Destino::normalizar($destino);
 
         if ($problema = Destino::problema($novo)) {
-            throw new \RuntimeException($problema);
+            throw new Recusa($problema);
         }
 
         if ($novo === $etiqueta->destino) {

@@ -120,7 +120,7 @@ it('nao revende plaquinha baixada', function () {
     $etiqueta = Etiqueta::factory()->baixada()->create();
 
     expect(fn () => app(App\Actions\Etiquetas\VenderEtiqueta::class)($etiqueta, ['destino' => 'https://x.com.br']))
-        ->toThrow(RuntimeException::class);
+        ->toThrow(App\Exceptions\Recusa::class);
 });
 
 /*
@@ -199,4 +199,53 @@ it('mantem o vendedor fora da gestao de plaquinhas', function () {
     comoVendedor($vendedor)->get(route('etiquetas.index'))->assertForbidden();
     comoVendedor($vendedor)->get(route('etiquetas.ficha', $etiqueta))->assertForbidden();
     comoVendedor($vendedor)->post(route('etiquetas.alternar', $etiqueta))->assertForbidden();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Recusa nao e erro de sistema
+|--------------------------------------------------------------------------
+|
+| "Esta plaquinha foi baixada" e um pedido que o sistema entendeu e negou, com
+| um motivo que a pessoa consegue ler. Servido como 500, ele ensina o operador
+| que a tela quebra sozinha, e esconde no log a unica frase que resolveria a
+| duvida dele. Foi exatamente o que aconteceu em producao.
+|
+*/
+
+it('explica a recusa em vez de devolver erro interno', function () {
+    $etiqueta = Etiqueta::factory()->baixada()->create();
+
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://loja.com.br'])
+        ->assertRedirect()
+        ->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'baixada'));
+});
+
+it('recusa renovar plaquinha que nunca foi vendida, sem quebrar a tela', function () {
+    $etiqueta = Etiqueta::factory()->create();
+
+    admin()->post(route('etiquetas.renovar', $etiqueta))
+        ->assertRedirect()
+        ->assertSessionHas('erro');
+});
+
+it('recusa ligar e desligar plaquinha em branco, sem quebrar a tela', function () {
+    // Suspender o que nunca apontou trocaria a pagina que explica o produto a
+    // quem leu a placa pela de "fora do ar", que assusta sem motivo.
+    $etiqueta = Etiqueta::factory()->create();
+
+    admin()->post(route('etiquetas.alternar', $etiqueta))
+        ->assertRedirect()
+        ->assertSessionHas('erro');
+});
+
+it('nao oferece o formulario de destino numa plaquinha baixada', function () {
+    // Botao que so serve para receber recusa e botao quebrado aos olhos de
+    // quem clica.
+    $baixada = Etiqueta::factory()->baixada()->create();
+
+    admin()->get(route('etiquetas.ficha', $baixada))
+        ->assertOk()
+        ->assertSee('Plaquinha baixada')
+        ->assertDontSee('Salvar destino');
 });

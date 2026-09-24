@@ -2,6 +2,7 @@
 
 namespace App\Actions\Etiquetas;
 
+use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Models\RenovacaoEtiqueta;
 use App\Support\Auditar;
@@ -23,7 +24,7 @@ class RenovarEtiqueta
     public function __invoke(Etiqueta $etiqueta, ?int $valorCents = null): Etiqueta
     {
         if ($etiqueta->vendida_em === null) {
-            throw new \RuntimeException('Plaquinha que nunca foi vendida não tem o que renovar.');
+            throw new Recusa('Plaquinha que nunca foi vendida não tem o que renovar.');
         }
 
         $meses = (int) config('etiquetas.validade_meses');

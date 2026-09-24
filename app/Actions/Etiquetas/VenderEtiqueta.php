@@ -3,6 +3,7 @@
 namespace App\Actions\Etiquetas;
 
 use App\Enums\SituacaoEtiqueta;
+use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ class VenderEtiqueta
     public function __invoke(Etiqueta $etiqueta, array $dados): Etiqueta
     {
         if ($etiqueta->situacao === SituacaoEtiqueta::Baixada) {
-            throw new \RuntimeException('Esta plaquinha foi baixada e não volta a circular.');
+            throw new Recusa('Esta plaquinha foi baixada: o código fica reservado para sempre e ela não volta a circular.');
         }
 
         ($this->apontar)($etiqueta, $dados['destino']);
