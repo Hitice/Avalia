@@ -32,9 +32,9 @@
                      olhos de quem clica. Plaquinha baixada nao volta, entao a
                      tela diz isso em vez de oferecer o formulario. --}}
                 <div class="cartao p-6">
-                    <h2 class="rotulo-grupo">Plaquinha baixada</h2>
+                    <h2 class="rotulo-grupo">Plaquinha encerrada</h2>
                     <p class="mt-3 leading-relaxed text-gray-600 dark:text-gray-300">
-                        Esta plaquinha saiu de circulação e não volta. O código fica reservado para
+                        Esta plaquinha foi encerrada e não volta a circular. O código fica reservado para
                         sempre: reciclado, ele mandaria a freguesia do cliente antigo, que ainda tem
                         a placa velha em algum lugar, para a loja de um estranho.
                     </p>
@@ -136,6 +136,40 @@
         </div>
 
         <div class="space-y-5">
+            {{-- O codigo desta plaquinha, desenhado aqui no navegador. Existe
+                 desde que a etiqueta nasce, mesmo em branco: o negocio inteiro
+                 depende de imprimir primeiro e vender depois. --}}
+            <div class="cartao p-6"
+                 x-data="gerador(@js(['conteudo' => $etiqueta->urlParaQr(), 'mm' => 30, 'logo' => true, 'nome' => $etiqueta->nomeDeArquivo()]))">
+                <h2 class="rotulo-grupo">O código</h2>
+
+                <div class="mt-4 flex justify-center rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white">
+                    <div x-ref="prova"></div>
+                </div>
+
+                <p class="mt-3 text-center font-mono text-xs break-all text-gray-500 dark:text-gray-400">
+                    {{ $etiqueta->url() }}
+                </p>
+
+                <div class="mt-5">
+                    <label for="qr-mm" class="rotulo-campo">Lado do código, em milímetros</label>
+                    <input id="qr-mm" type="number" min="10" max="200" x-model.number="mm" class="campo">
+                    <p class="ajuda-campo">É o tamanho com que o SVG cai no CorelDRAW.</p>
+                </div>
+
+                <label class="mt-4 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <input type="checkbox" x-model="logo" class="size-4 rounded border-gray-300">
+                    Marca da Avalia no miolo
+                </label>
+
+                <div class="mt-5 flex flex-wrap items-center gap-2">
+                    <x-avalia.botao tamanho="sm" x-on:click="baixarSvg()">Baixar SVG</x-avalia.botao>
+                    <button type="button" x-on:click="baixarPng()" class="botao botao-secundario botao-sm">
+                        Baixar PNG
+                    </button>
+                </div>
+            </div>
+
             <div class="cartao p-6">
                 <h2 class="rotulo-grupo">Situação</h2>
 
@@ -222,7 +256,7 @@
                     @csrf
 
                     <div>
-                        <h2 class="rotulo-grupo">Baixar de vez</h2>
+                        <h2 class="rotulo-grupo">Encerrar a plaquinha</h2>
                         {{-- Nao e exclusao, pela regra da casa. E o codigo nao
                              volta ao bolo: reciclado, mandaria a freguesia do
                              cliente antigo para a loja de um estranho. --}}
@@ -238,7 +272,7 @@
                     </div>
 
                     <div>
-                        <x-avalia.botao variante="secundario" tamanho="sm">Baixar plaquinha</x-avalia.botao>
+                        <x-avalia.botao variante="secundario" tamanho="sm">Encerrar plaquinha</x-avalia.botao>
                     </div>
                 </form>
             @endif

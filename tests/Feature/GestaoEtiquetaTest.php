@@ -246,6 +246,24 @@ it('nao oferece o formulario de destino numa plaquinha baixada', function () {
 
     admin()->get(route('etiquetas.ficha', $baixada))
         ->assertOk()
-        ->assertSee('Plaquinha baixada')
+        // "Encerrada" e nao "Baixada" na tela: "baixar" foi lido como fazer
+        // download, e o botao que tira a plaquinha de circulacao para sempre
+        // nao pode ser confundido com o que salva um arquivo.
+        ->assertSee('Plaquinha encerrada')
         ->assertDontSee('Salvar destino');
+});
+
+it('desenha o codigo da plaquinha na propria ficha', function () {
+    // A ficha e onde se reimprime a placa que quebrou, e onde se ve o codigo
+    // de uma etiqueta avulsa que nunca teve tiragem. Sem isto, o unico lugar
+    // com QR era a tela do lote.
+    $etiqueta = Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
+
+    admin()->get(route('etiquetas.ficha', $etiqueta))
+        ->assertOk()
+        ->assertSee('Baixar SVG')
+        ->assertSee('Baixar PNG')
+        // O endereco impresso, legivel embaixo do codigo: quando o cliente
+        // liga, a primeira pergunta e qual o codigo da plaquinha dele.
+        ->assertSee('/q/K7M2PX');
 });

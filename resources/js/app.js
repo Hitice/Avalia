@@ -126,13 +126,19 @@ Alpine.data('tiragem', (dados) => ({
  * para lugar nenhum, e e isso que a pagina promete. A biblioteca de desenho
  * entra sob demanda, porque so esta pagina do site precisa dela.
  */
-Alpine.data('gerador', () => ({
-    conteudo: '',
-    mm: 40,
+Alpine.data('gerador', (inicial = {}) => ({
+    // Sem argumento e o gerador publico, onde a pessoa digita. Com argumento e
+    // a ficha de uma plaquinha, cujo endereco ja existe e nao se digita.
+    conteudo: inicial.conteudo ?? '',
+    mm: inicial.mm ?? 40,
+    logo: inicial.logo ?? false,
+    nome: inicial.nome ?? 'qrcode',
 
     init() {
+        this.desenhar();
         this.$watch('conteudo', () => this.desenhar());
         this.$watch('mm', () => this.desenhar());
+        this.$watch('logo', () => this.desenhar());
     },
 
     tamanho() {
@@ -148,25 +154,25 @@ Alpine.data('gerador', () => ({
 
         const { svg } = await import('./qr.js');
 
-        // Sem a marca da Avalia: o codigo e de quem gerou, e carimbar a nossa
-        // marca no meio do QR de outra pessoa seria marca d'agua, que e
-        // exatamente o que a pagina diz nao fazer.
-        this.$refs.prova.innerHTML = svg(this.conteudo, { mm: this.tamanho(), logo: false });
+        // No gerador publico a marca fica de fora: o codigo e de quem gerou, e
+        // carimbar a nossa marca no QR de outra pessoa seria a marca d'agua
+        // que a pagina promete nao ter. Na plaquinha da casa ela entra.
+        this.$refs.prova.innerHTML = svg(this.conteudo, { mm: this.tamanho(), logo: this.logo });
     },
 
     async baixarSvg() {
         const qr = await import('./qr.js');
 
         qr.baixar(
-            new Blob([qr.svg(this.conteudo, { mm: this.tamanho(), logo: false })], { type: 'image/svg+xml' }),
-            'qrcode.svg',
+            new Blob([qr.svg(this.conteudo, { mm: this.tamanho(), logo: this.logo })], { type: 'image/svg+xml' }),
+            `${this.nome}.svg`,
         );
     },
 
     async baixarPng() {
         const qr = await import('./qr.js');
 
-        qr.baixar(await qr.png(this.conteudo, { pixels: 1200, logo: false }), 'qrcode.png');
+        qr.baixar(await qr.png(this.conteudo, { pixels: 1200, logo: this.logo }), `${this.nome}.png`);
     },
 }));
 

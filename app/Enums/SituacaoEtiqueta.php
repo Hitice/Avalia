@@ -35,7 +35,12 @@ enum SituacaoEtiqueta: string
             self::EmBranco => 'Em branco',
             self::Ativa => 'Ativa',
             self::Suspensa => 'Suspensa',
-            self::Baixada => 'Baixada',
+            // "Encerrada", e nao "Baixada". No banco a coluna continua
+            // `baixada`, que e o termo do negocio, mas na tela "baixar" e lido
+            // como fazer download, e o botao que tira a plaquinha de
+            // circulacao para sempre nao pode ser confundido com o que salva
+            // um arquivo.
+            self::Baixada => 'Encerrada',
         };
     }
 
