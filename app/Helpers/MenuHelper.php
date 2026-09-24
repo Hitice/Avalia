@@ -48,12 +48,11 @@ class MenuHelper
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
-            // Servicos digitais: a frente de plaquinhas de QR e NFC, e o que
-            // vier depois dela. Submenu porque a frente tem mais de uma tela
-            // desde o primeiro dia, e item solto por tela encheria a lateral.
-            ['icon' => 'qr', 'name' => 'Serviços digitais', 'papeis' => ['admin'], 'subItems' => [
-                ['name' => 'Tiragens', 'path' => '/etiquetas/lotes'],
-            ]],
+            // Plaquinhas de QR e NFC. Item solto, e nao submenu: submenu
+            // comeca fechado, e modulo que so aparece depois de um clique num
+            // pai e modulo que ninguem acha. E a mesma licao que tirou as
+            // telas do vendedor de dentro de Carteira, algumas linhas acima.
+            ['icon' => 'qr', 'name' => 'Plaquinhas', 'path' => '/etiquetas/lotes', 'papeis' => ['admin']],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }

@@ -133,3 +133,28 @@ it('mantem o vendedor fora das tiragens', function () {
     comoVendedor($vendedor)->get(route('etiquetas.lotes.index'))->assertForbidden();
     comoVendedor($vendedor)->get(route('etiquetas.lotes.criar'))->assertForbidden();
 });
+
+/*
+|--------------------------------------------------------------------------
+| O caminho ate a tela
+|--------------------------------------------------------------------------
+*/
+
+it('poe as plaquinhas na lateral, sem esconder atras de um pai', function () {
+    // Item solto, e nao submenu. Submenu comeca fechado, e o modulo que so
+    // aparece depois de um clique e o modulo que ninguem acha: foi assim que
+    // as telas do vendedor sumiram dentro de Carteira.
+    $painel = admin()->get(route('painel'))->assertOk();
+
+    // A lateral monta href com caminho relativo, e nao com a URL inteira.
+    $painel->assertSee('Plaquinhas')->assertSee('href="/etiquetas/lotes"', false);
+
+    expect($painel->getContent())->not->toContain('Serviços digitais');
+});
+
+it('nao mostra plaquinhas ao vendedor', function () {
+    // Menu que leva a 403 ensina o operador a ignorar o menu.
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertDontSee('Plaquinhas');
+});
