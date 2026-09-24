@@ -27,6 +27,9 @@ return [
             .'sistema e a mesma placa passa a levar para lá. Nada é reimpresso.',
         'icone' => 'M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 4h2m-2-4h6m-2 4v2',
         'rota' => 'digitais.plaquinhas',
+        // Abre o acesso da administracao no proprio cartao e leva a ferramenta
+        // de criar codigo. Apelido, e nao endereco: ver LoginController.
+        'porta' => 'plaquinhas',
         'selo' => null,
         'publico' => true,
     ],
@@ -39,6 +42,7 @@ return [
             .'para sempre ao endereço que você digitou, e trocar de destino exige reimprimir.',
         'icone' => 'M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M7 12h10',
         'rota' => 'digitais.qr',
+        'porta' => null,
         'selo' => 'Grátis',
         'publico' => true,
     ],
@@ -51,6 +55,7 @@ return [
         'texto' => '',
         'icone' => 'M6 8.5a8 8 0 0 1 0 7M9.5 6a12 12 0 0 1 0 12M13 3.5a16 16 0 0 1 0 17M17 12h.01',
         'rota' => null,
+        'porta' => null,
         'selo' => null,
         'publico' => false,
     ],

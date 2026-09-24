@@ -8,6 +8,7 @@ use App\Services\ProtecaoLogin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -22,6 +23,18 @@ class LoginController extends Controller
 {
     /** Ordem de tentativa. Staff primeiro: e a base menor. */
     private const GUARDAS = ['staff', 'empresa'];
+
+    /**
+     * Para onde a porta do site leva depois de a senha passar.
+     *
+     * Apelido para nome de rota, e nunca URL vinda do formulario. Campo de
+     * destino que aceita endereco e redirecionamento aberto: bastaria mandar
+     * um link de login com destino para outro dominio, e a pessoa entraria na
+     * Avalia e sairia num site clonado achando que continuava aqui.
+     */
+    private const DESTINOS = [
+        'plaquinhas' => 'etiquetas.lotes.index',
+    ];
 
     public function __construct(private readonly ProtecaoLogin $protecao) {}
 
@@ -40,6 +53,7 @@ class LoginController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'senha' => ['required', 'string'],
             'lembrar' => ['nullable', 'boolean'],
+            'destino' => ['nullable', 'string', Rule::in(array_keys(self::DESTINOS))],
         ], [], ['email' => 'e-mail', 'senha' => 'senha']);
 
         $this->recusaSeDeCastigo($dados['email'], $request);
@@ -153,6 +167,15 @@ class LoginController extends Controller
         // O mesmo vale para o vendedor com termo da equipe pendente.
         if ($conta instanceof \App\Models\Staff && ! $conta->aceitouObrigatorios()) {
             return redirect()->route('termos');
+        }
+
+        // A porta do site pede uma tela especifica. So vale para quem pode
+        // abri-la: mandar um cliente para uma rota de administracao trocaria o
+        // login bem-sucedido por um 403, que ele leria como recusa da senha.
+        $atalho = self::DESTINOS[$request->input('destino')] ?? null;
+
+        if ($atalho && $conta instanceof \App\Models\Staff && $conta->papel === 'admin') {
+            return redirect()->route($atalho);
         }
 
         return redirect()->intended($this->destinoDe($guarda));

@@ -56,6 +56,56 @@ it('leva cada cartao a uma pagina que existe', function () {
 
 /*
 |--------------------------------------------------------------------------
+| A porta da administracao no cartao
+|--------------------------------------------------------------------------
+*/
+
+it('abre o acesso no proprio cartao das plaquinhas', function () {
+    $this->get(route('digitais.index'))
+        ->assertOk()
+        ->assertSee('Entrar na ferramenta')
+        ->assertSee('abrir-porta', false)
+        // Link de verdade para a porta principal: sem JavaScript o clique
+        // ainda leva a algum lugar, em vez de nao fazer nada.
+        ->assertSee('href="'.route('entrar').'"', false);
+});
+
+it('leva o admin a ferramenta assim que a senha passa', function () {
+    $admin = App\Models\Staff::factory()->admin()->create(['senha' => bcrypt('segredo-de-teste')]);
+
+    $this->post(route('entrar.enviar'), [
+        'email' => $admin->email,
+        'senha' => 'segredo-de-teste',
+        'destino' => 'plaquinhas',
+    ])->assertRedirect(route('etiquetas.lotes.index'));
+});
+
+it('nao aceita endereco no campo de destino', function () {
+    // Campo de destino que aceita URL vira redirecionamento aberto: bastaria
+    // um link de login com destino para outro dominio, e a pessoa entraria na
+    // Avalia e sairia num site clonado achando que continuava aqui.
+    $admin = App\Models\Staff::factory()->admin()->create(['senha' => bcrypt('segredo-de-teste')]);
+
+    $this->post(route('entrar.enviar'), [
+        'email' => $admin->email,
+        'senha' => 'segredo-de-teste',
+        'destino' => 'https://site-clonado.example.com',
+    ])->assertSessionHasErrors('destino');
+});
+
+it('nao manda o cliente para a ferramenta da administracao', function () {
+    // Login certo que termina em 403 e lido como recusa da senha.
+    $empresa = App\Models\Cliente::factory()->create(['senha' => bcrypt('segredo-de-teste')]);
+
+    $this->post(route('entrar.enviar'), [
+        'email' => $empresa->email,
+        'senha' => 'segredo-de-teste',
+        'destino' => 'plaquinhas',
+    ])->assertRedirect(route('empresa.painel'));
+});
+
+/*
+|--------------------------------------------------------------------------
 | O que cada pagina precisa dizer
 |--------------------------------------------------------------------------
 */
