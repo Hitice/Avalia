@@ -33,7 +33,7 @@ class LoginController extends Controller
      * Avalia e sairia num site clonado achando que continuava aqui.
      */
     private const DESTINOS = [
-        'plaquinhas' => 'etiquetas.lotes.index',
+        'plaquinhas' => 'etiquetas.index',
     ];
 
     public function __construct(private readonly ProtecaoLogin $protecao) {}

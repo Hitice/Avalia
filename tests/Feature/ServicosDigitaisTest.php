@@ -77,7 +77,7 @@ it('leva o admin a ferramenta assim que a senha passa', function () {
         'email' => $admin->email,
         'senha' => 'segredo-de-teste',
         'destino' => 'plaquinhas',
-    ])->assertRedirect(route('etiquetas.lotes.index'));
+    ])->assertRedirect(route('etiquetas.index'));
 });
 
 it('nao aceita endereco no campo de destino', function () {

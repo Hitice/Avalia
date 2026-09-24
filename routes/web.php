@@ -18,6 +18,7 @@ use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
+use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
@@ -415,10 +416,22 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
      * qualquer grupo: ela responde a desconhecido e nao pode carregar sessao.
      */
     Route::middleware('admin')->prefix('etiquetas')->name('etiquetas.')->group(function () {
+        Route::get('/', [EtiquetaController::class, 'index'])->name('index');
+
+        // As tiragens vem ANTES de /{etiqueta}: sem isso, `lotes` seria lido
+        // como o codigo de uma plaquinha chamada "lotes".
         Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
         Route::get('/lotes/nova', [LoteController::class, 'criar'])->name('lotes.criar');
         Route::post('/lotes', [LoteController::class, 'salvar'])->name('lotes.salvar');
         Route::get('/lotes/{lote}', [LoteController::class, 'ficha'])->name('lotes.ficha');
+
+        Route::post('/avulsa', [EtiquetaController::class, 'avulsa'])->name('avulsa');
+
+        Route::get('/{etiqueta}', [EtiquetaController::class, 'ficha'])->name('ficha');
+        Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');
+        Route::post('/{etiqueta}/alternar', [EtiquetaController::class, 'alternar'])->name('alternar');
+        Route::post('/{etiqueta}/renovar', [EtiquetaController::class, 'renovar'])->name('renovar');
+        Route::post('/{etiqueta}/baixar', [EtiquetaController::class, 'baixar'])->name('baixar');
     });
 
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');

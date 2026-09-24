@@ -147,7 +147,7 @@ it('poe as plaquinhas na lateral, sem esconder atras de um pai', function () {
     $painel = admin()->get(route('painel'))->assertOk();
 
     // A lateral monta href com caminho relativo, e nao com a URL inteira.
-    $painel->assertSee('Plaquinhas')->assertSee('href="/etiquetas/lotes"', false);
+    $painel->assertSee('Plaquinhas')->assertSee('href="/etiquetas"', false);
 
     expect($painel->getContent())->not->toContain('Serviços digitais');
 });
