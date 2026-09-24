@@ -148,21 +148,29 @@
                     </a>
                 @endforeach
 
-                {{-- Rosa, e nao azul: e a unica acao do cabecalho, e sobre a
-                     faixa preta o azul da marca some entre os cinzas. --}}
-                <x-avalia.botao variante="rosa" class="ml-2" :href="route('area')">
+                {{-- Sem caixa: dentro da ilha, um botao solido virava um segundo
+                     bloco escuro sobre o vidro. So a palavra e a seta, em rosa,
+                     que e o que separa a acao dos itens do menu. --}}
+                <a href="{{ route('area') }}"
+                   class="ml-2 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-theme-pink-500 transition hover:text-theme-pink-400">
                     Acesso
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a1 1 0 011 1v16a1 1 0 01-1 1h-4M10 17l5-5-5-5M15 12H3" />
                     </svg>
-                </x-avalia.botao>
+                </a>
             </nav>
 
             {{-- No celular o menu inteiro cabe atras de um botao, e a Área do
                  produtor fica fora dele: e a acao que traz quem ja e cliente,
                  e escondida atras de dois toques ela deixa de existir. --}}
             <div class="flex items-center gap-2 lg:hidden">
-                <x-avalia.botao variante="rosa" tamanho="sm" :href="route('area')">Acesso</x-avalia.botao>
+                <a href="{{ route('area') }}"
+                   class="inline-flex items-center gap-1.5 px-1 text-sm font-semibold text-theme-pink-500 transition hover:text-theme-pink-400">
+                    Acesso
+                    <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a1 1 0 011 1v16a1 1 0 01-1 1h-4M10 17l5-5-5-5M15 12H3" />
+                    </svg>
+                </a>
 
                 <button type="button" @click="menu = ! menu" :aria-expanded="menu ? 'true' : 'false'"
                         aria-controls="menu-celular" aria-label="Abrir menu"
