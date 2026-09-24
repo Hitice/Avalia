@@ -9,9 +9,11 @@
     Sem barra lateral e sem menu de modulos: a ferramenta tem duas telas, e uma
     lateral de 290px para duas telas e moldura maior que o quadro.
 
-    O bloco de tema repete o de layouts/app.blade.php. Repetido de proposito,
-    e nao extraido: mexer no `head` do layout que sustenta o sistema inteiro
-    para acomodar uma ferramenta nova troca um risco pequeno por um grande.
+    SO TEMA CLARO, como o site. O interruptor de tema e ferramenta de quem
+    passa o dia dentro do CRM, e aqui ele so atrapalhava: encostava no botao de
+    sair nas telas largas e ficava sem clique. Tirar o interruptor e deixar o
+    tema escuro seria pior ainda, porque quem tivesse marcado escuro no CRM
+    abriria esta tela no escuro sem jeito de voltar.
 --}}
 
 <!DOCTYPE html>
@@ -29,61 +31,27 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('theme', {
-                theme: 'light',
-                init() {
-                    this.theme = localStorage.getItem('theme')
-                        || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                    this.updateTheme();
-                },
-                toggle() {
-                    this.theme = this.theme === 'light' ? 'dark' : 'light';
-                    localStorage.setItem('theme', this.theme);
-                    this.updateTheme();
-                },
-                updateTheme() {
-                    document.documentElement.classList.toggle('dark', this.theme === 'dark');
-                    document.body.classList.toggle('dark', this.theme === 'dark');
-                    document.body.classList.toggle('bg-gray-900', this.theme === 'dark');
-                },
-            });
-        });
-    </script>
-
-    {{-- Antes de pintar: sem isto a tela pisca branca antes de escurecer. --}}
-    <script>
-        (function () {
-            const tema = localStorage.getItem('theme')
-                || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-
-            if (tema === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-        })();
-    </script>
 </head>
 
-<body class="min-h-full bg-gray-50 text-gray-800 antialiased dark:bg-gray-900 dark:text-white/90">
-    <header class="relative border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-        <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6 pr-12 sm:pr-14 min-[1550px]:pr-0">
+<body class="min-h-full bg-gray-50 text-gray-800 antialiased">
+    <header class="relative border-b border-gray-200 bg-white">
+        <div class="mx-auto flex h-[60px] w-full max-w-[87rem] items-center justify-between px-6">
             <a href="{{ route('etiquetas.index') }}" class="flex items-center gap-2.5">
                 <svg class="size-7 text-brand-500" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 1.5a3.5 3.5 0 1 0 3.5 3.5m0-3.5V12m0 3.5H17" />
                 </svg>
-                <span class="text-sm font-semibold tracking-tight text-gray-800 dark:text-white/90">
+                <span class="text-sm font-semibold tracking-tight text-gray-800">
                     QR dinâmico
                 </span>
             </a>
 
             <nav class="flex items-center gap-1" aria-label="Ferramenta">
                 <a href="{{ route('etiquetas.index') }}"
-                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.index') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90' }}">
+                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.index') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
                     Códigos
                 </a>
                 <a href="{{ route('etiquetas.lotes.index') }}"
-                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.lotes.*') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90' }}">
+                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.lotes.*') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
                     Tiragens
                 </a>
 
@@ -93,14 +61,13 @@
                      outro lado digita o endereco; a sessao e a mesma. --}}
                 <form method="POST" action="{{ route('sair') }}" class="ml-2">
                     @csrf
-                    <button type="submit" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition hover:text-gray-800 dark:text-gray-400 dark:hover:text-white/90">
+                    <button type="submit" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition hover:text-gray-800">
                         Sair
                     </button>
                 </form>
             </nav>
         </div>
 
-        <x-avalia.tema class="absolute top-1/2 right-3 size-11 -translate-y-1/2 sm:right-4" />
     </header>
 
     <main class="mx-auto w-full max-w-[87rem] p-4 md:p-6">

@@ -42,6 +42,13 @@ function paginaDoSite(string $caminho): bool
         // A pagina que a leitura de uma plaquinha abre. Veste layouts.site e
         // vive no mesmo tema claro unico do resto da vitrine.
         || str_starts_with($caminho, 'paginas/etiqueta/')
+        // A casca do QR dinamico, que e negocio proprio e tambem vive so no
+        // claro. Ela nao tem interruptor: o de tema e ferramenta de quem passa
+        // o dia no CRM, e mantido ali sem interruptor, quem tivesse marcado
+        // escuro abriria a tela no escuro sem jeito de voltar. As telas de
+        // dentro continuam com o par `dark:`, porque usam o vocabulario da
+        // casa (cartao, campo, tabela), que ja o carrega.
+        || $caminho === 'layouts/ferramenta.blade.php'
         || $caminho === 'layouts/site.blade.php';
 }
 

@@ -379,3 +379,13 @@ it('nao leva o Avalia One para dentro da ferramenta', function () {
 
     expect($conteudo)->not->toContain('Avalia One');
 });
+
+it('nao poe interruptor de tema na ferramenta', function () {
+    // O de tema e ferramenta de quem passa o dia no CRM. Aqui ele encostava no
+    // botao de sair nas telas largas e ficava sem clique, e mantido sem
+    // interruptor o tema escuro prenderia quem o tivesse marcado no CRM.
+    $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
+
+    expect($conteudo)->not->toContain('$store.theme')
+        ->and($conteudo)->not->toContain("localStorage.getItem('theme')");
+});
