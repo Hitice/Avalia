@@ -57,3 +57,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     alvos.forEach((alvo) => observador.observe(alvo));
 });
+
+/*
+ * A tela de uma tiragem de plaquinhas.
+ *
+ * O desenho dos QR, o ZIP e o CSV sao carregados sob demanda: quem abre
+ * qualquer outra tela do sistema nao paga pelo peso da biblioteca de imagem
+ * nem pela de compactacao, que so esta pagina usa.
+ */
+Alpine.data('tiragem', (dados) => ({
+    etiquetas: dados.etiquetas,
+    pasta: dados.pasta,
+    mm: 30,
+    logo: true,
+    gerando: false,
+    feito: 0,
+    erro: '',
+
+    init() {
+        this.desenhar();
+        this.$watch('mm', () => this.desenhar());
+        this.$watch('logo', () => this.desenhar());
+    },
+
+    /** A prova na tela, sempre do primeiro codigo da tiragem. */
+    async desenhar() {
+        if (this.etiquetas.length === 0) {
+            return;
+        }
+
+        const { svg } = await import('./qr.js');
+
+        this.$refs.prova.innerHTML = svg(this.etiquetas[0].url, {
+            mm: Math.max(10, Math.min(200, Number(this.mm) || 30)),
+            logo: this.logo,
+        });
+    },
+
+    async baixar() {
+        this.erro = '';
+        this.feito = 0;
+        this.gerando = true;
+
+        try {
+            const qr = await import('./qr.js');
+
+            const zip = await qr.pacote(
+                this.pasta,
+                this.etiquetas,
+                { mm: Number(this.mm) || 30, logo: this.logo },
+                (feito) => { this.feito = feito; },
+            );
+
+            qr.baixar(zip, `${this.pasta}.zip`);
+        } catch (erro) {
+            // Falha no meio de mil arquivos precisa aparecer na tela: o
+            // download simplesmente nao acontece, e sem aviso quem esta na
+            // bancada acha que o navegador travou.
+            this.erro = `Não foi possível montar o pacote: ${erro.message}`;
+        } finally {
+            this.gerando = false;
+        }
+    },
+}));

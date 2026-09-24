@@ -3,8 +3,8 @@
 use App\Mail\ContatoRecebido;
 use App\Models\Interessado;
 use App\Support\Empresa;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 

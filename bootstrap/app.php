@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        // A leitura de plaquinha entra sem o grupo `web`, e por isso sem
+        // sessao: e um desconhecido encostando o celular numa placa, nao ha o
+        // que lembrar dele, e iniciar sessao gravaria um arquivo por leitura.
+        // Ver o cabecalho de routes/leitura.php.
+        then: fn () => Illuminate\Support\Facades\Route::group([], __DIR__.'/../routes/leitura.php'),
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: ['webhooks/asaas']);

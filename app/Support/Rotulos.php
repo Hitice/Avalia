@@ -103,6 +103,7 @@ final class Rotulos
         'consulta.laudo_emitido' => 'Laudo de consulta emitido',
         'preco.alvo' => 'Preço subiu para a margem alvo',
         'servico.produto_sugerido' => 'Produto do fornecedor preenchido por sugestão',
+        'etiquetas.lote.gerado' => 'Tiragem de plaquinhas aberta',
         'clientes.exportados' => 'Carteira de clientes exportada',
         'faturas.exportadas' => 'Faturas exportadas em planilha',
         'cobranca.criada' => 'Cobrança emitida',

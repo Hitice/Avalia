@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use App\Models\Interessado;
-use App\Support\Empresa;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;

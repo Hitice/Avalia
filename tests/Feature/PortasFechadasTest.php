@@ -37,6 +37,13 @@ const PORTAS_PUBLICAS = [
     'site.contato' => 'formulario de contato da casa',
     'site.contato.enviar' => 'envio do contato, com teto por origem e campo armadilha',
     'site.sitemap' => 'mapa do site para buscadores, so com endereco de pagina publica',
+    // A leitura de plaquinha e o produto: um desconhecido encosta o celular
+    // numa placa de balcao e precisa cair no site do lojista. Nao ha conta, nao
+    // ha sessao e nao ha dado de ninguem, so um codigo publico impresso em
+    // acrilico. A versao maiuscula existe porque o QR grava a URL em
+    // maiusculas, e o caminho chega como esta impresso.
+    'q' => 'leitura de plaquinha; redireciona um codigo publico impresso',
+    'q.maiusculo' => 'a mesma leitura, com o caminho em maiusculas como o QR grava',
     // A area do produtor existe para quem ainda nao sabe por onde entrar.
     // Pedir senha antes de listar as opcoes seria exigir a chave de uma porta
     // para dizer quais portas existem. Ela mostra portas, e nada mais.

@@ -21,6 +21,7 @@ use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LoteController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
@@ -392,6 +393,22 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
+    /*
+     * Servicos digitais: as plaquinhas de QR e NFC.
+     *
+     * So administracao. O vendedor nao entra: aqui se decide para onde aponta
+     * a placa que esta no balcao de um cliente, e isso nao e acao de carteira.
+     *
+     * A leitura da plaquinha em si mora em routes/leitura.php, fora de
+     * qualquer grupo: ela responde a desconhecido e nao pode carregar sessao.
+     */
+    Route::middleware('admin')->prefix('etiquetas')->name('etiquetas.')->group(function () {
+        Route::get('/lotes', [LoteController::class, 'index'])->name('lotes.index');
+        Route::get('/lotes/nova', [LoteController::class, 'criar'])->name('lotes.criar');
+        Route::post('/lotes', [LoteController::class, 'salvar'])->name('lotes.salvar');
+        Route::get('/lotes/{lote}', [LoteController::class, 'ficha'])->name('lotes.ficha');
+    });
+
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
     // Conferir a corrente da trilha: a funcao existia so no console.
     Route::post('/auditoria/conferir', [AuditoriaController::class, 'conferir'])

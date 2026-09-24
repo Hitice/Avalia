@@ -1,6 +1,11 @@
 {
+  "_jszip.min-6GwYDg3t.js": {
+    "file": "assets/jszip.min-6GwYDg3t.js",
+    "name": "jszip.min",
+    "isDynamicEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-Cngzd5Xr.css",
+    "file": "assets/app-BiLTUyFo.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -8,9 +13,25 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-K2pH-s83.js",
+    "file": "assets/app-CbWgwC9a.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/qr.js",
+      "resources/js/qr.js"
+    ]
+  },
+  "resources/js/qr.js": {
+    "file": "assets/qr-D8UcbDDJ.js",
+    "name": "qr",
+    "src": "resources/js/qr.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "dynamicImports": [
+      "_jszip.min-6GwYDg3t.js"
+    ]
   }
 }

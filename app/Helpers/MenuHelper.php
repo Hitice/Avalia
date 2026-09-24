@@ -48,6 +48,12 @@ class MenuHelper
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
+            // Servicos digitais: a frente de plaquinhas de QR e NFC, e o que
+            // vier depois dela. Submenu porque a frente tem mais de uma tela
+            // desde o primeiro dia, e item solto por tela encheria a lateral.
+            ['icon' => 'qr', 'name' => 'Serviços digitais', 'papeis' => ['admin'], 'subItems' => [
+                ['name' => 'Tiragens', 'path' => '/etiquetas/lotes'],
+            ]],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
@@ -110,6 +116,7 @@ class MenuHelper
     public static function getIconSvg($iconName)
     {
         $icons = [
+            'qr' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.75" y="3.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13.75" y="3.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3.75" y="13.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M14 14h2v2h-2v-2Zm4 0h2m-2 4h2v2m-6 0h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'documento' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.25 3.5H7.5A2.25 2.25 0 0 0 5.25 5.75v12.5A2.25 2.25 0 0 0 7.5 20.5h9a2.25 2.25 0 0 0 2.25-2.25V8m-4.5-4.5L18.75 8m-4.5-4.5V8h4.5M8.75 12.5h6.5M8.75 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'campanha' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.75 9.75v4.5a1.5 1.5 0 0 0 1.5 1.5h2.25l6.75 4.5V5.25L7.5 9.75H5.25a1.5 1.5 0 0 0-1.5 0Zm13.5-1.5a5.25 5.25 0 0 1 0 7.5M7.5 15.75v3a1.5 1.5 0 0 0 1.5 1.5h.75a1.5 1.5 0 0 0 1.5-1.5v-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
             'consulta' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10.5" cy="10.5" r="6.25" stroke="currentColor" stroke-width="1.5"/><path d="m15.2 15.2 4.05 4.05M7.5 12.5l2-2 1.65 1.35 2.35-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',

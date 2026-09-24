@@ -102,6 +102,7 @@ class SiteController extends Controller
             ->view('paginas.site.sitemap', ['enderecos' => $enderecos])
             ->header('Content-Type', 'application/xml');
     }
+
     /**
      * Os assuntos do formulario de contato.
      *

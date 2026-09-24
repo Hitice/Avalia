@@ -39,6 +39,9 @@ function paginaDoSite(string $caminho): bool
     return str_starts_with($caminho, 'paginas/site/')
         || str_starts_with($caminho, 'components/site/')
         || str_starts_with($caminho, 'errors/')
+        // A pagina que a leitura de uma plaquinha abre. Veste layouts.site e
+        // vive no mesmo tema claro unico do resto da vitrine.
+        || str_starts_with($caminho, 'paginas/etiqueta/')
         || $caminho === 'layouts/site.blade.php';
 }
 
