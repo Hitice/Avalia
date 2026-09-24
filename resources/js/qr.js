@@ -20,6 +20,21 @@ const QUIETA = 4;
 const LOGO = 7;
 
 /**
+ * Lado do vao aberto no miolo, em modulos.
+ *
+ * O espaco do logo e ABERTO na grade, e nao tapado com um quadrado branco por
+ * cima. Tapar deixa a marca dentro de uma caixa com borda propria, que aparece
+ * na placa como um adesivo colado no codigo; abrindo, a marca fica no vazio e
+ * o fundo da peca passa por baixo dela.
+ *
+ * Um modulo de folga de cada lado do logo, para ele nao encostar em modulo
+ * escuro. Sao 81 dos 841 modulos da versao 3, ou 9,6%: o nivel H recupera ate
+ * 30%, entao sobra margem para risco de acrilico e reflexo de vitrine, que e
+ * justamente para o que a correcao existe.
+ */
+const VAO = LOGO + 2;
+
+/**
  * A marca da Avalia, em coordenadas de 32 unidades.
  *
  * Copiada de public/favicon.svg. Fica aqui, e nao carregada por rede, porque o
@@ -32,6 +47,19 @@ const MARCA = [
     '<path d="M16 22.5 22.3 14.6" stroke="#fb6514" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
     '<circle cx="16" cy="22.5" r="3" fill="#fb6514"/>',
 ].join('');
+
+/** O intervalo de modulos que o logo ocupa, no centro da grade. */
+function vaoDoMiolo(n) {
+    const inicio = Math.floor((n - VAO) / 2);
+
+    return { de: inicio, ate: inicio + VAO - 1 };
+}
+
+function noVao(vao, linha, coluna) {
+    return vao !== null
+        && linha >= vao.de && linha <= vao.ate
+        && coluna >= vao.de && coluna <= vao.ate;
+}
 
 /**
  * A grade de modulos de um texto.
@@ -73,19 +101,24 @@ function montar(texto, nivel, modo) {
  * ZONA DE SILENCIO dentro do desenho. Sem ela na geometria, quem monta a arte
  * encosta o QR na borda da placa e o codigo para de ler.
  *
- * O logo sai num grupo marcado, para poder ser apagado ou recolorido no Corel
- * quando a placa for de uma cor so.
+ * O MIOLO JA SAI VAZIO quando ha logo: os modulos do centro nao sao
+ * desenhados, em vez de serem cobertos depois. A marca fica sobre o vazio, sem
+ * caixa branca e sem borda propria.
+ *
+ * O logo e o fundo saem em grupos marcados, para serem apagados ou
+ * recoloridos no Corel quando a placa for de uma cor so.
  */
 export function svg(texto, { mm = 30, nivel = 'H', logo = true, pixels = null } = {}) {
     const qr = grade(texto, nivel);
     const n = qr.getModuleCount();
     const lado = n + QUIETA * 2;
 
+    const vao = logo ? vaoDoMiolo(n) : null;
     let d = '';
 
     for (let linha = 0; linha < n; linha++) {
         for (let coluna = 0; coluna < n; coluna++) {
-            if (qr.isDark(linha, coluna)) {
+            if (qr.isDark(linha, coluna) && ! noVao(vao, linha, coluna)) {
                 d += `M${coluna + QUIETA} ${linha + QUIETA}h1v1h-1z`;
             }
         }
@@ -97,25 +130,19 @@ export function svg(texto, { mm = 30, nivel = 'H', logo = true, pixels = null } 
 
     return [
         `<svg xmlns="http://www.w3.org/2000/svg" ${medida} viewBox="0 0 ${lado} ${lado}" shape-rendering="crispEdges">`,
-        `<rect width="${lado}" height="${lado}" fill="#ffffff"/>`,
+        `<rect id="fundo" width="${lado}" height="${lado}" fill="#ffffff"/>`,
         `<path d="${d}" fill="#000000" fill-rule="evenodd"/>`,
         logo ? miolo(lado) : '',
         '</svg>',
     ].join('');
 }
 
-/** O respiro branco e a marca, no centro do codigo. */
+/** A marca no centro, sobre o vao que ja foi aberto na grade. */
 function miolo(lado) {
-    const respiro = LOGO + 1.6;
-    const canto = (lado - respiro) / 2;
     const escala = LOGO / 32;
+    const canto = (lado - LOGO) / 2;
 
-    return [
-        '<g id="logo">',
-        `<rect x="${canto}" y="${canto}" width="${respiro}" height="${respiro}" rx="1" fill="#ffffff"/>`,
-        `<g transform="translate(${(lado - LOGO) / 2} ${(lado - LOGO) / 2}) scale(${escala})">${MARCA}</g>`,
-        '</g>',
-    ].join('');
+    return `<g id="logo" transform="translate(${canto} ${canto}) scale(${escala})">${MARCA}</g>`;
 }
 
 /**
@@ -126,6 +153,9 @@ function miolo(lado) {
  * mil arquivos falharem no meio do ZIP por causa disso. So o logo passa por
  * imagem, e se ele falhar o codigo sai sem logo em vez de o lote inteiro
  * quebrar: QR sem marca ainda le; ZIP pela metade nao serve para nada.
+ *
+ * O vao do miolo e aberto aqui tambem, e pelo mesmo motivo do SVG: a marca
+ * fica sobre o fundo da peca, e nao dentro de um quadrado branco.
  */
 export async function png(texto, { pixels = 1200, nivel = 'H', logo = true } = {}) {
     const qr = grade(texto, nivel);
@@ -143,9 +173,11 @@ export async function png(texto, { pixels = 1200, nivel = 'H', logo = true } = {
     pincel.fillRect(0, 0, pixels, pixels);
     pincel.fillStyle = '#000000';
 
+    const vao = logo ? vaoDoMiolo(n) : null;
+
     for (let linha = 0; linha < n; linha++) {
         for (let coluna = 0; coluna < n; coluna++) {
-            if (qr.isDark(linha, coluna)) {
+            if (qr.isDark(linha, coluna) && ! noVao(vao, linha, coluna)) {
                 // Ceil no tamanho fecha a fresta de subpixel entre modulos
                 // vizinhos, que na impressao vira listra branca no codigo.
                 pincel.fillRect(
@@ -170,12 +202,6 @@ export async function png(texto, { pixels = 1200, nivel = 'H', logo = true } = {
 }
 
 function pintarMarca(pincel, lado, passo) {
-    const respiro = LOGO + 1.6;
-    const canto = ((lado - respiro) / 2) * passo;
-
-    pincel.fillStyle = '#ffffff';
-    pincel.fillRect(canto, canto, respiro * passo, respiro * passo);
-
     const fonte = `<svg xmlns="http://www.w3.org/2000/svg" width="${LOGO * passo}" height="${LOGO * passo}" viewBox="0 0 32 32">${MARCA}</svg>`;
     const imagem = new Image;
 
