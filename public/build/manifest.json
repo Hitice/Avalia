@@ -5,7 +5,7 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BiLTUyFo.css",
+    "file": "assets/app-CDeSYB5n.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -13,17 +13,20 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CbWgwC9a.js",
+    "file": "assets/app-CdJj-Lrs.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/qr.js",
+      "resources/js/qr.js",
+      "resources/js/qr.js",
+      "resources/js/qr.js",
       "resources/js/qr.js"
     ]
   },
   "resources/js/qr.js": {
-    "file": "assets/qr-D8UcbDDJ.js",
+    "file": "assets/qr-CMtkPFlH.js",
     "name": "qr",
     "src": "resources/js/qr.js",
     "isDynamicEntry": true,

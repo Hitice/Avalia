@@ -8,6 +8,9 @@
     $menu = [
         ['rota' => 'inicio', 'rotulo' => 'Início'],
         ['rota' => 'site.softwares', 'rotulo' => 'Softwares'],
+        // "Serviços" e nao "Serviços digitais": o titulo inteiro cabe na
+        // pagina, mas na ilha ele empurra o menu contra o botao de acesso.
+        ['rota' => 'digitais.index', 'rotulo' => 'Serviços'],
         ['rota' => 'site.quem-somos', 'rotulo' => 'Quem somos'],
         ['rota' => 'site.blog', 'rotulo' => 'Blog'],
         ['rota' => 'site.contato', 'rotulo' => 'Contato'],

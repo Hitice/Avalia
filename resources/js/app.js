@@ -120,3 +120,54 @@ Alpine.data('tiragem', (dados) => ({
         }
     },
 }));
+
+/*
+ * O gerador de QR estatico do site.
+ *
+ * Tudo acontece aqui, no navegador de quem digitou: o endereco nao e enviado
+ * para lugar nenhum, e e isso que a pagina promete. A biblioteca de desenho
+ * entra sob demanda, porque so esta pagina do site precisa dela.
+ */
+Alpine.data('gerador', () => ({
+    conteudo: '',
+    mm: 40,
+
+    init() {
+        this.$watch('conteudo', () => this.desenhar());
+        this.$watch('mm', () => this.desenhar());
+    },
+
+    tamanho() {
+        return Math.max(10, Math.min(200, Number(this.mm) || 40));
+    },
+
+    async desenhar() {
+        if (! this.conteudo) {
+            this.$refs.prova.innerHTML = '';
+
+            return;
+        }
+
+        const { svg } = await import('./qr.js');
+
+        // Sem a marca da Avalia: o codigo e de quem gerou, e carimbar a nossa
+        // marca no meio do QR de outra pessoa seria marca d'agua, que e
+        // exatamente o que a pagina diz nao fazer.
+        this.$refs.prova.innerHTML = svg(this.conteudo, { mm: this.tamanho(), logo: false });
+    },
+
+    async baixarSvg() {
+        const qr = await import('./qr.js');
+
+        qr.baixar(
+            new Blob([qr.svg(this.conteudo, { mm: this.tamanho(), logo: false })], { type: 'image/svg+xml' }),
+            'qrcode.svg',
+        );
+    },
+
+    async baixarPng() {
+        const qr = await import('./qr.js');
+
+        qr.baixar(await qr.png(this.conteudo, { pixels: 1200, logo: false }), 'qrcode.png');
+    },
+}));

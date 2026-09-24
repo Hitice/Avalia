@@ -69,6 +69,30 @@
         </div>
     </section>
 
+    {{-- Os servicos de prateleira, no pe da pagina de projetos.
+         Aqui, e nao no meio: quem esta lendo as frentes de software sob
+         demanda esta avaliando um projeto, e cartao de preco de tabela no meio
+         disso corta o raciocinio. No fim ele e a saida para quem concluiu que
+         nao precisa de projeto nenhum. --}}
+    <section class="superficie-escura py-16 lg:py-20">
+        <div class="mx-auto w-full max-w-[87rem] px-6">
+            <span class="selo selo-claro">Serviços digitais</span>
+
+            <h2 class="mt-4 max-w-2xl text-title-sm font-semibold tracking-tight text-white">
+                Nem tudo precisa de projeto
+            </h2>
+            <p class="mt-3 max-w-2xl leading-relaxed text-white/60">
+                Estes a gente vende com preço de tabela, no mesmo dia, sem orçamento.
+            </p>
+
+            <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                @foreach ($servicos as $servico)
+                    <x-site.cartao-servico :servico="$servico" />
+                @endforeach
+            </div>
+        </div>
+    </section>
+
     <x-site.chamada titulo="Não achou a sua rotina na lista?">
         Conte qual processo mais consome o tempo da sua equipe. Respondemos com uma proposta
         clara, com escopo e investimento definidos.

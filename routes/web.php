@@ -52,6 +52,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [SiteController::class, 'inicio'])->name('inicio');
 Route::get('/softwares', [SiteController::class, 'softwares'])->name('site.softwares');
+/*
+ * Os servicos digitais: o que a casa vende com preco de tabela, sem projeto.
+ *
+ * Grupo proprio desde o primeiro dia porque a frente ja nasce com mais de uma
+ * pagina e vai ganhar outras. Publicas como o resto do site: sao vitrine.
+ */
+Route::prefix('servicos-digitais')->name('digitais.')->group(function () {
+    Route::get('/', [SiteController::class, 'digitais'])->name('index');
+    Route::get('/plaquinhas', [SiteController::class, 'plaquinhas'])->name('plaquinhas');
+    Route::get('/qr-code', [SiteController::class, 'qrCode'])->name('qr');
+});
+
 Route::get('/quem-somos', [SiteController::class, 'quemSomos'])->name('site.quem-somos');
 Route::get('/blog', [SiteController::class, 'blog'])->name('site.blog');
 Route::get('/blog/{artigo}', [SiteController::class, 'artigo'])->name('site.artigo');

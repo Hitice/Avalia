@@ -29,6 +29,11 @@ const PORTAS_PUBLICAS = [
     'inicio' => 'apresentacao publica da casa',
     'site.softwares' => 'vitrine do que a casa desenvolve',
     'site.quem-somos' => 'texto institucional',
+    // Vitrine dos servicos vendidos com preco de tabela. Paginas de leitura,
+    // e o gerador de QR estatico roda inteiro no navegador: nada e enviado.
+    'digitais.index' => 'indice dos servicos digitais',
+    'digitais.plaquinhas' => 'apresentacao publica das plaquinhas de QR e NFC',
+    'digitais.qr' => 'gerador de QR estatico, que desenha no navegador e nao envia nada',
     'site.blog' => 'lista de artigos publicos',
     'site.artigo' => 'artigo publico; o slug vem de lista fechada em config/blog.php',
     'site.perguntas' => 'duvidas frequentes, sem dado de ninguem',
