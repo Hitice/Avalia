@@ -92,3 +92,18 @@ it('nao pede sessao em nenhuma pagina da vitrine', function () {
         $this->get(route($rota))->assertOk();
     }
 });
+
+it('nao repete id em pagina nenhuma do site', function () {
+    // O layout ja tem `main id="conteudo"`, alvo do link de pular para o
+    // conteudo. Um campo com o mesmo id quebra a associacao do label e faz o
+    // acesso por nome no navegador devolver uma colecao em vez do elemento:
+    // foi assim que o gerador imprimiu "[object HTMLCollection]" dentro de um
+    // campo, sem erro nenhum no console.
+    foreach (['inicio', 'digitais.index', 'digitais.plaquinhas', 'digitais.qr', 'site.contato'] as $rota) {
+        preg_match_all('/\sid="([^"]+)"/', $this->get(route($rota))->getContent(), $ids);
+
+        $repetidos = array_keys(array_filter(array_count_values($ids[1]), fn (int $vezes) => $vezes > 1));
+
+        expect($repetidos)->toBeEmpty("a rota {$rota} repete id: ".implode(', ', $repetidos));
+    }
+});

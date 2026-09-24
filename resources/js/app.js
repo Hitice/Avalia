@@ -3,8 +3,6 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-Alpine.start();
-
 // O balao nativo de validacao do navegador nao respeita o tema e nao aceita
 // estilo. Com novalidate em todo formulario, quem valida e o servidor, e a
 // mensagem volta no nosso padrao (erro-campo), no nosso tom e nas nossas
@@ -171,3 +169,15 @@ Alpine.data('gerador', () => ({
         qr.baixar(await qr.png(this.conteudo, { pixels: 1200, logo: false }), 'qrcode.png');
     },
 }));
+
+/*
+ * Por ultimo, e nunca antes.
+ *
+ * `Alpine.data` registrado depois do `start` nao existe: o Alpine ja varreu a
+ * pagina, e todo `x-data` que aponta para um componente registrado tarde
+ * quebra com "is not defined". A tela nao mostra erro nenhum, so para de
+ * funcionar, e foi exatamente o que aconteceu com a tiragem e com o gerador.
+ *
+ * Componente novo entra ACIMA desta linha.
+ */
+Alpine.start();

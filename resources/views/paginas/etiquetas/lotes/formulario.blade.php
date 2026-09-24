@@ -10,10 +10,10 @@
 
     @include('paginas.catalogo.avisos')
 
-    <form method="POST" action="{{ route('etiquetas.lotes.salvar') }}" class="cartao max-w-2xl p-6">
+    <form method="POST" action="{{ route('etiquetas.lotes.salvar') }}" class="cartao grid max-w-2xl gap-5 p-6">
         @csrf
 
-        <div class="campo-linha">
+        <div>
             <label for="titulo" class="rotulo-campo">Nome da tiragem</label>
             <input id="titulo" name="titulo" type="text" maxlength="120" required
                    value="{{ old('titulo') }}" class="campo" placeholder="Plaquinhas de balcão, setembro">
@@ -21,7 +21,7 @@
             @error('titulo')<p class="erro-campo">{{ $message }}</p>@enderror
         </div>
 
-        <div class="campo-linha">
+        <div>
             <label for="quantidade" class="rotulo-campo">Quantas plaquinhas</label>
             <input id="quantidade" name="quantidade" type="number" min="1" max="{{ config('etiquetas.lote_maximo') }}"
                    required value="{{ old('quantidade', 100) }}" class="campo">
@@ -32,7 +32,7 @@
             @error('quantidade')<p class="erro-campo">{{ $message }}</p>@enderror
         </div>
 
-        <div class="campo-linha">
+        <div>
             <label for="tipo" class="rotulo-campo">O que vai na plaquinha</label>
             <select id="tipo" name="tipo" class="campo">
                 @foreach ($tipos as $valor => $rotulo)
@@ -46,14 +46,14 @@
             @error('tipo')<p class="erro-campo">{{ $message }}</p>@enderror
         </div>
 
-        <div class="campo-linha">
+        <div>
             <label for="observacao" class="rotulo-campo">Observação</label>
             <input id="observacao" name="observacao" type="text" maxlength="255"
                    value="{{ old('observacao') }}" class="campo" placeholder="Acrílico 4cm, gráfica do centro">
             @error('observacao')<p class="erro-campo">{{ $message }}</p>@enderror
         </div>
 
-        <div class="mt-6 flex items-center gap-3">
+        <div class="flex items-center gap-3">
             <x-avalia.botao>Abrir tiragem</x-avalia.botao>
             <a href="{{ route('etiquetas.lotes.index') }}" class="botao botao-secundario">Cancelar</a>
         </div>

@@ -17,26 +17,30 @@
     <section class="py-16 lg:py-20">
         <div class="mx-auto w-full max-w-[64rem] px-6">
             <div x-data="gerador" class="grid gap-8 lg:grid-cols-[1fr_20rem]">
-                <div class="cartao p-7">
-                    <div class="campo-linha">
-                        <label for="conteudo" class="rotulo-campo">Endereço ou texto</label>
-                        <input id="conteudo" type="text" x-model.debounce.300ms="conteudo" class="campo"
+                <div class="cartao grid gap-5 p-7">
+                    {{-- Os ids levam prefixo porque o layout do site ja tem um
+                         `main` com id `conteudo`, alvo do link de pular para o
+                         conteudo. Id repetido quebra a associacao do label e
+                         faz `window.conteudo` virar uma colecao de elementos. --}}
+                    <div>
+                        <label for="qr-endereco" class="rotulo-campo">Endereço ou texto</label>
+                        <input id="qr-endereco" type="text" x-model.debounce.300ms="conteudo" class="campo"
                                placeholder="https://seusite.com.br">
                         <p class="ajuda-campo">
                             Vale link, texto, telefone ou qualquer coisa que o leitor deva mostrar.
                         </p>
                     </div>
 
-                    <div class="campo-linha">
-                        <label for="tamanho" class="rotulo-campo">Lado do código, em milímetros</label>
-                        <input id="tamanho" type="number" min="10" max="200" x-model.number="mm" class="campo">
+                    <div>
+                        <label for="qr-tamanho" class="rotulo-campo">Lado do código, em milímetros</label>
+                        <input id="qr-tamanho" type="number" min="10" max="200" x-model.number="mm" class="campo">
                         <p class="ajuda-campo">
                             É o tamanho com que o SVG cai no CorelDRAW ou no Illustrator, já com a
                             margem branca que o código precisa para ser lido.
                         </p>
                     </div>
 
-                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
                         <x-avalia.botao x-on:click="baixarSvg()" x-bind:disabled="! conteudo">SVG (vetor)</x-avalia.botao>
                         <button type="button" x-on:click="baixarPng()" x-bind:disabled="! conteudo"
                                 class="botao botao-secundario">PNG</button>

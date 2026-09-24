@@ -49,9 +49,9 @@
                 </p>
             @endif
 
-            <div class="campo-linha">
-                <label for="mm" class="rotulo-campo">Lado do código, em milímetros</label>
-                <input id="mm" type="number" min="10" max="200" x-model.number="mm" class="campo">
+            <div class="mt-6">
+                <label for="lote-mm" class="rotulo-campo">Lado do código, em milímetros</label>
+                <input id="lote-mm" type="number" min="10" max="200" x-model.number="mm" class="campo">
                 <p class="ajuda-campo">
                     É o tamanho com que o arquivo cai no CorelDRAW, já com a zona de silêncio
                     incluída no desenho.

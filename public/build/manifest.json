@@ -13,7 +13,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CdJj-Lrs.js",
+    "file": "assets/app-CGB8kqyu.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -26,7 +26,7 @@
     ]
   },
   "resources/js/qr.js": {
-    "file": "assets/qr-CMtkPFlH.js",
+    "file": "assets/qr-CcoTWGOQ.js",
     "name": "qr",
     "src": "resources/js/qr.js",
     "isDynamicEntry": true,
