@@ -426,7 +426,6 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');
         Route::post('/{etiqueta}/alternar', [EtiquetaController::class, 'alternar'])->name('alternar');
         Route::post('/{etiqueta}/renovar', [EtiquetaController::class, 'renovar'])->name('renovar');
-        Route::post('/{etiqueta}/baixar', [EtiquetaController::class, 'baixar'])->name('baixar');
     });
 
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');

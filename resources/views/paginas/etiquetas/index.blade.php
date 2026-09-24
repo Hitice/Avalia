@@ -57,17 +57,24 @@
 
             <div>
                 <h2 class="rotulo-grupo">2 · Área de cadastro</h2>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Vendeu? Leia o código impresso e diga para onde ele deve levar.
-                </p>
             </div>
 
-            <div>
-                <label for="codigo" class="rotulo-campo">Código impresso</label>
-                <input id="codigo" name="codigo" type="text" maxlength="20" required
-                       value="{{ old('codigo') }}"
-                       class="campo font-mono tracking-widest uppercase" placeholder="K7M2PX">
-                @error('codigo')<p class="erro-campo">{{ $message }}</p>@enderror
+            {{-- O codigo e curto e o nome e longo: lado a lado eles ocupam a
+                 mesma linha que o codigo ocupava sozinho, e o cartao nao cresce. --}}
+            <div class="flex flex-wrap items-start gap-3">
+                <div class="w-36">
+                    <label for="codigo" class="rotulo-campo">Código impresso</label>
+                    <input id="codigo" name="codigo" type="text" maxlength="20" required
+                           value="{{ old('codigo') }}"
+                           class="campo font-mono tracking-widest uppercase" placeholder="K7M2PX">
+                    @error('codigo')<p class="erro-campo">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="min-w-[12rem] flex-1">
+                    <label for="cliente_nome" class="rotulo-campo">Cliente</label>
+                    <input id="cliente_nome" name="cliente_nome" type="text" maxlength="150"
+                           value="{{ old('cliente_nome') }}" class="campo" placeholder="Padaria do Zé">
+                </div>
             </div>
 
             {{-- O botao ao lado do campo, e nao embaixo: os dois formam uma
@@ -88,93 +95,80 @@
         </form>
     </div>
 
-    <form method="GET" class="cartao mb-5 flex flex-wrap items-end gap-3 p-5">
-        <div class="min-w-[16rem] flex-1">
-            <label for="busca" class="rotulo-campo">Buscar</label>
-            <input id="busca" name="busca" type="search" value="{{ $filtros['busca'] }}" class="campo"
-                   placeholder="Código, apelido, cliente ou destino">
-        </div>
-
-        <div>
-            <label for="situacao" class="rotulo-campo">Situação</label>
-            <select id="situacao" name="situacao" class="campo">
-                <option value="">Todas</option>
-                @foreach ($situacoes as $valor => $rotulo)
-                    <option value="{{ $valor }}" @selected($filtros['situacao'] === $valor)>{{ $rotulo }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div>
-            <label for="lote" class="rotulo-campo">Campanha</label>
-            <select id="lote" name="lote" class="campo">
-                <option value="">Todas</option>
-                @foreach ($lotes as $lote)
-                    <option value="{{ $lote->id }}" @selected((string) $filtros['lote'] === (string) $lote->id)>
-                        {{ $lote->codigo }} · {{ $lote->titulo }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <x-avalia.botao variante="secundario">Filtrar</x-avalia.botao>
-    </form>
-
-    @if ($campanha && $pacote->isNotEmpty())
-        {{-- O pacote da grafica mora aqui, e nao numa tela de tiragem: quem
-             acabou de escolher a campanha esta a um clique de tudo que ela
-             precisa, e nao ha uma segunda tela para lembrar que existe. --}}
-        <div class="cartao mb-5 p-6"
-             x-data="tiragem(@js(['pasta' => $campanha->pasta(), 'etiquetas' => $pacote]))">
-            <div class="flex flex-wrap items-start justify-between gap-5">
-                <div>
-                    <h2 class="rotulo-grupo">Pacote de {{ $campanha->titulo }}</h2>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{ $pacote->count() }} códigos em SVG e PNG, numerados, mais o CSV que o
-                        Print Merge do CorelDRAW lê para imprimir a tiragem inteira.
-                    </p>
-
-                    <div class="mt-5 flex flex-wrap items-center gap-3">
-                        <x-avalia.botao x-on:click="baixar()" x-bind:disabled="gerando">
-                            <span x-show="! gerando">Baixar o pacote</span>
-                            <span x-show="gerando" x-cloak>Montando…</span>
-                        </x-avalia.botao>
-
-                        <span x-show="gerando" x-cloak class="text-sm text-gray-500 tabular-nums dark:text-gray-400">
-                            <span x-text="feito"></span> de {{ $pacote->count() }}
-                        </span>
 
 
-                        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" x-model="logo" class="size-4 rounded border-gray-300">
-                            Com a marca
-                        </label>
-                    </div>
-
-                    <p x-show="erro" x-cloak x-text="erro" class="aviso aviso-erro mt-4"></p>
-                </div>
-
-                {{-- A prova, no tamanho declarado. Leia da tela com o celular
-                     antes de mandar cortar quinhentas placas. --}}
-                <div class="shrink-0 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white">
-                    <div x-ref="prova"></div>
-                </div>
+    <div class="cartao overflow-hidden"
+         @if ($campanha && $pacote->isNotEmpty())
+             x-data="tiragem(@js(['pasta' => $campanha->pasta(), 'etiquetas' => $pacote]))"
+         @endif>
+        {{-- Os filtros moram DENTRO da tabela, e o pacote da campanha sai do
+             proprio seletor: escolher a campanha e baixar o ZIP dela sao a
+             mesma tarefa, e separa-las em dois cartoes fazia o operador
+             procurar em dois lugares o que e um gesto so. --}}
+        <form method="GET" class="flex flex-wrap items-end gap-3 border-b border-gray-100 p-5 dark:border-gray-800">
+            <div class="min-w-[14rem] flex-1">
+                <label for="busca" class="rotulo-campo">Buscar</label>
+                <input id="busca" name="busca" type="search" value="{{ $filtros['busca'] }}" class="campo"
+                       placeholder="Código, cliente, campanha ou destino">
             </div>
-        </div>
-    @endif
 
-    <div class="cartao overflow-hidden">
+            <div>
+                <label for="situacao" class="rotulo-campo">Situação</label>
+                <select id="situacao" name="situacao" class="campo" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    @foreach ($situacoes as $valor => $rotulo)
+                        <option value="{{ $valor }}" @selected($filtros['situacao'] === $valor)>{{ $rotulo }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label for="lote" class="rotulo-campo">Campanha</label>
+                <select id="lote" name="lote" class="campo" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    @foreach ($lotes as $lote)
+                        <option value="{{ $lote->id }}" @selected((string) $filtros['lote'] === (string) $lote->id)>
+                            {{ $lote->titulo }} ({{ $lote->quantidade }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <x-avalia.botao variante="secundario">Filtrar</x-avalia.botao>
+
+            @if ($campanha && $pacote->isNotEmpty())
+                <div class="flex items-center gap-3">
+                    <x-avalia.botao x-on:click.prevent="baixar()" x-bind:disabled="gerando">
+                        <span x-show="! gerando">Baixar {{ $pacote->count() }} em ZIP</span>
+                        <span x-show="gerando" x-cloak>Montando…</span>
+                    </x-avalia.botao>
+
+                    <span x-show="gerando" x-cloak class="text-sm text-gray-500 tabular-nums dark:text-gray-400">
+                        <span x-text="feito"></span> de {{ $pacote->count() }}
+                    </span>
+                </div>
+
+                <p x-show="erro" x-cloak x-text="erro" class="aviso aviso-erro w-full"></p>
+
+                {{-- A prova fica fora da vista, so para o componente ter onde
+                     desenhar sem quebrar. A miniatura de cada linha ja mostra
+                     o codigo. --}}
+                <div x-ref="prova" class="hidden"></div>
+            @endif
+        </form>
+
         <div class="tabela-rolagem">
             <table class="tabela min-w-[56rem]">
                 <thead class="tabela-cabecalho">
                     <tr>
-                        <th scope="col" class="tabela-th text-left"><span class="sr-only">QR</span></th>
+                        <th scope="col" class="tabela-th text-left">QR</th>
                         <th scope="col" class="tabela-th text-left">Código</th>
+                        <th scope="col" class="tabela-th text-left">Cliente</th>
                         <th scope="col" class="tabela-th text-left">Aponta para</th>
                         <th scope="col" class="tabela-th text-left">Situação</th>
                         <th scope="col" class="tabela-th text-left">Vence</th>
                         <th scope="col" class="tabela-th text-right">Leituras</th>
-                        <th scope="col" class="tabela-th text-right"><span class="sr-only">Baixar</span></th>
+                        <th scope="col" class="tabela-th text-right">Baixar</th>
                     </tr>
                 </thead>
 
@@ -199,8 +193,12 @@
                                     {{ $etiqueta->codigo }}
                                 </a>
                                 <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $etiqueta->titulo ?? $etiqueta->lote?->titulo ?? 'Sem campanha' }}
+                                    {{ $etiqueta->lote?->titulo ?? 'Sem campanha' }}
                                 </span>
+                            </td>
+
+                            <td class="tabela-td text-gray-600 dark:text-gray-300">
+                                {{ $etiqueta->cliente_nome ?? '—' }}
                             </td>
 
                             <td class="tabela-td max-w-[22rem] truncate text-gray-600 dark:text-gray-300">
@@ -241,7 +239,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="tabela-vazia">
+                            <td colspan="8" class="tabela-vazia">
                                 Gere os primeiros códigos acima. Eles nascem em branco, e ganham
                                 destino depois da venda.
                             </td>

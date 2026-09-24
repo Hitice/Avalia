@@ -220,31 +220,6 @@
                 </div>
             @endif
 
-            @if ($etiqueta->situacao !== SituacaoEtiqueta::Baixada)
-                <form method="POST" action="{{ route('etiquetas.baixar', $etiqueta) }}" class="cartao grid gap-4 p-6">
-                    @csrf
-
-                    <div>
-                        <h2 class="rotulo-grupo">Encerrar o código</h2>
-                        {{-- Nao e exclusao, pela regra da casa. E o codigo nao
-                             volta ao bolo: reciclado, mandaria a freguesia do
-                             cliente antigo para a loja de um estranho. --}}
-                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            Cliente que saiu, peça que sumiu. Não volta a circular, e o número
-                            fica reservado para sempre.
-                        </p>
-                    </div>
-
-                    <div>
-                        <label for="motivo" class="rotulo-campo">Motivo</label>
-                        <input id="motivo" name="motivo" type="text" maxlength="150" class="campo">
-                    </div>
-
-                    <div>
-                        <x-avalia.botao variante="secundario" tamanho="sm">Encerrar código</x-avalia.botao>
-                    </div>
-                </form>
-            @endif
         </div>
     </div>
 @endsection

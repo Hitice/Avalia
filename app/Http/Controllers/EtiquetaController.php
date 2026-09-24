@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Etiquetas\AlternarEtiqueta;
-use App\Actions\Etiquetas\BaixarEtiqueta;
-use App\Actions\Etiquetas\CriarEtiquetaAvulsa;
 use App\Actions\Etiquetas\GerarLote;
 use App\Actions\Etiquetas\RenovarEtiqueta;
 use App\Actions\Etiquetas\VenderEtiqueta;
@@ -88,39 +86,31 @@ class EtiquetaController extends Controller
     }
 
     /**
-     * Gera um codigo, ou cem.
+     * Gera os codigos de uma campanha.
      *
-     * Um formulario so para os dois casos, porque para quem usa e a mesma
-     * coisa com um numero diferente. Por dentro eles divergem: um codigo
-     * sozinho nao abre tiragem, porque tiragem de uma unidade seria uma linha
-     * vazia de sentido na lista de producao, e cem abrem, porque e a tiragem
-     * que da o pacote numerado para a grafica.
+     * SEMPRE campanha, mesmo para um codigo so. O caminho e o mesmo dos cem:
+     * a pessoa fica na tabela, escolhe a campanha no seletor e baixa o pacote.
+     * Abrir uma tela diferente quando a quantidade e um faria a mesma tarefa
+     * ter dois roteiros, e o de uma unidade seria o que ninguem lembra.
      */
-    public function gerar(Request $pedido, CriarEtiquetaAvulsa $criar, GerarLote $lote)
+    public function gerar(Request $pedido, GerarLote $lote)
     {
         $dados = $pedido->validate([
             'quantidade' => ['required', 'integer', 'min:1', 'max:'.config('etiquetas.lote_maximo')],
             'titulo' => ['nullable', 'string', 'max:120'],
         ]);
 
-        if ((int) $dados['quantidade'] === 1) {
-            $etiqueta = $criar(['titulo' => $dados['titulo'] ?? null, 'tipo' => self::TIPO]);
-
-            return redirect()->route('etiquetas.ficha', $etiqueta)
-                ->with('ok', "Código {$etiqueta->codigo} gerado. Baixe o QR e mande imprimir.");
-        }
-
-        $tiragem = $lote([
-            'titulo' => ($dados['titulo'] ?? null) ?: 'Tiragem de '.$dados['quantidade'],
+        $campanha = $lote([
+            // Nome automatico quando nao vem um: a campanha precisa de rotulo
+            // para aparecer no seletor, e "Campanha 7" e melhor que vazio.
+            'titulo' => ($dados['titulo'] ?? null) ?: 'Campanha '.(LoteEtiqueta::count() + 1),
             'quantidade' => (int) $dados['quantidade'],
             'tipo' => self::TIPO,
             'observacao' => null,
         ]);
 
-        // Cai na tabela ja filtrada pela campanha: e la que o pacote da
-        // grafica e baixado, e e la que os codigos serao cadastrados depois.
-        return redirect()->route('etiquetas.index', ['lote' => $tiragem->id])
-            ->with('ok', "{$tiragem->quantidade} códigos gerados. Baixe o pacote e mande imprimir.");
+        return redirect()->route('etiquetas.index', ['lote' => $campanha->id])
+            ->with('ok', "{$campanha->quantidade} código(s) gerado(s) em {$campanha->titulo}. Baixe o pacote e mande imprimir.");
     }
 
     /**
@@ -136,6 +126,7 @@ class EtiquetaController extends Controller
         $pedido->validate([
             'codigo' => ['required', 'string', 'max:20'],
             'destino' => ['required', 'string', 'max:'.Destino::TAMANHO_MAXIMO],
+            'cliente_nome' => ['nullable', 'string', 'max:150'],
         ]);
 
         $codigo = CodigoCurto::normalizar($pedido->input('codigo'));
@@ -150,7 +141,7 @@ class EtiquetaController extends Controller
         $vender($etiqueta, [
             'destino' => $pedido->input('destino'),
             'titulo' => null,
-            'cliente_nome' => null,
+            'cliente_nome' => $pedido->input('cliente_nome'),
             'cliente_contato' => null,
             'valor_cents' => null,
         ]);
@@ -211,15 +202,5 @@ class EtiquetaController extends Controller
         $renovar($etiqueta, Dinheiro::paraCentavos($pedido->input('valor')));
 
         return back()->with('ok', 'Renovada até '.$etiqueta->refresh()->vence_em->format('d/m/Y').'.');
-    }
-
-    public function baixar(Request $pedido, Etiqueta $etiqueta, BaixarEtiqueta $baixar)
-    {
-        $dados = $pedido->validate(['motivo' => ['nullable', 'string', 'max:150']]);
-
-        $baixar($etiqueta, $dados['motivo'] ?? null);
-
-        return redirect()->route('etiquetas.index')
-            ->with('ok', "Plaquinha {$etiqueta->codigo} baixada. O código não volta a circular.");
     }
 }

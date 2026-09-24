@@ -109,7 +109,6 @@ final class Rotulos
         'etiquetas.destino.trocado' => 'Destino da plaquinha trocado',
         'etiquetas.alternada' => 'Plaquinha suspensa ou reativada',
         'etiquetas.renovada' => 'Plaquinha renovada por mais um ano',
-        'etiquetas.baixada' => 'Plaquinha baixada de vez',
         'clientes.exportados' => 'Carteira de clientes exportada',
         'faturas.exportadas' => 'Faturas exportadas em planilha',
         'cobranca.criada' => 'Cobrança emitida',

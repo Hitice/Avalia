@@ -27,12 +27,15 @@ const LOGO = 7;
  * na placa como um adesivo colado no codigo; abrindo, a marca fica no vazio e
  * o fundo da peca passa por baixo dela.
  *
- * Um modulo de folga de cada lado do logo, para ele nao encostar em modulo
- * escuro. Sao 81 dos 841 modulos da versao 3, ou 9,6%: o nivel H recupera ate
- * 30%, entao sobra margem para risco de acrilico e reflexo de vitrine, que e
+ * DOIS modulos de folga de cada lado do logo. Com um so, a marca encostava nos
+ * modulos escuros e parecia adesivo colado por cima do codigo; com dois ela
+ * respira e o olho entende que o vao faz parte do desenho.
+ *
+ * Sao 121 dos 841 modulos da versao 3, ou 14,4%. O nivel H recupera ate 30%,
+ * entao ainda sobra margem para risco de acrilico e reflexo de vitrine, que e
  * justamente para o que a correcao existe.
  */
-const VAO = LOGO + 2;
+const VAO = LOGO + 4;
 
 /**
  * A marca da Avalia, em coordenadas de 32 unidades.

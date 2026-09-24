@@ -105,24 +105,6 @@ it('suspende e reativa sem perder o destino', function () {
     expect($etiqueta->refresh()->situacao)->toBe(SituacaoEtiqueta::Ativa);
 });
 
-it('baixa a plaquinha sem apagar nem soltar o codigo', function () {
-    $etiqueta = Etiqueta::factory()->ativa()->create(['codigo' => 'K7M2PX']);
-
-    admin()->post(route('etiquetas.baixar', $etiqueta), ['motivo' => 'Placa quebrada'])->assertRedirect();
-
-    // O registro continua, e o codigo segue reservado: reciclado, ele mandaria
-    // a freguesia do cliente antigo para a loja de um estranho.
-    expect(Etiqueta::where('codigo', 'K7M2PX')->exists())->toBeTrue()
-        ->and($etiqueta->refresh()->situacao)->toBe(SituacaoEtiqueta::Baixada);
-});
-
-it('nao revende plaquinha baixada', function () {
-    $etiqueta = Etiqueta::factory()->baixada()->create();
-
-    expect(fn () => app(App\Actions\Etiquetas\VenderEtiqueta::class)($etiqueta, ['destino' => 'https://x.com.br']))
-        ->toThrow(App\Exceptions\Recusa::class);
-});
-
 /*
 |--------------------------------------------------------------------------
 | Renovacao
@@ -166,17 +148,38 @@ it('acha a plaquinha pelo codigo digitado errado', function () {
         ->assertSee('K7M2P1');
 });
 
-it('gera um codigo sozinho sem abrir tiragem', function () {
-    // Tiragem de uma unidade seria uma linha vazia de sentido na lista de
-    // producao. Um formulario so para os dois casos; por dentro eles divergem.
+it('abre campanha tambem quando gera um codigo so', function () {
+    // Mesmo roteiro para um e para cem: a pessoa fica na tabela, escolhe a
+    // campanha e baixa o pacote. Dois caminhos para a mesma tarefa fariam o de
+    // uma unidade ser o que ninguem lembra.
     admin()->post(route('etiquetas.gerar'), ['quantidade' => 1, 'titulo' => 'Cliente sem placa'])
         ->assertRedirect();
 
     $etiqueta = Etiqueta::sole();
 
-    expect($etiqueta->lote_id)->toBeNull()
-        ->and($etiqueta->sequencia)->toBeNull()
-        ->and($etiqueta->situacao)->toBe(SituacaoEtiqueta::EmBranco);
+    expect($etiqueta->lote_id)->not->toBeNull()
+        ->and($etiqueta->sequencia)->toBe(1)
+        ->and($etiqueta->situacao)->toBe(SituacaoEtiqueta::EmBranco)
+        ->and($etiqueta->lote->titulo)->toBe('Cliente sem placa');
+});
+
+it('batiza a campanha sozinho quando ninguem digita o nome', function () {
+    // A campanha precisa de rotulo para aparecer no seletor.
+    admin()->post(route('etiquetas.gerar'), ['quantidade' => 3]);
+
+    expect(App\Models\LoteEtiqueta::sole()->titulo)->toBe('Campanha 1');
+});
+
+it('guarda o cliente junto com o destino', function () {
+    Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
+
+    admin()->post(route('etiquetas.apontar-codigo'), [
+        'codigo' => 'K7M2PX',
+        'destino' => 'https://padaria.com.br',
+        'cliente_nome' => 'Padaria do Zé',
+    ])->assertRedirect();
+
+    expect(Etiqueta::sole()->cliente_nome)->toBe('Padaria do Zé');
 });
 
 it('gera cem de uma vez, e ai abre tiragem', function () {
@@ -267,14 +270,6 @@ it('mantem o vendedor fora da gestao de plaquinhas', function () {
 |
 */
 
-it('explica a recusa em vez de devolver erro interno', function () {
-    $etiqueta = Etiqueta::factory()->baixada()->create();
-
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://loja.com.br'])
-        ->assertRedirect()
-        ->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'baixada'));
-});
-
 it('recusa renovar plaquinha que nunca foi vendida, sem quebrar a tela', function () {
     $etiqueta = Etiqueta::factory()->create();
 
@@ -291,20 +286,6 @@ it('recusa ligar e desligar plaquinha em branco, sem quebrar a tela', function (
     admin()->post(route('etiquetas.alternar', $etiqueta))
         ->assertRedirect()
         ->assertSessionHas('erro');
-});
-
-it('nao oferece o formulario de destino numa plaquinha baixada', function () {
-    // Botao que so serve para receber recusa e botao quebrado aos olhos de
-    // quem clica.
-    $baixada = Etiqueta::factory()->baixada()->create();
-
-    admin()->get(route('etiquetas.ficha', $baixada))
-        ->assertOk()
-        // "Encerrado" e nao "Baixado" na tela: "baixar" foi lido como fazer
-        // download, e o botao que tira o codigo de circulacao para sempre nao
-        // pode ser confundido com o que salva um arquivo.
-        ->assertSee('Código encerrado')
-        ->assertDontSee('Salvar destino');
 });
 
 it('desenha o codigo da plaquinha na propria ficha', function () {
@@ -338,4 +319,26 @@ it('nao poe interruptor de tema na ferramenta', function () {
 
     expect($conteudo)->not->toContain('$store.theme')
         ->and($conteudo)->not->toContain("localStorage.getItem('theme')");
+});
+
+it('resolve a operacao inteira numa pagina so', function () {
+    // Gerar, filtrar por campanha, baixar o pacote e cadastrar destino: tudo
+    // na mesma tela. Cada uma dessas tarefas numa tela propria fazia o
+    // operador procurar em quatro lugares o que e um fluxo so.
+    admin()->post(route('etiquetas.gerar'), ['quantidade' => 3, 'titulo' => 'Campanha Floripa 2026']);
+
+    $campanha = App\Models\LoteEtiqueta::sole();
+
+    admin()->get(route('etiquetas.index', ['lote' => $campanha->id]))
+        ->assertOk()
+        // O seletor de campanha e o botao do ZIP, juntos.
+        ->assertSee('Campanha Floripa 2026')
+        ->assertSee('Baixar 3 em ZIP')
+        // As colunas tem nome.
+        ->assertSee('>QR<', false)
+        ->assertSee('>Cliente<', false)
+        ->assertSee('>Baixar<', false)
+        // E a area de cadastro pede o cliente junto do codigo.
+        ->assertSee('Código impresso')
+        ->assertSee('Padaria do Zé', false);
 });
