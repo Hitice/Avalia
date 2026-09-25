@@ -49,6 +49,10 @@ const PORTAS_PUBLICAS = [
     // maiusculas, e o caminho chega como esta impresso.
     'q' => 'leitura de plaquinha; redireciona um codigo publico impresso',
     'q.maiusculo' => 'a mesma leitura, com o caminho em maiusculas como o QR grava',
+    // O link encurtado, pela mesma razao: o codigo esta gravado numa tag na
+    // mao de alguem, e do outro lado nao ha conta nem dado de ninguem.
+    'l' => 'abertura de link encurtado; redireciona um codigo publico',
+    'l.maiusculo' => 'a mesma abertura, com o caminho em maiusculas',
     // A area do produtor existe para quem ainda nao sabe por onde entrar.
     // Pedir senha antes de listar as opcoes seria exigir a chave de uma porta
     // para dizer quais portas existem. Ela mostra portas, e nada mais.

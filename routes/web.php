@@ -22,6 +22,7 @@ use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\LinkController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
@@ -421,6 +422,11 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // entao diz para onde cada codigo leva.
         Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
         Route::post('/apontar', [EtiquetaController::class, 'apontarPorCodigo'])->name('apontar-codigo');
+
+        // O encurtador, atras da mesma porta. Ver LinkController.
+        Route::get('/links', [LinkController::class, 'index'])->name('links.index');
+        Route::post('/links', [LinkController::class, 'salvar'])->name('links.salvar');
+        Route::post('/links/{link}/alternar', [LinkController::class, 'alternar'])->name('links.alternar');
 
         Route::get('/{etiqueta}', [EtiquetaController::class, 'ficha'])->name('ficha');
         Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');

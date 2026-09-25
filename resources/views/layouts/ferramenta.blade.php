@@ -46,9 +46,17 @@
             </a>
 
             <nav class="flex items-center gap-1" aria-label="Ferramenta">
-                {{-- Uma tela so. A tiragem virou um filtro da tabela, e nao
-                     uma secao a parte: com duas telas o operador precisava
-                     lembrar de qual delas fazia o que. --}}
+                {{-- Duas ferramentas, dois itens. A tiragem nao entra aqui:
+                     ela e um filtro da tabela de codigos, e nao uma tela. --}}
+                <a href="{{ route('etiquetas.index') }}"
+                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.index') || request()->routeIs('etiquetas.ficha') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
+                    QR dinâmico
+                </a>
+                <a href="{{ route('etiquetas.links.index') }}"
+                   class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.links.*') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
+                    Encurtador
+                </a>
+
                 {{-- Nenhum caminho para o CRM daqui, de proposito. O QR
                      dinamico e negocio proprio: um link para o Avalia One no
                      cabecalho diria que ele e um modulo de la. Quem precisa do

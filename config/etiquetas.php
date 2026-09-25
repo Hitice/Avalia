@@ -29,6 +29,15 @@ return [
      */
     'aviso_dias' => 15,
 
+    /*
+     * Bytes uteis da tag NFC que a casa usa.
+     *
+     * NTAG213, a mais barata e a mais comum, tem cerca de 140 depois do
+     * cabecalho. E esse numero que faz o encurtador existir: endereco de
+     * campanha com parametros de origem nao cabe nele.
+     */
+    'bytes_da_tag' => 140,
+
     'precos' => [
         'placa_cents' => 7_990,
         'renovacao_cents' => 4_990,

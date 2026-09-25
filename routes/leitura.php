@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RedirecionadorController;
+use App\Http\Controllers\RedirecionadorLinkController;
 use App\Support\CodigoCurto;
 use Illuminate\Support\Facades\Route;
 
@@ -53,3 +54,18 @@ Route::get('/q/{codigo}', RedirecionadorController::class)
 Route::get('/Q/{codigo}', RedirecionadorController::class)
     ->where('codigo', CodigoCurto::REGEX_ROTA)
     ->name('q.maiusculo');
+
+/*
+ * O link encurtado, no prefixo mais curto que da para ter.
+ *
+ * Espaco de nomes proprio: um codigo sorteado aqui pode coincidir com um de
+ * `/q/` sem consequencia, porque o caminho e outro. As duas caixas continuam
+ * valendo pelo mesmo motivo do QR, que grava a URL em maiusculas.
+ */
+Route::get('/l/{codigo}', RedirecionadorLinkController::class)
+    ->where('codigo', CodigoCurto::REGEX_ROTA)
+    ->name('l');
+
+Route::get('/L/{codigo}', RedirecionadorLinkController::class)
+    ->where('codigo', CodigoCurto::REGEX_ROTA)
+    ->name('l.maiusculo');

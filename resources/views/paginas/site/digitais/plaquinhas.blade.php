@@ -65,6 +65,7 @@
                         @foreach ([
                             'Trocas de destino sem limite, e sem reimprimir',
                             'SVG em vetor e PNG, no tamanho em milímetros que você pedir',
+                            'Encurtador de links incluído, para caber em tag NFC',
                             'Contagem de leituras, por dia',
                             'O código é seu e nunca vai para outro cliente',
                         ] as $item)
