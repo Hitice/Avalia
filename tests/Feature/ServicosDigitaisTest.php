@@ -46,11 +46,33 @@ it('mostra os mesmos servicos no pe da pagina de softwares', function () {
     }
 });
 
-it('leva cada cartao a uma pagina que existe', function () {
+it('leva cada cartao a algum lugar que existe', function () {
     foreach (SiteController::servicosPublicos() as $chave => $servico) {
-        expect($servico['rota'])->not->toBeNull("o serviço {$chave} está público sem página");
+        // Ou tem pagina publica, ou abre a porta da ferramenta. Sem um dos
+        // dois, o cartao promete e nao entrega.
+        expect($servico['rota'] ?? $servico['porta'])->not->toBeNull("o serviço {$chave} não leva a lugar nenhum");
 
-        $this->get(route($servico['rota']))->assertOk();
+        if ($servico['rota']) {
+            $this->get(route($servico['rota']))->assertOk();
+        }
+    }
+});
+
+it('leva cada porta a uma tela que existe', function () {
+    $admin = App\Models\Staff::factory()->admin()->create(['senha' => bcrypt('segredo-de-teste')]);
+
+    foreach (SiteController::servicosPublicos() as $servico) {
+        if (! $servico['porta']) {
+            continue;
+        }
+
+        $this->post(route('entrar.enviar'), [
+            'email' => $admin->email,
+            'senha' => 'segredo-de-teste',
+            'destino' => $servico['porta'],
+        ])->assertRedirect();
+
+        $this->post(route('sair'));
     }
 });
 

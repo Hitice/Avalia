@@ -39,6 +39,23 @@ return [
         'publico' => true,
     ],
 
+    'encurtador' => [
+        'titulo' => 'Encurtador de links',
+        'resumo' => 'Endereços longos atrás de um código curto, para caberem na tag NFC e no que for impresso.',
+        'texto' => 'Um endereço de campanha com parâmetros de origem passa fácil de 140 caracteres, e '
+            .'não cabe numa tag NFC comum nem numa linha impressa. O encurtador troca isso por '
+            .'avaliaone.com.br/l/K7M2PX, conta os cliques e deixa você trocar o destino depois.',
+        'icone' => 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7',
+        // Sem pagina publica: o cartao abre o acesso e cai direto na tela.
+        // Encurtador aberto a qualquer um vira alvo de phishing em dias, e o
+        // dia em que o dominio entrar numa lista de bloqueio, todas as
+        // etiquetas vendidas param de abrir junto.
+        'rota' => null,
+        'porta' => 'encurtador',
+        'selo' => 'Premium',
+        'publico' => true,
+    ],
+
     'qr-code' => [
         'titulo' => 'Gerador de QR Code',
         'resumo' => 'Gere um QR Code e baixe em SVG ou PNG, sem cadastro e sem marca d\'água.',
