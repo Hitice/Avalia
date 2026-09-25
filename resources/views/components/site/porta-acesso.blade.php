@@ -14,6 +14,7 @@
     redirecionamento aberto. Ver LoginController::DESTINOS.
 --}}
 
+@if (App\Support\Dono::tipo() === null)
 <div x-data="{ aberta: false, destino: '' }"
      x-on:abrir-porta.window="aberta = true; destino = $event.detail.destino; $nextTick(() => $refs.email?.focus())"
      x-on:keydown.escape.window="aberta = false">
@@ -42,8 +43,7 @@
 
                 <div>
                     <label for="porta-senha" class="rotulo-campo">Senha</label>
-                    <input id="porta-senha" name="senha" type="password" autocomplete="current-password"
-                           required class="campo">
+                    <x-avalia.senha id="porta-senha" name="senha" autocomplete="current-password" required />
                 </div>
 
                 {{-- O erro volta pela sessao, como no resto do sistema. Sem
@@ -63,3 +63,4 @@
         </div>
     </div>
 </div>
+@endif

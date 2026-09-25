@@ -203,12 +203,36 @@ it('derruba a sessao quando a conta e desativada', function () {
     $this->get('/painel')->assertRedirect(route('entrar'));
 });
 
-it('sai e invalida a sessao', function () {
+it('sai e invalida a sessao, e volta para a porta do dominio', function () {
+    // Home, e nao a tela de entrada: quem sai quase nunca quer entrar de novo
+    // agora, e voltar ao login parece que a saida falhou.
     $staff = Staff::factory()->admin()->create();
 
-    $this->actingAs($staff, 'staff')->post('/sair')->assertRedirect(route('entrar'));
+    $this->actingAs($staff, 'staff')->post('/sair')->assertRedirect(route('inicio'));
 
     expect(auth('staff')->check())->toBeFalse();
+});
+
+it('deixa sair qualquer conta, inclusive a que o CRM nao conhece', function () {
+    // Antes, com auth:staff,empresa na rota, o produtor que clicasse em Sair
+    // era mandado para a tela de entrada do CRM e continuava logado.
+    $produtor = App\Models\Produtor::create([
+        'nome' => 'Escola Costa',
+        'documento' => '12345678909',
+        'whatsapp' => '34999112233',
+        'email' => 'costa@escola.com.br',
+        'situacao' => 'aprovado',
+    ]);
+
+    $this->actingAs($produtor, 'produtor')->post('/sair')->assertRedirect(route('inicio'));
+
+    expect(auth('produtor')->check())->toBeFalse();
+});
+
+it('deixa sair quem ja nem sessao tem', function () {
+    // Exigir sessao valida para sair cria o caso em que quem esta com a sessao
+    // meio quebrada nao consegue se livrar dela.
+    $this->post('/sair')->assertRedirect(route('inicio'));
 });
 
 /*
@@ -396,4 +420,42 @@ it('revogar acesso invalida tambem o cookie de lembranca', function () {
     $this->withCookie(auth('staff')->getRecallerName(), $cookie)
         ->get('/painel')
         ->assertRedirect(route('entrar'));
+});
+
+it('poe o olho de mostrar em toda tela que pede senha', function () {
+    // Senha digitada as cegas e erro de digitacao que so aparece na mensagem
+    // de recusa, e quem toma "senha invalida" duas vezes acha que esqueceu a
+    // senha. O componente existe para o bloco nao precisar ser copiado.
+    $staff = Staff::factory()->admin()->create();
+
+    $telas = [
+        $this->get(route('entrar'))->getContent(),
+        $this->get(route('digitais.index'))->getContent(),
+        $this->actingAs($staff, 'staff')->withSession(['versao_staff' => $staff->sessao_versao])
+            ->get(route('perfil'))->getContent(),
+    ];
+
+    foreach ($telas as $tela => $html) {
+        expect(str_contains($html, 'x-data="{ visivel: false }"'))
+            ->toBeTrue("a tela {$tela} não tem o olho de mostrar senha");
+    }
+});
+
+it('nao deixa campo de senha sem o olho em nenhuma view', function () {
+    // Campo escrito a mao passa batido por qualquer teste de tela: este varre
+    // os arquivos e cobra o componente.
+    $soltos = [];
+
+    foreach (Illuminate\Support\Facades\File::allFiles(resource_path('views')) as $arquivo) {
+        if (str_starts_with($arquivo->getRelativePathname(), 'mail')
+            || $arquivo->getRelativePathname() === 'components/avalia/senha.blade.php') {
+            continue;
+        }
+
+        if (str_contains($arquivo->getContents(), 'type="password"')) {
+            $soltos[] = $arquivo->getRelativePathname();
+        }
+    }
+
+    expect($soltos)->toBeEmpty('campo de senha sem x-avalia.senha: '.implode(', ', $soltos));
 });

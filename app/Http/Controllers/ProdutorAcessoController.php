@@ -131,6 +131,8 @@ class ProdutorAcessoController extends Controller
         $pedido->session()->invalidate();
         $pedido->session()->regenerateToken();
 
-        return redirect()->route('produtor.entrar');
+        // Home, e nao a tela de entrada: quem sai quase nunca quer entrar de
+        // novo agora, e voltar ao login parece que a saida falhou.
+        return redirect()->route('inicio')->with('ok', 'Você saiu da sua conta.');
     }
 }

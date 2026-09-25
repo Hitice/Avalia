@@ -111,6 +111,7 @@ final class Rotulos
         'etiquetas.renovada' => 'Etiqueta renovada por mais um ano',
         'links.encurtado' => 'Link encurtado',
         'links.alternado' => 'Link ligado ou desligado',
+        'links.excluido' => 'Link sem cliques apagado',
         'clientes.exportados' => 'Carteira de clientes exportada',
         'faturas.exportadas' => 'Faturas exportadas em planilha',
         'cobranca.criada' => 'Cobrança emitida',

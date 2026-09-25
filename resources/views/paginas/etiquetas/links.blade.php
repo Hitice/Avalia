@@ -38,8 +38,8 @@
              o mesmo lugar dividiriam a contagem de cliques ao meio, e ninguem
              saberia por que os numeros nao batem. --}}
         <p class="ajuda-campo">
-            O mesmo endereço sempre devolve o mesmo código. Desligar não apaga: o código pode
-            estar gravado numa tag que já saiu.
+            O mesmo endereço sempre devolve o mesmo código. Link que já foi aberto não se apaga,
+            só se desliga: ele pode estar gravado numa tag que já saiu.
         </p>
     </form>
 
@@ -70,9 +70,27 @@
                     @forelse ($links as $link)
                         <tr>
                             <td class="tabela-td">
-                                <span class="font-mono font-medium tracking-wider text-gray-800 dark:text-white/90">
-                                    {{ $link->url() }}
-                                </span>
+                                {{-- Copiar e o gesto que a tela existe para
+                                     servir: o link curto so vale quando esta
+                                     colado em algum lugar. --}}
+                                <div x-data="copiavel" class="flex items-center gap-2">
+                                    <span class="font-mono font-medium tracking-wider text-gray-800 dark:text-white/90">
+                                        {{ $link->url() }}
+                                    </span>
+
+                                    <button type="button" x-on:click="copiar('{{ $link->url() }}')"
+                                            x-bind:aria-label="copiado ? 'Copiado' : 'Copiar link'"
+                                            class="shrink-0 text-gray-400 transition hover:text-brand-500">
+                                        <svg x-show="! copiado" class="size-4" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+                                            <rect x="9" y="9" width="11" height="11" rx="2" />
+                                            <path stroke-linecap="round" d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+                                        </svg>
+                                        <svg x-show="copiado" x-cloak class="size-4 text-success-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        </svg>
+                                    </button>
+                                </div>
+
                                 @if ($link->titulo)
                                     <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{{ $link->titulo }}</span>
                                 @endif
@@ -101,12 +119,29 @@
                             </td>
 
                             <td class="tabela-td text-right whitespace-nowrap">
-                                <form method="POST" action="{{ route('etiquetas.links.alternar', $link) }}">
-                                    @csrf
-                                    <x-avalia.botao variante="secundario" tamanho="sm">
-                                        {{ $link->ativo ? 'Desligar' : 'Ligar' }}
-                                    </x-avalia.botao>
-                                </form>
+                                <div class="flex items-center justify-end gap-2">
+                                    <form method="POST" action="{{ route('etiquetas.links.alternar', $link) }}">
+                                        @csrf
+                                        <x-avalia.botao variante="secundario" tamanho="sm">
+                                            {{ $link->ativo ? 'Desligar' : 'Ligar' }}
+                                        </x-avalia.botao>
+                                    </form>
+
+                                    {{-- Apagar so no que nunca foi aberto. Link
+                                         ja clicado esta gravado em alguma tag,
+                                         e apagar devolveria o codigo ao
+                                         sorteio: quem encostasse o celular
+                                         nela depois cairia no destino de
+                                         outra pessoa. --}}
+                                    @if ($link->cliques === 0)
+                                        <form method="POST" action="{{ route('etiquetas.links.excluir', $link) }}"
+                                              x-data x-on:submit="confirm('Apagar o link {{ $link->codigo }}? Ele nunca foi aberto.') || $event.preventDefault()">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-avalia.botao variante="secundario" tamanho="sm">Excluir</x-avalia.botao>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

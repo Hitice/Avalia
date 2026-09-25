@@ -128,6 +128,7 @@ Route::middleware(['auth:staff,empresa,produtor', 'sessao:staff', 'sessao:empres
         Route::get('/links', [LinkController::class, 'index'])->name('links.index');
         Route::post('/links', [LinkController::class, 'salvar'])->name('links.salvar');
         Route::post('/links/{link}/alternar', [LinkController::class, 'alternar'])->name('links.alternar');
+        Route::delete('/links/{link}', [LinkController::class, 'excluir'])->name('links.excluir');
 
         Route::get('/{etiqueta}', [EtiquetaController::class, 'ficha'])->name('ficha');
         Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');
@@ -264,9 +265,17 @@ Route::middleware(['signed', 'throttle:10,1'])->group(function () {
     Route::post('/acesso/senha/{guarda}/{id}', [SenhaController::class, 'salvar'])->name('senha.salvar');
 });
 
-Route::post('/sair', [LoginController::class, 'sair'])
-    ->name('sair')
-    ->middleware('auth:staff,empresa');
+/*
+ * Sair, para qualquer conta.
+ *
+ * Sem `auth`: nao ha o que proteger em sair, e exigir sessao valida cria o
+ * caso em que quem esta com a sessao meio quebrada nao consegue se livrar
+ * dela. Antes, com `auth:staff,empresa`, o produtor que clicasse em Sair era
+ * mandado para a tela de entrada do CRM, continuando logado.
+ *
+ * O CSRF continua valendo, entao ninguem desloga o outro por um link.
+ */
+Route::post('/sair', [LoginController::class, 'sair'])->name('sair');
 
 /*
  * A propria conta. Fora dos dois grupos de area porque serve aos dois: staff,

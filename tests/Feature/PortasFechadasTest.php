@@ -69,6 +69,7 @@ const PORTAS_PUBLICAS = [
     'produtor.entrar' => 'formulario de acesso do produtor',
     'produtor.entrar.enviar' => 'envio do acesso do produtor, com teto por origem',
     'produtor.sair' => 'encerra a propria sessao; nada a proteger em sair',
+    'sair' => 'encerra a propria sessao, de qualquer conta; nada a proteger em sair',
     'senha.esqueci' => 'formulario de recuperacao; a resposta e identica exista ou nao a conta',
     'senha.esqueci.enviar' => 'envio da recuperacao, com teto por origem',
     'senha.definir' => 'link do convite: assinatura temporaria barra forjado e vencido, carimbo barra usado',

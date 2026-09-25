@@ -169,3 +169,44 @@ it('nao devolve a uma conta o codigo que outra criou para o mesmo endereco', fun
 
     expect(Link::count())->toBe(2);
 });
+
+it('apaga o link que nunca foi aberto', function () {
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://engano.com.br']);
+
+    admin()->delete(route('etiquetas.links.excluir', Link::sole()))->assertRedirect();
+
+    expect(Link::count())->toBe(0);
+});
+
+it('recusa apagar link que ja foi aberto', function () {
+    // Ele pode estar gravado numa tag, e apagar devolveria o codigo ao
+    // sorteio: quem encostasse o celular nela depois cairia no destino de
+    // outra pessoa.
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://loja.com.br']);
+    $link = Link::sole();
+
+    $this->get(route('l', $link->codigo));
+
+    admin()->delete(route('etiquetas.links.excluir', $link->fresh()))
+        ->assertRedirect()
+        ->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'Desligar'));
+
+    expect(Link::count())->toBe(1);
+});
+
+it('nao deixa uma conta apagar o link de outra', function () {
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://da-administracao.com.br']);
+
+    comoVendedor(Staff::factory()->create(['papel' => 'vendedor']))
+        ->delete(route('etiquetas.links.excluir', Link::sole()))->assertNotFound();
+
+    expect(Link::count())->toBe(1);
+});
+
+it('oferece copiar o link na tabela', function () {
+    // Copiar e o gesto que a tela existe para servir: o link curto so vale
+    // quando esta colado em algum lugar.
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://loja.com.br']);
+
+    admin()->get(route('etiquetas.links.index'))->assertOk()->assertSee('copiar(', false);
+});

@@ -23,16 +23,16 @@
 
                 <div>
                     <label for="senha" class="rotulo-campo">Nova senha</label>
-                    <input id="senha" name="senha" type="password" class="campo" required
-                           minlength="10" autocomplete="new-password" autofocus>
+                    <x-avalia.senha id="senha" name="senha" required
+                           minlength="10" autocomplete="new-password" autofocus />
                     <span class="ajuda-campo">Pelo menos 10 caracteres. Misture palavras, números, o que só você lembra.</span>
                     @error('senha') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="senha_confirmation" class="rotulo-campo">Repita a senha</label>
-                    <input id="senha_confirmation" name="senha_confirmation" type="password" class="campo" required
-                           minlength="10" autocomplete="new-password">
+                    <x-avalia.senha id="senha_confirmation" name="senha_confirmation" required
+                           minlength="10" autocomplete="new-password" />
                 </div>
 
                 <x-avalia.botao class="w-full">Definir senha e continuar</x-avalia.botao>

@@ -5,7 +5,7 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-B0IE_Y2B.css",
+    "file": "assets/app-DqK4vmWN.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -13,7 +13,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CnXHvnQ8.js",
+    "file": "assets/app-BlVDz3Yx.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -28,7 +28,7 @@
     ]
   },
   "resources/js/qr.js": {
-    "file": "assets/qr-BgpSKL5h.js",
+    "file": "assets/qr-CrLJ7f2F.js",
     "name": "qr",
     "src": "resources/js/qr.js",
     "isDynamicEntry": true,

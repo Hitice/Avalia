@@ -8,19 +8,35 @@
     e escrita duas vezes uma delas sai desatualizada no dia em que um servico
     entrar ou mudar de nome.
 
-    Servico com `porta` abre o acesso da administracao ali mesmo, sem sair da
-    pagina. Continua sendo um link de verdade, apontando para a porta
-    principal: sem JavaScript o clique leva ao /entrar em vez de nao fazer
-    nada, e e so o `prevent` que troca a ida pela caixa.
+    Servico com `porta` leva a uma ferramenta atras de login. O `href` aponta
+    para a PROPRIA ferramenta, e nao para a tela de entrada: quem ja esta
+    logado entra direto, e quem nao esta e mandado ao login pelo middleware,
+    que guarda o destino e devolve a pessoa ali depois da senha.
+
+    Apontar para /entrar era o defeito: a tela de entrada devolve quem ja tem
+    sessao para o painel do CRM, entao o cartao levava ao painel em vez de
+    levar a ferramenta.
+
+    A caixa de senha so abre para quem nao entrou ainda. Pedir a senha de novo
+    a quem acabou de usar o sistema e atrito sem motivo.
 --}}
 
 @php
+    use App\Support\Dono;
+
     $porta = $servico['porta'] ?? null;
-    $destino = $porta ? route('entrar') : ($servico['rota'] ? route($servico['rota']) : '#');
+    $ferramenta = $servico['ferramenta'] ?? null;
+    $logado = Dono::tipo() !== null;
+
+    $destino = match (true) {
+        $porta && $ferramenta => route($ferramenta),
+        (bool) $servico['rota'] => route($servico['rota']),
+        default => '#',
+    };
 @endphp
 
 <a href="{{ $destino }}"
-   @if ($porta)
+   @if ($porta && ! $logado)
        x-data
        x-on:click.prevent="$dispatch('abrir-porta', { destino: '{{ $porta }}' })"
    @endif

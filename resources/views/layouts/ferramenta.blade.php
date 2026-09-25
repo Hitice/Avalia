@@ -61,10 +61,9 @@
                      dinamico e negocio proprio: um link para o Avalia One no
                      cabecalho diria que ele e um modulo de la. Quem precisa do
                      outro lado digita o endereco; a sessao e a mesma. --}}
-                {{-- Cada natureza de conta sai pela porta dela: o `sair` do
-                     CRM nao encerra a sessao do produtor, e mandar todo mundo
-                     para o mesmo deixaria um deles logado achando que saiu. --}}
-                <form method="POST" action="{{ auth('produtor')->check() ? route('produtor.sair') : route('sair') }}" class="ml-2">
+                {{-- Uma porta so: o `sair` encerra qualquer conta e volta
+                     para a home. --}}
+                <form method="POST" action="{{ route('sair') }}" class="ml-2">
                     @csrf
                     <button type="submit" class="rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition hover:text-gray-800">
                         Sair

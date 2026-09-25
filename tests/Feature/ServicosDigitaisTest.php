@@ -82,14 +82,25 @@ it('leva cada porta a uma tela que existe', function () {
 |--------------------------------------------------------------------------
 */
 
-it('abre o acesso no proprio cartao das plaquinhas', function () {
+it('abre o acesso no proprio cartao, e aponta para a ferramenta', function () {
     $this->get(route('digitais.index'))
         ->assertOk()
         ->assertSee('Entrar na ferramenta')
         ->assertSee('abrir-porta', false)
-        // Link de verdade para a porta principal: sem JavaScript o clique
-        // ainda leva a algum lugar, em vez de nao fazer nada.
-        ->assertSee('href="'.route('entrar').'"', false);
+        // O href aponta para a PROPRIA ferramenta, e nao para /entrar. A tela
+        // de entrada devolve quem ja tem sessao para o painel do CRM, entao
+        // apontar para ela fazia o cartao levar ao painel.
+        ->assertSee('href="'.route('etiquetas.index').'"', false)
+        ->assertSee('href="'.route('etiquetas.links.index').'"', false);
+});
+
+it('nao pede senha de novo a quem ja entrou', function () {
+    // Pedir a senha a quem acabou de usar o sistema e atrito sem motivo: o
+    // cartao leva direto.
+    admin()->get(route('digitais.index'))
+        ->assertOk()
+        ->assertSee('href="'.route('etiquetas.index').'"', false)
+        ->assertDontSee('abrir-porta', false);
 });
 
 it('leva o admin a ferramenta assim que a senha passa', function () {

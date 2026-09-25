@@ -65,9 +65,9 @@
                             <label class="rotulo-campo" for="{{ $slug }}-{{ $campo['chave'] }}">{{ $campo['rotulo'] }}</label>
 
                             @if (! empty($campo['secreto']))
-                                <input class="campo" type="password" autocomplete="new-password"
+                                <x-avalia.senha autocomplete="new-password"
                                        id="{{ $slug }}-{{ $campo['chave'] }}" name="campo_{{ $campo['chave'] }}"
-                                       placeholder="{{ $definida ? 'Definida. Preencha só para trocar.' : '' }}">
+                                       placeholder="{{ $definida ? 'Definida. Preencha só para trocar.' : '' }}" />
                             @else
                                 <input class="campo" type="text"
                                        id="{{ $slug }}-{{ $campo['chave'] }}" name="campo_{{ $campo['chave'] }}"

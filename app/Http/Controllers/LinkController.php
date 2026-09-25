@@ -51,6 +51,34 @@ class LinkController extends Controller
         return back()->with('ok', "Link {$link->codigo} pronto: {$link->url()} ({$link->bytes()} bytes).");
     }
 
+    /**
+     * Apaga o link que nunca foi usado.
+     *
+     * So com zero cliques. Link ja clicado esta gravado em alguma tag, num
+     * cartao ou numa mensagem, e apagar devolveria o codigo ao sorteio: quem
+     * encostasse o celular naquela tag depois cairia no destino de outra
+     * pessoa. Para esse existe desligar, que tira do ar e mantem o numero.
+     */
+    public function excluir(Link $link)
+    {
+        abort_unless(Dono::pode($link), 404);
+
+        if ($link->cliques > 0) {
+            throw new \App\Exceptions\Recusa(
+                'Este link já foi aberto '.$link->cliques.' vez(es), então pode estar gravado em alguma tag. Use "Desligar" em vez de apagar.'
+            );
+        }
+
+        $codigo = $link->codigo;
+
+        // Antes de apagar: depois nao ha entidade para o rastro apontar.
+        Auditar::registrar('links.excluido', $link, ['codigo' => $codigo, 'destino' => $link->destino]);
+
+        $link->delete();
+
+        return back()->with('ok', "Link {$codigo} apagado.");
+    }
+
     /** Liga e desliga. Nao apaga: o codigo pode estar gravado numa tag. */
     public function alternar(Link $link)
     {

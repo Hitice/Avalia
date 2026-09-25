@@ -180,6 +180,39 @@ Alpine.data('gerador', (inicial = {}) => ({
 }));
 
 /*
+ * Copiar o link curto.
+ *
+ * A area de transferencia so responde em pagina segura e depois de um clique
+ * de gente, e mesmo assim o navegador pode recusar. O `catch` cai no jeito
+ * antigo, com um campo escondido e `execCommand`, porque um botao de copiar
+ * que as vezes nao copia e pior que nao ter botao.
+ */
+Alpine.data('copiavel', () => ({
+    copiado: false,
+
+    async copiar(texto) {
+        try {
+            await navigator.clipboard.writeText(texto);
+        } catch {
+            const campo = document.createElement('textarea');
+
+            campo.value = texto;
+            campo.setAttribute('readonly', '');
+            campo.style.position = 'fixed';
+            campo.style.opacity = '0';
+
+            document.body.appendChild(campo);
+            campo.select();
+            document.execCommand('copy');
+            document.body.removeChild(campo);
+        }
+
+        this.copiado = true;
+        setTimeout(() => { this.copiado = false; }, 1800);
+    },
+}));
+
+/*
  * As miniaturas do QR na tabela.
  *
  * Desenhadas aqui, e nao guardadas como imagem: o desenho e determinado pelo

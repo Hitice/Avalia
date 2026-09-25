@@ -133,8 +133,8 @@
                             </div>
                             <div>
                                 <label for="acesso_senha" class="rotulo-campo">Senha *</label>
-                                <input id="acesso_senha" name="senha" type="password" class="campo" required
-                                       autocomplete="current-password">
+                                <x-avalia.senha id="acesso_senha" name="senha" required
+                                       autocomplete="current-password" />
                             </div>
                         </div>
 

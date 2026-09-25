@@ -27,14 +27,25 @@ class LoginController extends Controller
     /**
      * Para onde a porta do site leva depois de a senha passar.
      *
-     * Apelido para nome de rota, e nunca URL vinda do formulario. Campo de
+     * Sai de config/servicos-digitais.php, que e a mesma lista que desenha os
+     * cartoes: um servico entra num lugar so e a porta dele ja funciona.
+     * Mantida aqui a copia, o dia em que um endereco mudasse, o cartao levaria
+     * a um lugar e o login a outro.
+     *
+     * Apelido para nome de rota, e NUNCA URL vinda do formulario. Campo de
      * destino que aceita endereco e redirecionamento aberto: bastaria mandar
      * um link de login com destino para outro dominio, e a pessoa entraria na
      * Avalia e sairia num site clonado achando que continuava aqui.
+     *
+     * @return array<string, string>
      */
-    private const DESTINOS = [
-        'plaquinhas' => 'etiquetas.index',
-    ];
+    private static function destinos(): array
+    {
+        return collect(config('servicos-digitais', []))
+            ->filter(fn (array $servico) => filled($servico['porta'] ?? null) && filled($servico['ferramenta'] ?? null))
+            ->mapWithKeys(fn (array $servico) => [$servico['porta'] => $servico['ferramenta']])
+            ->all();
+    }
 
     public function __construct(private readonly ProtecaoLogin $protecao) {}
 
@@ -53,7 +64,7 @@ class LoginController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'senha' => ['required', 'string'],
             'lembrar' => ['nullable', 'boolean'],
-            'destino' => ['nullable', 'string', Rule::in(array_keys(self::DESTINOS))],
+            'destino' => ['nullable', 'string', Rule::in(array_keys(self::destinos()))],
         ], [], ['email' => 'e-mail', 'senha' => 'senha']);
 
         $this->recusaSeDeCastigo($dados['email'], $request);
@@ -98,9 +109,21 @@ class LoginController extends Controller
         ]);
     }
 
+    /**
+     * Encerra a sessao, seja qual for a conta, e volta para a porta do dominio.
+     *
+     * Todos os guards, e nao so os dois do CRM: a ferramenta de QR atende
+     * tambem o produtor, e sair de la deixando a sessao dele de pe seria sair
+     * sem sair. `invalidate` ja derrubaria tudo, mas o `logout` explicito
+     * limpa tambem o cookie de lembranca, que sobreviveria a sessao.
+     *
+     * Volta para a home, e nao para o formulario de entrada: quem sai quase
+     * nunca quer entrar de novo agora, e devolver ao login parece que a saida
+     * falhou. A porta do dominio e o site da casa.
+     */
     public function sair(Request $request): RedirectResponse
     {
-        foreach (self::GUARDAS as $guarda) {
+        foreach (['staff', 'empresa', 'produtor'] as $guarda) {
             if (Auth::guard($guarda)->check()) {
                 Auth::guard($guarda)->logout();
             }
@@ -109,7 +132,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('entrar');
+        return redirect()->route('inicio')->with('ok', 'Você saiu da sua conta.');
     }
 
     private function entrarComoOperador(Request $request, array $dados): ?RedirectResponse
@@ -171,7 +194,7 @@ class LoginController extends Controller
 
         // A porta do site pede uma tela especifica. Vale para qualquer conta,
         // porque a ferramenta atende todas: cada uma ve o que e seu.
-        if ($atalho = self::DESTINOS[$request->input('destino')] ?? null) {
+        if ($atalho = self::destinos()[$request->input('destino')] ?? null) {
             return redirect()->route($atalho);
         }
 
