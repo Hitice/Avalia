@@ -18,7 +18,10 @@ class Link extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['codigo', 'destino', 'titulo', 'ativo', 'cliques', 'ultimo_clique_em', 'staff_id'];
+    protected $fillable = [
+        'codigo', 'destino', 'titulo', 'ativo', 'cliques', 'ultimo_clique_em', 'staff_id',
+        'dono_tipo', 'dono_id',
+    ];
 
     protected function casts(): array
     {

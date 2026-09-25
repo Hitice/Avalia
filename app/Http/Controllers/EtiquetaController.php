@@ -12,6 +12,7 @@ use App\Models\LoteEtiqueta;
 use App\Support\CodigoCurto;
 use App\Support\Destino;
 use App\Support\Dinheiro;
+use App\Support\Dono;
 use Illuminate\Http\Request;
 
 /**
@@ -39,7 +40,7 @@ class EtiquetaController extends Controller
         $busca = trim((string) $pedido->query('busca'));
         $situacao = SituacaoEtiqueta::tentar($pedido->query('situacao'));
 
-        $etiquetas = Etiqueta::query()
+        $etiquetas = Dono::limitar(Etiqueta::query())
             ->with('lote')
             ->when($situacao, fn ($consulta) => $consulta->where('situacao', $situacao))
             ->when($pedido->query('lote'), fn ($consulta, $lote) => $consulta->where('lote_id', $lote))
@@ -60,7 +61,7 @@ class EtiquetaController extends Controller
 
         // Com uma campanha escolhida, a tabela ganha o pacote dela: o ZIP
         // precisa da tiragem INTEIRA, e a tabela mostra 25 por pagina.
-        $campanha = LoteEtiqueta::find($pedido->query('lote'));
+        $campanha = LoteEtiqueta::visiveis()->find($pedido->query('lote'));
 
         return view('paginas.etiquetas.index', [
             'etiquetas' => $etiquetas,
@@ -71,16 +72,16 @@ class EtiquetaController extends Controller
                 'url' => $etiqueta->urlParaQr(),
                 'arquivo' => $etiqueta->nomeDeArquivo(),
             ])->values(),
-            'lotes' => LoteEtiqueta::orderByDesc('id')->get(),
+            'lotes' => LoteEtiqueta::visiveis()->orderByDesc('id')->get(),
             'situacoes' => SituacaoEtiqueta::rotulos(),
             'campanha' => $campanha,
-            'pacote' => $campanha?->etiquetas()->get()->map(fn (Etiqueta $etiqueta) => [
+            'pacote' => $campanha ? Dono::limitar($campanha->etiquetas())->get()->map(fn (Etiqueta $etiqueta) => [
                 'sequencia' => $etiqueta->sequencia,
                 'codigo' => $etiqueta->codigo,
                 // Maiuscula pelo modo alfanumerico do QR. Ver CodigoCurto.
                 'url' => $etiqueta->urlParaQr(),
                 'arquivo' => $etiqueta->nomeDeArquivo(),
-            ]),
+            ]) : null,
             'filtros' => ['busca' => $busca, 'situacao' => $pedido->query('situacao'), 'lote' => $pedido->query('lote')],
         ]);
     }
@@ -132,6 +133,14 @@ class EtiquetaController extends Controller
         $codigo = CodigoCurto::normalizar($pedido->input('codigo'));
         $etiqueta = $codigo === '' ? null : Etiqueta::firstWhere('codigo', $codigo);
 
+        // Codigo de outra conta responde como inexistente, e nao como
+        // proibido: o codigo esta impresso e qualquer um pode ler um. Dizer
+        // "existe, mas nao e seu" confirmaria a existencia dele a quem so
+        // tentou a sorte.
+        if ($etiqueta && ! Dono::pode($etiqueta)) {
+            $etiqueta = null;
+        }
+
         if (! $etiqueta) {
             return back()->withInput()->with('erro',
                 'Não achei o código '.mb_strtoupper(trim((string) $pedido->input('codigo')))
@@ -152,6 +161,8 @@ class EtiquetaController extends Controller
 
     public function ficha(Etiqueta $etiqueta)
     {
+        $this->conferirDono($etiqueta);
+
         return view('paginas.etiquetas.ficha', [
             'etiqueta' => $etiqueta->load(['lote', 'destinos' => fn ($q) => $q->orderByDesc('id'), 'renovacoes']),
             'acessos' => $etiqueta->acessos()->orderByDesc('dia')->limit(30)->get(),
@@ -161,6 +172,8 @@ class EtiquetaController extends Controller
     /** Vende e aponta. Serve a primeira vez e a troca de destino de anos depois. */
     public function apontar(Request $pedido, Etiqueta $etiqueta, VenderEtiqueta $vender)
     {
+        $this->conferirDono($etiqueta);
+
         $dados = $pedido->validate([
             // O motivo da recusa vem do proprio Destino: "endereco invalido"
             // faz a pessoa tentar a mesma coisa de novo.
@@ -188,6 +201,8 @@ class EtiquetaController extends Controller
 
     public function alternar(Etiqueta $etiqueta, AlternarEtiqueta $alternar)
     {
+        $this->conferirDono($etiqueta);
+
         $alternar($etiqueta);
 
         return back()->with('ok', $etiqueta->situacao === SituacaoEtiqueta::Ativa
@@ -197,10 +212,18 @@ class EtiquetaController extends Controller
 
     public function renovar(Request $pedido, Etiqueta $etiqueta, RenovarEtiqueta $renovar)
     {
+        $this->conferirDono($etiqueta);
+
         $pedido->validate(['valor' => ['nullable', 'string', 'max:20']]);
 
         $renovar($etiqueta, Dinheiro::paraCentavos($pedido->input('valor')));
 
         return back()->with('ok', 'Renovada até '.$etiqueta->refresh()->vence_em->format('d/m/Y').'.');
+    }
+
+    /** Ninguem mexe no codigo de outra conta. A administracao ve tudo. */
+    private function conferirDono(Etiqueta $etiqueta): void
+    {
+        abort_unless(Dono::pode($etiqueta), 404);
     }
 }

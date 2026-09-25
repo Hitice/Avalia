@@ -93,15 +93,15 @@ it('nao aceita endereco no campo de destino', function () {
     ])->assertSessionHasErrors('destino');
 });
 
-it('nao manda o cliente para a ferramenta da administracao', function () {
-    // Login certo que termina em 403 e lido como recusa da senha.
+it('leva o cliente a ferramenta tambem', function () {
+    // A ferramenta atende toda conta: cada uma ve o que e seu.
     $empresa = App\Models\Cliente::factory()->create(['senha' => bcrypt('segredo-de-teste')]);
 
     $this->post(route('entrar.enviar'), [
         'email' => $empresa->email,
         'senha' => 'segredo-de-teste',
         'destino' => 'plaquinhas',
-    ])->assertRedirect(route('empresa.painel'));
+    ])->assertRedirect(route('etiquetas.index'));
 });
 
 /*

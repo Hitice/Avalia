@@ -48,11 +48,11 @@ class MenuHelper
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
-            // Plaquinhas de QR e NFC. Item solto, e nao submenu: submenu
-            // comeca fechado, e modulo que so aparece depois de um clique num
-            // pai e modulo que ninguem acha. E a mesma licao que tirou as
-            // telas do vendedor de dentro de Carteira, algumas linhas acima.
-            ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas', 'papeis' => ['admin']],
+            // QR dinamico. Sem `papeis`: a ferramenta atende toda conta, e o
+            // que limita cada uma nao e o papel, e o dono gravado em cada
+            // codigo. Item solto e nao submenu, porque submenu comeca fechado
+            // e modulo que so aparece depois de um clique ninguem acha.
+            ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
@@ -74,6 +74,7 @@ class MenuHelper
             ['icon' => 'charts', 'name' => 'Faturas', 'path' => '/empresa/faturas'],
             ['icon' => 'calculadora', 'name' => 'Simulador', 'path' => '/empresa/simulador'],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/empresa/documentos'],
+            ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
         ];
     }
 

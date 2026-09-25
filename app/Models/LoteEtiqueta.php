@@ -20,6 +20,16 @@ class LoteEtiqueta extends Model
 
     protected $fillable = ['codigo', 'titulo', 'quantidade', 'tipo', 'observacao', 'staff_id'];
 
+    /** As campanhas que uma conta pode ver: as que tem codigo dela. */
+    public function scopeVisiveis(\Illuminate\Database\Eloquent\Builder $consulta): \Illuminate\Database\Eloquent\Builder
+    {
+        if (\App\Support\Dono::veTudo()) {
+            return $consulta;
+        }
+
+        return $consulta->whereHas('etiquetas', fn ($etiquetas) => \App\Support\Dono::limitar($etiquetas));
+    }
+
     protected function casts(): array
     {
         return ['quantidade' => 'integer'];

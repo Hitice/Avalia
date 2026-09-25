@@ -100,6 +100,43 @@ Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('site.sitem
 
 /*
 |--------------------------------------------------------------------------
+| QR dinamico e encurtador
+|--------------------------------------------------------------------------
+|
+| Fora dos grupos de gestao: a ferramenta atende as TRES naturezas de conta.
+| Administracao, vendedor, cliente e produtor entram pela mesma porta e cada um
+| ve o que e seu, pelo dono gravado em cada codigo. So a administracao enxerga
+| tudo, porque e ela que gera a tiragem e atende no telefone.
+|
+| Sem `admin`, entao: a restricao aqui nao e de papel, e de dono. Ver
+| App\Support\Dono.
+|
+| A leitura publica do codigo mora em routes/leitura.php, fora de qualquer
+| grupo: ela responde a desconhecido e nao pode carregar sessao.
+|
+*/
+Route::middleware(['auth:staff,empresa,produtor', 'sessao:staff', 'sessao:empresa', 'sessao:produtor'])
+    ->prefix('etiquetas')->name('etiquetas.')->group(function () {
+        Route::get('/', [EtiquetaController::class, 'index'])->name('index');
+
+        // O fluxo, na ordem em que ele acontece: gera, imprime, vende, e so
+        // entao diz para onde cada codigo leva.
+        Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
+        Route::post('/apontar', [EtiquetaController::class, 'apontarPorCodigo'])->name('apontar-codigo');
+
+        // O encurtador, atras da mesma porta.
+        Route::get('/links', [LinkController::class, 'index'])->name('links.index');
+        Route::post('/links', [LinkController::class, 'salvar'])->name('links.salvar');
+        Route::post('/links/{link}/alternar', [LinkController::class, 'alternar'])->name('links.alternar');
+
+        Route::get('/{etiqueta}', [EtiquetaController::class, 'ficha'])->name('ficha');
+        Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');
+        Route::post('/{etiqueta}/alternar', [EtiquetaController::class, 'alternar'])->name('alternar');
+        Route::post('/{etiqueta}/renovar', [EtiquetaController::class, 'renovar'])->name('renovar');
+    });
+
+/*
+|--------------------------------------------------------------------------
 | Modulo Acesso
 |--------------------------------------------------------------------------
 |
@@ -406,34 +443,6 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
-    /*
-     * Servicos digitais: as plaquinhas de QR e NFC.
-     *
-     * So administracao. O vendedor nao entra: aqui se decide para onde aponta
-     * a placa que esta no balcao de um cliente, e isso nao e acao de carteira.
-     *
-     * A leitura da plaquinha em si mora em routes/leitura.php, fora de
-     * qualquer grupo: ela responde a desconhecido e nao pode carregar sessao.
-     */
-    Route::middleware('admin')->prefix('etiquetas')->name('etiquetas.')->group(function () {
-        Route::get('/', [EtiquetaController::class, 'index'])->name('index');
-
-        // O fluxo, na ordem em que ele acontece: gera, imprime, vende, e so
-        // entao diz para onde cada codigo leva.
-        Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
-        Route::post('/apontar', [EtiquetaController::class, 'apontarPorCodigo'])->name('apontar-codigo');
-
-        // O encurtador, atras da mesma porta. Ver LinkController.
-        Route::get('/links', [LinkController::class, 'index'])->name('links.index');
-        Route::post('/links', [LinkController::class, 'salvar'])->name('links.salvar');
-        Route::post('/links/{link}/alternar', [LinkController::class, 'alternar'])->name('links.alternar');
-
-        Route::get('/{etiqueta}', [EtiquetaController::class, 'ficha'])->name('ficha');
-        Route::put('/{etiqueta}', [EtiquetaController::class, 'apontar'])->name('apontar');
-        Route::post('/{etiqueta}/alternar', [EtiquetaController::class, 'alternar'])->name('alternar');
-        Route::post('/{etiqueta}/renovar', [EtiquetaController::class, 'renovar'])->name('renovar');
-    });
-
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
     // Conferir a corrente da trilha: a funcao existia so no console.
     Route::post('/auditoria/conferir', [AuditoriaController::class, 'conferir'])

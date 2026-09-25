@@ -6,6 +6,7 @@ use App\Actions\Links\EncurtarLink;
 use App\Models\Link;
 use App\Support\Auditar;
 use App\Support\Destino;
+use App\Support\Dono;
 use Illuminate\Http\Request;
 
 /**
@@ -23,7 +24,7 @@ class LinkController extends Controller
         $busca = trim((string) $pedido->query('busca'));
 
         return view('paginas.etiquetas.links', [
-            'links' => Link::query()
+            'links' => Dono::limitar(Link::query())
                 ->when($busca !== '', fn ($consulta) => $consulta
                     ->where('codigo', mb_strtoupper($busca))
                     ->orWhere('titulo', 'like', "%{$busca}%")
@@ -53,6 +54,8 @@ class LinkController extends Controller
     /** Liga e desliga. Nao apaga: o codigo pode estar gravado numa tag. */
     public function alternar(Link $link)
     {
+        abort_unless(Dono::pode($link), 404);
+
         $link->update(['ativo' => ! $link->ativo]);
 
         Auditar::registrar('links.alternado', $link, ['ativo' => $link->ativo]);

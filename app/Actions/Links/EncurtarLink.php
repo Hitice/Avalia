@@ -7,6 +7,7 @@ use App\Models\Link;
 use App\Support\Auditar;
 use App\Support\CodigoCurto;
 use App\Support\Destino;
+use App\Support\Dono;
 
 /**
  * Guarda um endereco longo atras de um codigo curto.
@@ -32,11 +33,16 @@ class EncurtarLink
             throw new Recusa($problema);
         }
 
-        if ($existente = Link::firstWhere('destino', $endereco)) {
+        $existente = Dono::limitar(Link::query())->where('destino', $endereco)->first();
+
+        // So reaproveita o que e da propria conta. Um endereco publico
+        // encurtado por duas contas devolveria a segunda o codigo da primeira,
+        // com os cliques dela junto.
+        if ($existente) {
             return $existente;
         }
 
-        $link = Link::create([
+        $link = Link::create(Dono::carimbo() + [
             'codigo' => $this->codigoInedito(),
             'destino' => $endereco,
             'titulo' => $titulo,

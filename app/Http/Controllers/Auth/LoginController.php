@@ -169,12 +169,9 @@ class LoginController extends Controller
             return redirect()->route('termos');
         }
 
-        // A porta do site pede uma tela especifica. So vale para quem pode
-        // abri-la: mandar um cliente para uma rota de administracao trocaria o
-        // login bem-sucedido por um 403, que ele leria como recusa da senha.
-        $atalho = self::DESTINOS[$request->input('destino')] ?? null;
-
-        if ($atalho && $conta instanceof \App\Models\Staff && $conta->papel === 'admin') {
+        // A porta do site pede uma tela especifica. Vale para qualquer conta,
+        // porque a ferramenta atende todas: cada uma ve o que e seu.
+        if ($atalho = self::DESTINOS[$request->input('destino')] ?? null) {
             return redirect()->route($atalho);
         }
 

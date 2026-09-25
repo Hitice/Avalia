@@ -120,15 +120,52 @@ it('passa a mandar para o destino novo assim que ele muda', function () {
 |--------------------------------------------------------------------------
 */
 
-it('so encurta atras do mesmo login do QR dinamico', function () {
+it('nao encurta para quem nao entrou', function () {
     // Encurtador aberto a qualquer um vira alvo de phishing em dias, e o dia
     // em que o dominio entrar numa lista de bloqueio, todas as etiquetas
     // vendidas param de abrir junto.
     $this->post(route('etiquetas.links.salvar'), ['destino' => 'https://loja.com.br'])
         ->assertRedirect(route('entrar'));
 
-    comoVendedor(Staff::factory()->create(['papel' => 'vendedor']))
-        ->get(route('etiquetas.links.index'))->assertForbidden();
-
     expect(Link::count())->toBe(0);
+});
+
+it('mostra a cada conta so os links dela', function () {
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://da-administracao.com.br']);
+    comoVendedor($vendedor)->post(route('etiquetas.links.salvar'), ['destino' => 'https://do-vendedor.com.br']);
+
+    // O vendedor entra, e ve o que e dele.
+    comoVendedor($vendedor)->get(route('etiquetas.links.index'))
+        ->assertOk()
+        ->assertSee('do-vendedor.com.br')
+        ->assertDontSee('da-administracao.com.br');
+
+    // A administracao ve tudo: e ela que gera a tiragem e atende no telefone.
+    admin()->get(route('etiquetas.links.index'))
+        ->assertOk()
+        ->assertSee('do-vendedor.com.br')
+        ->assertSee('da-administracao.com.br');
+});
+
+it('nao deixa uma conta desligar o link de outra', function () {
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://da-administracao.com.br']);
+    $link = Link::sole();
+
+    comoVendedor(Staff::factory()->create(['papel' => 'vendedor']))
+        ->post(route('etiquetas.links.alternar', $link))->assertNotFound();
+
+    expect($link->refresh()->ativo)->toBeTrue();
+});
+
+it('nao devolve a uma conta o codigo que outra criou para o mesmo endereco', function () {
+    // Endereco publico encurtado por duas contas: devolver o codigo da
+    // primeira daria a segunda os cliques que nao sao dela.
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://loja.com.br']);
+
+    comoVendedor(Staff::factory()->create(['papel' => 'vendedor']))
+        ->post(route('etiquetas.links.salvar'), ['destino' => 'https://loja.com.br']);
+
+    expect(Link::count())->toBe(2);
 });

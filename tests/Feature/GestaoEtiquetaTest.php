@@ -249,13 +249,46 @@ it('registra na auditoria tudo que muda a plaquinha', function () {
     );
 });
 
-it('mantem o vendedor fora da gestao de plaquinhas', function () {
+it('deixa o vendedor entrar, mas so no que e dele', function () {
+    // A ferramenta atende toda conta. O que limita nao e o papel, e o dono
+    // gravado em cada codigo.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
-    $etiqueta = Etiqueta::factory()->ativa()->create();
+    $daAdministracao = Etiqueta::factory()->ativa()->create(['codigo' => 'AAAAAA']);
 
-    comoVendedor($vendedor)->get(route('etiquetas.index'))->assertForbidden();
-    comoVendedor($vendedor)->get(route('etiquetas.ficha', $etiqueta))->assertForbidden();
-    comoVendedor($vendedor)->post(route('etiquetas.alternar', $etiqueta))->assertForbidden();
+    comoVendedor($vendedor)->post(route('etiquetas.gerar'), ['quantidade' => 2, 'titulo' => 'Do vendedor']);
+
+    comoVendedor($vendedor)->get(route('etiquetas.index'))
+        ->assertOk()
+        ->assertSee('Do vendedor')
+        ->assertDontSee('AAAAAA');
+
+    // 404 e nao 403: dizer "existe, mas nao e seu" confirmaria a existencia do
+    // codigo a quem so tentou a sorte.
+    comoVendedor($vendedor)->get(route('etiquetas.ficha', $daAdministracao))->assertNotFound();
+    comoVendedor($vendedor)->post(route('etiquetas.alternar', $daAdministracao))->assertNotFound();
+});
+
+it('deixa o cliente entrar pela conta da empresa dele', function () {
+    $empresa = empresaComPlano();
+
+    comoEmpresa($empresa)->post(route('etiquetas.gerar'), ['quantidade' => 1, 'titulo' => 'Da empresa']);
+
+    comoEmpresa($empresa)->get(route('etiquetas.index'))->assertOk()->assertSee('Da empresa');
+
+    expect(App\Models\Etiqueta::sole()->dono_tipo)->toBe('empresa')
+        ->and(App\Models\Etiqueta::sole()->dono_id)->toBe($empresa->id);
+});
+
+it('nao deixa um cliente cadastrar destino no codigo de outro', function () {
+    // O codigo esta impresso e qualquer um pode ler um. A resposta e a mesma
+    // de codigo inexistente.
+    Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
+
+    comoEmpresa(empresaComPlano())->post(route('etiquetas.apontar-codigo'), [
+        'codigo' => 'K7M2PX', 'destino' => 'https://invasor.com.br',
+    ])->assertRedirect()->assertSessionHas('erro');
+
+    expect(Etiqueta::sole()->destino)->toBeNull();
 });
 
 /*

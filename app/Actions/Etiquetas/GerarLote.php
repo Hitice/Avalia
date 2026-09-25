@@ -7,6 +7,7 @@ use App\Models\Etiqueta;
 use App\Models\LoteEtiqueta;
 use App\Support\Auditar;
 use App\Support\CodigoCurto;
+use App\Support\Dono;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -53,7 +54,7 @@ class GerarLote
             // hospedagem compartilhada estouram o tempo da requisicao muito
             // antes de a tiragem terminar.
             collect($codigos)
-                ->map(fn (string $codigo, int $posicao) => [
+                ->map(fn (string $codigo, int $posicao) => Dono::carimbo() + [
                     'codigo' => $codigo,
                     'lote_id' => $lote->id,
                     'sequencia' => $posicao + 1,

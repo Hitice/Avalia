@@ -125,12 +125,15 @@ it('entrega o pacote da campanha dentro da propria tabela', function () {
         ->and($payload['arquivo'])->toBe('0001-'.$primeira->codigo);
 });
 
-it('mantem o vendedor fora da geracao', function () {
-    // Aqui se decide para onde aponta a placa que esta no balcao de um
-    // cliente. Nao e acao de carteira.
+it('carimba o dono em cada codigo gerado', function () {
+    // Sem dono, abrir a porta significaria que qualquer conta ve os codigos de
+    // todas as outras e troca o destino deles.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
-    comoVendedor($vendedor)->post(route('etiquetas.gerar'), ['quantidade' => 5])->assertForbidden();
+    comoVendedor($vendedor)->post(route('etiquetas.gerar'), ['quantidade' => 5]);
+
+    expect(Etiqueta::pluck('dono_tipo')->unique()->all())->toBe(['staff'])
+        ->and(Etiqueta::pluck('dono_id')->unique()->all())->toBe([$vendedor->id]);
 });
 
 it('so monta o pacote quando ha campanha escolhida', function () {
@@ -162,9 +165,11 @@ it('poe as plaquinhas na lateral, sem esconder atras de um pai', function () {
     expect($painel->getContent())->not->toContain('Serviços digitais');
 });
 
-it('nao mostra o QR dinamico ao vendedor', function () {
-    // Menu que leva a 403 ensina o operador a ignorar o menu.
+it('mostra o QR dinamico na lateral de toda conta', function () {
+    // A ferramenta atende todo mundo, entao o menu dela aparece para todo
+    // mundo. Menu escondido de quem tem acesso e modulo que ninguem acha.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
-    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertDontSee('QR dinâmico');
+    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertSee('QR dinâmico');
+    comoEmpresa(empresaComPlano())->get(route('empresa.painel'))->assertOk()->assertSee('QR dinâmico');
 });

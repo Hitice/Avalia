@@ -31,6 +31,7 @@ class Etiqueta extends Model
         'titulo', 'cliente_nome', 'cliente_contato',
         'vendida_em', 'vence_em', 'avisada_em', 'valor_cents', 'gravada_em',
         'asaas_subscription_id', 'total_acessos', 'ultimo_acesso_em', 'staff_id',
+        'dono_tipo', 'dono_id',
     ];
 
     protected function casts(): array
