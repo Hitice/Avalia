@@ -26,7 +26,7 @@ return [
         'resumo' => 'Robôs que executam rotinas fiscais e financeiras e integrações que fazem ERP, bancos e APIs trocarem informações, sem substituir nenhum sistema.',
         'texto' => 'Robôs que executam rotinas fiscais e financeiras sem digitação, e integrações que ligam ERP, bancos, APIs e WhatsApp numa camada só. Começamos pelo levantamento junto à sua equipe: é ele que decide o que vale automatizar e o que vale apenas conectar.',
         'icone' => 'M9 3h6a2 2 0 0 1 2 2v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h1V5a2 2 0 0 1 2-2ZM9 13h.01M15 13h.01M9.5 17h5',
-        'imagem' => 'rpa.jpg',
+        'imagem' => 'rpa.webp',
         'alt' => 'Código de automação projetado sobre a tela de um notebook enquanto alguém digita',
         'itens' => [
             'Rotinas fiscais executadas sem intervenção manual',
@@ -41,7 +41,7 @@ return [
         'resumo' => 'Monitoramento contínuo do mercado e cotações de ativos atualizadas, no formato que sua equipe já usa.',
         'texto' => 'Robôs configurados para o seu negócio, que acompanham o mercado e mantêm as cotações de moedas e ativos sempre atualizadas.',
         'icone' => 'M3 17l5-5 4 4 8-9M16 7h5v5',
-        'imagem' => 'mercado.jpg',
+        'imagem' => 'mercado.webp',
         'alt' => 'Painéis de indicadores e gráficos flutuando sobre um notebook e um tablet',
         'itens' => [
             'Monitoramento dos ativos e indicadores que importam para você',
@@ -55,7 +55,7 @@ return [
         'resumo' => 'Gestão de alertas e cobranças, enviados no momento certo, com acompanhamento de cada pagamento em aberto.',
         'texto' => 'Da emissão do boleto à negativação, toda a jornada de cobrança roda de forma automática, no momento certo e no tom certo, com acompanhamento de cada pagamento em aberto.',
         'icone' => 'M12 3v18M16 7.5c0-1.4-1.8-2.5-4-2.5S8 6.1 8 7.5 9.8 10 12 10s4 1.1 4 2.5S14.2 15 12 15s-4-1.1-4-2.5',
-        'imagem' => 'cobrancas.jpg',
+        'imagem' => 'cobrancas.webp',
         'alt' => 'Relatórios impressos com gráficos de barras, linhas e pizza sobre uma mesa',
         'itens' => [
             'Emissão e envio automático de boletos',
@@ -69,7 +69,7 @@ return [
         'resumo' => 'Segmentação de leads, atendimento ao cliente, chat inteligente e URA com voz natural gerada por IA, integrados aos seus sistemas.',
         'texto' => 'Da segmentação de leads ao atendimento ao cliente: chat inteligente, URA com voz natural gerada por IA e passagem para a sua equipe quando for preciso, integrados aos seus sistemas.',
         'icone' => 'M8 12h8M8 8.5h8M21 12a8 8 0 0 1-8 8H7l-4 3v-6.5A8 8 0 0 1 11 4h2a8 8 0 0 1 8 8Z',
-        'imagem' => 'ura.jpg',
+        'imagem' => 'ura.webp',
         'alt' => 'Três profissionais em uma reunião, dois deles apertando as mãos',
         'itens' => [
             'Segmentação e qualificação de leads',
@@ -85,7 +85,7 @@ return [
         'resumo' => 'Acompanhamento da produção e um CRM enxuto, desenhados para o jeito que sua empresa trabalha.',
         'texto' => 'Acompanhamento da produção e um CRM enxuto, desenhados para o jeito que sua empresa trabalha.',
         'icone' => 'M4 20V10m5 10V4m5 16v-7m5 7V8',
-        'imagem' => 'gestao.jpg',
+        'imagem' => 'gestao.webp',
         'alt' => 'Equipe reunida diante de monitores acompanhando um painel de operação',
         'itens' => [
             'Acompanhamento de cada etapa da produção',
@@ -99,7 +99,7 @@ return [
         'resumo' => 'Produtos digitais sob medida, do site institucional à plataforma SaaS, com a mesma engenharia das nossas automações.',
         'texto' => 'Produtos digitais sob medida, do site institucional à plataforma SaaS, com a mesma engenharia das nossas automações.',
         'icone' => 'm9 8-5 4 5 4M15 8l5 4-5 4',
-        'imagem' => 'desenvolvimento.jpg',
+        'imagem' => 'desenvolvimento.webp',
         'alt' => 'Três profissionais diante de um monitor, discutindo o diagrama de um sistema',
         'itens' => [
             'Sites institucionais e páginas de venda',

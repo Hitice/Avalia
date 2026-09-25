@@ -200,7 +200,7 @@
                      fora da primeira dobra sem dizer nada que o texto ja nao
                      diga. --}}
                 <div class="hidden lg:block">
-                    <img src="{{ asset('images/business1.png') }}" width="529" height="710" decoding="async"
+                    <img src="{{ asset('images/business1.webp') }}" width="529" height="710" decoding="async"
                          alt="Dois profissionais atendendo clientes"
                          class="mx-auto w-full max-w-lg">
                 </div>

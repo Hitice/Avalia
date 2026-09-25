@@ -490,7 +490,7 @@
                  diagrama e terminal, e uma pagina inteira de interface nao
                  lembra que quem entrega o trabalho sao pessoas. --}}
             <figure class="hidden overflow-hidden rounded-2xl border border-gray-200 lg:block" data-revelar style="--atraso: 0.1s">
-                <img src="{{ asset('images/site/equipe-reuniao.jpg') }}" width="1024" height="796" loading="lazy"
+                <img src="{{ asset('images/site/equipe-reuniao.webp') }}" width="1024" height="796" loading="lazy"
                      alt="Equipe reunida em volta de uma mesa, conversando sobre o trabalho"
                      class="aspect-[4/3] w-full object-cover">
             </figure>
@@ -504,7 +504,7 @@
                  profundidade a faixa sem disputar com o texto, que e o que
                  precisa ser lido ali. A grade da marca continua por cima. --}}
             <div class="superficie-escura relative flex flex-col items-start gap-6 overflow-hidden rounded-2xl p-8 lg:flex-row lg:items-center lg:justify-between lg:p-12">
-                <img src="{{ asset('images/site/infraestrutura.jpg') }}" alt="" aria-hidden="true" loading="lazy"
+                <img src="{{ asset('images/site/infraestrutura.webp') }}" alt="" aria-hidden="true" loading="lazy"
                      class="absolute inset-0 size-full object-cover opacity-20">
                 <div class="grade-viva-escura absolute inset-0"></div>
 

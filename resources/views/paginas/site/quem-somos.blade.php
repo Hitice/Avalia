@@ -42,7 +42,7 @@
                      centro. Com altura propria ela deixava um degrau de espaco
                      branco no pe da coluna. --}}
                 <figure class="min-h-[18rem] overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
-                    <img src="{{ asset('images/site/equipe.jpg') }}" width="740" height="493" loading="lazy"
+                    <img src="{{ asset('images/site/equipe.webp') }}" width="740" height="493" loading="lazy"
                          alt="Cinco profissionais de negócios lado a lado, sorrindo"
                          class="h-full w-full object-cover">
                 </figure>

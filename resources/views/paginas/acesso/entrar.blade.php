@@ -189,7 +189,12 @@
                 {{-- A foto por baixo de tudo, com o veu da marca por cima:
                      e ela que da vida ao painel, mas quem manda na leitura
                      continua sendo o azul, a grade e a marca. --}}
-                <img src="/images/entrar-fundo.png" alt="" draggable="false"
+                {{-- WebP e preguicosa: a foto tinha 13 MB e 6000px de largura,
+                     num painel que nunca passa de metade da tela e ainda leva
+                     um veu preto de 96% por cima. Ela era, sozinha, quase todo
+                     o peso do site. --}}
+                <img src="/images/entrar-fundo.webp" alt="" draggable="false"
+                     loading="lazy" decoding="async"
                      class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
                 <div aria-hidden="true" class="pointer-events-none absolute inset-0"
                      style="background: linear-gradient(to top right, rgb(0 0 0 / 0.96) 0%, rgb(0 0 0 / 0.7) 32%, rgb(0 0 0 / 0.5) 50%, rgb(0 0 0 / 0.7) 68%, rgb(0 0 0 / 0.96) 100%)"></div>
