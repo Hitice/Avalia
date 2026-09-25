@@ -38,10 +38,10 @@
                 <div class="prosa">
                     <p>{{ $servico['texto'] }}</p>
                     <p>
-                        A diferença para um QR comum é só uma, e é a que importa: o código comum
-                        carrega o endereço do cliente dentro do próprio desenho, então trocar de
-                        endereço é reimprimir tudo. Aqui o desenho carrega um endereço nosso, e o
-                        do cliente fica num campo que a gente edita.
+                        A diferença para um QR Code comum está em onde o endereço fica gravado.
+                        No código comum, ele é parte do desenho: mudar o destino exige reimprimir
+                        tudo. Aqui o desenho aponta para um endereço fixo da {{ Empresa::marca() }},
+                        e o destino é um registro editável.
                     </p>
                 </div>
 
@@ -63,11 +63,11 @@
 
                     <ul class="mt-6 space-y-3 border-t border-gray-100 pt-6 text-sm leading-relaxed text-gray-600">
                         @foreach ([
-                            'Trocas de destino sem limite, e sem reimprimir',
-                            'SVG em vetor e PNG, no tamanho em milímetros que você pedir',
-                            'Encurtador de links incluído, para caber em tag NFC',
-                            'Contagem de leituras, por dia',
-                            'O código é seu e nunca vai para outro cliente',
+                            'Alterações de destino ilimitadas, sem reimpressão',
+                            'SVG vetorial e PNG, na medida em milímetros solicitada',
+                            'Encurtador de links incluído, compatível com tag NFC',
+                            'Relatório de leituras por dia',
+                            'Código exclusivo, nunca reaproveitado para outro cliente',
                         ] as $item)
                             <li class="flex items-start gap-3">
                                 <svg class="mt-0.5 size-5 shrink-0 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -84,9 +84,9 @@
 
             <div class="mt-8 grid gap-5 md:grid-cols-3">
                 @foreach ([
-                    ['01', 'Gere os códigos', 'Um, ou cem de uma vez. Saem em SVG e PNG, numerados, com o CSV que o CorelDRAW lê para imprimir a tiragem inteira.'],
-                    ['02', 'Imprima e venda', 'Os códigos nascem em branco, sem destino. É essa a ideia: imprimir antes de saber para quem vai.'],
-                    ['03', 'Cadastre o destino', 'Vendeu, leu o código impresso e informou a URL. Mudou depois? Troca o campo, e a placa que já está no balcão passa a levar para o lugar novo.'],
+                    ['01', 'Geração', 'De um a mil códigos por campanha. Os arquivos saem em SVG vetorial e PNG, numerados, com a planilha que o CorelDRAW usa para imprimir a tiragem inteira.'],
+                    ['02', 'Impressão', 'Os códigos são gerados sem destino definido, o que permite imprimir o material antes de saber a quem ele será destinado.'],
+                    ['03', 'Configuração', 'Informe o código impresso e o endereço de destino. A alteração vale em até um minuto, e o material já distribuído continua válido.'],
                 ] as [$numero, $titulo, $texto])
                     <div class="bloco p-7" data-revelar>
                         <span class="indice indice-claro">{{ $numero }}</span>
@@ -98,8 +98,8 @@
         </div>
     </section>
 
-    <x-site.chamada titulo="Quer os códigos no seu balcão?" acao="Falar com a Avalia">
-        Diga quantos você precisa e para onde eles devem apontar. A gente gera, entrega e deixa
-        funcionando.
+    <x-site.chamada titulo="Pronto para começar?" acao="Solicitar contato">
+        Informe a quantidade de códigos e os destinos. A geração dos arquivos e a configuração
+        ficam por nossa conta.
     </x-site.chamada>
 @endsection

@@ -82,7 +82,7 @@
                 Nem tudo precisa de projeto
             </h2>
             <p class="mt-3 max-w-2xl leading-relaxed text-white/60">
-                Estes a gente vende com preço de tabela, no mesmo dia, sem orçamento.
+                Serviços de contratação imediata, com preço de tabela e sem proposta.
             </p>
 
             <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">

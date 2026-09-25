@@ -99,8 +99,9 @@
                     <h2 class="rotulo-grupo">Precisa resolver isto?</h2>
 
                     <p class="mt-4 leading-relaxed text-gray-600">
-                        Plaquinhas de QR e NFC da {{ Empresa::marca() }} apontam para onde você quiser, e o
-                        destino pode mudar depois de impressas. Fale com a gente que a gente ajusta.
+                        Os códigos QR da {{ Empresa::marca() }} têm destino editável: o endereço impresso
+                        é permanente, e para onde ele leva pode mudar a qualquer momento, sem
+                        reimpressão.
                     </p>
 
                     <div class="mt-6 flex flex-wrap items-center gap-3">

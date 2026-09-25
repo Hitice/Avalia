@@ -45,7 +45,7 @@
 @section('content')
     <x-site.cabecalho selo="Dúvidas" icone="M9.5 9.2a2.6 2.6 0 1 1 3.4 2.5c-.6.2-.9.8-.9 1.4v.6M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" titulo="Perguntas frequentes">
         O que costumam nos perguntar antes de começar um projeto. Se a sua dúvida não estiver
-        aqui, fale com a gente.
+        aqui, entre em contato.
     </x-site.cabecalho>
 
     <section class="py-16 lg:py-20">
@@ -70,6 +70,6 @@
     </section>
 
     <x-site.chamada titulo="Ficou alguma dúvida?" acao="Falar com a {{ Empresa::marca() }}">
-        Fale com a gente pelo WhatsApp ou por e-mail e conte o que a sua empresa precisa.
+        Entre em contato por WhatsApp ou e-mail e descreva a necessidade da sua empresa.
     </x-site.chamada>
 @endsection

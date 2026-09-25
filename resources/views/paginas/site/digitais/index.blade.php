@@ -6,8 +6,8 @@
 @section('content')
     <x-site.cabecalho selo="Serviços" titulo="Serviços digitais, com preço de tabela"
                       icone="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 4h2m-2-4h6m-2 4v2">
-        Diferente do software sob medida: aqui não começa por orçamento. É o mesmo serviço para
-        todo mundo, com o mesmo preço, contratado no mesmo dia.
+        Serviços de contratação imediata, com preço de tabela e escopo definido. Sem
+        levantamento e sem proposta: o mesmo serviço, pelo mesmo valor, para todos os clientes.
     </x-site.cabecalho>
 
     <section class="py-16 lg:py-20">
@@ -22,8 +22,8 @@
 
     <x-site.porta-acesso />
 
-    <x-site.chamada titulo="Precisa de algo que não está aqui?">
-        Serviço digital novo entra nesta lista conforme a gente constrói. Se o que você precisa é
-        um sistema sob medida, a conversa começa na página de contato.
+    <x-site.chamada titulo="Precisa de algo que não está nesta lista?">
+        Sistemas sob medida são desenvolvidos sob demanda, com escopo e investimento definidos em
+        proposta.
     </x-site.chamada>
 @endsection
