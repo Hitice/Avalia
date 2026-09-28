@@ -24,7 +24,7 @@
             </div>
 
             <div class="w-52">
-                <label for="titulo" class="rotulo-campo">Apelido</label>
+                <label for="titulo" class="rotulo-campo">Nome interno</label>
                 <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
                        value="{{ old('titulo') }}" placeholder="Promo Floripa">
             </div>
@@ -32,6 +32,28 @@
             <div class="pt-[1.6rem]">
                 <x-avalia.botao>Encurtar</x-avalia.botao>
             </div>
+        </div>
+
+        {{-- O endereco escolhido mora na RAIZ do dominio, junto das paginas do
+             site. Por isso o campo mostra o prefixo: o que se digita ali vira
+             um endereco publico da casa, e nao um parametro. --}}
+        <div>
+            <label for="apelido" class="rotulo-campo">Endereço personalizado (opcional)</label>
+
+            <div class="flex items-center">
+                <span class="rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    {{ rtrim(parse_url(config('app.url'), PHP_URL_HOST) ?: 'avaliaone.com.br', '/') }}/
+                </span>
+                <input id="apelido" name="apelido" type="text" maxlength="{{ App\Support\Apelido::TAMANHO_MAXIMO }}"
+                       class="campo rounded-l-none" value="{{ old('apelido') }}" placeholder="MarthaNegocios">
+            </div>
+
+            @error('apelido')<p class="erro-campo">{{ $message }}</p>@enderror
+
+            <p class="ajuda-campo">
+                Letras, números e hífen. Deixe em branco para usar só o código sorteado. O código
+                continua valendo depois, então uma tag já gravada não para de funcionar.
+            </p>
         </div>
 
         {{-- Endereco repetido devolve o codigo que ja existe: dois codigos para
@@ -90,6 +112,15 @@
                                         </svg>
                                     </button>
                                 </div>
+
+                                {{-- O codigo sorteado tambem abre, sempre. E o
+                                     que esta gravado na tag de quem recebeu o
+                                     link antes de ele ganhar nome. --}}
+                                @if ($link->apelido)
+                                    <span class="mt-0.5 block font-mono text-xs text-gray-400">
+                                        também em {{ $link->urlDoCodigo() }}
+                                    </span>
+                                @endif
 
                                 @if ($link->titulo)
                                     <span class="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">{{ $link->titulo }}</span>

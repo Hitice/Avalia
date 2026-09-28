@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Links\EncurtarLink;
 use App\Models\Link;
+use App\Support\Apelido;
 use App\Support\Auditar;
 use App\Support\Destino;
 use App\Support\Dono;
@@ -25,10 +26,11 @@ class LinkController extends Controller
 
         return view('paginas.etiquetas.links', [
             'links' => Dono::limitar(Link::query())
-                ->when($busca !== '', fn ($consulta) => $consulta
+                ->when($busca !== '', fn ($consulta) => $consulta->where(fn ($ou) => $ou
                     ->where('codigo', mb_strtoupper($busca))
+                    ->orWhere('apelido', 'like', "%{$busca}%")
                     ->orWhere('titulo', 'like', "%{$busca}%")
-                    ->orWhere('destino', 'like', "%{$busca}%"))
+                    ->orWhere('destino', 'like', "%{$busca}%")))
                 ->orderByDesc('id')
                 ->paginate(25)
                 ->withQueryString(),
@@ -44,9 +46,10 @@ class LinkController extends Controller
         $dados = $pedido->validate([
             'destino' => ['required', 'string', 'max:'.Destino::TAMANHO_MAXIMO],
             'titulo' => ['nullable', 'string', 'max:120'],
+            'apelido' => ['nullable', 'string', 'max:'.Apelido::TAMANHO_MAXIMO],
         ]);
 
-        $link = $encurtar($dados['destino'], $dados['titulo'] ?? null);
+        $link = $encurtar($dados['destino'], $dados['titulo'] ?? null, $dados['apelido'] ?? null);
 
         return back()->with('ok', "Link {$link->codigo} pronto: {$link->url()} ({$link->bytes()} bytes).");
     }

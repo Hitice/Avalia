@@ -210,3 +210,105 @@ it('oferece copiar o link na tabela', function () {
 
     admin()->get(route('etiquetas.links.index'))->assertOk()->assertSee('copiar(', false);
 });
+
+/*
+|--------------------------------------------------------------------------
+| O apelido na raiz do dominio
+|--------------------------------------------------------------------------
+|
+| avaliaone.com.br/MarthaNegocios mora no mesmo espaco de nomes de todas as
+| paginas do site e de toda tela do sistema. O risco nao e o de hoje, que a
+| ordem das rotas resolve: e o de amanha, quando uma tela nova chamada /promo
+| passaria a ganhar de um apelido `promo` ja vendido, e o link do cliente
+| pararia de abrir sem ninguem ter tocado nele.
+|
+*/
+
+it('abre o link pelo apelido escolhido', function () {
+    admin()->post(route('etiquetas.links.salvar'), [
+        'destino' => 'https://marthanegocios.com.br',
+        'apelido' => 'MarthaNegocios',
+    ])->assertRedirect();
+
+    $this->get('/MarthaNegocios')->assertRedirect('https://marthanegocios.com.br');
+});
+
+it('abre o apelido em qualquer caixa', function () {
+    // Quem copia de um impresso digita como quiser, e o endereco tem que abrir.
+    admin()->post(route('etiquetas.links.salvar'), [
+        'destino' => 'https://loja.com.br', 'apelido' => 'MarthaNegocios',
+    ]);
+
+    $this->get('/marthanegocios')->assertRedirect('https://loja.com.br');
+    $this->get('/MARTHANEGOCIOS')->assertRedirect('https://loja.com.br');
+});
+
+it('mantem o codigo sorteado valendo depois do apelido', function () {
+    // Tag ja gravada com o codigo nao pode parar de abrir so porque o link
+    // ganhou nome bonito.
+    admin()->post(route('etiquetas.links.salvar'), [
+        'destino' => 'https://loja.com.br', 'apelido' => 'MarthaNegocios',
+    ]);
+
+    $this->get(route('l', Link::sole()->codigo))->assertRedirect('https://loja.com.br');
+});
+
+it('recusa apelido que ja e endereco do site', function () {
+    foreach (['contato', 'softwares', 'entrar', 'painel', 'etiquetas', 'blog'] as $reservado) {
+        admin()->post(route('etiquetas.links.salvar'), [
+            'destino' => 'https://loja.com.br/'.$reservado, 'apelido' => $reservado,
+        ])->assertSessionHas('erro');
+    }
+
+    expect(Link::whereNotNull('apelido')->count())->toBe(0);
+});
+
+it('nao engole as paginas do site', function () {
+    // A rota do apelido e a ultima: tudo que ja existe continua ganhando dela.
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://loja.com.br']);
+
+    $this->get('/softwares')->assertOk();
+    $this->get('/quem-somos')->assertOk();
+    $this->get('/servicos-digitais')->assertOk();
+});
+
+it('recusa apelido ja usado por outro link', function () {
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://um.com.br', 'apelido' => 'Promo']);
+
+    admin()->post(route('etiquetas.links.salvar'), ['destino' => 'https://dois.com.br', 'apelido' => 'promo'])
+        ->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'já está em uso'));
+
+    expect(Link::whereNotNull('apelido')->count())->toBe(1);
+});
+
+it('recusa apelido com espaco, acento ou ponto', function () {
+    // Eles viram outra coisa ao passar por WhatsApp e por impressao, e o link
+    // deixa de abrir.
+    foreach (['Martha Negocios', 'Martha.Negocios', 'MarthaNegócios', 'ab'] as $ruim) {
+        admin()->post(route('etiquetas.links.salvar'), [
+            'destino' => 'https://loja.com.br/'.urlencode($ruim), 'apelido' => $ruim,
+        ])->assertSessionHas('erro');
+    }
+
+    expect(Link::whereNotNull('apelido')->count())->toBe(0);
+});
+
+it('devolve o 404 de sempre quando o endereco nao e de ninguem', function () {
+    // Devolver a pagina de codigo nao encontrado aqui transformaria todo
+    // endereco errado do site numa explicacao sobre QR Code.
+    $this->get('/nao-existe-isso')->assertNotFound()->assertDontSee('I, L, O e U');
+});
+
+it('nao deixa rota nova engolir apelido ja vendido', function () {
+    // A guarda de verdade: se alguem registrar amanha uma rota com o nome de
+    // um apelido que ja esta em circulacao, este teste quebra citando qual.
+    admin()->post(route('etiquetas.links.salvar'), [
+        'destino' => 'https://loja.com.br', 'apelido' => 'MarthaNegocios',
+    ]);
+
+    $engolidos = Link::whereNotNull('apelido')->pluck('apelido')
+        ->filter(fn (string $apelido) => App\Support\Apelido::reservado($apelido))
+        ->all();
+
+    expect($engolidos)->toBeEmpty('apelido engolido por rota: '.implode(', ', $engolidos));
+});

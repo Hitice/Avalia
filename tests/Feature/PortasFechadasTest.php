@@ -53,6 +53,9 @@ const PORTAS_PUBLICAS = [
     // mao de alguem, e do outro lado nao ha conta nem dado de ninguem.
     'l' => 'abertura de link encurtado; redireciona um codigo publico',
     'l.maiusculo' => 'a mesma abertura, com o caminho em maiusculas',
+    // O apelido na raiz do dominio. Ultima rota da aplicacao: so recebe o que
+    // nenhuma outra quis, e devolve o 404 de sempre quando nao e de ninguem.
+    'apelido' => 'abertura de link pelo apelido publico, na raiz do dominio',
     // A area do produtor existe para quem ainda nao sabe por onde entrar.
     // Pedir senha antes de listar as opcoes seria exigir a chave de uma porta
     // para dizer quais portas existem. Ela mostra portas, e nada mais.

@@ -23,10 +23,37 @@ class RedirecionadorLinkController extends Controller
         $normalizado = CodigoCurto::normalizar($codigo);
         $link = $normalizado === '' ? null : Link::porCodigo($normalizado);
 
+        return $this->responder($pedido, $link, $codigo);
+    }
+
+    /**
+     * O mesmo link, chamado pelo apelido na raiz do dominio.
+     *
+     * Mesmo controller, mesmo model, mesmas regras: o apelido e um segundo
+     * endereco para o mesmo registro, e nao um segundo produto.
+     *
+     * Esta rota e a ULTIMA da aplicacao, e por isso so recebe o que nenhuma
+     * outra quis. Endereco que nao e apelido de ninguem cai no 404 de sempre,
+     * exatamente como caia antes de esta rota existir.
+     */
+    public function porApelido(Request $pedido, string $apelido)
+    {
+        $link = Link::porApelido($apelido);
+
+        // Sem link, o 404 comum da aplicacao. Devolver a pagina de codigo nao
+        // encontrado aqui transformaria todo endereco errado do site numa
+        // explicacao sobre QR Code.
+        abort_unless($link, 404);
+
+        return $this->responder($pedido, $link, $apelido);
+    }
+
+    private function responder(Request $pedido, ?Link $link, string $pedido_codigo)
+    {
         if (! $link || ! $link->ativo) {
             return response()->view('paginas.etiqueta.aviso', [
                 'estado' => $link ? 'suspensa' : 'nao_encontrada',
-                'codigo' => mb_strtoupper($codigo),
+                'codigo' => mb_strtoupper($pedido_codigo),
             ], $link ? 200 : 404);
         }
 

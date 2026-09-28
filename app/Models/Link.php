@@ -19,7 +19,7 @@ class Link extends Model
     use HasFactory;
 
     protected $fillable = [
-        'codigo', 'destino', 'titulo', 'ativo', 'cliques', 'ultimo_clique_em', 'staff_id',
+        'codigo', 'apelido', 'destino', 'titulo', 'ativo', 'cliques', 'ultimo_clique_em', 'staff_id',
         'dono_tipo', 'dono_id',
     ];
 
@@ -36,7 +36,16 @@ class Link extends Model
     {
         // Mesma razao da etiqueta: evento do model, e nao chamada dentro de
         // cada Action, para nenhuma forma futura de editar esquecer de limpar.
-        $esquecer = fn (self $link) => Cache::forget(self::chaveDeCache($link->codigo));
+        $esquecer = function (self $link) {
+            Cache::forget(self::chaveDeCache($link->codigo));
+
+            // O apelido tem chave propria, e o ANTIGO tambem precisa sair: sem
+            // isso, trocar o apelido deixaria o velho respondendo do cache por
+            // mais um minuto, apontando para onde o link nao aponta mais.
+            foreach (array_filter([$link->apelido, $link->getOriginal('apelido')]) as $apelido) {
+                Cache::forget(self::chaveDeCache($apelido));
+            }
+        };
 
         static::saved($esquecer);
         static::deleted($esquecer);
@@ -55,17 +64,58 @@ class Link extends Model
     /** O link de um codigo ja normalizado, passando pelo cache. */
     public static function porCodigo(string $codigo): ?self
     {
+        return self::doCache($codigo, fn () => self::firstWhere('codigo', $codigo));
+    }
+
+    /**
+     * O link de um apelido, sem diferenciar maiuscula de minuscula.
+     *
+     * `LOWER()` em vez de comparacao direta porque a colacao decide isso no
+     * MySQL e nao decide no SQLite dos testes: sem normalizar, o apelido
+     * digitado em caixa diferente abriria em producao e falharia na suite, ou
+     * o contrario, que e pior.
+     */
+    public static function porApelido(string $apelido): ?self
+    {
+        return self::doCache(
+            $apelido,
+            fn () => self::whereRaw('LOWER(apelido) = ?', [mb_strtolower($apelido)])->first(),
+        );
+    }
+
+    /**
+     * Ida ao banco com cache curto, inclusive do que nao existe.
+     *
+     * Sem guardar a ausencia, quem varresse enderecos aleatorios bateria no
+     * banco em cada tentativa.
+     */
+    private static function doCache(string $chave, \Closure $buscar): ?self
+    {
         $achado = Cache::remember(
-            self::chaveDeCache($codigo),
+            self::chaveDeCache($chave),
             (int) config('etiquetas.cache_segundos'),
-            fn () => self::firstWhere('codigo', $codigo) ?? false,
+            fn () => $buscar() ?? false,
         );
 
         return $achado === false ? null : $achado;
     }
 
-    /** O endereco curto, que e o que vai para a tag. */
+    /**
+     * O endereco curto, que e o que vai para a tag.
+     *
+     * O apelido ganha do codigo quando existe, porque e ele que a pessoa
+     * escolheu mostrar. O codigo continua valendo sempre, em paralelo: link ja
+     * gravado numa tag nao pode parar de abrir so porque ganhou nome bonito.
+     */
     public function url(): string
+    {
+        return $this->apelido
+            ? url('/'.$this->apelido)
+            : route('l', ['codigo' => $this->codigo]);
+    }
+
+    /** O endereco pelo codigo sorteado, que nunca muda. */
+    public function urlDoCodigo(): string
     {
         return route('l', ['codigo' => $this->codigo]);
     }

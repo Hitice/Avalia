@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RedirecionadorController;
 use App\Http\Controllers\RedirecionadorLinkController;
+use App\Support\Apelido;
 use App\Support\CodigoCurto;
 use Illuminate\Support\Facades\Route;
 
@@ -69,3 +70,22 @@ Route::get('/l/{codigo}', RedirecionadorLinkController::class)
 Route::get('/L/{codigo}', RedirecionadorLinkController::class)
     ->where('codigo', CodigoCurto::REGEX_ROTA)
     ->name('l.maiusculo');
+
+/*
+ * O apelido, na raiz do dominio: avaliaone.com.br/MarthaNegocios
+ *
+ * POR ULTIMO, e nao e detalhe. O Laravel casa as rotas na ordem em que foram
+ * registradas, entao esta so recebe o que nenhuma outra quis: /softwares,
+ * /entrar, /etiquetas e todo o resto continuam ganhando dela.
+ *
+ * O que ela NAO protege sozinha e o futuro: uma tela nova chamada /promo
+ * passaria a ganhar de um apelido `promo` ja vendido, e o link do cliente
+ * pararia de abrir sem ninguem ter tocado nele. Quem impede isso e
+ * App\Support\Apelido, que le a tabela de rotas na hora de aceitar o apelido,
+ * mais o teste que varre as rotas cobrando o contrario.
+ *
+ * Endereco que nao e apelido de ninguem cai no 404 de sempre.
+ */
+Route::get('/{apelido}', [RedirecionadorLinkController::class, 'porApelido'])
+    ->where('apelido', '[A-Za-z0-9-]{'.Apelido::TAMANHO_MINIMO.','.Apelido::TAMANHO_MAXIMO.'}')
+    ->name('apelido');
