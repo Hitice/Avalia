@@ -39,10 +39,47 @@ return [
     'bytes_da_tag' => 140,
 
     'precos' => [
-        'placa_cents' => 7_990,
+        // A placa sai sempre com QR e NFC juntos, e por isso ha um preco so.
+        // Mudar aqui vale da proxima venda em diante: o que foi cobrado fica
+        // gravado em `etiquetas.valor_cents`, e reajuste nao reescreve fatura
+        // velha. E a mesma regra da consulta e da fatura da casa.
+        'placa_cents' => 8_990,
         'renovacao_cents' => 4_990,
         'avulso_mensal_cents' => 1_990,
     ],
+
+    /*
+     * Quanto a placa custa para a casa, por unidade.
+     *
+     * Fica aqui e e COPIADO para a etiqueta na venda, em `custo_cents`. O
+     * fornecedor reajusta, e sem a copia o painel recalcularia o lucro de
+     * todas as vendas passadas com o custo de hoje: o mes fechado mudaria de
+     * numero depois de o repasse ja ter sido pago.
+     */
+    'custo_cents' => 500,
+
+    /*
+     * O reparte de cada placa vendida.
+     *
+     * A comissao incide sobre o LIQUIDO (venda menos custo), e nao sobre o
+     * preco cheio. E a regra que App\Support\Comissao ja aplica no resto da
+     * casa, pelo motivo escrito la: sobre faturamento, uma venda que rende e
+     * uma que sangra pagariam igual.
+     *
+     * O que sobra depois da comissao e dividido entre os socios. Venda feita
+     * por socio nao gera comissao: o liquido inteiro vai para a divisao.
+     *
+     * Os socios entram por e-mail, e nao por id: id de banco nao diz nada a
+     * quem le o config, e a lista precisa ser conferivel sem abrir o MySQL. O
+     * painel avisa em tela quando um e-mail daqui nao tem conta, porque lista
+     * errada em silencio vira repasse errado.
+     */
+    'comissao_pct' => 25,
+
+    'socios' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('ETIQUETAS_SOCIOS', 'comercial@avaliaone.com.br,ruan@avaliaone.com.br')),
+    ))),
 
     // Teto de uma tiragem. Mais que isto e o navegador desenhando QR por
     // minutos a fio, e nenhuma grafica imprime mil placas de uma vez.

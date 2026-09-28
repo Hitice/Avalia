@@ -29,9 +29,9 @@ class Etiqueta extends Model
     protected $fillable = [
         'codigo', 'lote_id', 'sequencia', 'tipo', 'situacao', 'destino',
         'titulo', 'cliente_nome', 'cliente_contato',
-        'vendida_em', 'vence_em', 'avisada_em', 'valor_cents', 'gravada_em',
+        'vendida_em', 'vence_em', 'avisada_em', 'valor_cents', 'custo_cents', 'gravada_em',
         'asaas_subscription_id', 'total_acessos', 'ultimo_acesso_em', 'staff_id',
-        'dono_tipo', 'dono_id',
+        'vendedor_id', 'dono_tipo', 'dono_id',
     ];
 
     protected function casts(): array
@@ -40,6 +40,7 @@ class Etiqueta extends Model
             'situacao' => SituacaoEtiqueta::class,
             'sequencia' => 'integer',
             'valor_cents' => 'integer',
+            'custo_cents' => 'integer',
             'total_acessos' => 'integer',
             'vendida_em' => 'datetime',
             'vence_em' => 'date',
@@ -85,9 +86,28 @@ class Etiqueta extends Model
         return $this->hasMany(AcessoEtiqueta::class);
     }
 
+    /** Quem gerou a tiragem. Trilha de producao, nao de venda. */
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
+    }
+
+    /** Quem vendeu esta plaquinha. E daqui que sai o repasse. */
+    public function vendedor(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'vendedor_id');
+    }
+
+    /**
+     * As plaquinhas vendidas dentro de um periodo.
+     *
+     * `vendida_em` e a data da venda de verdade, e nao `created_at`: a placa e
+     * gerada em branco semanas antes, e contar pela criacao creditaria a venda
+     * ao mes em que a grafica imprimiu.
+     */
+    public function scopeVendidasEntre(Builder $consulta, \DateTimeInterface $de, \DateTimeInterface $ate): Builder
+    {
+        return $consulta->whereNotNull('vendida_em')->whereBetween('vendida_em', [$de, $ate]);
     }
 
     /*

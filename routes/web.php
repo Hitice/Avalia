@@ -31,6 +31,7 @@ use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\VendasPlaquinhasController;
 use App\Http\Controllers\WebhookAsaasController;
 use Illuminate\Support\Facades\Route;
 
@@ -450,6 +451,17 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/{id}/restaurar', [EquipeController::class, 'restaurar'])->name('restaurar');
         Route::delete('/{id}/excluir', [EquipeController::class, 'excluir'])->name('excluir');
     });
+
+    /*
+     * Venda das plaquinhas, apurada e ja dividida.
+     *
+     * Fora do prefixo `/etiquetas` de proposito: la `/{etiqueta}` casa com
+     * qualquer coisa, e `/etiquetas/vendas` viraria uma busca por uma plaquinha
+     * chamada "vendas". Fora do grupo tambem, porque aquele abre para cliente e
+     * produtor e esta tela mostra a margem da casa.
+     */
+    Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
+        ->middleware('admin')->name('plaquinhas.vendas');
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');

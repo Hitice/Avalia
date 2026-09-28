@@ -31,6 +31,9 @@ class EtiquetaFactory extends Factory
             'vendida_em' => now(),
             'vence_em' => now()->addMonths((int) config('etiquetas.validade_meses')),
             'valor_cents' => (int) config('etiquetas.precos.placa_cents'),
+
+            // Custo congelado junto com o preco, como a venda de verdade grava.
+            'custo_cents' => (int) config('etiquetas.custo_cents'),
         ]);
     }
 

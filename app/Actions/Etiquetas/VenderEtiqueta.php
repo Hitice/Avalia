@@ -46,6 +46,17 @@ class VenderEtiqueta
                 'vendida_em' => now(),
                 'vence_em' => now()->addMonths((int) config('etiquetas.validade_meses')),
                 'valor_cents' => $dados['valor_cents'] ?? (int) config('etiquetas.precos.placa_cents'),
+
+                // O custo entra congelado junto com o preco, pelo mesmo motivo:
+                // o fornecedor reajusta, e o lucro de um mes ja repassado nao
+                // pode mudar de numero por causa disso.
+                'custo_cents' => (int) config('etiquetas.custo_cents'),
+
+                // Quem vendeu. Nulo quando quem poe a placa em campo nao e da
+                // casa: cliente e produtor mexem no proprio codigo, e isso nao
+                // e venda de ninguem. `staff_id` nao serve aqui porque responde
+                // quem gerou a tiragem, que e sempre a administracao.
+                'vendedor_id' => auth('staff')->id(),
             ] : []));
 
             if ($primeiraVenda) {

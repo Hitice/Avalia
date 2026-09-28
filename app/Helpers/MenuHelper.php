@@ -53,6 +53,10 @@ class MenuHelper
             // codigo. Item solto e nao submenu, porque submenu comeca fechado
             // e modulo que so aparece depois de um clique ninguem acha.
             ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
+            // A apuracao da venda das placas, que mostra margem e divisao entre
+            // socios. Item proprio e so de admin: o vendedor entra no QR
+            // dinamico ao lado e ve o que e dele.
+            ['icon' => 'charts', 'name' => 'Vendas QR', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
