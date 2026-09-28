@@ -33,3 +33,7 @@ Thumbs.db
 /backup
 public/images/*.STL
 public/images/*.pdf
+
+# Chave e identidade de SSH da producao: nunca versionar
+SSH_CHAVE
+SSH_IDENTIDADE
