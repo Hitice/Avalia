@@ -73,12 +73,22 @@ return [
      * quem le o config, e a lista precisa ser conferivel sem abrir o MySQL. O
      * painel avisa em tela quando um e-mail daqui nao tem conta, porque lista
      * errada em silencio vira repasse errado.
+     *
+     * A ORDEM importa: e ela que decide com quem fica o centavo impar da
+     * divisao, e mexer nela muda o repasse de quem ja conferiu o mes.
+     *
+     * Um dos e-mails e de provedor comum, e nao do dominio da casa. E o
+     * endereco da conta de verdade, e a lista tem de casar com o que esta na
+     * tabela `staff`, nao com o que seria mais bonito.
      */
     'comissao_pct' => 25,
 
     'socios' => array_values(array_filter(array_map(
         'trim',
-        explode(',', (string) env('ETIQUETAS_SOCIOS', 'comercial@avaliaone.com.br,ruan@avaliaone.com.br')),
+        explode(',', (string) env(
+            'ETIQUETAS_SOCIOS',
+            'comercial@avaliaone.com.br,atendimento.coorporativo93@gmail.com',
+        )),
     ))),
 
     // Teto de uma tiragem. Mais que isto e o navegador desenhando QR por
