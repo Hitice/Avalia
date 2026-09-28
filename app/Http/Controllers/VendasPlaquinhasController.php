@@ -126,6 +126,13 @@ class VendasPlaquinhasController extends Controller
             $vendedorId = $venda->vendedor_id === null ? null : (int) $venda->vendedor_id;
             $ehSocio = $vendedorId !== null && in_array($vendedorId, $sociosIds, true);
 
+            // Placa sem vendedor nao gera comissao, do mesmo jeito que a de
+            // socio: nao houve venda de ninguem. Comissionar uma venda orfa
+            // criaria dinheiro sem destinatario, que sairia da divisao dos
+            // socios e deixaria o total de comissoes maior que a soma das
+            // linhas por vendedor, na mesma tela.
+            $geraComissao = $vendedorId !== null && ! $ehSocio;
+
             $parte = RepartePlaquinha::de(
                 (int) $venda->valor_cents,
 
@@ -134,7 +141,7 @@ class VendasPlaquinhasController extends Controller
                 // mostraria lucro inflado, que e o erro que engana.
                 $venda->custo_cents === null ? (int) config('etiquetas.custo_cents') : (int) $venda->custo_cents,
 
-                $ehSocio,
+                $geraComissao,
                 $pct,
             );
 

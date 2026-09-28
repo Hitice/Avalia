@@ -115,7 +115,27 @@ it('mostra a venda orfa em vez de dividi-la entre os outros', function () {
     expect($tela->viewData('semVendedor'))->toBe(1)
         ->and($tela->viewData('porVendedor'))->toHaveCount(0)
         // O dinheiro continua entrando na apuracao: o que falta e o nome.
-        ->and($tela->viewData('totais')['bruto'])->toBe(8_990);
+        ->and($tela->viewData('totais')['bruto'])->toBe(8_990)
+        // E nao gera comissao: nao houve venda de ninguem. O liquido inteiro
+        // vai para a divisao.
+        ->and($tela->viewData('totais')['comissao'])->toBe(0)
+        ->and($tela->viewData('totais')['sobra'])->toBe(8_490);
+});
+
+it('nunca mostra mais comissao no total do que a soma dos vendedores', function () {
+    // As duas cifras aparecem na MESMA tela: o cartao "Comissões" e a coluna da
+    // tabela por vendedor. Divergencia entre elas foi um bug real, causado por
+    // venda orfa que gerava comissao sem destinatario.
+    socios();
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+
+    Etiqueta::factory()->ativa()->count(7)->create(['vendedor_id' => $warley->id]);
+    Etiqueta::factory()->ativa()->create(['vendedor_id' => null]);
+
+    $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
+
+    expect($tela->viewData('porVendedor')->sum('comissao'))
+        ->toBe($tela->viewData('totais')['comissao']);
 });
 
 /*

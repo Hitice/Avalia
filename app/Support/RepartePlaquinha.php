@@ -13,9 +13,15 @@ namespace App\Support;
  * App\Support\Comissao, pelo mesmo motivo: comissionar faturamento pagaria
  * igual por uma venda que rende e por uma que sangra.
  *
- * Venda feita por socio nao gera comissao. O socio ja recebe pela divisao, e
- * pagar comissao a ele antes da divisao seria pagar a mesma pessoa duas vezes
- * pelo mesmo ato.
+ * Duas situacoes nao geram comissao, e quem chama decide qual e o caso:
+ *
+ *   - venda de SOCIO, porque ele ja recebe pela divisao, e comissionar antes
+ *     seria pagar a mesma pessoa duas vezes pelo mesmo ato;
+ *   - venda SEM VENDEDOR, quando o cliente ou o produtor aponta o proprio
+ *     codigo. Nao houve venda de ninguem, entao nao ha comissao. Calcular uma
+ *     assim criaria dinheiro sem destinatario, que sairia da divisao dos socios
+ *     e nao apareceria na coluna de ninguem: a tela mostraria um total de
+ *     comissoes maior que a soma das linhas por vendedor.
  *
  * As partes somam SEMPRE o bruto: custo + comissao + sobra devolvem o que o
  * cliente pagou. A sobra sai por subtracao de proposito, e e o que faz o
@@ -39,7 +45,7 @@ final class RepartePlaquinha
     public static function de(
         int $valorCents,
         int $custoCents,
-        bool $vendedorEhSocio,
+        bool $geraComissao,
         int $pct,
     ): array {
         $bruto = max(0, $valorCents);
@@ -49,7 +55,7 @@ final class RepartePlaquinha
         $custo = max(0, min($custoCents, $bruto));
         $liquido = $bruto - $custo;
 
-        $comissao = $vendedorEhSocio ? 0 : self::comissaoCents($liquido, $pct);
+        $comissao = $geraComissao ? self::comissaoCents($liquido, $pct) : 0;
         $sobra = $liquido - $comissao;
 
         return [
