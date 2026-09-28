@@ -2,23 +2,43 @@
   "mcpServers": {
     "hostinger-hosting": {
       "command": "npx",
-      "args": ["--package=hostinger-api-mcp@latest", "hostinger-hosting-mcp"]
+      "args": [
+        "--package=hostinger-api-mcp@latest",
+        "hostinger-hosting-mcp"
+      ],
+      "timeout": 120000
     },
     "hostinger-domains": {
       "command": "npx",
-      "args": ["--package=hostinger-api-mcp@latest", "hostinger-domains-mcp"]
+      "args": [
+        "--package=hostinger-api-mcp@latest",
+        "hostinger-domains-mcp"
+      ],
+      "timeout": 120000
     },
     "hostinger-dns": {
       "command": "npx",
-      "args": ["--package=hostinger-api-mcp@latest", "hostinger-dns-mcp"]
+      "args": [
+        "--package=hostinger-api-mcp@latest",
+        "hostinger-dns-mcp"
+      ],
+      "timeout": 120000
     },
     "hostinger-billing": {
       "command": "npx",
-      "args": ["--package=hostinger-api-mcp@latest", "hostinger-billing-mcp"]
+      "args": [
+        "--package=hostinger-api-mcp@latest",
+        "hostinger-billing-mcp"
+      ],
+      "timeout": 120000
     },
     "hostinger-reach": {
       "command": "npx",
-      "args": ["--package=hostinger-api-mcp@latest", "hostinger-reach-mcp"]
+      "args": [
+        "--package=hostinger-api-mcp@latest",
+        "hostinger-reach-mcp"
+      ],
+      "timeout": 120000
     }
   }
 }
