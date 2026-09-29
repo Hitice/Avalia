@@ -56,7 +56,11 @@ class VendasPlaquinhasController extends Controller
             'sociosAusentes' => $socios['ausentes'],
 
             'serie' => $this->serie(),
-            'ultimas' => $vendas->take(10),
+
+            // O mes inteiro, e nao as dez ultimas: esta tabela e a leitura
+            // alternativa dos graficos, para quem confere numero a numero ou usa
+            // leitor de tela. Cortar a lista tiraria justamente o que ela serve.
+            'ultimas' => $vendas,
         ]);
     }
 

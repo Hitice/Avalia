@@ -56,22 +56,20 @@ it('apura a venda do vendedor comum com a comissao sobre o liquido', function ()
 
     $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
 
-    // Duas placas de 89,90: bruto 179,80, custo 10,00, liquido 169,80.
+    // Duas placas de 89,90: bruto 179,80, custo 11,00, liquido 168,80.
     //
-    // A comissao arredonda POR VENDA, e nao sobre o total do mes: 25% de 84,90
-    // sao 21,225, que viram 21,23 em cada placa, e duas dao 42,46. Sobre o
-    // total fechado daria 42,45. Um centavo de diferenca, e a versao por venda
-    // e a certa: e assim que o vendedor confere, placa por placa, e um repasse
-    // que nao bate com a conta de quem recebe vira discussao todo mes.
+    // A comissao arredonda POR VENDA, e nao sobre o total do mes. E assim que o
+    // vendedor confere, placa por placa, e repasse que nao bate com a conta de
+    // quem recebe vira discussao todo mes.
     $totais = $tela->viewData('totais');
 
     expect($totais['bruto'])->toBe(17_980)
-        ->and($totais['custo'])->toBe(1_000)
-        ->and($totais['liquido'])->toBe(16_980)
-        ->and($totais['comissao'])->toBe(4_246)
-        ->and($totais['sobra'])->toBe(12_734);
+        ->and($totais['custo'])->toBe(1_100)
+        ->and($totais['liquido'])->toBe(16_880)
+        ->and($totais['comissao'])->toBe(4_220)
+        ->and($totais['sobra'])->toBe(12_660);
 
-    expect($tela->viewData('porSocio')->pluck('cents')->all())->toBe([6_367, 6_367]);
+    expect($tela->viewData('porSocio')->pluck('cents')->all())->toBe([6_330, 6_330]);
 });
 
 it('nao tira comissao quando quem vendeu e socio', function () {
@@ -82,8 +80,8 @@ it('nao tira comissao quando quem vendeu e socio', function () {
     $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
 
     expect($tela->viewData('totais')['comissao'])->toBe(0)
-        // O liquido inteiro vai para a divisao: 84,90 em duas partes iguais.
-        ->and($tela->viewData('porSocio')->pluck('cents')->all())->toBe([4_245, 4_245]);
+        // O liquido inteiro vai para a divisao: 84,40 em duas partes iguais.
+        ->and($tela->viewData('porSocio')->pluck('cents')->all())->toBe([4_220, 4_220]);
 });
 
 it('conta a venda pelo mes em que ela aconteceu, e nao pela geracao da placa', function () {
@@ -119,7 +117,7 @@ it('mostra a venda orfa em vez de dividi-la entre os outros', function () {
         // E nao gera comissao: nao houve venda de ninguem. O liquido inteiro
         // vai para a divisao.
         ->and($tela->viewData('totais')['comissao'])->toBe(0)
-        ->and($tela->viewData('totais')['sobra'])->toBe(8_490);
+        ->and($tela->viewData('totais')['sobra'])->toBe(8_440);
 });
 
 it('nunca mostra mais comissao no total do que a soma dos vendedores', function () {
@@ -151,7 +149,7 @@ it('avisa quando um socio do config nao tem conta', function () {
 
     admin()->get(route('plaquinhas.vendas'))
         ->assertOk()
-        ->assertSee('A divisão está incompleta.', false);
+        ->assertSee('Sem conta na equipe', false);
 });
 
 it('usa o valor gravado na venda, e nao a tabela de hoje', function () {

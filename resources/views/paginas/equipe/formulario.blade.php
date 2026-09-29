@@ -90,9 +90,8 @@
                         <span class="text-sm text-gray-500 dark:text-gray-400">% do lucro</span>
                     </div>
                     <span class="ajuda-campo">
-                        Vale a partir do próximo fechamento. Competência já fechada guarda o
-                        percentual usado na emissão. A comissão das plaquinhas é única para toda
-                        a equipe, {{ (int) config('etiquetas.comissao_pct') }}% do líquido, e não sai daqui.
+                        Vale a partir do próximo fechamento. Não vale para plaquinhas, que pagam
+                        {{ (int) config('etiquetas.comissao_pct') }}% para toda a equipe.
                     </span>
                     @error('comissao_pct') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>

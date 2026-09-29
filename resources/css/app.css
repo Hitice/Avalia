@@ -475,6 +475,51 @@
   @apply border-warning-300 bg-warning-50 text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-400;
 }
 
+/* Cores de serie dos graficos.
+ *
+ * Tres matizes, nesta ordem fixa, e nunca cicladas: uma quarta serie nao ganha
+ * cor nova, ela virá de outro recorte. Nao usam success, warning nem error, que
+ * ficam reservadas para estado: verde que significa "sobra" num grafico e verde
+ * que significa "ok" num aviso, na mesma tela, ensinam duas coisas diferentes
+ * com a mesma cor.
+ *
+ * O escuro tem passo PROPRIO, e nao o mesmo hex: o laranja 500 fica claro
+ * demais sobre o fundo escuro e sai da faixa de luminosidade junto com os
+ * outros dois, que e o que faz as tres parecerem da mesma familia. Medido, e
+ * nao no olho: as duas paletas passam pelos seis testes de separacao, inclusive
+ * para daltonismo protan e deutan.
+ */
+@utility serie-1 {
+  @apply fill-brand-500;
+}
+
+@utility serie-2 {
+  @apply fill-orange-500 dark:fill-orange-600;
+}
+
+@utility serie-3 {
+  @apply fill-theme-purple-500;
+}
+
+/* As mesmas tres como fundo, para a bolinha da legenda. */
+@utility ponto-serie-1 {
+  @apply bg-brand-500;
+}
+
+@utility ponto-serie-2 {
+  @apply bg-orange-500 dark:bg-orange-600;
+}
+
+@utility ponto-serie-3 {
+  @apply bg-theme-purple-500;
+}
+
+/* Grade e eixo recuam: a linha existe para situar o valor, nao para competir
+ * com ele. */
+@utility grade-grafico {
+  @apply stroke-gray-200 dark:stroke-gray-700;
+}
+
 @utility botao {
   @apply focus-visible:ring-brand-500/50 inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition focus:outline-none focus-visible:ring-2;
 }

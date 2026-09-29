@@ -56,7 +56,7 @@ return [
      * todas as vendas passadas com o custo de hoje: o mes fechado mudaria de
      * numero depois de o repasse ja ter sido pago.
      */
-    'custo_cents' => 500,
+    'custo_cents' => 550,
 
     /*
      * O reparte de cada placa vendida.

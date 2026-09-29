@@ -73,11 +73,9 @@
                            placeholder="ex: Campanha Floripa 2026">
                 </div>
 
-                {{-- Cliente, contato e valor. Estavam aceitos pelo controller e
-                     nunca desenhados aqui: dava para vender a placa sem jeito de
-                     dizer para quem, e o valor caia sempre no preco da tabela.
-                     Quem atende no telefone procura pelo nome do cliente, nao
-                     pelo codigo. --}}
+                {{-- Aceitos pelo controller desde sempre e nunca desenhados
+                     aqui: dava para vender a placa sem jeito de dizer para quem,
+                     e o valor caia sempre no preco da tabela. --}}
                 <div class="grid gap-5 sm:grid-cols-2">
                     <div>
                         <label for="cliente_nome" class="rotulo-campo">Cliente</label>
@@ -101,14 +99,14 @@
                     <input id="valor" name="valor" type="text" inputmode="decimal" class="campo"
                            value="{{ old('valor', $etiqueta->valor_cents === null ? '' : Dinheiro::numero((int) $etiqueta->valor_cents)) }}"
                            placeholder="{{ Dinheiro::numero((int) config('etiquetas.precos.placa_cents')) }}">
-                    <p class="ajuda-campo">
-                        @if ($etiqueta->vendida_em)
-                            Já vendida: mudar aqui não altera o que foi cobrado.
-                        @else
-                            Em branco usa o preço da tabela,
-                            {{ Dinheiro::brl((int) config('etiquetas.precos.placa_cents')) }}.
-                        @endif
-                    </p>
+                    {{-- A ajuda fica so no caso que evita erro: em branco a
+                         placa sai pelo preco da tabela, e quem nao sabe disso
+                         digita o valor achando que o campo e obrigatorio. --}}
+                    @unless ($etiqueta->vendida_em)
+                        <p class="ajuda-campo">
+                            Em branco: {{ Dinheiro::brl((int) config('etiquetas.precos.placa_cents')) }}.
+                        </p>
+                    @endunless
                     @error('valor')<p class="erro-campo">{{ $message }}</p>@enderror
                 </div>
 
@@ -273,6 +271,16 @@
                      proposito: as duas acoes daqui mexem no repasse de quem
                      recebe comissao, e por isso nao ficam junto dos botoes que
                      so ligam e desligam a placa. --}}
+                {{-- Segue o desenho do cartao vizinho: titulo, pares de campo
+                     curtos, acoes no pe. A primeira versao empilhava tres
+                     paragrafos e uma caixa de aviso fixa numa coluna de 22rem,
+                     e virava parede de texto ao lado de uma lista de duas
+                     colunas.
+
+                     O aviso de mes fechado saiu da tela e foi para a
+                     confirmacao: aviso que fica sempre aceso deixa de ser lido,
+                     e este precisa aparecer no instante do clique, que e quando
+                     ele muda a decisao. --}}
                 <div class="cartao p-6">
                     <h2 class="rotulo-grupo">Venda</h2>
 
@@ -281,38 +289,27 @@
                         @method('PUT')
 
                         <label for="vendedor_id" class="rotulo-campo">Creditar a</label>
-                        <select id="vendedor_id" name="vendedor_id" class="campo">
-                            <option value="">Não identificado</option>
-                            @foreach ($equipe as $pessoa)
-                                <option value="{{ $pessoa->id }}"
-                                        @selected((int) $etiqueta->vendedor_id === (int) $pessoa->id)>
-                                    {{ $pessoa->nome }}{{ $pessoa->papel === 'vendedor' ? '' : ' (admin)' }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="ajuda-campo">
-                            Quem cadastrou não é sempre quem vendeu. A comissão do mês sai daqui.
-                        </p>
-                        @error('vendedor_id')<p class="erro-campo">{{ $message }}</p>@enderror
-
-                        <div class="mt-4">
-                            <x-avalia.botao variante="secundario" tamanho="sm">Salvar vendedor</x-avalia.botao>
+                        <div class="flex items-center gap-2">
+                            <select id="vendedor_id" name="vendedor_id" class="campo">
+                                <option value="">Não identificado</option>
+                                @foreach ($equipe as $pessoa)
+                                    <option value="{{ $pessoa->id }}"
+                                            @selected((int) $etiqueta->vendedor_id === (int) $pessoa->id)>
+                                        {{ $pessoa->nome }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-avalia.botao variante="secundario" tamanho="sm">Salvar</x-avalia.botao>
                         </div>
+                        <span class="ajuda-campo">A comissão do mês sai daqui.</span>
+                        @error('vendedor_id')<span class="erro-campo">{{ $message }}</span>@enderror
                     </form>
 
-                    <div class="mt-6 border-t border-gray-100 pt-5 dark:border-gray-800">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">
-                            Placa da própria Avalia, demonstração, teste ou cadastro por engano: cancelar a
-                            venda tira ela da apuração e a deixa em campo, apontando para o mesmo lugar e
-                            sem vencimento.
-                        </p>
-                        <p class="aviso aviso-alerta mt-3">
-                            Se esta venda for de mês já fechado, cancelar muda a apuração daquele mês e a
-                            comissão que saiu dele.
-                        </p>
+                    <div class="mt-5 flex items-center justify-between gap-3 border-t border-gray-100 pt-4 dark:border-gray-800">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Não foi uma venda?</span>
 
-                        <form method="POST" action="{{ route('plaquinhas.cancelar-venda', $etiqueta) }}" class="mt-4"
-                              onsubmit="return confirm('Cancelar a venda de {{ $etiqueta->codigo }}? A plaquinha continua no ar e sai da apuração.')">
+                        <form method="POST" action="{{ route('plaquinhas.cancelar-venda', $etiqueta) }}"
+                              onsubmit="return confirm('Cancelar a venda de {{ $etiqueta->codigo }}?\n\nA plaquinha continua no ar, apontando para o mesmo lugar, e sai da apuração de vendas. Se esta venda for de mês já fechado, a comissão daquele mês muda.')">
                             @csrf
                             @method('DELETE')
                             <x-avalia.botao variante="secundario" tamanho="sm">Cancelar venda</x-avalia.botao>
