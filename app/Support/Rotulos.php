@@ -111,6 +111,8 @@ final class Rotulos
         'etiquetas.renovada' => 'Etiqueta renovada por mais um ano',
         'etiquetas.vendedor.trocado' => 'Venda da etiqueta creditada a outra pessoa',
         'etiquetas.venda.cancelada' => 'Venda da etiqueta cancelada',
+        'socios.lancamento.registrado' => 'Lançamento financeiro registrado',
+        'socios.lancamento.estornado' => 'Lançamento financeiro estornado',
         'links.encurtado' => 'Link encurtado',
         'links.alternado' => 'Link ligado ou desligado',
         'links.excluido' => 'Link sem cliques apagado',
