@@ -247,11 +247,24 @@ export async function pacote(pasta, etiquetas, opcoes = {}, aoAndar = () => {}) 
     const zip = new JSZip;
     const dentro = zip.folder(pasta);
 
+    // O formato e escolhido na tela, e o padrao e SVG. Antes o ZIP levava os
+    // dois sempre, e o PNG e quem custa: cada um passa por canvas, um por vez,
+    // enquanto o SVG e texto montado em memoria. Numa tiragem de mil, gerar o
+    // que ninguem vai abrir era a maior parte da espera.
+    const { formato = 'svg', ...desenho } = opcoes;
+    const querSvg = formato === 'svg' || formato === 'ambos';
+    const querPng = formato === 'png' || formato === 'ambos';
+
     for (let i = 0; i < etiquetas.length; i++) {
         const etiqueta = etiquetas[i];
 
-        dentro.file(`${etiqueta.arquivo}.svg`, svg(etiqueta.url, opcoes));
-        dentro.file(`${etiqueta.arquivo}.png`, await png(etiqueta.url, opcoes));
+        if (querSvg) {
+            dentro.file(`${etiqueta.arquivo}.svg`, svg(etiqueta.url, desenho));
+        }
+
+        if (querPng) {
+            dentro.file(`${etiqueta.arquivo}.png`, await png(etiqueta.url, desenho));
+        }
 
         aoAndar(i + 1, etiquetas.length);
     }

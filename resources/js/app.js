@@ -66,11 +66,15 @@ document.addEventListener('DOMContentLoaded', () => {
 Alpine.data('tiragem', (dados) => ({
     etiquetas: dados.etiquetas,
     pasta: dados.pasta,
-    // 50mm sempre. O tamanho do arquivo nao decide o tamanho da peca: quem
-    // monta a arte no Corel escala o vetor para o que a placa pedir, e um
-    // campo a mais na tela so pedia uma decisao que nao muda nada.
-    mm: 50,
+    // 30mm, que e o tamanho da placa que a casa produz. O vetor escala sem
+    // perda no Corel, mas sair ja no tamanho certo evita a conferencia de
+    // regua a cada arte nova.
+    mm: 30,
     logo: true,
+
+    // SVG no padrao: e o que vai para a bancada em noventa por cento das
+    // tiragens. PNG existe para fornecedor que so aceita bitmap.
+    formato: 'svg',
     gerando: false,
     feito: 0,
     erro: '',
@@ -90,7 +94,7 @@ Alpine.data('tiragem', (dados) => ({
         const { svg } = await import('./qr.js');
 
         this.$refs.prova.innerHTML = svg(this.etiquetas[0].url, {
-            mm: Math.max(10, Math.min(200, Number(this.mm) || 50)),
+            mm: Math.max(10, Math.min(200, Number(this.mm) || 30)),
             logo: this.logo,
         });
     },
@@ -106,7 +110,7 @@ Alpine.data('tiragem', (dados) => ({
             const zip = await qr.pacote(
                 this.pasta,
                 this.etiquetas,
-                { mm: Number(this.mm) || 50, logo: this.logo },
+                { mm: Number(this.mm) || 30, logo: this.logo, formato: this.formato },
                 (feito) => { this.feito = feito; },
             );
 

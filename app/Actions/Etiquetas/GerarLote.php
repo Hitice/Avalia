@@ -50,6 +50,16 @@ class GerarLote
 
             $agora = now();
 
+            // A numeracao NAO recomeca a cada campanha: ela continua de onde a
+            // anterior parou. O numero passa a ser do controle da casa, e nao
+            // da tiragem, entao "a placa 143" quer dizer uma placa so, e nao
+            // uma por campanha. E o que permite conferir a producao inteira
+            // contra a grafica sem ter de dizer de qual lote se esta falando.
+            //
+            // A numeracao dentro do lote continua sequencial, porque o nome do
+            // arquivo no ZIP sai dela e a grafica imprime na ordem.
+            $ultima = (int) (Etiqueta::max('sequencia') ?? 0);
+
             // Insercao em bloco, e nao mil `create`. Mil viagens ao banco numa
             // hospedagem compartilhada estouram o tempo da requisicao muito
             // antes de a tiragem terminar.
@@ -57,7 +67,7 @@ class GerarLote
                 ->map(fn (string $codigo, int $posicao) => Dono::carimbo() + [
                     'codigo' => $codigo,
                     'lote_id' => $lote->id,
-                    'sequencia' => $posicao + 1,
+                    'sequencia' => $ultima + $posicao + 1,
                     'tipo' => $lote->tipo,
                     'situacao' => SituacaoEtiqueta::EmBranco->value,
                     'staff_id' => $lote->staff_id,

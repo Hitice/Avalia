@@ -42,10 +42,18 @@ class EtiquetaController extends Controller
         $busca = trim((string) $pedido->query('busca'));
         $situacao = SituacaoEtiqueta::tentar($pedido->query('situacao'));
 
+        $vendedor = (string) $pedido->query('vendedor', '');
+
         $etiquetas = Etiqueta::query()->visiveis()
-            ->with('lote')
+            ->with(['lote', 'vendedor:id,nome'])
             ->when($situacao, fn ($consulta) => $consulta->where('situacao', $situacao))
             ->when($pedido->query('lote'), fn ($consulta, $lote) => $consulta->where('lote_id', $lote))
+
+            // "sem" e uma pergunta legitima, e nao ausencia de filtro: sao as
+            // vendidas que ninguem da casa registrou, e e a lista que precisa
+            // ser resolvida para o repasse fechar.
+            ->when($vendedor === 'sem', fn ($consulta) => $consulta->whereNotNull('vendida_em')->whereNull('vendedor_id'))
+            ->when($vendedor !== '' && $vendedor !== 'sem', fn ($consulta) => $consulta->where('vendedor_id', $vendedor))
             ->when($busca !== '', function ($consulta) use ($busca) {
                 // O codigo e procurado normalizado: quem copia da placa digita
                 // minusculo, e quem le do acrilico troca 1 por I.
@@ -76,6 +84,11 @@ class EtiquetaController extends Controller
             ])->values(),
             'lotes' => LoteEtiqueta::visiveis()->orderByDesc('id')->get(),
             'situacoes' => SituacaoEtiqueta::rotulos(),
+
+            // Quem ja vendeu alguma, e nao a equipe inteira: seletor com nome
+            // que nunca vai devolver linha ensina a ignorar o seletor.
+            'vendedores' => Staff::whereIn('id', Etiqueta::whereNotNull('vendedor_id')->select('vendedor_id'))
+                ->orderBy('nome')->get(['id', 'nome']),
             'campanha' => $campanha,
             'pacote' => $campanha ? $campanha->etiquetas()->visiveis()->get()->map(fn (Etiqueta $etiqueta) => [
                 'sequencia' => $etiqueta->sequencia,
@@ -84,7 +97,12 @@ class EtiquetaController extends Controller
                 'url' => $etiqueta->urlParaQr(),
                 'arquivo' => $etiqueta->nomeDeArquivo(),
             ]) : null,
-            'filtros' => ['busca' => $busca, 'situacao' => $pedido->query('situacao'), 'lote' => $pedido->query('lote')],
+            'filtros' => [
+                'busca' => $busca,
+                'situacao' => $pedido->query('situacao'),
+                'lote' => $pedido->query('lote'),
+                'vendedor' => $vendedor,
+            ],
         ]);
     }
 

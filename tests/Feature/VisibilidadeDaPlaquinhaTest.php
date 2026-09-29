@@ -135,3 +135,60 @@ it('continua escondendo tudo de cliente e produtor', function () {
 
     expect($lista->pluck('id')->all())->not->toContain($emBranco->id);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Quem vendeu, na lista
+|--------------------------------------------------------------------------
+*/
+
+it('mostra na lista quem vendeu cada placa', function () {
+    $warley = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Warley']);
+
+    Etiqueta::factory()->ativa()->create(['vendedor_id' => $warley->id, 'codigo' => 'AAAAAA']);
+
+    admin()->get(route('etiquetas.index'))->assertOk()->assertSee('Warley');
+});
+
+it('filtra a lista por quem vendeu', function () {
+    $warley = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Warley']);
+    $outro = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Ruan']);
+
+    $doWarley = Etiqueta::factory()->ativa()->create(['vendedor_id' => $warley->id]);
+    $doOutro = Etiqueta::factory()->ativa()->create(['vendedor_id' => $outro->id]);
+
+    $lista = admin()->get(route('etiquetas.index', ['vendedor' => $warley->id]))
+        ->assertOk()->viewData('etiquetas');
+
+    expect($lista->pluck('id')->all())->toBe([$doWarley->id])
+        ->and($lista->pluck('id')->all())->not->toContain($doOutro->id);
+});
+
+it('filtra as vendas que ninguem registrou', function () {
+    // E a lista que precisa ser resolvida para o repasse do mes fechar: venda
+    // sem vendedor nao gera comissao e nao tem a quem creditar.
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+
+    Etiqueta::factory()->ativa()->create(['vendedor_id' => $warley->id]);
+    $orfa = Etiqueta::factory()->ativa()->create(['vendedor_id' => null]);
+
+    // Em branco nao entra: ela nao foi vendida, entao nao e venda sem vendedor.
+    Etiqueta::factory()->create(['vendedor_id' => null]);
+
+    $lista = admin()->get(route('etiquetas.index', ['vendedor' => 'sem']))
+        ->assertOk()->viewData('etiquetas');
+
+    expect($lista->pluck('id')->all())->toBe([$orfa->id]);
+});
+
+it('so oferece no filtro quem ja vendeu alguma', function () {
+    // Seletor com nome que nunca devolve linha ensina a ignorar o seletor.
+    $vendeu = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Quem vendeu']);
+    Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Nunca vendeu']);
+
+    Etiqueta::factory()->ativa()->create(['vendedor_id' => $vendeu->id]);
+
+    $vendedores = admin()->get(route('etiquetas.index'))->viewData('vendedores');
+
+    expect($vendedores->pluck('nome')->all())->toBe(['Quem vendeu']);
+});

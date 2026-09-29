@@ -134,9 +134,31 @@
                 </select>
             </div>
 
+            <div>
+                <label for="vendedor" class="rotulo-campo">Vendido por</label>
+                <select id="vendedor" name="vendedor" class="campo" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    @foreach ($vendedores as $pessoa)
+                        <option value="{{ $pessoa->id }}" @selected((string) $filtros['vendedor'] === (string) $pessoa->id)>
+                            {{ $pessoa->nome }}
+                        </option>
+                    @endforeach
+                    <option value="sem" @selected($filtros['vendedor'] === 'sem')>Não identificado</option>
+                </select>
+            </div>
+
             <x-avalia.botao variante="secundario">Filtrar</x-avalia.botao>
 
             @if ($campanha && $pacote->isNotEmpty())
+                <div>
+                    <label for="formato" class="rotulo-campo">Formato</label>
+                    <select id="formato" x-model="formato" class="campo w-auto py-2">
+                        <option value="svg">SVG</option>
+                        <option value="png">PNG</option>
+                        <option value="ambos">SVG e PNG</option>
+                    </select>
+                </div>
+
                 <div class="flex items-center gap-3">
                     <x-avalia.botao x-on:click.prevent="baixar()" x-bind:disabled="gerando">
                         <span x-show="! gerando">Baixar {{ $pacote->count() }} em ZIP</span>
@@ -164,6 +186,7 @@
                         <th scope="col" class="tabela-th text-left">QR</th>
                         <th scope="col" class="tabela-th text-left">Código</th>
                         <th scope="col" class="tabela-th text-left">Cliente</th>
+                        <th scope="col" class="tabela-th text-left">Vendido por</th>
                         <th scope="col" class="tabela-th text-left">Aponta para</th>
                         <th scope="col" class="tabela-th text-left">Situação</th>
                         <th scope="col" class="tabela-th text-left">Vence</th>
@@ -200,6 +223,18 @@
 
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
                                 {{ $etiqueta->cliente_nome ?? '—' }}
+                            </td>
+
+                            {{-- Placa em branco nao tem vendedor porque nao foi
+                                 vendida; vendida sem vendedor e o caso da que
+                                 o proprio cliente apontou. Sao coisas
+                                 diferentes e a coluna diz qual e qual. --}}
+                            <td class="tabela-td text-gray-600 dark:text-gray-300">
+                                @if ($etiqueta->vendida_em === null)
+                                    <span class="text-gray-400 dark:text-gray-500">—</span>
+                                @else
+                                    {{ $etiqueta->vendedor?->nome ?? 'Não identificado' }}
+                                @endif
                             </td>
 
                             <td class="tabela-td max-w-[22rem] truncate text-gray-600 dark:text-gray-300">
@@ -250,7 +285,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="tabela-vazia">
+                            <td colspan="10" class="tabela-vazia">
                                 Gere os primeiros códigos acima. Eles nascem em branco, e ganham
                                 destino depois da venda.
                             </td>
