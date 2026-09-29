@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SituacaoEtiqueta;
 use App\Support\CodigoCurto;
+use App\Support\Dono;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -240,6 +241,63 @@ class Etiqueta extends Model
     public function scopeAtivas(Builder $consulta): Builder
     {
         return $consulta->where('situacao', SituacaoEtiqueta::Ativa);
+    }
+
+    /**
+     * O que a conta logada enxerga da tiragem.
+     *
+     * A administracao ve tudo. O vendedor ve tres coisas, e a diferenca entre
+     * elas importa:
+     *
+     *   - o ESTOQUE em branco, que e da casa e ainda nao e de ninguem. Sem isto
+     *     ele nao tem o que vender: a tiragem nasce com o dono do admin que
+     *     gerou o lote, e o vendedor abria a lista vazia;
+     *   - o que ELE vendeu, por `vendedor_id`, porque e ele quem atende aquele
+     *     cliente depois;
+     *   - o que e dele por dono, que e o caso do codigo avulso que ele mesmo
+     *     criou.
+     *
+     * O que fica de fora, de proposito: venda de OUTRO vendedor. Ele nao atende
+     * aquele cliente e a comissao nao e dele, entao o destino daquela placa nao
+     * e assunto seu. E a mesma linha que App\Support\Dono ja tracava.
+     *
+     * Cliente e produtor seguem so pelo dono: para eles nao existe estoque da
+     * casa, e placa em branco de outra pessoa nao lhes diz respeito.
+     */
+    public function scopeVisiveis(Builder $consulta): Builder
+    {
+        if (Dono::veTudo()) {
+            return $consulta;
+        }
+
+        if (Dono::tipo() !== 'staff') {
+            return Dono::limitar($consulta);
+        }
+
+        $eu = Dono::id();
+
+        return $consulta->where(fn (Builder $ou) => $ou
+            ->where('situacao', SituacaoEtiqueta::EmBranco)
+            ->orWhere('vendedor_id', $eu)
+            ->orWhere(fn (Builder $meu) => $meu->where('dono_tipo', 'staff')->where('dono_id', $eu)));
+    }
+
+    /**
+     * A mesma regra de `scopeVisiveis`, para um registro na mao.
+     *
+     * Existe separada porque a consulta filtra e esta responde: sem ela, o
+     * vendedor veria a placa na lista e levaria 404 ao abrir, que e pior que
+     * nao ver.
+     */
+    public function podeMexer(): bool
+    {
+        if (Dono::pode($this)) {
+            return true;
+        }
+
+        return Dono::tipo() === 'staff'
+            && ($this->situacao === SituacaoEtiqueta::EmBranco
+                || ($this->vendedor_id !== null && (int) $this->vendedor_id === Dono::id()));
     }
 
     /**

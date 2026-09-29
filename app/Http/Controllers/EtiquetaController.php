@@ -15,7 +15,6 @@ use App\Models\Staff;
 use App\Support\CodigoCurto;
 use App\Support\Destino;
 use App\Support\Dinheiro;
-use App\Support\Dono;
 use Illuminate\Http\Request;
 
 /**
@@ -43,7 +42,7 @@ class EtiquetaController extends Controller
         $busca = trim((string) $pedido->query('busca'));
         $situacao = SituacaoEtiqueta::tentar($pedido->query('situacao'));
 
-        $etiquetas = Dono::limitar(Etiqueta::query())
+        $etiquetas = Etiqueta::query()->visiveis()
             ->with('lote')
             ->when($situacao, fn ($consulta) => $consulta->where('situacao', $situacao))
             ->when($pedido->query('lote'), fn ($consulta, $lote) => $consulta->where('lote_id', $lote))
@@ -78,7 +77,7 @@ class EtiquetaController extends Controller
             'lotes' => LoteEtiqueta::visiveis()->orderByDesc('id')->get(),
             'situacoes' => SituacaoEtiqueta::rotulos(),
             'campanha' => $campanha,
-            'pacote' => $campanha ? Dono::limitar($campanha->etiquetas())->get()->map(fn (Etiqueta $etiqueta) => [
+            'pacote' => $campanha ? $campanha->etiquetas()->visiveis()->get()->map(fn (Etiqueta $etiqueta) => [
                 'sequencia' => $etiqueta->sequencia,
                 'codigo' => $etiqueta->codigo,
                 // Maiuscula pelo modo alfanumerico do QR. Ver CodigoCurto.
@@ -140,7 +139,7 @@ class EtiquetaController extends Controller
         // proibido: o codigo esta impresso e qualquer um pode ler um. Dizer
         // "existe, mas nao e seu" confirmaria a existencia dele a quem so
         // tentou a sorte.
-        if ($etiqueta && ! Dono::pode($etiqueta)) {
+        if ($etiqueta && ! $etiqueta->podeMexer()) {
             $etiqueta = null;
         }
 
@@ -270,6 +269,6 @@ class EtiquetaController extends Controller
     /** Ninguem mexe no codigo de outra conta. A administracao ve tudo. */
     private function conferirDono(Etiqueta $etiqueta): void
     {
-        abort_unless(Dono::pode($etiqueta), 404);
+        abort_unless($etiqueta->podeMexer(), 404);
     }
 }

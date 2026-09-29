@@ -20,14 +20,21 @@ class LoteEtiqueta extends Model
 
     protected $fillable = ['codigo', 'titulo', 'quantidade', 'tipo', 'observacao', 'staff_id'];
 
-    /** As campanhas que uma conta pode ver: as que tem codigo dela. */
+    /**
+     * As campanhas que uma conta pode ver: as que tem codigo que ela enxerga.
+     *
+     * Delega para `Etiqueta::visiveis` em vez de repetir a regra: o vendedor
+     * precisa achar a campanha para baixar o pacote e para filtrar a lista, e
+     * antes disto ele nao via nenhuma, porque a tiragem nasce com o dono do
+     * admin que gerou o lote.
+     */
     public function scopeVisiveis(\Illuminate\Database\Eloquent\Builder $consulta): \Illuminate\Database\Eloquent\Builder
     {
         if (\App\Support\Dono::veTudo()) {
             return $consulta;
         }
 
-        return $consulta->whereHas('etiquetas', fn ($etiquetas) => \App\Support\Dono::limitar($etiquetas));
+        return $consulta->whereHas('etiquetas', fn ($etiquetas) => $etiquetas->visiveis());
     }
 
     protected function casts(): array
