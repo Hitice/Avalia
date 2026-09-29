@@ -75,6 +75,12 @@ Alpine.data('tiragem', (dados) => ({
     // SVG no padrao: e o que vai para a bancada em noventa por cento das
     // tiragens. PNG existe para fornecedor que so aceita bitmap.
     formato: 'svg',
+
+    // Para onde o ZIP vai ser extraido, no computador de quem baixa. Entra no
+    // CSV como caminho da imagem, porque a mala direta do Corel precisa achar
+    // o arquivo e o ZIP nao sabe onde sera aberto. Em branco, o CSV leva so o
+    // nome do arquivo.
+    pastaLocal: '',
     gerando: false,
     feito: 0,
     erro: '',
@@ -110,7 +116,12 @@ Alpine.data('tiragem', (dados) => ({
             const zip = await qr.pacote(
                 this.pasta,
                 this.etiquetas,
-                { mm: Number(this.mm) || 30, logo: this.logo, formato: this.formato },
+                {
+                    mm: Number(this.mm) || 30,
+                    logo: this.logo,
+                    formato: this.formato,
+                    pastaLocal: this.pastaLocal,
+                },
                 (feito) => { this.feito = feito; },
             );
 

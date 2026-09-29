@@ -159,6 +159,16 @@
                     </select>
                 </div>
 
+                {{-- O ZIP nao sabe onde vai ser extraido, e a mala direta do
+                     Corel precisa achar a imagem. Em branco, o CSV leva so o
+                     nome do arquivo. --}}
+                <div class="min-w-[16rem] flex-1">
+                    <label for="pasta-local" class="rotulo-campo">Pasta no seu computador</label>
+                    <input id="pasta-local" type="text" x-model="pastaLocal" class="campo"
+                           placeholder="/Users/voce/Downloads/{{ $campanha->pasta() }}">
+                    <span class="ajuda-campo">Entra no CSV como caminho da imagem.</span>
+                </div>
+
                 <div class="flex items-center gap-3">
                     <x-avalia.botao x-on:click.prevent="baixar()" x-bind:disabled="gerando">
                         <span x-show="! gerando">Baixar {{ $pacote->count() }} em ZIP</span>

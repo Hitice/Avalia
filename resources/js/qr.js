@@ -227,18 +227,38 @@ function pintarMarca(pincel, lado, passo) {
  * arquivo existem para o Corel achar a imagem de cada linha sozinho: monta-se
  * a placa uma vez, e ele numera e troca o QR na tiragem inteira.
  */
-export function csv(etiquetas) {
-    const linhas = [['sequencia', 'codigo', 'url', 'arquivo_svg', 'arquivo_png']];
+export function csv(etiquetas, { formato = 'svg', pastaLocal = '' } = {}) {
+    // `codigo` e `photo` primeiro, nesta ordem, porque e o que a mala direta do
+    // Corel le: a primeira coluna vira o texto e a segunda a imagem. As outras
+    // duas ficam depois, para conferencia, e nao atrapalham quem casa por nome
+    // de coluna.
+    const linhas = [['codigo', 'photo', 'sequencia', 'url']];
 
-    etiquetas.forEach((etiqueta) => linhas.push([
-        etiqueta.sequencia ?? '',
-        etiqueta.codigo,
-        etiqueta.url,
-        `${etiqueta.arquivo}.svg`,
-        `${etiqueta.arquivo}.png`,
-    ]));
+    // A extensao acompanha o que foi de fato exportado: apontar para um .png
+    // que nao esta no ZIP quebra a mala direta com "arquivo nao encontrado".
+    // Com os dois formatos, vale o PNG, que e o que a bancada importa.
+    const ext = formato === 'svg' ? 'svg' : 'png';
 
-    return '﻿'.concat(linhas.map((linha) => linha.join(';')).join('\r\n'));
+    // Caminho absoluto quando a pessoa diz onde vai extrair, e so o nome do
+    // arquivo quando nao diz. O ZIP nao sabe onde sera aberto, e o Corel nem
+    // sempre resolve caminho relativo a partir do CSV.
+    const base = pastaLocal.trim().replace(/[\\/]+$/, '');
+
+    etiquetas.forEach((etiqueta) => {
+        const arquivo = `${etiqueta.arquivo}.${ext}`;
+
+        linhas.push([
+            etiqueta.codigo,
+            base === '' ? arquivo : `${base}/${arquivo}`,
+            etiqueta.sequencia ?? '',
+            etiqueta.url,
+        ]);
+    });
+
+    // Separado por TABULACAO, e nao por ponto e virgula: caminho de arquivo
+    // carrega espaco e acento com frequencia, e a tabulacao nunca aparece
+    // dentro de um deles. O BOM fica para o Excel abrir sem estragar acento.
+    return '﻿'.concat(linhas.map((linha) => linha.join('\t')).join('\r\n'));
 }
 
 /** O pacote da tiragem inteira, pronto para a bancada. */
@@ -269,7 +289,7 @@ export async function pacote(pasta, etiquetas, opcoes = {}, aoAndar = () => {}) 
         aoAndar(i + 1, etiquetas.length);
     }
 
-    dentro.file(`${pasta}.csv`, csv(etiquetas));
+    dentro.file(`${pasta}.csv`, csv(etiquetas, { formato, pastaLocal: opcoes.pastaLocal ?? '' }));
 
     return zip.generateAsync({ type: 'blob' });
 }
