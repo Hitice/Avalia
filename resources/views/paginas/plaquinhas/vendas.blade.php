@@ -18,15 +18,21 @@
         {{-- Seletor por GET, sem JavaScript: a tela inteira é leitura, e o mês
              escolhido precisa sobreviver a um F5 e a um link colado para o
              outro sócio conferir o mesmo número. --}}
-        <form method="GET" action="{{ route('plaquinhas.vendas') }}" class="campo-linha">
-            <label for="mes" class="rotulo-campo">Mês</label>
-            <select id="mes" name="mes" class="campo" onchange="this.form.submit()">
-                @foreach ($meses as $opcao)
-                    <option value="{{ $opcao->format('Y-m') }}" @selected($opcao->format('Y-m') === $mes->format('Y-m'))>
-                        {{ $opcao->translatedFormat('F/Y') }}
-                    </option>
-                @endforeach
-            </select>
+        {{-- `campo-linha` e estilo de input, e nao de layout: no <form> ele
+             virava uma caixa com borda e altura fixa, com o rotulo e o select
+             transbordando dela. O layout aqui e flex, e o estilo fica no
+             select, que e o campo de verdade. --}}
+        <form method="GET" action="{{ route('plaquinhas.vendas') }}" class="flex items-end gap-2">
+            <div>
+                <label for="mes" class="rotulo-campo">Mês</label>
+                <select id="mes" name="mes" class="campo-linha" onchange="this.form.submit()">
+                    @foreach ($meses as $opcao)
+                        <option value="{{ $opcao->format('Y-m') }}" @selected($opcao->format('Y-m') === $mes->format('Y-m'))>
+                            {{ $opcao->translatedFormat('F/Y') }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <noscript><button type="submit" class="botao botao-secundario botao-sm">Ver</button></noscript>
         </form>
     </div>

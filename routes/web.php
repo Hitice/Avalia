@@ -463,6 +463,19 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
         ->middleware('admin')->name('plaquinhas.vendas');
 
+    /*
+     * Conserto do lado comercial da plaquinha, so pela administracao.
+     *
+     * Fora do grupo de `/etiquetas` porque aquele abre para cliente e produtor:
+     * vendedor que reatribuisse venda escolheria a propria comissao, e cliente
+     * nao tem nada a dizer sobre de quem e o credito. As duas mexem em dinheiro
+     * de quem recebe repasse, entao `admin` e o minimo.
+     */
+    Route::middleware('admin')->prefix('plaquinhas')->name('plaquinhas.')->group(function () {
+        Route::put('/{etiqueta}/vendedor', [EtiquetaController::class, 'trocarVendedor'])->name('vendedor');
+        Route::delete('/{etiqueta}/venda', [EtiquetaController::class, 'cancelarVenda'])->name('cancelar-venda');
+    });
+
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.
     Route::get('/auditoria', AuditoriaController::class)->middleware('admin')->name('auditoria');
     // Conferir a corrente da trilha: a funcao existia so no console.

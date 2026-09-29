@@ -73,8 +73,47 @@
                            placeholder="ex: Campanha Floripa 2026">
                 </div>
 
+                {{-- Cliente, contato e valor. Estavam aceitos pelo controller e
+                     nunca desenhados aqui: dava para vender a placa sem jeito de
+                     dizer para quem, e o valor caia sempre no preco da tabela.
+                     Quem atende no telefone procura pelo nome do cliente, nao
+                     pelo codigo. --}}
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="cliente_nome" class="rotulo-campo">Cliente</label>
+                        <input id="cliente_nome" name="cliente_nome" type="text" maxlength="150" class="campo"
+                               value="{{ old('cliente_nome', $etiqueta->cliente_nome) }}"
+                               placeholder="ex: Padaria do Zé">
+                        @error('cliente_nome')<p class="erro-campo">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label for="cliente_contato" class="rotulo-campo">Contato</label>
+                        <input id="cliente_contato" name="cliente_contato" type="text" maxlength="150" class="campo"
+                               value="{{ old('cliente_contato', $etiqueta->cliente_contato) }}"
+                               placeholder="WhatsApp ou e-mail">
+                        @error('cliente_contato')<p class="erro-campo">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+
+                <div class="sm:max-w-[16rem]">
+                    <label for="valor" class="rotulo-campo">Valor cobrado</label>
+                    <input id="valor" name="valor" type="text" inputmode="decimal" class="campo"
+                           value="{{ old('valor', $etiqueta->valor_cents === null ? '' : Dinheiro::numero((int) $etiqueta->valor_cents)) }}"
+                           placeholder="{{ Dinheiro::numero((int) config('etiquetas.precos.placa_cents')) }}">
+                    <p class="ajuda-campo">
+                        @if ($etiqueta->vendida_em)
+                            Já vendida: mudar aqui não altera o que foi cobrado.
+                        @else
+                            Em branco usa o preço da tabela,
+                            {{ Dinheiro::brl((int) config('etiquetas.precos.placa_cents')) }}.
+                        @endif
+                    </p>
+                    @error('valor')<p class="erro-campo">{{ $message }}</p>@enderror
+                </div>
+
                 <div>
-                    <x-avalia.botao>Salvar destino</x-avalia.botao>
+                    <x-avalia.botao>Salvar</x-avalia.botao>
                 </div>
             </form>
             @endif
@@ -163,10 +202,34 @@
                         <dt class="text-gray-500 dark:text-gray-400">Endereço impresso</dt>
                         <dd class="font-mono text-xs text-gray-700 dark:text-gray-300">/q/{{ $etiqueta->codigo }}</dd>
                     </div>
+                    {{-- Quem respondeu por esta placa. Sao dois papeis
+                         diferentes e a tela diz os dois: quem gerou a tiragem e
+                         quem levou o credito da venda. Confundir os dois foi o
+                         que creditava toda venda a quem operou a impressora. --}}
+                    <div class="flex justify-between gap-4">
+                        <dt class="text-gray-500 dark:text-gray-400">Cadastrada por</dt>
+                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->staff?->nome ?? '—' }}</dd>
+                    </div>
+                    @if ($etiqueta->vendida_em)
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Venda creditada a</dt>
+                            <dd class="text-gray-700 dark:text-gray-300">
+                                {{ $etiqueta->vendedor?->nome ?? 'Não identificado' }}
+                            </dd>
+                        </div>
+                    @endif
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Vendida em</dt>
                         <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->vendida_em?->format('d/m/Y') ?? '—' }}</dd>
                     </div>
+                    @if ($etiqueta->vendida_em && $etiqueta->valor_cents !== null)
+                        <div class="flex justify-between gap-4">
+                            <dt class="text-gray-500 dark:text-gray-400">Valor cobrado</dt>
+                            <dd class="tabular-nums text-gray-700 dark:text-gray-300">
+                                {{ Dinheiro::brl((int) $etiqueta->valor_cents) }}
+                            </dd>
+                        </div>
+                    @endif
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Vence em</dt>
                         <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->vence_em?->format('d/m/Y') ?? '—' }}</dd>
@@ -204,6 +267,59 @@
                     @endif
                 </div>
             </div>
+
+            @if ($ehAdmin && $etiqueta->vendida_em)
+                {{-- O lado comercial da placa, separado do operacional de
+                     proposito: as duas acoes daqui mexem no repasse de quem
+                     recebe comissao, e por isso nao ficam junto dos botoes que
+                     so ligam e desligam a placa. --}}
+                <div class="cartao p-6">
+                    <h2 class="rotulo-grupo">Venda</h2>
+
+                    <form method="POST" action="{{ route('plaquinhas.vendedor', $etiqueta) }}" class="mt-4">
+                        @csrf
+                        @method('PUT')
+
+                        <label for="vendedor_id" class="rotulo-campo">Creditar a</label>
+                        <select id="vendedor_id" name="vendedor_id" class="campo">
+                            <option value="">Não identificado</option>
+                            @foreach ($equipe as $pessoa)
+                                <option value="{{ $pessoa->id }}"
+                                        @selected((int) $etiqueta->vendedor_id === (int) $pessoa->id)>
+                                    {{ $pessoa->nome }}{{ $pessoa->papel === 'vendedor' ? '' : ' (admin)' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="ajuda-campo">
+                            Quem cadastrou não é sempre quem vendeu. A comissão do mês sai daqui.
+                        </p>
+                        @error('vendedor_id')<p class="erro-campo">{{ $message }}</p>@enderror
+
+                        <div class="mt-4">
+                            <x-avalia.botao variante="secundario" tamanho="sm">Salvar vendedor</x-avalia.botao>
+                        </div>
+                    </form>
+
+                    <div class="mt-6 border-t border-gray-100 pt-5 dark:border-gray-800">
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Placa da própria Avalia, demonstração, teste ou cadastro por engano: cancelar a
+                            venda tira ela da apuração e a deixa em campo, apontando para o mesmo lugar e
+                            sem vencimento.
+                        </p>
+                        <p class="aviso aviso-alerta mt-3">
+                            Se esta venda for de mês já fechado, cancelar muda a apuração daquele mês e a
+                            comissão que saiu dele.
+                        </p>
+
+                        <form method="POST" action="{{ route('plaquinhas.cancelar-venda', $etiqueta) }}" class="mt-4"
+                              onsubmit="return confirm('Cancelar a venda de {{ $etiqueta->codigo }}? A plaquinha continua no ar e sai da apuração.')">
+                            @csrf
+                            @method('DELETE')
+                            <x-avalia.botao variante="secundario" tamanho="sm">Cancelar venda</x-avalia.botao>
+                        </form>
+                    </div>
+                </div>
+            @endif
 
             @if ($acessos->isNotEmpty())
                 <div class="cartao p-6">

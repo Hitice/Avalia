@@ -109,6 +109,8 @@ final class Rotulos
         'etiquetas.destino.trocado' => 'Destino da etiqueta trocado',
         'etiquetas.alternada' => 'Etiqueta suspensa ou reativada',
         'etiquetas.renovada' => 'Etiqueta renovada por mais um ano',
+        'etiquetas.vendedor.trocado' => 'Venda da etiqueta creditada a outra pessoa',
+        'etiquetas.venda.cancelada' => 'Venda da etiqueta cancelada',
         'links.encurtado' => 'Link encurtado',
         'links.alternado' => 'Link ligado ou desligado',
         'links.excluido' => 'Link sem cliques apagado',

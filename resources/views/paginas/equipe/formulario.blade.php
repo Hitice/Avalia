@@ -75,8 +75,14 @@
                     </span>
                 </div>
 
+                {{-- Escondido para a administracao de proposito: quem administra
+                     nao tira comissao de consulta. Nao confundir com a comissao
+                     das plaquinhas, que e percentual unico da casa e mora em
+                     config/etiquetas.php: dois produtos, duas taxas, e o rotulo
+                     precisa dizer qual e qual para ninguem mexer aqui achando
+                     que muda o repasse das placas. --}}
                 <div x-show="papel === 'vendedor'" x-cloak>
-                    <label for="comissao_pct" class="rotulo-campo">Comissão</label>
+                    <label for="comissao_pct" class="rotulo-campo">Comissão de consultas</label>
                     <div class="flex items-center gap-2">
                         <input id="comissao_pct" name="comissao_pct" type="number" min="0" max="50" required
                                class="campo-linha w-24 text-right"
@@ -85,7 +91,8 @@
                     </div>
                     <span class="ajuda-campo">
                         Vale a partir do próximo fechamento. Competência já fechada guarda o
-                        percentual usado na emissão.
+                        percentual usado na emissão. A comissão das plaquinhas é única para toda
+                        a equipe, {{ (int) config('etiquetas.comissao_pct') }}% do líquido, e não sai daqui.
                     </span>
                     @error('comissao_pct') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>

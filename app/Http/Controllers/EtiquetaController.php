@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Etiquetas\AlternarEtiqueta;
+use App\Actions\Etiquetas\CancelarVendaEtiqueta;
 use App\Actions\Etiquetas\GerarLote;
 use App\Actions\Etiquetas\RenovarEtiqueta;
+use App\Actions\Etiquetas\TrocarVendedorEtiqueta;
 use App\Actions\Etiquetas\VenderEtiqueta;
 use App\Enums\SituacaoEtiqueta;
 use App\Models\Etiqueta;
 use App\Models\LoteEtiqueta;
+use App\Models\Staff;
 use App\Support\CodigoCurto;
 use App\Support\Destino;
 use App\Support\Dinheiro;
@@ -163,10 +166,53 @@ class EtiquetaController extends Controller
     {
         $this->conferirDono($etiqueta);
 
+        $ehAdmin = (bool) auth('staff')->user()?->ehAdmin();
+
         return view('paginas.etiquetas.ficha', [
-            'etiqueta' => $etiqueta->load(['lote', 'destinos' => fn ($q) => $q->orderByDesc('id'), 'renovacoes']),
+            'etiqueta' => $etiqueta->load([
+                'lote',
+                'destinos' => fn ($q) => $q->with('staff:id,nome')->orderByDesc('id'),
+                'renovacoes',
+                'staff:id,nome',
+                'vendedor:id,nome',
+            ]),
             'acessos' => $etiqueta->acessos()->orderByDesc('dia')->limit(30)->get(),
+            'ehAdmin' => $ehAdmin,
+
+            // A lista de quem pode receber a venda sai so para a administracao,
+            // que e a unica que pode trocar. Inclui conta desativada: venda
+            // antiga pertence a quem vendeu, mesmo que a pessoa ja tenha saido.
+            'equipe' => $ehAdmin
+                ? Staff::withTrashed()->orderBy('nome')->get(['id', 'nome', 'papel'])
+                : collect(),
         ]);
+    }
+
+    /**
+     * Corrige a quem a venda pertence. So administracao.
+     *
+     * O credito sai do registro, e o registro nem sempre bate com o combinado:
+     * quem vendeu passa a placa para outro cadastrar, ou a administracao aponta
+     * para ajudar. Sem esta tela, o conserto exigiria mexer no banco.
+     */
+    public function trocarVendedor(Request $pedido, Etiqueta $etiqueta, TrocarVendedorEtiqueta $trocar)
+    {
+        $dados = $pedido->validate([
+            'vendedor_id' => ['nullable', 'integer', 'exists:staff,id'],
+        ]);
+
+        $trocar($etiqueta, $dados['vendedor_id'] === null ? null : (int) $dados['vendedor_id']);
+
+        return back()->with('ok', 'Venda creditada a '.($etiqueta->refresh()->vendedor?->nome ?? 'ninguém').'.');
+    }
+
+    /** Desfaz a venda e deixa a placa em campo. So administracao. */
+    public function cancelarVenda(Etiqueta $etiqueta, CancelarVendaEtiqueta $cancelar)
+    {
+        $cancelar($etiqueta);
+
+        return back()->with('ok',
+            'Venda cancelada. A plaquinha continua apontando para o mesmo lugar e saiu da apuração de vendas.');
     }
 
     /** Vende e aponta. Serve a primeira vez e a troca de destino de anos depois. */

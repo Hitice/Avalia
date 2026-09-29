@@ -169,6 +169,7 @@
                         <th scope="col" class="tabela-th text-left">Vence</th>
                         <th scope="col" class="tabela-th text-right">Leituras</th>
                         <th scope="col" class="tabela-th text-right">Baixar</th>
+                        <th scope="col" class="tabela-th text-right">Editar</th>
                     </tr>
                 </thead>
 
@@ -236,10 +237,20 @@
                                 <button type="button" x-on:click="baixar('{{ $etiqueta->codigo }}', 'png')"
                                         class="botao botao-secundario botao-sm ml-1">PNG</button>
                             </td>
+
+                            {{-- Um botao Editar por linha, que e o padrao da
+                                 casa. O codigo continua sendo link, mas link em
+                                 texto nao se anuncia como a acao da linha: quem
+                                 abre a tela pela primeira vez nao descobre que e
+                                 ali que se edita. --}}
+                            <td class="tabela-td text-right whitespace-nowrap">
+                                <a href="{{ route('etiquetas.ficha', $etiqueta) }}"
+                                   class="botao botao-secundario botao-sm">Editar</a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="tabela-vazia">
+                            <td colspan="9" class="tabela-vazia">
                                 Gere os primeiros códigos acima. Eles nascem em branco, e ganham
                                 destino depois da venda.
                             </td>
