@@ -67,9 +67,9 @@ it('apura a venda do vendedor comum com a comissao sobre o liquido', function ()
         ->and($totais['custo'])->toBe(1_100)
         ->and($totais['liquido'])->toBe(16_880)
         ->and($totais['comissao'])->toBe(4_220)
-        ->and($totais['sobra'])->toBe(12_660);
+        ->and($totais['lucro'])->toBe(12_660);
 
-    expect($tela->viewData('porSocio')->pluck('cents')->all())->toBe([6_330, 6_330]);
+    expect($tela->viewData('porSocio')->pluck('mes')->all())->toBe([6_330, 6_330]);
 });
 
 it('nao tira comissao quando quem vendeu e socio', function () {
@@ -81,7 +81,7 @@ it('nao tira comissao quando quem vendeu e socio', function () {
 
     expect($tela->viewData('totais')['comissao'])->toBe(0)
         // O liquido inteiro vai para a divisao: 84,40 em duas partes iguais.
-        ->and($tela->viewData('porSocio')->pluck('cents')->all())->toBe([4_220, 4_220]);
+        ->and($tela->viewData('porSocio')->pluck('mes')->all())->toBe([4_220, 4_220]);
 });
 
 it('conta a venda pelo mes em que ela aconteceu, e nao pela geracao da placa', function () {
@@ -117,7 +117,7 @@ it('mostra a venda orfa em vez de dividi-la entre os outros', function () {
         // E nao gera comissao: nao houve venda de ninguem. O liquido inteiro
         // vai para a divisao.
         ->and($tela->viewData('totais')['comissao'])->toBe(0)
-        ->and($tela->viewData('totais')['sobra'])->toBe(8_440);
+        ->and($tela->viewData('totais')['lucro'])->toBe(8_440);
 });
 
 it('nunca mostra mais comissao no total do que a soma dos vendedores', function () {
@@ -198,4 +198,57 @@ it('cai no mes corrente quando a url traz mes invalido', function () {
     // Este endereco vai parar em favorito e em link colado; mes quebrado nao
     // pode virar tela de erro.
     admin()->get(route('plaquinhas.vendas', ['mes' => 'banana']))->assertOk();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Caixa acumulado e serie diaria
+|--------------------------------------------------------------------------
+*/
+
+it('separa o caixa do mes do caixa de sempre', function () {
+    socios();
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    Etiqueta::factory()->ativa()->create(['vendedor_id' => $vendedor->id]);
+    Etiqueta::factory()->ativa()->create([
+        'vendedor_id' => $vendedor->id,
+        'vendida_em' => now()->subMonths(3),
+    ]);
+
+    $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
+
+    // O recorte do mes responde "como foi este mes"; o acumulado responde
+    // "quanto este produto deu ate hoje", e um nao e a soma visivel do outro.
+    expect($tela->viewData('totais')['bruto'])->toBe(8_990)
+        ->and($tela->viewData('total')['bruto'])->toBe(17_980)
+        ->and($tela->viewData('placas'))->toBe(1)
+        ->and($tela->viewData('placasTotal'))->toBe(2);
+});
+
+it('divide o acumulado entre os socios sem perder centavo', function () {
+    socios();
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    Etiqueta::factory()->ativa()->count(3)->create(['vendedor_id' => $vendedor->id]);
+
+    $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
+
+    expect($tela->viewData('porSocio')->sum('total'))
+        ->toBe($tela->viewData('total')['lucro']);
+});
+
+it('mostra o mes inteiro na serie diaria, inclusive dia sem venda', function () {
+    // Buraco no meio da serie e informacao: dia sem venda tem de aparecer como
+    // dia sem venda, e nao ser omitido para a linha ficar bonita.
+    socios();
+
+    Etiqueta::factory()->ativa()->create(['vendida_em' => now()->startOfMonth()->addDays(2)]);
+
+    $porDia = admin()->get(route('plaquinhas.vendas'))->viewData('porDia');
+
+    expect($porDia)->toHaveCount(now()->daysInMonth)
+        ->and($porDia->sum('placas'))->toBe(1)
+        ->and($porDia->firstWhere('dia', 3)['placas'])->toBe(1)
+        ->and($porDia->firstWhere('dia', 1)['placas'])->toBe(0);
 });

@@ -15,7 +15,7 @@ it('tira o custo antes de comissionar', function () {
 
     expect($parte['liquido'])->toBe(8_490)
         ->and($parte['comissao'])->toBe(2_123)
-        ->and($parte['sobra'])->toBe(6_367);
+        ->and($parte['lucro'])->toBe(6_367);
 });
 
 it('manda o liquido inteiro para a divisao quando nao ha comissao', function () {
@@ -25,7 +25,7 @@ it('manda o liquido inteiro para a divisao quando nao ha comissao', function () 
     $parte = RepartePlaquinha::de(8_990, 500, false, 25);
 
     expect($parte['comissao'])->toBe(0)
-        ->and($parte['sobra'])->toBe(8_490);
+        ->and($parte['lucro'])->toBe(8_490);
 });
 
 it('fecha sempre no bruto', function () {
@@ -34,7 +34,7 @@ it('fecha sempre no bruto', function () {
     foreach ([8_990, 7_990, 1_00, 3_333] as $valor) {
         $parte = RepartePlaquinha::de($valor, 500, true, 25);
 
-        expect($parte['custo'] + $parte['comissao'] + $parte['sobra'])->toBe($parte['bruto']);
+        expect($parte['custo'] + $parte['comissao'] + $parte['lucro'])->toBe($parte['bruto']);
     }
 });
 
@@ -49,16 +49,16 @@ it('nao acumula vies quando a divisao e feita uma vez no fim', function () {
     // Cem placas de vendedor comum. Dividindo venda a venda, o centavo impar
     // cairia sempre no mesmo socio e viraria cinquenta centavos de diferenca;
     // somando antes, a diferenca e de um centavo, no maximo.
-    $sobraDoMes = 0;
+    $lucroDoMes = 0;
 
     for ($i = 0; $i < 100; $i++) {
-        $sobraDoMes += RepartePlaquinha::de(8_990, 500, true, 25)['sobra'];
+        $lucroDoMes += RepartePlaquinha::de(8_990, 500, true, 25)['lucro'];
     }
 
-    [$primeiro, $segundo] = RepartePlaquinha::dividir($sobraDoMes, 2);
+    [$primeiro, $segundo] = RepartePlaquinha::dividir($lucroDoMes, 2);
 
     expect($primeiro - $segundo)->toBeLessThanOrEqual(1)
-        ->and($primeiro + $segundo)->toBe($sobraDoMes);
+        ->and($primeiro + $segundo)->toBe($lucroDoMes);
 });
 
 it('nao deixa o custo virar comissao negativa', function () {
@@ -69,7 +69,7 @@ it('nao deixa o custo virar comissao negativa', function () {
     expect($parte['custo'])->toBe(300)
         ->and($parte['liquido'])->toBe(0)
         ->and($parte['comissao'])->toBe(0)
-        ->and($parte['sobra'])->toBe(0);
+        ->and($parte['lucro'])->toBe(0);
 });
 
 it('ignora percentual absurdo em vez de estourar o repasse', function () {

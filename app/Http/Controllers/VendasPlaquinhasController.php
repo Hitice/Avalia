@@ -10,21 +10,31 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Quanto as plaquinhas venderam, e de quem e cada parte.
+ * O caixa das plaquinhas: quanto entrou, quanto sobrou e de quem e.
  *
  * Existe porque a venda da placa nao passa por fatura: ela e cobrada na hora,
- * fora do ciclo de consumo do resto da casa, e por isso nao aparecia em
- * nenhuma das telas de dinheiro. O repasse estava sendo somado a mao.
+ * fora do ciclo de consumo do resto da casa, e por isso nao aparecia em nenhuma
+ * das telas de dinheiro. O repasse estava sendo somado a mao.
+ *
+ * O negocio tem quatro linhas, nesta ordem, e a tela segue ela:
+ *
+ *   receita    o que o cliente pagou, gravado na venda
+ *   custo      a placa fisica, desembolso direto de cada unidade
+ *   comissao   25% do que resta, de quem vendeu
+ *   lucro      o que fica, dividido entre os socios
+ *
+ * `lucro` aqui e lucro DESTE produto, antes de custo fixo e imposto: hospedagem,
+ * dominio e ferramenta nao entram, porque nao sao por placa. Quem olhar isto como
+ * resultado da empresa vai superestimar.
  *
  * A conta roda LINHA A LINHA, em PHP, e nao em SUM() no banco. Sao dezenas de
- * placas por mes, entao o custo e irrelevante, e a vantagem e grande: e
- * exatamente o mesmo App\Support\RepartePlaquinha que decide o repasse de uma
- * venda isolada. Somar no SQL seria uma segunda implementacao da mesma regra,
- * e duas contas para o mesmo dinheiro divergem no primeiro arredondamento.
+ * placas, entao o custo e irrelevante, e a vantagem e grande: e exatamente o
+ * mesmo App\Support\RepartePlaquinha que decide o repasse de uma venda isolada.
+ * Somar no SQL seria uma segunda implementacao da mesma regra, e duas contas para
+ * o mesmo dinheiro divergem no primeiro arredondamento.
  *
  * So administracao entra. O vendedor ve a comissao dele na propria tela; esta
- * aqui mostra a margem da casa e a divisao entre os socios, que nao e assunto
- * de quem vende.
+ * aqui mostra custo e divisao entre socios, que nao e assunto de quem vende.
  */
 class VendasPlaquinhasController extends Controller
 {
@@ -33,34 +43,51 @@ class VendasPlaquinhasController extends Controller
         $mes = $this->mesPedido($request);
         $socios = $this->socios();
 
-        $vendas = Etiqueta::query()
+        $doMes = Etiqueta::query()
             ->vendidasEntre($mes->copy()->startOfMonth(), $mes->copy()->endOfMonth())
-            ->with('vendedor:id,nome,email')
+            ->with('vendedor:id,nome')
             ->orderByDesc('vendida_em')
             ->get();
 
-        $apuracao = $this->apurar($vendas, $socios['ids']);
+        $apuracao = $this->apurar($doMes, $socios['ids']);
+
+        // O acumulado nao e a soma dos meses mostrados: e tudo que ja foi
+        // vendido. Serve a pergunta "quanto esse produto deu ate hoje", que o
+        // recorte do mes nao responde.
+        $desdeSempre = $this->apurar(
+            Etiqueta::query()->whereNotNull('vendida_em')->get(['valor_cents', 'custo_cents', 'vendedor_id']),
+            $socios['ids'],
+        );
 
         return view('paginas.plaquinhas.vendas', [
             'mes' => $mes,
             'meses' => $this->mesesComVenda(),
 
-            'placas' => $vendas->count(),
+            'placas' => $doMes->count(),
+            'placasTotal' => Etiqueta::whereNotNull('vendida_em')->count(),
+
             'totais' => $apuracao['totais'],
+            'total' => $desdeSempre['totais'],
+
             'porVendedor' => $apuracao['porVendedor'],
-            'porSocio' => $this->nomearSocios($socios['contas'], $apuracao['porSocio']),
             'semVendedor' => $apuracao['semVendedor'],
+
+            'porSocio' => $this->nomearSocios(
+                $socios['contas'],
+                $apuracao['porSocio'],
+                $desdeSempre['porSocio'],
+            ),
 
             // Lista errada de socio vira repasse errado, entao ela aparece em
             // tela em vez de falhar calada.
             'sociosAusentes' => $socios['ausentes'],
 
-            'serie' => $this->serie(),
+            'porDia' => $this->porDia($mes),
 
             // O mes inteiro, e nao as dez ultimas: esta tabela e a leitura
             // alternativa dos graficos, para quem confere numero a numero ou usa
             // leitor de tela. Cortar a lista tiraria justamente o que ela serve.
-            'ultimas' => $vendas,
+            'vendas' => $doMes,
         ]);
     }
 
@@ -87,7 +114,7 @@ class VendasPlaquinhasController extends Controller
      * Os socios do config, resolvidos em contas.
      *
      * A ORDEM do config e a ordem da divisao, e e o que mantem o centavo impar
-     * sempre na mesma pessoa. Alfabetar aqui faria a sobra trocar de dono no
+     * sempre na mesma pessoa. Alfabetar aqui faria o centavo trocar de dono no
      * dia em que alguem renomeasse a conta.
      *
      * @return array{contas: Collection<int, Staff>, ids: list<int>, ausentes: list<string>}
@@ -111,7 +138,7 @@ class VendasPlaquinhasController extends Controller
     }
 
     /**
-     * Soma o reparte de cada venda do periodo.
+     * Soma o reparte de cada venda do conjunto.
      *
      * @param  Collection<int, Etiqueta>  $vendas
      * @param  list<int>  $sociosIds
@@ -120,9 +147,8 @@ class VendasPlaquinhasController extends Controller
     private function apurar(Collection $vendas, array $sociosIds): array
     {
         $pct = (int) config('etiquetas.comissao_pct');
-        $quantosSocios = count($sociosIds);
 
-        $totais = ['bruto' => 0, 'custo' => 0, 'liquido' => 0, 'comissao' => 0, 'sobra' => 0];
+        $totais = ['bruto' => 0, 'custo' => 0, 'liquido' => 0, 'comissao' => 0, 'lucro' => 0];
         $porVendedor = [];
         $semVendedor = 0;
 
@@ -133,15 +159,14 @@ class VendasPlaquinhasController extends Controller
             // Placa sem vendedor nao gera comissao, do mesmo jeito que a de
             // socio: nao houve venda de ninguem. Comissionar uma venda orfa
             // criaria dinheiro sem destinatario, que sairia da divisao dos
-            // socios e deixaria o total de comissoes maior que a soma das
-            // linhas por vendedor, na mesma tela.
+            // socios e deixaria o total de comissoes maior que a soma das linhas
+            // por vendedor, na mesma tela.
             $geraComissao = $vendedorId !== null && ! $ehSocio;
 
             $parte = RepartePlaquinha::de(
                 (int) $venda->valor_cents,
 
-                // Venda anterior a coluna de custo cai no config. Acontece so
-                // se a migration de recuperacao nao tiver rodado; deixar zero
+                // Venda anterior a coluna de custo cai no config. Deixar zero
                 // mostraria lucro inflado, que e o erro que engana.
                 $venda->custo_cents === null ? (int) config('etiquetas.custo_cents') : (int) $venda->custo_cents,
 
@@ -177,29 +202,67 @@ class VendasPlaquinhasController extends Controller
             'totais' => $totais,
             'porVendedor' => collect($porVendedor)->sortByDesc('placas')->values(),
 
-            // A divisao acontece UMA vez, sobre a sobra ja somada do mes.
-            // Dividir venda a venda daria o centavo impar sempre ao primeiro
-            // socio, e o vies acumularia placa a placa.
-            'porSocio' => RepartePlaquinha::dividir($totais['sobra'], $quantosSocios),
+            // A divisao acontece UMA vez, sobre o lucro ja somado. Dividir venda
+            // a venda daria o centavo impar sempre ao primeiro socio, e o vies
+            // acumularia placa a placa.
+            'porSocio' => RepartePlaquinha::dividir($totais['lucro'], count($sociosIds)),
 
             'semVendedor' => $semVendedor,
         ];
     }
 
     /**
-     * Junta nome e valor de cada socio, na ordem da divisao.
+     * Nome de cada socio com a parte do mes e a acumulada, na ordem da divisao.
      *
      * @param  Collection<int, Staff>  $contas
-     * @param  list<int>  $valores
-     * @return Collection<int, array{nome: string, email: string, cents: int}>
+     * @param  list<int>  $mes
+     * @param  list<int>  $total
+     * @return Collection<int, array{nome: string, mes: int, total: int}>
      */
-    private function nomearSocios(Collection $contas, array $valores): Collection
+    private function nomearSocios(Collection $contas, array $mes, array $total): Collection
     {
         return $contas->map(fn (Staff $socio, int $posicao) => [
             'nome' => $socio->nome,
-            'email' => $socio->email,
-            'cents' => $valores[$posicao] ?? 0,
+            'mes' => $mes[$posicao] ?? 0,
+            'total' => $total[$posicao] ?? 0,
         ]);
+    }
+
+    /**
+     * Placas por DIA do mes escolhido.
+     *
+     * Era por mes, e mes nao responde a pergunta de quem vende: a variacao util
+     * esta dentro da semana, e ela desaparece quando trinta dias viram uma
+     * barra. Todos os dias entram, inclusive os sem venda, porque buraco no meio
+     * da serie e informacao.
+     *
+     * @return Collection<int, array{dia: int, rotulo: string, fimDeSemana: bool, placas: int, bruto: int}>
+     */
+    private function porDia(Carbon $mes): Collection
+    {
+        $vendas = Etiqueta::query()
+            ->vendidasEntre($mes->copy()->startOfMonth(), $mes->copy()->endOfMonth())
+            ->get(['vendida_em', 'valor_cents'])
+            ->groupBy(fn (Etiqueta $e) => (int) $e->vendida_em->day);
+
+        $dias = collect();
+        $cursor = $mes->copy()->startOfMonth();
+
+        while ($cursor->month === $mes->month) {
+            $doDia = $vendas->get($cursor->day, collect());
+
+            $dias->push([
+                'dia' => $cursor->day,
+                'rotulo' => $cursor->format('d/m'),
+                'fimDeSemana' => $cursor->isWeekend(),
+                'placas' => $doDia->count(),
+                'bruto' => (int) $doDia->sum('valor_cents'),
+            ]);
+
+            $cursor->addDay();
+        }
+
+        return $dias;
     }
 
     /**
@@ -225,42 +288,5 @@ class VendasPlaquinhasController extends Controller
         }
 
         return $meses;
-    }
-
-    /**
-     * Placas e faturamento dos ultimos doze meses.
-     *
-     * Uma consulta agrupada, e nao doze: o grafico e ilustrativo e nao paga
-     * ninguem, entao aqui SUM() no banco e suficiente e nao concorre com a
-     * apuracao linha a linha.
-     *
-     * @return Collection<int, array{rotulo: string, placas: int, bruto: int}>
-     */
-    private function serie(): Collection
-    {
-        $desde = Carbon::now()->startOfMonth()->subMonths(11);
-
-        $linhas = Etiqueta::query()
-            ->whereNotNull('vendida_em')
-            ->where('vendida_em', '>=', $desde)
-            ->get(['vendida_em', 'valor_cents'])
-            ->groupBy(fn (Etiqueta $e) => $e->vendida_em->format('Y-m'));
-
-        $serie = collect();
-        $cursor = $desde->copy();
-
-        while ($cursor->lessThanOrEqualTo(Carbon::now()->startOfMonth())) {
-            $doMes = $linhas->get($cursor->format('Y-m'), collect());
-
-            $serie->push([
-                'rotulo' => $cursor->translatedFormat('M/y'),
-                'placas' => $doMes->count(),
-                'bruto' => (int) $doMes->sum('valor_cents'),
-            ]);
-
-            $cursor->addMonth();
-        }
-
-        return $serie;
     }
 }

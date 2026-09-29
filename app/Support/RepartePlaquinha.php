@@ -40,7 +40,7 @@ final class RepartePlaquinha
     /**
      * O reparte de uma venda.
      *
-     * @return array{bruto: int, custo: int, liquido: int, comissao: int, sobra: int}
+     * @return array{bruto: int, custo: int, liquido: int, comissao: int, lucro: int}
      */
     public static function de(
         int $valorCents,
@@ -56,14 +56,14 @@ final class RepartePlaquinha
         $liquido = $bruto - $custo;
 
         $comissao = $geraComissao ? self::comissaoCents($liquido, $pct) : 0;
-        $sobra = $liquido - $comissao;
+        $lucro = $liquido - $comissao;
 
         return [
             'bruto' => $bruto,
             'custo' => $custo,
             'liquido' => $liquido,
             'comissao' => $comissao,
-            'sobra' => $sobra,
+            'lucro' => $lucro,
         ];
     }
 
