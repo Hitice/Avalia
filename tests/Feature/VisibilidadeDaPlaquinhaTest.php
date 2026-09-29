@@ -9,11 +9,15 @@ uses(RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------
-| O estoque que o vendedor precisa ver para vender
+| Quem enxerga qual plaquinha
 |--------------------------------------------------------------------------
 |
 | A tiragem nasce com o dono do admin que gerou o lote. Enquanto a lista era
 | filtrada so por dono, o vendedor abria a tela vazia e nao tinha o que vender.
+|
+| A equipe passa a ver tudo. A linha que continua valendo e a de fora dela:
+| cliente e produtor seguem vendo so o que e seu, e e isso que impede um cliente
+| de trocar o destino da placa de outro.
 |
 */
 
@@ -68,9 +72,11 @@ it('mantem a placa visivel para quem a vendeu', function () {
     test()->get(route('etiquetas.ficha', $minha))->assertOk();
 });
 
-it('esconde do vendedor a venda de outro vendedor', function () {
-    // Ele nao atende aquele cliente e a comissao nao e dele, entao o destino
-    // daquela placa nao e assunto seu.
+it('mostra ao vendedor tambem a venda de outro vendedor', function () {
+    // Decisao de quem opera: a casa e pequena e o atendimento nao e de carteira
+    // fechada. Quem esta na mesa atende a placa que tocar o telefone, e placa
+    // parada porque o vendedor dela esta em campo custa mais que o risco. O
+    // controle e a auditoria, que guarda nome em cada troca de destino.
     $outro = Staff::factory()->create(['papel' => 'vendedor']);
     $doOutro = Etiqueta::factory()->ativa()->create(['vendedor_id' => $outro->id]);
 
@@ -78,8 +84,25 @@ it('esconde do vendedor a venda de outro vendedor', function () {
 
     $lista = test()->get(route('etiquetas.index'))->viewData('etiquetas');
 
-    expect($lista->pluck('id')->all())->not->toContain($doOutro->id);
-    test()->get(route('etiquetas.ficha', $doOutro))->assertNotFound();
+    expect($lista->pluck('id')->all())->toContain($doOutro->id);
+    test()->get(route('etiquetas.ficha', $doOutro))->assertOk();
+});
+
+it('nao move o credito da venda quando outro vendedor mexe no destino', function () {
+    // Ver e atender tudo, sim; herdar a comissao alheia, nao. `vendedor_id` so
+    // e escrito na PRIMEIRA venda, entao trocar o destino depois nao reescreve
+    // de quem foi a venda.
+    $outro = Staff::factory()->create(['papel' => 'vendedor']);
+    $doOutro = Etiqueta::factory()->ativa()->create(['vendedor_id' => $outro->id]);
+
+    vendedorLogado();
+
+    test()->put(route('etiquetas.apontar', $doOutro), [
+        'destino' => 'outrodestino.com.br',
+    ])->assertRedirect();
+
+    expect($doOutro->refresh()->vendedor_id)->toBe($outro->id)
+        ->and($doOutro->destino)->toBe('https://outrodestino.com.br');
 });
 
 it('mostra ao vendedor a campanha que tem estoque', function () {

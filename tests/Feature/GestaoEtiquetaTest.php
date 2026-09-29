@@ -249,9 +249,10 @@ it('registra na auditoria tudo que muda a plaquinha', function () {
     );
 });
 
-it('deixa o vendedor entrar, mas so no que e dele', function () {
-    // A ferramenta atende toda conta. O que limita nao e o papel, e o dono
-    // gravado em cada codigo.
+it('deixa o vendedor entrar e enxergar a tiragem inteira', function () {
+    // A equipe ve tudo. Antes o vendedor via so o que era dele pelo dono, e
+    // abria a tela sem estoque para vender. Quem continua limitado pelo dono e
+    // quem esta fora da equipe, e disso cuidam os testes de cliente abaixo.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
     $daAdministracao = Etiqueta::factory()->ativa()->create(['codigo' => 'AAAAAA']);
 
@@ -260,12 +261,10 @@ it('deixa o vendedor entrar, mas so no que e dele', function () {
     comoVendedor($vendedor)->get(route('etiquetas.index'))
         ->assertOk()
         ->assertSee('Do vendedor')
-        ->assertDontSee('AAAAAA');
+        ->assertSee('AAAAAA');
 
-    // 404 e nao 403: dizer "existe, mas nao e seu" confirmaria a existencia do
-    // codigo a quem so tentou a sorte.
-    comoVendedor($vendedor)->get(route('etiquetas.ficha', $daAdministracao))->assertNotFound();
-    comoVendedor($vendedor)->post(route('etiquetas.alternar', $daAdministracao))->assertNotFound();
+    comoVendedor($vendedor)->get(route('etiquetas.ficha', $daAdministracao))->assertOk();
+    comoVendedor($vendedor)->post(route('etiquetas.alternar', $daAdministracao))->assertRedirect();
 });
 
 it('deixa o cliente entrar pela conta da empresa dele', function () {

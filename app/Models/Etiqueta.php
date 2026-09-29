@@ -246,40 +246,24 @@ class Etiqueta extends Model
     /**
      * O que a conta logada enxerga da tiragem.
      *
-     * A administracao ve tudo. O vendedor ve tres coisas, e a diferenca entre
-     * elas importa:
+     * A EQUIPE ve tudo: administracao e vendedor. Nao e descuido, e a decisao de
+     * quem opera. A casa e pequena e o atendimento nao e de carteira fechada:
+     * quem esta na mesa atende a placa que tocar o telefone, e a placa parada
+     * porque o vendedor dela esta em campo custa mais que o risco de alguem
+     * abrir o que nao vendeu. Cada troca de destino fica na auditoria com nome,
+     * entao o controle e depois do ato, e nao antes.
      *
-     *   - o ESTOQUE em branco, que e da casa e ainda nao e de ninguem. Sem isto
-     *     ele nao tem o que vender: a tiragem nasce com o dono do admin que
-     *     gerou o lote, e o vendedor abria a lista vazia;
-     *   - o que ELE vendeu, por `vendedor_id`, porque e ele quem atende aquele
-     *     cliente depois;
-     *   - o que e dele por dono, que e o caso do codigo avulso que ele mesmo
-     *     criou.
+     * A primeira versao disto dava ao vendedor so o estoque em branco, as
+     * vendas dele e o que era dele por dono. Ficou de fora a venda de outro
+     * vendedor, e era esse o pedido: que apareca tudo.
      *
-     * O que fica de fora, de proposito: venda de OUTRO vendedor. Ele nao atende
-     * aquele cliente e a comissao nao e dele, entao o destino daquela placa nao
-     * e assunto seu. E a mesma linha que App\Support\Dono ja tracava.
-     *
-     * Cliente e produtor seguem so pelo dono: para eles nao existe estoque da
-     * casa, e placa em branco de outra pessoa nao lhes diz respeito.
+     * Cliente e produtor seguem so pelo dono, e essa linha nao se mexe: e o que
+     * impede um cliente de trocar o destino da placa de outro. Ver
+     * App\Support\Dono.
      */
     public function scopeVisiveis(Builder $consulta): Builder
     {
-        if (Dono::veTudo()) {
-            return $consulta;
-        }
-
-        if (Dono::tipo() !== 'staff') {
-            return Dono::limitar($consulta);
-        }
-
-        $eu = Dono::id();
-
-        return $consulta->where(fn (Builder $ou) => $ou
-            ->where('situacao', SituacaoEtiqueta::EmBranco)
-            ->orWhere('vendedor_id', $eu)
-            ->orWhere(fn (Builder $meu) => $meu->where('dono_tipo', 'staff')->where('dono_id', $eu)));
+        return Dono::tipo() === 'staff' ? $consulta : Dono::limitar($consulta);
     }
 
     /**
@@ -291,13 +275,7 @@ class Etiqueta extends Model
      */
     public function podeMexer(): bool
     {
-        if (Dono::pode($this)) {
-            return true;
-        }
-
-        return Dono::tipo() === 'staff'
-            && ($this->situacao === SituacaoEtiqueta::EmBranco
-                || ($this->vendedor_id !== null && (int) $this->vendedor_id === Dono::id()));
+        return Dono::tipo() === 'staff' || Dono::pode($this);
     }
 
     /**
