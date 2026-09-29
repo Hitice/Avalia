@@ -317,9 +317,18 @@ consultas recentes.
 
 Bloco que não veio aparece como **não incluído**, nunca como zero fingindo dado.
 
-**Pendência de auditoria:** `EscolherConector` decide pela primeira conexão ativa,
-o que pode encaminhar um produto ao fornecedor errado. Precisa rotear por serviço e
-contrato homologado antes da primeira credencial real entrar.
+`EscolherConector` roteia **por serviço**: cada linha do catálogo declara de quem
+ela vem, e trocar de fornecedor em um serviço é cadastro, e não publicação. A
+escolha global só vale para serviço sem fornecedor declarado. Serviço apontando
+para bureau desligado cai no comportamento geral em vez de falhar, porque desligar
+uma conexão é ação de emergência e emergência não pode derrubar o catálogo junto.
+
+**Em produção, o simulado não responde.** A cascata terminava nele, e sem
+credencial ativa a empresa recebia laudo fabricado, era cobrada pelo preço cheio e
+a tela ainda filtrava a palavra "simulado" da linha de bases. Hoje a consulta é
+recusada com mensagem que diz o que fazer, antes de qualquer cobrança. A única
+saída é `services.bureau.conector` apontar para o simulado de propósito, que é
+decisão de instalação e o que a homologação usa.
 
 ### Situação da conta
 
@@ -765,12 +774,13 @@ Resumo encadeado denuncia alteração posterior. Ele **não torna a trilha imut�
 contra quem pode reescrever a cadeia inteira, e apagar o último registro não quebra
 elo nenhum.
 
-### Achado aberto
+### A checagem de raiz pergunta ao disco
 
-A checagem "Raiz do servidor em public" decide pela string do `APP_URL` e não pela
-raiz servida: ela imprime `ok` mesmo com a raiz errada. Em produção o risco não
-existe, verificado por requisição, mas a checagem não prova o que diz. Ver
-[AUDITORIA.md](AUDITORIA.md).
+A versão anterior decidia pela string do `APP_URL`, então imprimia `ok` mesmo com a
+raiz errada: dizia uma coisa e verificava outra. Agora confere se o `.env` está
+dentro do diretório servido, que é o que prova o risco. Conferência por caminho, e
+não por requisição, porque o comando roda no servidor e não pode depender de a
+aplicação responder a si mesma durante a publicação.
 
 ---
 
@@ -823,15 +833,18 @@ local e termina em erro, para aparecer no log.
 
 ### Técnico, por ordem de risco
 
-1. **Estorno com reversão de comissão.** A comissão liberada não volta atrás.
-2. **Roteamento de fornecedor** por serviço, antes da primeira credencial real.
-3. **Isolamento entre empresas e carteiras**, testado e não presumido.
-4. **Conciliação** entre o que o provedor recebeu e o que a Avalia registrou.
-5. **Consulta duplicada por clique repetido.**
-6. **Pipeline que bloqueia merge** com teste de negócio falhando.
-7. **Diretivas configuráveis**, para negociar sem publicar versão.
-8. **Fila de e-mail que falhou**: hoje registra em log e não avisa ninguém.
-9. **Exportação e expurgo por titular**, antes do primeiro pedido real de LGPD.
+1. **Isolamento entre empresas e carteiras**, testado e não presumido.
+2. **Conciliação** entre o que o provedor recebeu e o que a Avalia registrou.
+3. **Consulta duplicada por clique repetido.**
+4. **Pipeline que bloqueia merge** com teste de negócio falhando.
+5. **Diretivas configuráveis**, para negociar sem publicar versão.
+6. **Fila de e-mail que falhou**: hoje registra em log e não avisa ninguém.
+7. **Exportação e expurgo por titular**, antes do primeiro pedido real de LGPD.
+
+Saíram desta lista por já estarem resolvidos, e não por terem sido despriorizados:
+**estorno com reversão de comissão** (`EstornarLiquidacao` desfaz a liquidação e
+recolhe a comissão liberada) e **roteamento de fornecedor por serviço**. A versão
+anterior deste documento os listava como pendentes.
 
 ### Deliberadamente fora do escopo
 

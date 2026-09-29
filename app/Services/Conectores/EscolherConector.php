@@ -3,6 +3,7 @@
 namespace App\Services\Conectores;
 
 use App\Contracts\ConectorBureau;
+use App\Exceptions\Recusa;
 use App\Models\Conexao;
 use App\Models\Servico;
 
@@ -59,18 +60,59 @@ class EscolherConector
      */
     public function conector(string $fornecedor): ConectorBureau
     {
-        // O simulado nao tem conexao para estar ativa: ele E a ausencia de
-        // fornecedor. Exigir conexao dele o tornava inalcancavel justamente
-        // quando alguem o escolhe de proposito para testar o fluxo.
-        if ($fornecedor === 'simulado') {
-            return app(ConectorSimulado::class);
-        }
-
-        if ($fornecedor !== '' && isset(self::CONECTORES[$fornecedor]) && Conexao::ativaDe($fornecedor)) {
+        if ($fornecedor !== '' && $fornecedor !== 'simulado'
+            && isset(self::CONECTORES[$fornecedor]) && Conexao::ativaDe($fornecedor)) {
             return app(self::CONECTORES[$fornecedor]);
         }
 
-        return app(self::CONECTORES[self::global()] ?? self::CONECTORES['simulado']);
+        $escolhido = $fornecedor === 'simulado' ? 'simulado' : self::global();
+
+        if ($escolhido === 'simulado') {
+            self::conferirQueOSimuladoPodeResponder();
+
+            // O simulado nao tem conexao para estar ativa: ele E a ausencia de
+            // fornecedor. Exigir conexao dele o tornava inalcancavel justamente
+            // quando alguem o escolhe de proposito para testar o fluxo.
+            return app(ConectorSimulado::class);
+        }
+
+        return app(self::CONECTORES[$escolhido] ?? ConectorSimulado::class);
+    }
+
+    /**
+     * Em producao, dado inventado nao responde consulta que cobra.
+     *
+     * O comentario de `global()` sempre disse o que nao podia acontecer:
+     * "producao decidir sozinha usar dado falso no dia em que a credencial
+     * faltasse, e ninguem perceberia". O codigo fazia exatamente isso, porque a
+     * cascata terminava no simulado. Sem credencial ativa, a empresa recebia
+     * laudo fabricado, era cobrada pelo preco cheio (`ExecutarConsulta` cobra
+     * quando a resposta vem com sucesso, e a do simulado vem) e a tela ainda
+     * filtrava a palavra "simulado" da linha de bases.
+     *
+     * A regra agora e fechar em vez de fingir: operacao paga que nao pode ser
+     * executada recusa, e a recusa chega escrita na tela de quem clicou. Vale
+     * tanto para a queda da cascata quanto para servico cujo cadastro aponta
+     * para o simulado, porque cadastro esquecido tem o mesmo efeito que
+     * credencial ausente.
+     *
+     * A unica saida e a escolha de instalacao em `services.bureau.conector`,
+     * que e decisao explicita de quem opera o ambiente e o que homologacao usa.
+     */
+    private static function conferirQueOSimuladoPodeResponder(): void
+    {
+        if (! app()->isProduction()) {
+            return;
+        }
+
+        if ((string) config('services.bureau.conector', '') === 'simulado') {
+            return;
+        }
+
+        throw new Recusa(
+            'Nenhum fornecedor de consulta está ativo. Ative uma conexão em Conexões antes de consultar. '
+            .'Nada foi consultado e nada foi cobrado.'
+        );
     }
 
     /**

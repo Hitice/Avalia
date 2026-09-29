@@ -166,10 +166,31 @@ class ConferirAmbiente extends Command
 
         // Servidor apontado para a raiz do projeto em vez de /public deixa .env,
         // storage e vendor acessiveis pela web.
+        //
+        // A versao anterior decidia por `! str_contains($url, '/public')`, ou
+        // seja, lia a string do APP_URL. Servidor com a raiz errada continua
+        // tendo APP_URL sem "/public", entao a checagem imprimia `ok` com o
+        // .env alcancavel pela web: dizia uma coisa e verificava outra.
+        //
+        // Agora pergunta ao disco. O que prova a raiz certa e o `.env` NAO
+        // estar dentro do diretorio servido: se ele estiver, qualquer um o
+        // baixa. A conferencia e por caminho porque este comando roda no
+        // servidor, onde o caminho e a verdade, e nao depende de fazer
+        // requisicao a si mesmo durante a publicacao.
+        $env = realpath(base_path('.env'));
+        $servido = realpath(public_path());
+
+        $exposto = $env !== false && $servido !== false
+            && str_starts_with($env, $servido.DIRECTORY_SEPARATOR);
+
         $this->anota(
             'Raiz do servidor em public',
-            ! str_contains($url, '/public'),
-            str_contains($url, '/public') ? 'APP_URL aponta para /public' : '',
+            ! $exposto && ! str_contains($url, '/public'),
+            match (true) {
+                $exposto => '.env esta dentro do diretorio servido',
+                str_contains($url, '/public') => 'APP_URL aponta para /public',
+                default => '',
+            },
         );
     }
 

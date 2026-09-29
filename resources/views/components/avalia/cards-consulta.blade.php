@@ -112,14 +112,26 @@
                                 @endif
 
                                 @php
-                                    $bases = collect(explode(',', (string) $servico->fornecedor))
+                                    $fontes = collect(explode(',', (string) $servico->fornecedor))
                                         ->map(fn ($f) => trim($f))
-                                        ->filter(fn ($f) => $f !== '' && $f !== 'simulado')
+                                        ->filter(fn ($f) => $f !== '');
+
+                                    // O simulado sai da lista de bases e vira
+                                    // aviso proprio. Filtrado junto com as
+                                    // outras, ele sumia da tela, e quem
+                                    // consultava nao tinha como saber que o
+                                    // laudo nao veio de fornecedor nenhum.
+                                    $ehSimulado = $fontes->contains('simulado');
+                                    $bases = $fontes->reject(fn ($f) => $f === 'simulado')
                                         ->map(fn ($f) => Laudo::nomeDaFonte($f));
                                 @endphp
 
                                 @if ($bases->isNotEmpty())
                                     <p class="ajuda-campo mt-2">Bases: {{ $bases->implode(' · ') }}</p>
+                                @endif
+
+                                @if ($ehSimulado)
+                                    <p class="mt-2"><span class="etiqueta etiqueta-alerta">Simulado</span></p>
                                 @endif
 
                                 <div class="mt-5 text-right">
