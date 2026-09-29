@@ -66,6 +66,24 @@ falhou() {
 
 trap falhou ERR
 
+# Uma publicacao por vez.
+#
+# O cron de publicacao bate de minuto em minuto, e publicacao com migration
+# nova demora mais que as outras. Duas rodando juntas fazem as duas lerem o
+# banco ANTES de qualquer uma escrever: as duas veem a tabela faltando, as duas
+# mandam criar, e a segunda morre em "table already exists" com a tabela ja
+# criada e a migration nao registrada. Foi o que derrubou a publicacao de
+# 29/09/2026, e e o mesmo acidente que os comentarios das migrations desta casa
+# descrevem.
+#
+# `flock -n` desiste na hora em vez de enfileirar: a proxima batida do cron ja
+# e a nova tentativa, e fila de deploys esperando e como se acumula meia duzia
+# de publicacoes do mesmo commit.
+if [ -z "${AVALIA_COM_TRAVA:-}" ]; then
+    export AVALIA_COM_TRAVA=1
+    exec flock -n "$HOME/.avalia-deploy.lock" "$0" "$@"
+fi
+
 echo "==> Tirando do ar"
 # `|| true` porque `down` falha quando ja esta em manutencao, e uma publicacao
 # repetida depois de erro nao pode parar por causa disso.

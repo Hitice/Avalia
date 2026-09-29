@@ -71,8 +71,13 @@ Superusuário é marca em `staff.super`, não um papel: ignora policies e existe
 um exemplar, criado pelo seeder.
 
 **Sócio não é papel de sistema.** Participação societária não concede acesso
-técnico. A gestão financeira dos sócios (seção 10) é permissão própria, separada de
-administrador.
+técnico, e a recíproca vale: sócio que não opera o sistema também tem quota, por
+isso `socios` é tabela própria e não uma marca em `staff`. Amarrá-las faria remover
+o acesso de alguém apagar a participação dele.
+
+A gestão financeira dos sócios é a terceira permissão da casa, ao lado de `admin` e
+`pode_financeiro`, e as três respondem perguntas diferentes: administrar é operar o
+produto, financeiro é confirmar pagamento de cliente, e sócios é o caixa dos donos.
 
 ### A separação é física, e não condicional
 
@@ -633,9 +638,26 @@ superestimar.
 
 ## 10. Gestão financeira e aportes dos sócios
 
-Escopo novo, ainda **não implementado**. Módulo interno, integrado ao financeiro
-existente, com permissão própria: não é visível a administrador comum, e fica fora
-dos portais de cliente, vendedor e produtor.
+**Implementado em 29/09/2026.** Módulo interno com permissão própria
+(`staff.pode_socios`, middleware `socios`): não é visível a administrador comum, e
+fica fora dos portais de cliente, vendedor e produtor. A permissão nasce negada
+inclusive para quem já é admin, e o item some do menu de quem não a tem.
+
+### Por que partidas dobradas
+
+O método não é preciosismo contábil: é o que torna **estruturais** as três
+confusões que custam dinheiro numa sociedade de dois. Com valor único numa linha
+só, cada uma depende de quem digita lembrar da regra. Com duas pernas que somam
+zero, viram invariante, e o lançamento que não fecha não grava.
+
+Quem lança escolhe a **natureza**, nunca a conta. Escolher conta na tela é
+exatamente onde o erro mora, e a tradução natureza → pernas vive num lugar só, em
+`App\Actions\Socios\RegistrarLancamento`.
+
+Corrigir é **estornar**, que lança as mesmas pernas com o sinal trocado e amarra
+as duas linhas. A competência do estorno é a de hoje, e não a do original: mês
+fechado continua com o número que teve, e a correção pertence ao mês em que foi
+decidida.
 
 ### O que ele responde
 
@@ -680,12 +702,20 @@ unitário do catálogo vira rateio estimado, e a margem real do mês depende do 
 Ratear a mensalidade pelas consultas informa custo atribuído, mas não cria despesa
 nova. Com zero consultas o custo fixo continua existindo, e não se divide por zero.
 
-### Ordem de construção
+### O que já existe e o que falta
 
-Contas e sócios → lançamentos → comprovantes → saldos → conciliação → exportação.
-BI, integração bancária e automação fiscal entram por necessidade demonstrada.
+Existe: plano de contas, sócios, as nove naturezas, o razão com a invariante de
+soma zero, estorno com motivo, a tela com caixa, saldo por sócio, resultado do mês
+e extrato.
 
-Não prometer emissão de nota fiscal sem integração e regra fiscal definidas.
+Falta: comprovante anexado, conciliação contra extrato bancário, orçamento,
+projeção de caixa e a importação automática das receitas que já existem no sistema
+(fatura liquidada, parcela do Gestor, venda de plaquinha). O gancho para essa
+importação já está no banco: o par `origem_tipo`/`origem_id` é único, e é ele que
+impede a mesma fatura virar receita duas vezes.
+
+BI, integração bancária e automação fiscal entram por necessidade demonstrada. Não
+prometer emissão de nota fiscal sem integração e regra fiscal definidas.
 
 ---
 
@@ -892,8 +922,10 @@ Dinheiro vive em `Support`: `Dinheiro`, `Margem`, `Comissao`, `RepartePlaquinha`
 ### O que não existe
 
 Credencial e homologação de bureau (o código está pronto); ciclo real de cobrança
-Asaas em produção; pagamento de repasse com baixa; assinatura eletrônica; módulo de
-gestão financeira dos sócios (seção 10).
+Asaas em produção; pagamento de repasse com baixa; assinatura eletrônica.
+
+O módulo de gestão financeira dos sócios passou a existir em 29/09/2026, com o que
+a seção 10 descreve.
 
 ---
 
