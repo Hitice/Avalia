@@ -59,6 +59,31 @@ enum NaturezaLancamento: string
         };
     }
 
+    /**
+     * O que esta natureza faz com o dinheiro, em uma frase.
+     *
+     * Vira a confirmacao depois de gravar. "Lancamento registrado" nao diz se a
+     * pessoa escolheu a natureza certa, e a primeira duvida real que chegou foi
+     * exatamente essa: despesa paga pelo socio nao tirou nada do caixa, e quem
+     * lancou achou que era defeito. Estava certo; a tela e que nao contava.
+     *
+     * `{socio}` e `{valor}` sao trocados por quem chama.
+     */
+    public function efeito(): string
+    {
+        return match ($this) {
+            self::Aporte => 'O caixa subiu {valor} e o patrimônio de {socio} também. Não é receita.',
+            self::Emprestimo => 'O caixa subiu {valor} e a empresa passou a dever esse valor a {socio}.',
+            self::Despesa => 'O caixa caiu {valor}.',
+            self::DespesaDoSocio => 'O caixa não se move: quem pagou foi {socio}, e a empresa passou a dever {valor} a ele.',
+            self::Reembolso => 'O caixa caiu {valor} e a dívida com {socio} diminuiu no mesmo tanto. Não gera despesa nova.',
+            self::Receita => 'O caixa subiu {valor}.',
+            self::Transferencia => 'Saiu de uma conta e entrou na outra. O resultado não muda.',
+            self::Retirada => 'O caixa caiu {valor} e o que a empresa devia a {socio} diminuiu.',
+            self::Distribuicao => 'O caixa caiu {valor} e o patrimônio de {socio} diminuiu.',
+        };
+    }
+
     /** A natureza precisa saber de qual socio se trata? */
     public function exigeSocio(): bool
     {

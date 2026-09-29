@@ -138,7 +138,16 @@ class SociosController extends Controller
             'documento' => $dados['documento'] ?? null,
         ]);
 
-        return back()->with('ok', 'Lançamento registrado.');
+        // A confirmacao diz o EFEITO, e nao que gravou. E o unico momento em
+        // que da para perceber que a natureza escolhida nao era a pretendida,
+        // e escolher errado aqui e o erro que o modulo existe para evitar.
+        $socio = ($dados['socio_id'] ?? null) ? Socio::find($dados['socio_id'])?->nome : null;
+
+        return back()->with('ok', str_replace(
+            ['{valor}', '{socio}'],
+            [Dinheiro::brl(Dinheiro::paraCentavos($dados['valor']) ?? 0), $socio ?? 'o sócio'],
+            $natureza->efeito(),
+        ));
     }
 
     public function estornar(Request $pedido, LancamentoFinanceiro $lancamento, EstornarLancamento $estornar)

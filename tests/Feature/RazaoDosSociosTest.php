@@ -7,6 +7,7 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\PartidaFinanceira;
 use App\Models\Socio;
 use App\Models\Staff;
+use App\Support\Dinheiro;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -375,4 +376,53 @@ it('poe o cadastro de socio na frente quando nao ha nenhum', function () {
         ->assertSee('O caixa precisa saber de quem é cada parte', false)
         // A tabela de saldos nao aparece antes de existir saldo.
         ->assertDontSee('A devolver', false);
+});
+
+/*
+|--------------------------------------------------------------------------
+| A confirmacao diz o efeito, e nao que gravou
+|--------------------------------------------------------------------------
+*/
+
+it('explica que despesa paga pelo socio nao mexe no caixa', function () {
+    // A primeira duvida real que chegou: "despesa paga pelo socio nao saiu do
+    // caixa da empresa". Estava certo, e a tela e que nao contava.
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    $pedro = socio('Pedro');
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->post(route('socios.registrar'), [
+            'natureza' => 'despesa_do_socio',
+            'descricao' => 'Hospedagem',
+            'valor' => '100,00',
+            'ocorrido_em' => now()->toDateString(),
+            'socio_id' => $pedro->id,
+        ])
+        ->assertSessionHas('ok', fn (string $aviso) => str_contains($aviso, 'caixa não se move')
+            && str_contains($aviso, 'Pedro')
+            // `Dinheiro::brl` usa espaco nao-quebravel entre o simbolo e o
+            // numero, para a quebra de linha nao separar "R$" do valor.
+            && str_contains($aviso, Dinheiro::brl(10_000)));
+});
+
+it('avisa que o reembolso nao gera despesa nova', function () {
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    $pedro = socio('Pedro');
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->post(route('socios.registrar'), [
+            'natureza' => 'reembolso',
+            'descricao' => 'Reembolso',
+            'valor' => '100,00',
+            'ocorrido_em' => now()->toDateString(),
+            'socio_id' => $pedro->id,
+        ])
+        ->assertSessionHas('ok', fn (string $aviso) => str_contains($aviso, 'Não gera despesa nova'));
+});
+
+it('tem efeito escrito para toda natureza', function () {
+    // Natureza nova sem efeito viraria confirmacao com {valor} cru na tela.
+    foreach (NaturezaLancamento::cases() as $natureza) {
+        expect($natureza->efeito())->not->toBe('');
+    }
 });
