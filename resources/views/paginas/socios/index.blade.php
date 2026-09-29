@@ -212,7 +212,7 @@
                     <th scope="col" class="tabela-th text-left">Natureza</th>
                     <th scope="col" class="tabela-th text-left">Descrição</th>
                     <th scope="col" class="tabela-th text-right">Valor</th>
-                    <th scope="col" class="tabela-th text-right">Estornar</th>
+                    <th scope="col" class="tabela-th text-right">Corrigir</th>
                 </tr></thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @forelse ($lancamentos as $lancamento)
@@ -230,18 +230,33 @@
                             <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">
                                 {{ Dinheiro::brl($lancamento->valorCents()) }}
                             </td>
-                            <td class="tabela-td text-right">
-                                @if ($lancamento->estorna_id === null && ! $lancamento->estornado())
-                                    <form method="POST" action="{{ route('socios.estornar', $lancamento) }}"
-                                          onsubmit="this.motivo.value = prompt('Motivo do estorno?') || ''; return this.motivo.value !== '';">
-                                        @csrf
-                                        <input type="hidden" name="motivo" value="">
-                                        <x-avalia.botao variante="secundario" tamanho="sm">Estornar</x-avalia.botao>
-                                    </form>
-                                @elseif ($lancamento->estorna_id !== null)
+                            {{-- Apagar so aparece enquanto o lancamento e da
+                                 competencia corrente e ninguem mexeu nele.
+                                 Depois disso sobra estornar, que e o caminho
+                                 que preserva o que ja foi conferido. --}}
+                            <td class="tabela-td text-right whitespace-nowrap">
+                                @if ($lancamento->estorna_id !== null)
                                     <span class="etiqueta etiqueta-neutra">estorno</span>
-                                @else
+                                @elseif ($lancamento->estornado())
                                     <span class="etiqueta etiqueta-neutra">estornado</span>
+                                @else
+                                    <div class="flex items-center justify-end gap-2">
+                                        @if ($lancamento->podeSerApagado())
+                                            <form method="POST" action="{{ route('socios.excluir', $lancamento) }}"
+                                                  onsubmit="return confirm('Apagar este lançamento? Ele some do extrato, e isso não se desfaz.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <x-avalia.botao variante="secundario" tamanho="sm">Apagar</x-avalia.botao>
+                                            </form>
+                                        @endif
+
+                                        <form method="POST" action="{{ route('socios.estornar', $lancamento) }}"
+                                              onsubmit="this.motivo.value = prompt('Motivo do estorno?') || ''; return this.motivo.value !== '';">
+                                            @csrf
+                                            <input type="hidden" name="motivo" value="">
+                                            <x-avalia.botao variante="secundario" tamanho="sm">Estornar</x-avalia.botao>
+                                        </form>
+                                    </div>
                                 @endif
                             </td>
                         </tr>

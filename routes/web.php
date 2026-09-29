@@ -489,6 +489,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/socios', [SociosController::class, 'criarSocio'])->name('criar');
         Route::post('/lancamentos', [SociosController::class, 'registrar'])->name('registrar');
         Route::post('/lancamentos/{lancamento}/estorno', [SociosController::class, 'estornar'])->name('estornar');
+        Route::delete('/lancamentos/{lancamento}', [SociosController::class, 'excluir'])->name('excluir');
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.

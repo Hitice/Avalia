@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Socios\EstornarLancamento;
+use App\Actions\Socios\ExcluirLancamento;
 use App\Actions\Socios\RegistrarLancamento;
 use App\Enums\NaturezaLancamento;
 use App\Models\ContaFinanceira;
@@ -148,6 +149,19 @@ class SociosController extends Controller
             [Dinheiro::brl(Dinheiro::paraCentavos($dados['valor']) ?? 0), $socio ?? 'o sócio'],
             $natureza->efeito(),
         ));
+    }
+
+    /**
+     * Apaga um lancamento digitado por engano.
+     *
+     * A guarda vive na Action. Aqui so o fluxo: quem apagou ja sabe o que
+     * apagou, entao a confirmacao e curta.
+     */
+    public function excluir(LancamentoFinanceiro $lancamento, ExcluirLancamento $excluir)
+    {
+        $excluir($lancamento);
+
+        return back()->with('ok', 'Lançamento apagado.');
     }
 
     public function estornar(Request $pedido, LancamentoFinanceiro $lancamento, EstornarLancamento $estornar)

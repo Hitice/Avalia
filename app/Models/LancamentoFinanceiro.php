@@ -55,6 +55,21 @@ class LancamentoFinanceiro extends Model
         return $this->estornos()->exists();
     }
 
+    /**
+     * Da para apagar, ou so estornar?
+     *
+     * A mesma linha que App\Actions\Socios\ExcluirLancamento confere, aqui para
+     * a tela decidir qual botao mostrar. Oferecer um botao que sempre recusa
+     * ensina o operador a nao clicar em botao nenhum.
+     */
+    public function podeSerApagado(): bool
+    {
+        return $this->origem_tipo === null
+            && $this->estorna_id === null
+            && $this->competencia === now()->format('Y-m')
+            && ! $this->estornado();
+    }
+
     /** O valor que representa o lancamento: a soma do que DEBITOU. */
     public function valorCents(): int
     {

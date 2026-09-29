@@ -114,6 +114,7 @@ final class Rotulos
         'socios.socio.criado' => 'Sócio cadastrado',
         'socios.lancamento.registrado' => 'Lançamento financeiro registrado',
         'socios.lancamento.estornado' => 'Lançamento financeiro estornado',
+        'socios.lancamento.excluido' => 'Lançamento financeiro apagado',
         'links.encurtado' => 'Link encurtado',
         'links.alternado' => 'Link ligado ou desligado',
         'links.excluido' => 'Link sem cliques apagado',

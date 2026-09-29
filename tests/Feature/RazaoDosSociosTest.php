@@ -2,6 +2,7 @@
 
 use App\Enums\NaturezaLancamento;
 use App\Exceptions\Recusa;
+use App\Models\Auditoria;
 use App\Models\ContaFinanceira;
 use App\Models\LancamentoFinanceiro;
 use App\Models\PartidaFinanceira;
@@ -425,4 +426,91 @@ it('tem efeito escrito para toda natureza', function () {
     foreach (NaturezaLancamento::cases() as $natureza) {
         expect($natureza->efeito())->not->toBe('');
     }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Apagar o que se digitou errado
+|--------------------------------------------------------------------------
+|
+| O estorno e o caminho normal e continua sendo. Mas ele protege lancamento que
+| teve tempo de ser visto: obrigar estorno no que se acabou de digitar errado
+| deixa duas linhas no extrato por causa de um clique no seletor errado.
+|
+*/
+
+function apagar(LancamentoFinanceiro $lancamento): void
+{
+    app(App\Actions\Socios\ExcluirLancamento::class)($lancamento);
+}
+
+it('apaga o lancamento da competencia corrente e tira o saldo junto', function () {
+    lancar(NaturezaLancamento::Despesa, ['valor_cents' => 25_000]);
+    expect(saldo(ContaFinanceira::DESPESA))->toBe(25_000);
+
+    apagar(LancamentoFinanceiro::sole());
+
+    expect(LancamentoFinanceiro::count())->toBe(0)
+        ->and(PartidaFinanceira::count())->toBe(0)
+        ->and(saldo(ContaFinanceira::DESPESA))->toBe(0);
+});
+
+it('guarda na trilha o que o razao perde', function () {
+    // "Sumiu um lancamento" precisa continuar tendo resposta.
+    lancar(NaturezaLancamento::Despesa, ['descricao' => 'hospedagem errada', 'valor_cents' => 25_000]);
+
+    apagar(LancamentoFinanceiro::sole());
+
+    $trilha = Auditoria::where('acao', 'socios.lancamento.excluido')->latest('id')->first();
+
+    expect($trilha)->not->toBeNull()
+        ->and($trilha->dados['descricao'])->toBe('hospedagem errada')
+        ->and($trilha->dados['valor_cents'])->toBe(25_000);
+});
+
+it('nao apaga lancamento de competencia anterior', function () {
+    // Mes anterior pode ja ter sido conferido.
+    $antigo = lancar(NaturezaLancamento::Despesa, ['competencia' => '2026-01']);
+
+    expect(fn () => apagar($antigo))->toThrow(Recusa::class)
+        ->and(LancamentoFinanceiro::count())->toBe(1);
+});
+
+it('nao apaga receita que veio de fatura', function () {
+    // A origem e unica: apagar devolveria a fatura ao estado de nao
+    // reconhecida, em silencio.
+    $daFatura = lancar(NaturezaLancamento::Receita, ['origem_tipo' => 'fatura', 'origem_id' => 9]);
+
+    expect(fn () => apagar($daFatura))->toThrow(Recusa::class);
+});
+
+it('nao apaga estorno nem lancamento ja estornado', function () {
+    // O par conta uma historia; apagar metade dela deixa a outra sem sentido.
+    $original = lancar(NaturezaLancamento::Despesa);
+    $estorno = estornar($original);
+
+    expect(fn () => apagar($estorno))->toThrow(Recusa::class)
+        ->and(fn () => apagar($original->refresh()))->toThrow(Recusa::class);
+});
+
+it('so oferece o botao de apagar quando ele funciona', function () {
+    // Botao que sempre recusa ensina o operador a nao clicar em botao nenhum.
+    $atual = lancar(NaturezaLancamento::Despesa);
+    $antigo = lancar(NaturezaLancamento::Despesa, ['competencia' => '2026-01']);
+    $daFatura = lancar(NaturezaLancamento::Receita, ['origem_tipo' => 'fatura', 'origem_id' => 3]);
+
+    expect($atual->podeSerApagado())->toBeTrue()
+        ->and($antigo->podeSerApagado())->toBeFalse()
+        ->and($daFatura->podeSerApagado())->toBeFalse();
+});
+
+it('apaga pela tela', function () {
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    lancar(NaturezaLancamento::Despesa);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->delete(route('socios.excluir', LancamentoFinanceiro::sole()))
+        ->assertRedirect();
+
+    expect(LancamentoFinanceiro::count())->toBe(0);
 });
