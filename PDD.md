@@ -708,11 +708,38 @@ Existe: plano de contas, sócios, as nove naturezas, o razão com a invariante d
 soma zero, estorno com motivo, a tela com caixa, saldo por sócio, resultado do mês
 e extrato.
 
-Falta: comprovante anexado, conciliação contra extrato bancário, orçamento,
-projeção de caixa e a importação automática das receitas que já existem no sistema
-(fatura liquidada, parcela do Gestor, venda de plaquinha). O gancho para essa
-importação já está no banco: o par `origem_tipo`/`origem_id` é único, e é ele que
-impede a mesma fatura virar receita duas vezes.
+Falta: comprovante anexado, conciliação contra extrato bancário, orçamento e
+projeção de caixa.
+
+### A ligação com o financeiro, e por que ela tem uma direção só
+
+**Fatura liquidada vira receita no caixa dos sócios, automaticamente.** Acontece
+dentro da mesma transação da liquidação: fatura marcada como paga sem a linha
+correspondente no razão é uma divergência que só aparece na conferência do mês, e
+aí ninguém lembra qual das duas está certa.
+
+Não duplica por construção: o par `origem_tipo`/`origem_id` é único no banco,
+então rotina repetida, webhook duplicado ou competência reprocessada encontram o
+trabalho feito. A conta de receita nasce sob demanda, porque liquidação não pode
+falhar por falta de uma linha do plano de contas.
+
+**Sócios não alimenta financeiro.** Aporte e retirada não têm o que fazer nas
+telas de cliente e de vendedor.
+
+O risco que sobra é humano: alguém lançar à mão a receita da mesma fatura que já
+entrou sozinha. A proteção é regra e não aviso — receita digitada é recusada em
+competência que já tem receita automática, porque ela existe para o que **não**
+tem origem no sistema, como um projeto de software fechado por fora.
+
+Falta ainda a ligação de parcela do Gestor e de venda de plaquinha, e o
+reconhecimento do custo (comissão devida, custo do fornecedor), que hoje só entra
+quando alguém lança a despesa.
+
+### Margem do produto não se soma ao resultado da empresa
+
+A Visão geral mostra **lucro do produto**: por unidade vendida, antes de custo
+fixo. Os Sócios mostram o resultado da empresa. Não são parcelas da mesma conta,
+são a mesma receita vista de dois recortes, e somá-los dá número errado.
 
 BI, integração bancária e automação fiscal entram por necessidade demonstrada. Não
 prometer emissão de nota fiscal sem integração e regra fiscal definidas.

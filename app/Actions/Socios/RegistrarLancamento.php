@@ -40,6 +40,8 @@ class RegistrarLancamento
             throw new Recusa('O valor precisa ser maior que zero. Para desfazer um lançamento, use o estorno.');
         }
 
+        $this->conferirQueAReceitaNaoDuplica($natureza, $dados);
+
         $socio = $this->socio($natureza, $dados['socio_id'] ?? null);
         $pernas = $this->pernas($natureza, $valor, $socio, $dados);
 
@@ -149,6 +151,45 @@ class RegistrarLancamento
                 $caixa => -$valor,
             ],
         };
+    }
+
+    /**
+     * Receita de fatura, parcela ou plaquinha ja entra sozinha.
+     *
+     * Desde que a liquidacao passou a reconhecer receita, o caminho da maquina
+     * nao duplica: a origem e unica no banco. O que ainda duplicaria e alguem
+     * lancar a mao a receita da mesma fatura que ja entrou.
+     *
+     * A protecao e regra e nao aviso: receita digitada existe para o que NAO
+     * tem origem no sistema, como um projeto de software fechado por fora.
+     * Quem quiser corrigir uma receita automatica estorna a que existe, que e o
+     * caminho que preserva o rastro.
+     */
+    private function conferirQueAReceitaNaoDuplica(NaturezaLancamento $natureza, array $dados): void
+    {
+        if ($natureza !== NaturezaLancamento::Receita) {
+            return;
+        }
+
+        if (($dados['origem_tipo'] ?? null) !== null) {
+            return;
+        }
+
+        $competencia = (string) ($dados['competencia'] ?? '');
+
+        $automatica = LancamentoFinanceiro::query()
+            ->where('natureza', NaturezaLancamento::Receita->value)
+            ->whereNotNull('origem_tipo')
+            ->where('competencia', $competencia)
+            ->exists();
+
+        if ($automatica) {
+            throw new Recusa(
+                'Esta competência já tem receita reconhecida automaticamente pelas liquidações. '
+                .'Lançar receita à mão aqui contaria o mesmo dinheiro duas vezes. '
+                .'Para corrigir uma receita automática, estorne a que existe.'
+            );
+        }
     }
 
     /** @param array<int, int> $pernas */
