@@ -6,6 +6,7 @@ use App\Models\ContaFinanceira;
 use App\Models\LancamentoFinanceiro;
 use App\Models\PartidaFinanceira;
 use App\Models\Socio;
+use App\Models\Staff;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -213,4 +214,71 @@ it('nao estorna duas vezes nem estorna um estorno', function () {
 
     expect(fn () => estornar($lancamento))->toThrow(Recusa::class)
         ->and(fn () => estornar($estorno))->toThrow(Recusa::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Quem entra no caixa da sociedade
+|--------------------------------------------------------------------------
+*/
+
+it('nao abre para administrador sem a permissao', function () {
+    // Nasce negada, inclusive para quem ja e admin: permissao que vem por
+    // heranca e permissao que ninguem decidiu conceder.
+    $admin = Staff::factory()->admin()->create(['super' => false, 'pode_socios' => false]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertForbidden();
+});
+
+it('nao abre para vendedor, mesmo com a marca ligada por engano', function () {
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor', 'pode_socios' => true]);
+
+    test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertForbidden();
+});
+
+it('abre para administrador com a permissao', function () {
+    $admin = Staff::factory()->admin()->create(['super' => false, 'pode_socios' => true]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertOk();
+});
+
+it('some do menu de quem nao pode, em vez de levar a 403', function () {
+    // Menu que leva a 403 ensina o operador a ignorar o menu.
+    $semPermissao = Staff::factory()->admin()->create(['super' => false, 'pode_socios' => false]);
+
+    test()->actingAs($semPermissao, 'staff')->withSession(['versao_staff' => 1]);
+
+    $itens = collect(App\Helpers\MenuHelper::getMenuGroups()[0]['items'])->pluck('path');
+
+    expect($itens)->not->toContain('/socios');
+});
+
+it('registra e estorna pela tela', function () {
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    $pedro = socio();
+
+    $tela = test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1]);
+
+    $tela->post(route('socios.registrar'), [
+        'natureza' => 'despesa_do_socio',
+        'descricao' => 'Hospedagem',
+        'valor' => '100,00',
+        'ocorrido_em' => now()->toDateString(),
+        'socio_id' => $pedro->id,
+    ])->assertRedirect();
+
+    expect(saldo(ContaFinanceira::DESPESA))->toBe(10_000)
+        ->and(saldo('emprestimo:'.$pedro->id))->toBe(10_000);
+
+    $tela->post(route('socios.estornar', LancamentoFinanceiro::first()), ['motivo' => 'lancado errado'])
+        ->assertRedirect();
+
+    expect(saldo(ContaFinanceira::DESPESA))->toBe(0)
+        ->and(saldo('emprestimo:'.$pedro->id))->toBe(0);
 });

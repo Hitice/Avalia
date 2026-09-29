@@ -44,6 +44,7 @@ class MenuHelper
             // conforme quem abre a tela e o que a PDD manda evitar.
             ['icon' => 'calculadora', 'name' => 'Simulador', 'path' => '/simulacao', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
+            ['icon' => 'charts', 'name' => 'Sócios', 'path' => '/socios', 'papeis' => ['admin'], 'exigeSocios' => true],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
@@ -97,7 +98,8 @@ class MenuHelper
         $permitido = fn (array $item) => (! isset($item['papeis']) || in_array($papel, $item['papeis'], true))
             // Item que exige permissao financeira some de quem nao a tem: menu
             // que leva a 403 ensina o operador a ignorar o menu.
-            && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro());
+            && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro())
+            && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios());
 
         return [
             ['title' => 'Menu', 'items' => array_values(array_filter(self::getMainNavItems(), $permitido))],

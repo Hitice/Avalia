@@ -31,6 +31,7 @@ use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\SociosController;
 use App\Http\Controllers\VendasPlaquinhasController;
 use App\Http\Controllers\WebhookAsaasController;
 use Illuminate\Support\Facades\Route;
@@ -474,6 +475,19 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware('admin')->prefix('plaquinhas')->name('plaquinhas.')->group(function () {
         Route::put('/{etiqueta}/vendedor', [EtiquetaController::class, 'trocarVendedor'])->name('vendedor');
         Route::delete('/{etiqueta}/venda', [EtiquetaController::class, 'cancelarVenda'])->name('cancelar-venda');
+    });
+
+    /*
+     * O caixa da sociedade.
+     *
+     * `socios` depois de `admin`, e nao no lugar dele: aporte, retirada e o que
+     * a empresa deve a cada dono nao sao operacao do produto, e nem todo
+     * administrador precisa ver. A permissao nasce negada.
+     */
+    Route::middleware(['admin', 'socios'])->prefix('socios')->name('socios.')->group(function () {
+        Route::get('/', [SociosController::class, 'index'])->name('index');
+        Route::post('/lancamentos', [SociosController::class, 'registrar'])->name('registrar');
+        Route::post('/lancamentos/{lancamento}/estorno', [SociosController::class, 'estornar'])->name('estornar');
     });
 
     // Trilha de auditoria, so leitura: trilha que a tela edita nao e trilha.

@@ -23,7 +23,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'comissao_pct', 'pode_financeiro', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'pode_financeiro', 'pode_socios', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
@@ -35,6 +35,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
             'super' => 'boolean',
             'ativo' => 'boolean',
             'pode_financeiro' => 'boolean',
+            'pode_socios' => 'boolean',
             'comissao_pct' => 'integer',
             'sessao_versao' => 'integer',
             'ultimo_acesso_em' => 'datetime',
@@ -75,6 +76,18 @@ class Staff extends Authenticatable implements ContaAutenticavel
     public function podeFinanceiro(): bool
     {
         return $this->ehSuper() || ($this->ehAdmin() && (bool) $this->pode_financeiro);
+    }
+
+    /**
+     * Pode ver e lancar no caixa da sociedade.
+     *
+     * Separada de `podeFinanceiro`: confirmar pagamento de cliente e operar o
+     * produto; aporte, retirada e quanto a empresa deve a cada socio sao a
+     * conta dos donos. Superusuario passa por cima, como em qualquer outra.
+     */
+    public function podeSocios(): bool
+    {
+        return $this->ehSuper() || ($this->ehAdmin() && (bool) $this->pode_socios);
     }
 
     public function ehAdmin(): bool
