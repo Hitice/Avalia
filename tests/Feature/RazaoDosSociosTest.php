@@ -331,3 +331,48 @@ it('avisa quando as participacoes nao fecham cem por cento', function () {
         ->assertOk()
         ->assertSee('em vez de 100%', false);
 });
+
+/*
+|--------------------------------------------------------------------------
+| A tela sem socio cadastrado
+|--------------------------------------------------------------------------
+*/
+
+it('diz o que fazer quando nao ha socio para escolher', function () {
+    // Seis das nove naturezas exigem socio. Sem nenhum cadastrado, o select
+    // ficava so com "Escolha" e nada para escolher: campo quebrado que nao diz
+    // que esta.
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertOk()
+        ->assertSee('Cadastre um sócio antes de lançar', false)
+        ->assertSee('Nenhum sócio cadastrado', false);
+});
+
+it('some com o aviso assim que existe socio', function () {
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    socio('Pedro');
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertOk()
+        ->assertDontSee('Cadastre um sócio antes de lançar', false)
+        ->assertSee('Pedro');
+});
+
+it('poe o cadastro de socio na frente quando nao ha nenhum', function () {
+    // Tabela vazia acima do formulario escondia o cadastro: quem abria a tela
+    // pela primeira vez via tres colunas sem linha e nao achava por onde
+    // comecar.
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertOk()
+        ->assertSee('Cadastrar sócio', false)
+        ->assertSee('O caixa precisa saber de quem é cada parte', false)
+        // A tabela de saldos nao aparece antes de existir saldo.
+        ->assertDontSee('A devolver', false);
+});
