@@ -78,9 +78,13 @@ Alpine.data('tiragem', (dados) => ({
 
     // Para onde o ZIP vai ser extraido, no computador de quem baixa. Entra no
     // CSV como caminho da imagem, porque a mala direta do Corel precisa achar
-    // o arquivo e o ZIP nao sabe onde sera aberto. Em branco, o CSV leva so o
-    // nome do arquivo.
-    pastaLocal: '',
+    // o arquivo e o ZIP nao sabe onde sera aberto.
+    //
+    // Lembrado no navegador: quem baixa tiragem extrai sempre no mesmo lugar, e
+    // pedir o caminho de novo a cada download e o jeito mais rapido de ele
+    // ficar em branco e o CSV sair sem servir. Foi o que aconteceu na primeira
+    // tiragem de verdade.
+    pastaLocal: localStorage.getItem('avalia:pasta-local') ?? '',
     gerando: false,
     feito: 0,
     erro: '',
@@ -111,6 +115,10 @@ Alpine.data('tiragem', (dados) => ({
         this.gerando = true;
 
         try {
+            // Guardado antes de montar: se o pacote falhar no meio, o caminho
+            // digitado nao se perde junto.
+            localStorage.setItem('avalia:pasta-local', this.pastaLocal);
+
             const qr = await import('./qr.js');
 
             const zip = await qr.pacote(

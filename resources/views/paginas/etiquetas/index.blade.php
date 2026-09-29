@@ -162,11 +162,20 @@
                 {{-- O ZIP nao sabe onde vai ser extraido, e a mala direta do
                      Corel precisa achar a imagem. Em branco, o CSV leva so o
                      nome do arquivo. --}}
-                <div class="min-w-[16rem] flex-1">
-                    <label for="pasta-local" class="rotulo-campo">Pasta no seu computador</label>
+                {{-- O campo decide se o CSV serve para mala direta: sem ele
+                     a coluna `photo` sai com o nome do arquivo e o Corel nao
+                     acha a imagem. Lembrado no navegador, entao se digita uma
+                     vez. --}}
+                <div class="min-w-[18rem] flex-1">
+                    <label for="pasta-local" class="rotulo-campo">Onde você vai extrair o ZIP</label>
                     <input id="pasta-local" type="text" x-model="pastaLocal" class="campo"
                            placeholder="/Users/voce/Downloads/{{ $campanha->pasta() }}">
-                    <span class="ajuda-campo">Entra no CSV como caminho da imagem.</span>
+                    <span class="ajuda-campo">
+                        Vira o caminho da imagem no CSV, para a mala direta do Corel achar o arquivo.
+                        <span x-show="pastaLocal === ''" x-cloak class="text-warning-600 dark:text-warning-400">
+                            Em branco, o CSV sai só com o nome do arquivo.
+                        </span>
+                    </span>
                 </div>
 
                 <div class="flex items-center gap-3">
