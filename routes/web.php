@@ -486,6 +486,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
      */
     Route::middleware(['admin', 'socios'])->prefix('socios')->name('socios.')->group(function () {
         Route::get('/', [SociosController::class, 'index'])->name('index');
+        Route::post('/socios', [SociosController::class, 'criarSocio'])->name('criar');
         Route::post('/lancamentos', [SociosController::class, 'registrar'])->name('registrar');
         Route::post('/lancamentos/{lancamento}/estorno', [SociosController::class, 'estornar'])->name('estornar');
     });

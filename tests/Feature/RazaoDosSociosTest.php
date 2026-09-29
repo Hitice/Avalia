@@ -282,3 +282,52 @@ it('registra e estorna pela tela', function () {
     expect(saldo(ContaFinanceira::DESPESA))->toBe(0)
         ->and(saldo('emprestimo:'.$pedro->id))->toBe(0);
 });
+
+/*
+|--------------------------------------------------------------------------
+| A porta de entrada
+|--------------------------------------------------------------------------
+*/
+
+it('tem as contas da empresa desde a migration, e nao so no seeder', function () {
+    // O modulo subiu em producao respondendo "A conta caixa nao esta
+    // cadastrada" a qualquer lancamento: a estrutura existia e o dado que ela
+    // exige, nao. Dado sem o qual nada funciona vem por migration.
+    App\Models\ContaFinanceira::query()->delete();
+
+    (require database_path('migrations/2026_09_29_000005_semeia_as_contas_da_empresa.php'))->up();
+
+    expect(App\Models\ContaFinanceira::pluck('codigo')->sort()->values()->all())
+        ->toBe(['caixa', 'despesa', 'receita']);
+});
+
+it('nao duplica conta quando a migration roda de novo', function () {
+    (require database_path('migrations/2026_09_29_000005_semeia_as_contas_da_empresa.php'))->up();
+
+    expect(App\Models\ContaFinanceira::where('codigo', 'caixa')->count())->toBe(1);
+});
+
+it('cadastra socio pela tela', function () {
+    // Seis das nove naturezas exigem socio, e nao havia como criar o primeiro.
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->post(route('socios.criar'), ['nome' => 'Ruan', 'participacao' => '50'])
+        ->assertRedirect();
+
+    $socio = Socio::sole();
+
+    expect($socio->nome)->toBe('Ruan')
+        // Em pontos-base, como o resto do dinheiro desta casa.
+        ->and($socio->participacao_bps)->toBe(5_000);
+});
+
+it('avisa quando as participacoes nao fecham cem por cento', function () {
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    Socio::create(['nome' => 'Pedro', 'participacao_bps' => 4_000, 'ativo' => true]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('socios.index'))
+        ->assertOk()
+        ->assertSee('em vez de 100%', false);
+});

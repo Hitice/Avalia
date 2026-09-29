@@ -8,6 +8,7 @@ use App\Enums\NaturezaLancamento;
 use App\Models\ContaFinanceira;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Socio;
+use App\Support\Auditar;
 use App\Support\Dinheiro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -57,7 +58,47 @@ class SociosController extends Controller
             'socios' => $socios,
             'lancamentos' => $doMes,
             'naturezas' => NaturezaLancamento::rotulos(),
+
+            // Para ligar o socio a uma conta de acesso, quando ele tiver uma.
+            'equipe' => \App\Models\Staff::orderBy('nome')->get(['id', 'nome']),
+
+            // A soma das participacoes, conferida na tela e nao no banco.
+            'participacaoTotal' => $socios->sum('participacao_bps'),
         ]);
+    }
+
+    /**
+     * Cadastra um socio.
+     *
+     * Sem isto o modulo subiu sem porta de entrada: seis das nove naturezas
+     * exigem socio, e nao havia como criar o primeiro.
+     *
+     * A participacao e opcional e nasce zero. Exigir que a soma feche 100% no
+     * cadastro impediria gravar o primeiro socio, que sozinho nunca fecha
+     * enquanto o segundo nao entra; quem confere a soma e a tela.
+     */
+    public function criarSocio(Request $pedido)
+    {
+        $dados = $pedido->validate([
+            'nome' => ['required', 'string', 'max:120'],
+            'participacao' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'staff_id' => ['nullable', 'integer', 'exists:staff,id'],
+        ]);
+
+        Socio::create([
+            'nome' => $dados['nome'],
+
+            // Em pontos-base, como o resto do dinheiro desta casa: 50% vira
+            // 5000, e meio por cento continua representavel.
+            'participacao_bps' => (int) round(((float) ($dados['participacao'] ?? 0)) * 100),
+
+            'staff_id' => $dados['staff_id'] ?? null,
+            'ativo' => true,
+        ]);
+
+        Auditar::registrar('socios.socio.criado', null, ['nome' => $dados['nome']]);
+
+        return back()->with('ok', 'Sócio cadastrado.');
     }
 
     public function registrar(Request $pedido, RegistrarLancamento $registrar)

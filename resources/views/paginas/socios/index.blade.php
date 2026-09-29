@@ -54,6 +54,52 @@
                     @endforelse
                 </tbody>
             </table>
+
+            {{-- A soma das participacoes e conferida aqui, e nao no banco:
+                 trava no cadastro impediria gravar o primeiro socio, que
+                 sozinho nunca fecha 100% enquanto o segundo nao entra. --}}
+            @if ($socios->isNotEmpty() && $participacaoTotal !== 10000)
+                <p class="aviso aviso-alerta m-5">
+                    As participações somam {{ number_format($participacaoTotal / 100, 2, ',', '.') }}%
+                    em vez de 100%.
+                </p>
+            @endif
+
+            <form method="POST" action="{{ route('socios.criar') }}"
+                  class="grid gap-4 border-t border-gray-100 p-5 dark:border-gray-800">
+                @csrf
+                <h3 class="rotulo-grupo">Cadastrar sócio</h3>
+
+                <div class="flex flex-wrap items-end gap-3">
+                    <div class="min-w-[10rem] flex-1">
+                        <label for="socio-nome" class="rotulo-campo">Nome</label>
+                        <input id="socio-nome" name="nome" type="text" maxlength="120" required class="campo"
+                               value="{{ old('nome') }}">
+                        @error('nome')<p class="erro-campo">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="w-28">
+                        <label for="participacao" class="rotulo-campo">Participação</label>
+                        <input id="participacao" name="participacao" type="number" step="0.01" min="0" max="100"
+                               class="campo" value="{{ old('participacao') }}" placeholder="50">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="socio-staff" class="rotulo-campo">Conta de acesso</label>
+                    <select id="socio-staff" name="staff_id" class="campo">
+                        <option value="">Nenhuma</option>
+                        @foreach ($equipe as $pessoa)
+                            <option value="{{ $pessoa->id }}">{{ $pessoa->nome }}</option>
+                        @endforeach
+                    </select>
+                    <span class="ajuda-campo">Sócio que não opera o sistema também tem quota.</span>
+                </div>
+
+                <div>
+                    <x-avalia.botao variante="secundario" tamanho="sm">Cadastrar</x-avalia.botao>
+                </div>
+            </form>
         </div>
 
         {{-- A tela pergunta a NATUREZA, nunca a conta. Escolher conta e onde o
