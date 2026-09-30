@@ -14,6 +14,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
+use App\Http\Controllers\ControladoriaController;
 use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
@@ -484,6 +485,12 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
      * a empresa deve a cada dono nao sao operacao do produto, e nem todo
      * administrador precisa ver. A permissao nasce negada.
      */
+    /*
+     * A area da CASA, e nao de um produto dela. Mesma permissao de `socios`,
+     * em prefixo proprio para poder um dia sair daqui sozinha.
+     */
+    Route::get('/controladoria', ControladoriaController::class)
+        ->middleware(['admin', 'socios'])->name('controladoria');
     Route::middleware(['admin', 'socios'])->prefix('socios')->name('socios.')->group(function () {
         Route::get('/', [SociosController::class, 'index'])->name('index');
         Route::post('/socios', [SociosController::class, 'criarSocio'])->name('criar');

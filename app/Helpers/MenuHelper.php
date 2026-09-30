@@ -44,6 +44,9 @@ class MenuHelper
             // conforme quem abre a tela e o que a PDD manda evitar.
             ['icon' => 'calculadora', 'name' => 'Simulador', 'path' => '/simulacao', 'papeis' => ['admin']],
             ['icon' => 'charts', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
+            // O resultado da CASA: Financeiro e Vendas QR respondem por produto,
+            // e esta soma os tres. Mesma permissao de Socios.
+            ['icon' => 'charts', 'name' => 'Controladoria', 'path' => '/controladoria', 'papeis' => ['admin'], 'exigeSocios' => true],
             ['icon' => 'charts', 'name' => 'Sócios', 'path' => '/socios', 'papeis' => ['admin'], 'exigeSocios' => true],
             ['icon' => 'documento', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],

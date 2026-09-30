@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Socios\EstornarLancamento;
 use App\Actions\Socios\ExcluirLancamento;
 use App\Actions\Socios\RegistrarLancamento;
+use App\Contabil\Competencia;
 use App\Enums\NaturezaLancamento;
 use App\Models\ContaFinanceira;
 use App\Models\LancamentoFinanceiro;
@@ -28,7 +29,7 @@ class SociosController extends Controller
 {
     public function index(Request $pedido)
     {
-        $competencia = $this->competencia($pedido);
+        $competencia = Competencia::pedida($pedido->query('competencia'));
 
         $socios = Socio::where('ativo', true)->orderBy('id')->get();
         $contas = ContaFinanceira::where('ativa', true)->orderBy('grupo')->orderBy('codigo')->get();
@@ -40,7 +41,7 @@ class SociosController extends Controller
 
         return view('paginas.socios.index', [
             'competencia' => $competencia,
-            'competencias' => $this->competencias(),
+            'competencias' => Competencia::existentes(),
 
             'caixa' => $contas->where('grupo', 'ativo')->sum(fn (ContaFinanceira $c) => $c->saldoCents()),
 
@@ -173,30 +174,7 @@ class SociosController extends Controller
         return back()->with('ok', 'Lançamento estornado. As duas linhas ficam no extrato.');
     }
 
-    private function competencia(Request $pedido): string
-    {
-        $pedida = (string) $pedido->query('competencia', '');
-
-        return preg_match('/^\d{4}-\d{2}$/', $pedida) ? $pedida : now()->format('Y-m');
-    }
-
     /** @return list<string> */
-    private function competencias(): array
-    {
-        $primeira = LancamentoFinanceiro::min('competencia') ?: now()->format('Y-m');
-
-        $cursor = Carbon::createFromFormat('Y-m', $primeira)->startOfMonth();
-        $fim = now()->startOfMonth();
-        $meses = [];
-
-        while ($cursor->lessThanOrEqualTo($fim)) {
-            array_unshift($meses, $cursor->format('Y-m'));
-            $cursor->addMonth();
-        }
-
-        return $meses;
-    }
-
     /** @param \Illuminate\Support\Collection<int, LancamentoFinanceiro> $lancamentos */
     private function doGrupo($lancamentos, string $grupo): int
     {

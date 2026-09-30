@@ -7,21 +7,14 @@ use App\Models\Fatura;
 use App\Models\Staff;
 
 /**
- * O dinheiro da operacao, num lugar so.
+ * O dinheiro do Avalia One, num lugar so: visao geral e financeiro leem daqui.
  *
- * Existe por um motivo que ja custou caro neste projeto: a mesma cifra
- * calculada em duas telas diverge no primeiro ajuste, e ninguem descobre pela
- * tela, descobre pelo repasse errado. Foi o que aconteceu com a comissao, que
- * o painel mostrava bruta enquanto a carteira do vendedor mostrava liquida.
+ * A mesma cifra calculada em duas telas diverge no primeiro ajuste, e ninguem
+ * descobre pela tela, descobre pelo repasse errado. Ja aconteceu com a comissao,
+ * bruta no painel e liquida na carteira do vendedor.
  *
- * Entao a visao geral e o financeiro leem daqui. Se um numero mudar, muda para
- * os dois ao mesmo tempo.
- *
- * O que este arquivo NAO sabe: saldo de caixa de verdade. O sistema registra o
- * que foi cobrado e o que entrou, mas nao registra pagamento de saida (custo ao
- * fornecedor, imposto recolhido, comissao efetivamente paga). Saldo com metade
- * das saidas seria numero inventado, e numero inventado em tela de dinheiro e
- * pior do que numero ausente.
+ * NAO sabe saldo de caixa de verdade: falta o pagamento de saida. Isso agora e
+ * pergunta do razao, e a `PLANO-FINANCEIRO.md` diz quando esta classe sai.
  */
 final class Caixa
 {
@@ -42,12 +35,9 @@ final class Caixa
     /**
      * A comissao ja liberada que ainda pertence aos vendedores.
      *
-     * Liquida das demonstracoes, como a carteira do vendedor mostra: o custo da
-     * demonstracao sai da comissao dele, e ignorar isso aqui recriaria
-     * exatamente a divergencia que este arquivo existe para impedir.
-     *
-     * Comissao de consulta feita pela administracao nao entra: nao ha comissao
-     * de onde descontar, e o custo dela ja pesa no custo do periodo.
+     * Liquida das demonstracoes, como a carteira mostra: o custo da demonstracao
+     * sai da comissao dele. Consulta da administracao nao entra, porque nao ha
+     * comissao de onde descontar.
      */
     public static function aRepassarCents(): int
     {
