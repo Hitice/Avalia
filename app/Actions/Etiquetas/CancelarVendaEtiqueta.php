@@ -2,8 +2,10 @@
 
 namespace App\Actions\Etiquetas;
 
+use App\Actions\Socios\EstornarLancamento;
 use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
+use App\Models\LancamentoFinanceiro;
 use App\Support\Auditar;
 use Illuminate\Support\Facades\DB;
 
@@ -36,6 +38,8 @@ use Illuminate\Support\Facades\DB;
  */
 class CancelarVendaEtiqueta
 {
+    public function __construct(private readonly EstornarLancamento $estornar) {}
+
     public function __invoke(Etiqueta $etiqueta): Etiqueta
     {
         if ($etiqueta->vendida_em === null) {
@@ -54,6 +58,9 @@ class CancelarVendaEtiqueta
                 'vence_em' => $etiqueta->vence_em?->toDateString(),
             ];
 
+            // ANTES de limpar: sem valor e custo, o estorno nao teria pernas.
+            $this->estornarNoRazao($etiqueta);
+
             $etiqueta->update([
                 'vendida_em' => null,
                 'valor_cents' => null,
@@ -70,5 +77,25 @@ class CancelarVendaEtiqueta
 
             return $etiqueta->refresh();
         });
+    }
+
+    /**
+     * Desfaz no razao a receita, o custo e a comissao daquela venda.
+     *
+     * Estorno, e nao exclusao, na competencia de HOJE: mes fechado continua com
+     * o numero que teve. Silencioso quando nao ha lancamento, porque placa
+     * ainda nao lastreada nao pode impedir o cancelamento.
+     */
+    private function estornarNoRazao(Etiqueta $etiqueta): void
+    {
+        $lancamento = LancamentoFinanceiro::where('origem_tipo', 'etiqueta')
+            ->where('origem_id', $etiqueta->id)
+            ->first();
+
+        if ($lancamento === null || $lancamento->estornado()) {
+            return;
+        }
+
+        ($this->estornar)($lancamento, 'Venda da plaquinha '.$etiqueta->codigo.' cancelada');
     }
 }

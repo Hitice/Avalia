@@ -32,13 +32,8 @@ final class Rateio
     {
         $taxaProvedor = max(0, min($taxaProvedorCents, $pagoCents));
 
-        // O repasse e calculado como o PROVEDOR calcula, e nao como seria mais
-        // intuitivo: o split percentual dele incide sobre o liquido, depois de
-        // descontada a taxa dele. Cobrar a taxa da plataforma sobre o bruto
-        // aqui fazia o razao divergir do que cai de verdade na carteira do
-        // produtor, e a diferenca era de 5% da taxa do provedor por parcela.
-        // Num carne de doze, isso vira discussao no extrato, que e o unico
-        // numero que o produtor confere todo mes.
+        // Sobre o LIQUIDO, como o provedor calcula (veja a nota da classe).
+        // Sobre o bruto, a divergencia era de 5% da taxa do provedor por parcela.
         $liquido = $pagoCents - $taxaProvedor;
         $repasse = max(0, intdiv($liquido * (10000 - $taxaBps), 10000));
 

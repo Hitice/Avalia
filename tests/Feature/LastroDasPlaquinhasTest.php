@@ -184,3 +184,70 @@ it('nao regrava zero se a chave do custo sair do config', function () {
 
     expect($etiqueta->fresh()->custo_cents)->toBe(0);
 });
+
+/*
+|--------------------------------------------------------------------------
+| A venda e o cancelamento mexem no razao na hora
+|--------------------------------------------------------------------------
+*/
+
+it('lanca no razao no momento da venda, sem esperar o lastro', function () {
+    sociosDoLastro();
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+    $etiqueta = Etiqueta::factory()->create(['vendida_em' => null]);
+
+    test()->actingAs($warley, 'staff');
+
+    app(App\Actions\Etiquetas\VenderEtiqueta::class)($etiqueta, [
+        'destino' => 'https://exemplo.com.br',
+        'cliente_nome' => 'Loja do Teste',
+        'cliente_contato' => null,
+        'titulo' => null,
+        'valor_cents' => null,
+    ]);
+
+    $valor = (int) config('etiquetas.precos.placa_cents');
+    $custo = (int) config('etiquetas.custo_cents');
+
+    expect(saldo('receita:plaquinha'))->toBe($valor)
+        ->and(saldo('custo:plaquinha'))->toBe($custo)
+        ->and(DB::table('lancamentos_financeiros')->where('origem_id', $etiqueta->id)->count())->toBe(1);
+});
+
+it('estorna no razao quando a venda e cancelada', function () {
+    sociosDoLastro();
+    $admin = Staff::factory()->admin()->create();
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+    $etiqueta = Etiqueta::factory()->ativa()->create(['vendedor_id' => $warley->id]);
+
+    $this->artisan('avalia:lastrear-plaquinhas')->assertSuccessful();
+
+    $valor = (int) config('etiquetas.precos.placa_cents');
+    expect(saldo('receita:plaquinha'))->toBe($valor);
+
+    test()->actingAs($admin, 'staff');
+    app(App\Actions\Etiquetas\CancelarVendaEtiqueta::class)($etiqueta);
+
+    // Estorno, e nao exclusao: as duas linhas ficam e o saldo volta a zero.
+    expect(saldo('receita:plaquinha'))->toBe(0)
+        ->and(saldo('custo:plaquinha'))->toBe(0)
+        ->and(saldo('comissao'))->toBe(0)
+        ->and(saldo('caixa'))->toBe(0)
+        ->and(DB::table('lancamentos_financeiros')->count())->toBe(2)
+        ->and((int) DB::table('partidas_financeiras')->sum('valor_cents'))->toBe(0);
+});
+
+it('cancela a venda de placa que nunca foi lastreada, sem quebrar', function () {
+    // Placa vendida antes de o razao ter conta para plaquinha. Cancelar nao pode
+    // falhar por nao achar lancamento.
+    sociosDoLastro();
+    $admin = Staff::factory()->admin()->create();
+    $etiqueta = Etiqueta::factory()->ativa()->create();
+
+    test()->actingAs($admin, 'staff');
+
+    expect(fn () => app(App\Actions\Etiquetas\CancelarVendaEtiqueta::class)($etiqueta))
+        ->not->toThrow(Exception::class);
+
+    expect($etiqueta->fresh()->vendida_em)->toBeNull();
+});

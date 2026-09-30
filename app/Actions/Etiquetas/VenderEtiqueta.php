@@ -2,6 +2,8 @@
 
 namespace App\Actions\Etiquetas;
 
+use App\Contabil\SociosDaPlaquinha;
+use App\Contabil\VendaDeEtiqueta;
 use App\Enums\SituacaoEtiqueta;
 use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
@@ -21,7 +23,10 @@ use Illuminate\Support\Facades\DB;
  */
 class VenderEtiqueta
 {
-    public function __construct(private readonly ApontarEtiqueta $apontar) {}
+    public function __construct(
+        private readonly ApontarEtiqueta $apontar,
+        private readonly VendaDeEtiqueta $contabil,
+    ) {}
 
     /**
      * @param  array{destino: string, cliente_nome: ?string, cliente_contato: ?string, titulo: ?string, valor_cents: ?int}  $dados
@@ -64,6 +69,10 @@ class VenderEtiqueta
                     'cliente' => $etiqueta->cliente_nome,
                     'vence_em' => $etiqueta->vence_em?->toDateString(),
                 ]);
+
+                // Na mesma transacao: venda sem linha no razao e divergencia
+                // que so aparece na conferencia do mes.
+                $this->contabil->registrar($etiqueta, SociosDaPlaquinha::resolver()['ids']);
             }
 
             return $etiqueta->refresh();
