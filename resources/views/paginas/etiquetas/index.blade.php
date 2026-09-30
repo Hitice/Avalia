@@ -105,7 +105,7 @@
              proprio seletor: escolher a campanha e baixar o ZIP dela sao a
              mesma tarefa, e separa-las em dois cartoes fazia o operador
              procurar em dois lugares o que e um gesto so. --}}
-        <form method="GET" class="flex flex-wrap items-end gap-3 border-b border-gray-100 p-5 dark:border-gray-800">
+        <form method="GET" class="barra-secao">
             <div class="min-w-[14rem] flex-1">
                 <label for="busca" class="rotulo-campo">Buscar</label>
                 <input id="busca" name="busca" type="search" value="{{ $filtros['busca'] }}" class="campo"
@@ -148,8 +148,12 @@
             </div>
 
             <x-avalia.botao variante="secundario">Filtrar</x-avalia.botao>
+        </form>
 
-            @if ($campanha && $pacote->isNotEmpty())
+        @if ($campanha && $pacote->isNotEmpty())
+            {{-- Barra propria: o caminho de extracao e um campo largo, e na
+                 mesma linha dos filtros ele empurrava tudo. --}}
+            <div class="barra-secao">
                 <div>
                     <label for="formato" class="rotulo-campo">Formato</label>
                     <select id="formato" x-model="formato" class="campo w-auto py-2">
@@ -159,22 +163,19 @@
                     </select>
                 </div>
 
-                {{-- O ZIP nao sabe onde vai ser extraido, e a mala direta do
-                     Corel precisa achar a imagem. Em branco, o CSV leva so o
-                     nome do arquivo. --}}
-                {{-- O campo decide se o CSV serve para mala direta: sem ele
-                     a coluna `photo` sai com o nome do arquivo e o Corel nao
-                     acha a imagem. Lembrado no navegador, entao se digita uma
-                     vez. --}}
-                <div class="min-w-[18rem] flex-1">
-                    <label for="pasta-local" class="rotulo-campo">Onde você vai extrair o ZIP</label>
+                {{-- So a pasta BASE: o nome da campanha entra sozinho no CSV,
+                     porque o ZIP ja traz uma pasta com ele dentro. Digita-se
+                     uma vez e vale para as campanhas seguintes. --}}
+                <div class="min-w-[20rem] flex-1">
+                    <label for="pasta-local" class="rotulo-campo">Pasta onde você extrai o ZIP</label>
                     <input id="pasta-local" type="text" x-model="pastaLocal" class="campo"
-                           placeholder="/Users/voce/Downloads/{{ $campanha->pasta() }}">
-                    <span class="ajuda-campo">
-                        Vira o caminho da imagem no CSV, para a mala direta do Corel achar o arquivo.
-                        <span x-show="pastaLocal === ''" x-cloak class="text-warning-600 dark:text-warning-400">
-                            Em branco, o CSV sai só com o nome do arquivo.
-                        </span>
+                           placeholder="/Users/voce/Downloads">
+                    <span class="ajuda-campo" x-show="pastaLocal !== ''" x-cloak>
+                        No CSV: <span x-text="pastaLocal.replace(/\/+$/, '')"></span>/{{ $campanha->pasta() }}/{{ $pacote->first()["arquivo"] }}.<span x-text="formato === 'png' ? 'png' : 'svg'"></span>
+                    </span>
+                    <span x-show="pastaLocal === ''" x-cloak
+                          class="ajuda-campo text-warning-600 dark:text-warning-400">
+                        Em branco, o CSV sai sem caminho e a mala direta não acha a imagem.
                     </span>
                 </div>
 
@@ -191,12 +192,10 @@
 
                 <p x-show="erro" x-cloak x-text="erro" class="aviso aviso-erro w-full"></p>
 
-                {{-- A prova fica fora da vista, so para o componente ter onde
-                     desenhar sem quebrar. A miniatura de cada linha ja mostra
-                     o codigo. --}}
+                {{-- Fora da vista: o componente so precisa de onde desenhar. --}}
                 <div x-ref="prova" class="hidden"></div>
-            @endif
-        </form>
+            </div>
+        @endif
 
         <div class="tabela-rolagem">
             <table class="tabela min-w-[56rem]">

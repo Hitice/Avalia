@@ -233,16 +233,18 @@ function pintarMarca(pincel, lado, passo) {
  * O BOM fica: caminho de macOS carrega acento (Area de Trabalho, Documentos), e
  * sem ele a bancada em Windows abre o arquivo com o acento trocado.
  */
-export function csv(etiquetas, { formato = 'svg', pastaLocal = '' } = {}) {
+export function csv(etiquetas, { formato = 'svg', pastaLocal = '', pasta = '' } = {}) {
     // A extensao acompanha o que foi de fato exportado: apontar para um .png que
     // nao esta no ZIP quebra a mala direta com "arquivo nao encontrado". Com os
     // dois formatos, vale o PNG, que e o que a bancada importa.
     const ext = formato === 'svg' ? 'svg' : 'png';
 
-    // Caminho absoluto quando a pessoa diz onde vai extrair, e so o nome do
-    // arquivo quando nao diz. O ZIP nao sabe onde sera aberto, e o Corel nem
-    // sempre resolve caminho relativo a partir do CSV.
-    const base = pastaLocal.trim().replace(/[\\/]+$/, '');
+    // `pastaLocal` e a pasta ONDE o ZIP e extraido, normalmente Downloads, e o
+    // nome da campanha entra aqui porque o ZIP ja traz uma pasta com ele dentro.
+    // Guardar o caminho inteiro fazia cada campanha nova exigir redigitar, e era
+    // por isso que o campo vivia vazio e o CSV saia sem caminho.
+    const raiz = pastaLocal.trim().replace(/[\\/]+$/, '');
+    const base = raiz === '' ? '' : `${raiz}/${pasta}`.replace(/\/+$/, '');
 
     const campo = (valor) => {
         const texto = String(valor ?? '');
@@ -289,7 +291,7 @@ export async function pacote(pasta, etiquetas, opcoes = {}, aoAndar = () => {}) 
         aoAndar(i + 1, etiquetas.length);
     }
 
-    dentro.file(`${pasta}.csv`, csv(etiquetas, { formato, pastaLocal: opcoes.pastaLocal ?? '' }));
+    dentro.file(`${pasta}.csv`, csv(etiquetas, { formato, pastaLocal: opcoes.pastaLocal ?? '', pasta }));
 
     return zip.generateAsync({ type: 'blob' });
 }

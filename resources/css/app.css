@@ -298,6 +298,12 @@
 
 /* Cartao de indicador que leva ao detalhe. O realce no hover existe para o
    cartao parecer clicavel antes de alguem descobrir clicando. */
+/* A faixa de controles no topo de um cartao. Filtrar e exportar sao duas
+   tarefas, e cada uma tem a sua: juntas na mesma linha, o campo de caminho
+   empurrava os filtros e a barra virava um amontoado. */
+@utility barra-secao {
+  @apply flex flex-wrap items-end gap-3 border-b border-gray-100 p-5 dark:border-gray-800;
+}
 @utility cartao-link {
   @apply block transition hover:border-brand-300 hover:shadow-sm dark:hover:border-brand-500/40;
 }
