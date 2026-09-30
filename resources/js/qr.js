@@ -222,21 +222,21 @@ function pintarMarca(pincel, lado, passo) {
 /**
  * A planilha que o Print Merge do CorelDRAW le.
  *
- * Ponto e virgula e BOM porque e assim que o Excel em portugues abre um CSV
- * sem transformar tudo em uma coluna so e sem estragar acento. As colunas de
- * arquivo existem para o Corel achar a imagem de cada linha sozinho: monta-se
- * a placa uma vez, e ele numera e troca o QR na tiragem inteira.
+ * DUAS colunas, `codigo` e `photo`, separadas por VIRGULA. A primeira vira o
+ * texto da placa e a segunda a imagem, e o Corel casa por nome de coluna: coluna
+ * a mais so atrapalha quem confere na bancada.
+ *
+ * Campo com virgula, aspas ou quebra de linha sai entre aspas, como manda a
+ * regra de CSV, senao um caminho com virgula no nome da pasta partiria a linha
+ * em duas colunas.
+ *
+ * O BOM fica: caminho de macOS carrega acento (Area de Trabalho, Documentos), e
+ * sem ele a bancada em Windows abre o arquivo com o acento trocado.
  */
 export function csv(etiquetas, { formato = 'svg', pastaLocal = '' } = {}) {
-    // `codigo` e `photo` primeiro, nesta ordem, porque e o que a mala direta do
-    // Corel le: a primeira coluna vira o texto e a segunda a imagem. As outras
-    // duas ficam depois, para conferencia, e nao atrapalham quem casa por nome
-    // de coluna.
-    const linhas = [['codigo', 'photo', 'sequencia', 'url']];
-
-    // A extensao acompanha o que foi de fato exportado: apontar para um .png
-    // que nao esta no ZIP quebra a mala direta com "arquivo nao encontrado".
-    // Com os dois formatos, vale o PNG, que e o que a bancada importa.
+    // A extensao acompanha o que foi de fato exportado: apontar para um .png que
+    // nao esta no ZIP quebra a mala direta com "arquivo nao encontrado". Com os
+    // dois formatos, vale o PNG, que e o que a bancada importa.
     const ext = formato === 'svg' ? 'svg' : 'png';
 
     // Caminho absoluto quando a pessoa diz onde vai extrair, e so o nome do
@@ -244,21 +244,21 @@ export function csv(etiquetas, { formato = 'svg', pastaLocal = '' } = {}) {
     // sempre resolve caminho relativo a partir do CSV.
     const base = pastaLocal.trim().replace(/[\\/]+$/, '');
 
+    const campo = (valor) => {
+        const texto = String(valor ?? '');
+
+        return /[",\r\n]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
+    };
+
+    const linhas = [['codigo', 'photo']];
+
     etiquetas.forEach((etiqueta) => {
         const arquivo = `${etiqueta.arquivo}.${ext}`;
 
-        linhas.push([
-            etiqueta.codigo,
-            base === '' ? arquivo : `${base}/${arquivo}`,
-            etiqueta.sequencia ?? '',
-            etiqueta.url,
-        ]);
+        linhas.push([etiqueta.codigo, base === '' ? arquivo : `${base}/${arquivo}`]);
     });
 
-    // Separado por TABULACAO, e nao por ponto e virgula: caminho de arquivo
-    // carrega espaco e acento com frequencia, e a tabulacao nunca aparece
-    // dentro de um deles. O BOM fica para o Excel abrir sem estragar acento.
-    return '﻿'.concat(linhas.map((linha) => linha.join('\t')).join('\r\n'));
+    return '﻿'.concat(linhas.map((linha) => linha.map(campo).join(',')).join('\r\n'));
 }
 
 /** O pacote da tiragem inteira, pronto para a bancada. */
