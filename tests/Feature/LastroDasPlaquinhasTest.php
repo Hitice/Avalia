@@ -141,3 +141,46 @@ it('fecha o razao contra o numero que o painel mostra', function () {
     // lancamento: um erro de sinal em uma venda apareceria aqui.
     expect((int) DB::table('partidas_financeiras')->sum('valor_cents'))->toBe(0);
 });
+
+/*
+|--------------------------------------------------------------------------
+| O custo zero de 28/09/2026
+|--------------------------------------------------------------------------
+*/
+
+it('conserta o custo zero e com isso a comissao que saiu inflada', function () {
+    sociosDoLastro();
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+
+    // Custo zero fazia o liquido virar o preco cheio, e a comissao de 25% sair
+    // sobre R$ 89,90 em vez de sobre R$ 84,40.
+    $etiqueta = Etiqueta::factory()->ativa()->create([
+        'vendedor_id' => $warley->id,
+        'custo_cents' => 0,
+    ]);
+
+    $custo = (int) config('etiquetas.custo_cents');
+    $valor = (int) config('etiquetas.precos.placa_cents');
+    $pct = (int) config('etiquetas.comissao_pct');
+
+    expect(VendaDeEtiqueta::reparte($etiqueta, [])['comissao'])
+        ->toBe((int) round($valor * $pct / 100), 'antes do conserto a comissao sai sobre o preco cheio');
+
+    (require database_path('migrations/2026_09_29_000009_custo_zero_das_placas_de_28_de_setembro.php'))->up();
+
+    expect($etiqueta->fresh()->custo_cents)->toBe($custo)
+        ->and(VendaDeEtiqueta::reparte($etiqueta->fresh(), [])['comissao'])
+        ->toBe((int) round(($valor - $custo) * $pct / 100));
+});
+
+it('nao regrava zero se a chave do custo sair do config', function () {
+    // A migration de 28/09 gravou zero justamente porque leu uma chave que ainda
+    // nao existia. Corrigir sem essa guarda repetiria o defeito na proxima vez.
+    sociosDoLastro();
+    $etiqueta = Etiqueta::factory()->ativa()->create(['custo_cents' => 0]);
+
+    config(['etiquetas.custo_cents' => 0]);
+    (require database_path('migrations/2026_09_29_000009_custo_zero_das_placas_de_28_de_setembro.php'))->up();
+
+    expect($etiqueta->fresh()->custo_cents)->toBe(0);
+});
