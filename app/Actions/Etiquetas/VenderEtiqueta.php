@@ -2,12 +2,11 @@
 
 namespace App\Actions\Etiquetas;
 
-use App\Contabil\SociosDaPlaquinha;
-use App\Contabil\VendaDeEtiqueta;
 use App\Enums\SituacaoEtiqueta;
 use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Support\Auditar;
+use App\Support\SociosDaPlaquinha;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -25,7 +24,7 @@ class VenderEtiqueta
 {
     public function __construct(
         private readonly ApontarEtiqueta $apontar,
-        private readonly VendaDeEtiqueta $contabil,
+        private readonly VendaNoRazao $contabil,
     ) {}
 
     /**

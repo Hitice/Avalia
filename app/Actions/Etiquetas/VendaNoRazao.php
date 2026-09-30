@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Contabil;
+namespace App\Actions\Etiquetas;
 
+use App\Contabil\Lancar;
+use App\Contabil\Partidas;
 use App\Models\Etiqueta;
 use App\Models\LancamentoFinanceiro;
 use App\Support\RepartePlaquinha;
@@ -15,7 +17,7 @@ use App\Support\RepartePlaquinha;
  * Custo entra na VENDA, e nao na compra do lote, porque nao existe registro de
  * compra. Quando existir, a contrapartida passa a ser estoque.
  */
-final class VendaDeEtiqueta
+final class VendaNoRazao
 {
     public function __construct(private readonly Lancar $lancar) {}
 

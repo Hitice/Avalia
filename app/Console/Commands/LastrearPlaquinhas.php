@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Contabil\SociosDaPlaquinha;
-use App\Contabil\VendaDeEtiqueta;
+use App\Actions\Etiquetas\VendaNoRazao;
 use App\Models\ContaFinanceira;
 use App\Models\Etiqueta;
+use App\Support\SociosDaPlaquinha;
 use Illuminate\Console\Command;
 
 /**
@@ -23,7 +23,7 @@ class LastrearPlaquinhas extends Command
 
     protected $description = 'Lanca no razao as vendas de plaquinha ja registradas';
 
-    public function handle(VendaDeEtiqueta $venda): int
+    public function handle(VendaNoRazao $venda): int
     {
         foreach (['receita:plaquinha', 'custo:plaquinha', 'comissao', 'comissao-a-pagar', 'caixa'] as $codigo) {
             if (! ContaFinanceira::where('codigo', $codigo)->exists()) {
@@ -52,7 +52,7 @@ class LastrearPlaquinhas extends Command
         $repetidas = 0;
 
         foreach ($vendas as $etiqueta) {
-            $parte = VendaDeEtiqueta::reparte($etiqueta, $socios['ids']);
+            $parte = VendaNoRazao::reparte($etiqueta, $socios['ids']);
 
             if ($this->option('simular')) {
                 $this->line(sprintf(

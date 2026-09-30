@@ -65,3 +65,43 @@ it('mantem um unico razao contabil', function () use ($raiz) {
         'Nasceu um razao novo. Dinheiro entra no razao que existe, como subrazao, e nao em tabela propria.',
     );
 });
+
+it('mantem o razao sem saber de produto nenhum', function () use ($raiz) {
+    /*
+     * A fronteira que decide se o financeiro pode um dia sair daqui.
+     *
+     * `app/Contabil/` sabe de conta, partida e competencia. Quem sabe o que e
+     * uma plaquinha, uma fatura ou um pedido e o PRODUTO, e e ele que traduz a
+     * venda em pernas e chama o razao. Na direcao contraria, cada produto novo
+     * engorda o razao, e separa-lo depois deixa de ser empacotamento e vira
+     * reescrita.
+     *
+     * Ja foi quebrada uma vez: `VendaDeEtiqueta` e `SociosDaPlaquinha` moravam
+     * aqui, importando `App\Models\Etiqueta` e lendo `config('etiquetas')`.
+     */
+    $proibidos = ['Etiqueta', 'Fatura', 'Consulta', 'Cliente', 'Pedido360', 'Parcela360', 'Produtor', 'Lead'];
+
+    $vazamentos = [];
+
+    foreach (glob($raiz.'/app/Contabil/*.php') as $caminho) {
+        $fonte = (string) file_get_contents($caminho);
+
+        foreach ($proibidos as $modelo) {
+            if (str_contains($fonte, 'App\\Models\\'.$modelo)) {
+                $vazamentos[] = basename($caminho).' usa '.$modelo;
+            }
+        }
+
+        foreach (['etiquetas.', 'cobranca.', 'catalogo.'] as $config) {
+            if (str_contains($fonte, "config('".$config)) {
+                $vazamentos[] = basename($caminho)." le config('".$config."')";
+            }
+        }
+    }
+
+    expect($vazamentos)->toBe(
+        [],
+        'O razao passou a conhecer produto: '.implode('; ', $vazamentos)
+        .'. A traducao do evento em pernas mora no produto, e nao em app/Contabil.',
+    );
+});

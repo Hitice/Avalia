@@ -1,9 +1,9 @@
 <?php
 
-use App\Contabil\SociosDaPlaquinha;
-use App\Contabil\VendaDeEtiqueta;
+use App\Actions\Etiquetas\VendaNoRazao;
 use App\Models\Etiqueta;
 use App\Models\Staff;
+use App\Support\SociosDaPlaquinha;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
@@ -126,7 +126,7 @@ it('fecha o razao contra o numero que o painel mostra', function () {
     $doPainel = ['bruto' => 0, 'custo' => 0, 'comissao' => 0];
 
     foreach (Etiqueta::whereNotNull('vendida_em')->get() as $etiqueta) {
-        $parte = VendaDeEtiqueta::reparte($etiqueta, $socios['ids']);
+        $parte = VendaNoRazao::reparte($etiqueta, $socios['ids']);
 
         foreach ($doPainel as $chave => $acumulado) {
             $doPainel[$chave] = $acumulado + $parte[$chave];
@@ -163,13 +163,13 @@ it('conserta o custo zero e com isso a comissao que saiu inflada', function () {
     $valor = (int) config('etiquetas.precos.placa_cents');
     $pct = (int) config('etiquetas.comissao_pct');
 
-    expect(VendaDeEtiqueta::reparte($etiqueta, [])['comissao'])
+    expect(VendaNoRazao::reparte($etiqueta, [])['comissao'])
         ->toBe((int) round($valor * $pct / 100), 'antes do conserto a comissao sai sobre o preco cheio');
 
     (require database_path('migrations/2026_09_29_000009_custo_zero_das_placas_de_28_de_setembro.php'))->up();
 
     expect($etiqueta->fresh()->custo_cents)->toBe($custo)
-        ->and(VendaDeEtiqueta::reparte($etiqueta->fresh(), [])['comissao'])
+        ->and(VendaNoRazao::reparte($etiqueta->fresh(), [])['comissao'])
         ->toBe((int) round(($valor - $custo) * $pct / 100));
 });
 

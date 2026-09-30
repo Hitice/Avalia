@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Contabil;
+namespace App\Support;
 
 use App\Models\Staff;
 use Illuminate\Support\Collection;

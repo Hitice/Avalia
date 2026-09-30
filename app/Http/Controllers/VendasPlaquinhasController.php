@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Contabil\SociosDaPlaquinha;
-use App\Contabil\VendaDeEtiqueta;
+use App\Actions\Etiquetas\VendaNoRazao;
 use App\Models\Etiqueta;
 use App\Models\Staff;
 use App\Support\RepartePlaquinha;
+use App\Support\SociosDaPlaquinha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -130,10 +130,10 @@ class VendasPlaquinhasController extends Controller
             $vendedorId = $venda->vendedor_id === null ? null : (int) $venda->vendedor_id;
             $ehSocio = $vendedorId !== null && in_array($vendedorId, $sociosIds, true);
 
-            // A regra de quem comissiona mora em VendaDeEtiqueta, que e tambem
+            // A regra de quem comissiona mora em VendaNoRazao, que e tambem
             // quem lanca a venda no razao. Repetida aqui, a tela e o extrato
             // passariam a discordar no dia em que uma das duas mudasse.
-            $parte = VendaDeEtiqueta::reparte($venda, $sociosIds);
+            $parte = VendaNoRazao::reparte($venda, $sociosIds);
 
             foreach ($totais as $chave => $acumulado) {
                 $totais[$chave] = $acumulado + $parte[$chave];
