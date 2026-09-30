@@ -126,3 +126,15 @@ function carteira(): array
 
     return [$vendedor, $empresa, App\Models\Servico::firstWhere('codigo', 'scpc-bvs')];
 }
+
+/**
+ * O saldo de uma conta do razao, pelo codigo.
+ *
+ * Mora aqui porque dois arquivos de teste precisam dele, e a segunda declaracao
+ * derrubou a suite inteira com "Cannot redeclare function saldo()". Helper de
+ * teste tambem tem um lugar so.
+ */
+function saldo(string $codigo): int
+{
+    return App\Models\ContaFinanceira::firstWhere('codigo', $codigo)?->saldoCents() ?? 0;
+}

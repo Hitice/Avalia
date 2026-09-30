@@ -81,27 +81,49 @@ SAP FI, NetSuite, Odoo e ERPNext implementam, e o que os sistemas de livro texto
 quarto razao, trava a densidade de comentario em 30,6% e a aderencia de tela em
 51%, so para baixo e so para cima respectivamente.
 
-**Fase 1. Plano de contas completo.** Hoje ha caixa e receita, criados sob
-demanda. Falta receita, custo, imposto, comissao a pagar e a receber **por
+**Fase 1. Plano de contas completo. FEITO.** Havia caixa, receita e despesa. Falta receita, custo, imposto, comissao a pagar e a receber **por
 produto** (One, Gestor, plaquinha), mais patrimonio por socio. Conta nasce em
 migration, com codigo estavel, porque conta criada sob demanda em runtime e como
 a `ContasFinanceirasSeeder` que nunca rodou: producao respondeu "A conta caixa
 nao esta cadastrada".
 
-**Fase 2. Regras de lancamento em um lugar.** `app/Contabil/`, uma classe por
+**Fase 2. Regras de lancamento em um lugar. FEITA PARA A PLAQUINHA.**
+`app/Contabil/Lancar` e agora o unico escritor do razao, e
+`RegistrarLancamento` delega a ele: a invariante de soma zero virou o
+construtor de `Partidas`, em vez de viver dentro do portao das naturezas.
+`VendaDeEtiqueta` traduz a venda em seis pernas e le o reparte de
+`RepartePlaquinha`, e o painel passou a ler a mesma funcao. `SociosDaPlaquinha`
+saiu do controller pelo mesmo motivo. Faltam os outros oito eventos:
+consulta executada, fatura fechada, fatura liquidada, parcela paga, comissao
+apurada, comissao paga, aporte e retirada.
+
+O desenho, para eles: `app/Contabil/`, uma classe por
 evento de negocio (consulta executada, fatura fechada, fatura liquidada, parcela
 paga, etiqueta vendida, comissao apurada, comissao paga, aporte, retirada). Cada
 uma devolve as partidas e nada mais. `RegistrarLancamento` continua sendo o unico
 portao de escrita, e continua recusando o que nao fecha em zero.
 
-**Fase 3. Lastro do historico.** As vendas e os links que ja existem sao
+**Fase 3. Lastro do historico. FEITA PARA A PLAQUINHA.**
+`avalia:lastrear-plaquinhas` le as etiquetas vendidas e lanca no razao, com
+`--simular` para conferir antes. Teste prova que rodar duas vezes nao duplica e
+que nenhuma coluna de `etiquetas` muda. Falta o lastro de `faturas`,
+`pedidos_360` e `lancamentos_360`.
+
+A regra, para eles: as vendas e os links que ja existem sao
 intocaveis, entao o lastro **le e nunca escreve** neles: percorre `faturas`,
 `pedidos_360`, `lancamentos_360` e as vendas de etiqueta e lanca no razao com
 `origem_tipo`/`origem_id` apontando para o documento. O indice unico de origem ja
 torna a operacao repetivel sem duplicar, o que significa que ela pode rodar em
 producao mais de uma vez sem medo. Comando proprio, somente com esse fim.
 
-**Fase 4. Conciliacao com prova.** Um comando e um teste que comparam, por
+**Fase 4. Conciliacao com prova. FEITA PARA A PLAQUINHA.** O teste
+`LastroDasPlaquinhasTest` compara o saldo das contas do razao contra a soma que
+o painel mostra, e recusa a divergencia. Ele ja pagou: a primeira versao de
+`VendaDeEtiqueta` descontava a comissao do caixa alem de registra-la como
+passivo, contando o mesmo dinheiro duas vezes, e o lancamento nao fechou em
+zero. O erro morreu antes de existir em producao.
+
+Falta o resto: um comando e um teste que comparem, por
 competencia, a coluna gravada no documento contra o saldo da conta no razao, e
 listam a diferenca. E o controle de subrazao contra GL que todo ERP tem, e e o
 que transforma a classe de erro dos R$ 169,84 em coisa **detectada** em vez de

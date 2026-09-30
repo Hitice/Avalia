@@ -52,6 +52,7 @@ php artisan avalia:conferir          # fechamento, cobrancas, webhooks, trilha
 php artisan avalia:conferir-exclusao --email= --empresa=
 php artisan avalia:exportar          # copia do banco, sem mysqldump
 php artisan avalia:importar          # restaura o que avalia:exportar gerou
+php artisan avalia:lastrear-plaquinhas --simular   # vendas que entrariam no razao
 ```
 
 Existem com nome proprio porque producao nao tem SSH: o unico caminho e cron, e

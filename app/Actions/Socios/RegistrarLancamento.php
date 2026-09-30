@@ -2,13 +2,13 @@
 
 namespace App\Actions\Socios;
 
+use App\Contabil\Lancar;
+use App\Contabil\Partidas;
 use App\Enums\NaturezaLancamento;
 use App\Exceptions\Recusa;
 use App\Models\ContaFinanceira;
 use App\Models\LancamentoFinanceiro;
 use App\Models\Socio;
-use App\Support\Auditar;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Grava um evento financeiro como partidas que somam zero.
@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\DB;
  */
 class RegistrarLancamento
 {
+    public function __construct(private readonly Lancar $lancar) {}
+
     /**
      * @param  array{descricao: string, competencia: string, ocorrido_em: \DateTimeInterface|string, valor_cents: int, socio_id?: int|null, conta_id?: int|null, destino_id?: int|null, contraparte?: string|null, documento?: string|null, comprovante?: string|null, origem_tipo?: string|null, origem_id?: int|null}  $dados
      */
@@ -45,37 +47,17 @@ class RegistrarLancamento
         $socio = $this->socio($natureza, $dados['socio_id'] ?? null);
         $pernas = $this->pernas($natureza, $valor, $socio, $dados);
 
-        $this->conferirQueFecha($pernas);
-
-        return DB::transaction(function () use ($natureza, $dados, $pernas) {
-            $lancamento = LancamentoFinanceiro::create([
-                'natureza' => $natureza->value,
-                'descricao' => $dados['descricao'],
-                'competencia' => $dados['competencia'],
-                'ocorrido_em' => $dados['ocorrido_em'],
-                'contraparte' => $dados['contraparte'] ?? null,
-                'documento' => $dados['documento'] ?? null,
-                'comprovante' => $dados['comprovante'] ?? null,
-
-                // O par (tipo, id) e unico no banco: e o que impede a mesma
-                // fatura virar receita duas vezes quando alguem reimporta.
-                'origem_tipo' => $dados['origem_tipo'] ?? null,
-                'origem_id' => $dados['origem_id'] ?? null,
-
-                'staff_id' => auth('staff')->id(),
-            ]);
-
-            foreach ($pernas as $contaId => $cents) {
-                $lancamento->partidas()->create(['conta_id' => $contaId, 'valor_cents' => $cents]);
-            }
-
-            Auditar::registrar('socios.lancamento.registrado', $lancamento, [
-                'natureza' => $natureza->value,
-                'valor_cents' => array_sum(array_filter($pernas, fn ($c) => $c > 0)),
-            ]);
-
-            return $lancamento->load('partidas');
-        });
+        return ($this->lancar)(Partidas::de($pernas), [
+            'natureza' => $natureza->value,
+            'descricao' => $dados['descricao'],
+            'competencia' => $dados['competencia'],
+            'ocorrido_em' => $dados['ocorrido_em'],
+            'contraparte' => $dados['contraparte'] ?? null,
+            'documento' => $dados['documento'] ?? null,
+            'comprovante' => $dados['comprovante'] ?? null,
+            'origem_tipo' => $dados['origem_tipo'] ?? null,
+            'origem_id' => $dados['origem_id'] ?? null,
+        ]);
     }
 
     /**
@@ -193,19 +175,6 @@ class RegistrarLancamento
     }
 
     /** @param array<int, int> $pernas */
-    private function conferirQueFecha(array $pernas): void
-    {
-        $soma = array_sum($pernas);
-
-        if ($soma !== 0) {
-            throw new Recusa('Lançamento desbalanceado: as partidas somam '.$soma.' em vez de zero.');
-        }
-
-        if (count($pernas) < 2) {
-            throw new Recusa('Lançamento precisa de pelo menos duas partidas.');
-        }
-    }
-
     /**
      * A conta que recebe a transferencia.
      *

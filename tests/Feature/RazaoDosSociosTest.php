@@ -32,11 +32,6 @@ function socio(string $nome = 'Pedro'): Socio
     return Socio::create(['nome' => $nome, 'participacao_bps' => 5_000, 'ativo' => true]);
 }
 
-function saldo(string $codigo): int
-{
-    return ContaFinanceira::firstWhere('codigo', $codigo)?->saldoCents() ?? 0;
-}
-
 /*
 |--------------------------------------------------------------------------
 | A invariante

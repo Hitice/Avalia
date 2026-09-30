@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Contabil\SociosDaPlaquinha;
+use App\Contabil\VendaDeEtiqueta;
 use App\Models\Etiqueta;
 use App\Models\Staff;
 use App\Support\RepartePlaquinha;
@@ -41,7 +43,7 @@ class VendasPlaquinhasController extends Controller
     public function __invoke(Request $request)
     {
         $mes = $this->mesPedido($request);
-        $socios = $this->socios();
+        $socios = SociosDaPlaquinha::resolver();
 
         $doMes = Etiqueta::query()
             ->vendidasEntre($mes->copy()->startOfMonth(), $mes->copy()->endOfMonth())
@@ -111,33 +113,6 @@ class VendasPlaquinhasController extends Controller
     }
 
     /**
-     * Os socios do config, resolvidos em contas.
-     *
-     * A ORDEM do config e a ordem da divisao, e e o que mantem o centavo impar
-     * sempre na mesma pessoa. Alfabetar aqui faria o centavo trocar de dono no
-     * dia em que alguem renomeasse a conta.
-     *
-     * @return array{contas: Collection<int, Staff>, ids: list<int>, ausentes: list<string>}
-     */
-    private function socios(): array
-    {
-        $emails = collect(config('etiquetas.socios'))->map(fn ($e) => mb_strtolower(trim((string) $e)))->filter();
-
-        $achadas = Staff::withTrashed()
-            ->whereIn('email', $emails->all())
-            ->get(['id', 'nome', 'email'])
-            ->keyBy(fn (Staff $s) => mb_strtolower($s->email));
-
-        $contas = $emails->map(fn (string $email) => $achadas->get($email))->filter()->values();
-
-        return [
-            'contas' => $contas,
-            'ids' => $contas->pluck('id')->map(fn ($id) => (int) $id)->all(),
-            'ausentes' => $emails->reject(fn (string $email) => $achadas->has($email))->values()->all(),
-        ];
-    }
-
-    /**
      * Soma o reparte de cada venda do conjunto.
      *
      * @param  Collection<int, Etiqueta>  $vendas
@@ -146,7 +121,6 @@ class VendasPlaquinhasController extends Controller
      */
     private function apurar(Collection $vendas, array $sociosIds): array
     {
-        $pct = (int) config('etiquetas.comissao_pct');
 
         $totais = ['bruto' => 0, 'custo' => 0, 'liquido' => 0, 'comissao' => 0, 'lucro' => 0];
         $porVendedor = [];
@@ -156,23 +130,10 @@ class VendasPlaquinhasController extends Controller
             $vendedorId = $venda->vendedor_id === null ? null : (int) $venda->vendedor_id;
             $ehSocio = $vendedorId !== null && in_array($vendedorId, $sociosIds, true);
 
-            // Placa sem vendedor nao gera comissao, do mesmo jeito que a de
-            // socio: nao houve venda de ninguem. Comissionar uma venda orfa
-            // criaria dinheiro sem destinatario, que sairia da divisao dos
-            // socios e deixaria o total de comissoes maior que a soma das linhas
-            // por vendedor, na mesma tela.
-            $geraComissao = $vendedorId !== null && ! $ehSocio;
-
-            $parte = RepartePlaquinha::de(
-                (int) $venda->valor_cents,
-
-                // Venda anterior a coluna de custo cai no config. Deixar zero
-                // mostraria lucro inflado, que e o erro que engana.
-                $venda->custo_cents === null ? (int) config('etiquetas.custo_cents') : (int) $venda->custo_cents,
-
-                $geraComissao,
-                $pct,
-            );
+            // A regra de quem comissiona mora em VendaDeEtiqueta, que e tambem
+            // quem lanca a venda no razao. Repetida aqui, a tela e o extrato
+            // passariam a discordar no dia em que uma das duas mudasse.
+            $parte = VendaDeEtiqueta::reparte($venda, $sociosIds);
 
             foreach ($totais as $chave => $acumulado) {
                 $totais[$chave] = $acumulado + $parte[$chave];

@@ -3,43 +3,37 @@
 namespace App\Support;
 
 /**
- * Comissao do vendedor sobre o LUCRO do mes.
+ * Comissao do vendedor sobre o LUCRO do mes, e nao sobre faturamento.
  *
- * Aliquota unica para todo plano e toda faixa: 10% do que sobrar depois do
- * imposto e do custo do fornecedor. Nao mora no Plano justamente porque nao e
- * atributo de plano nenhum, e sim parametro comercial da Avalia (PDD.md, secao 5).
+ * Cada real de consumo carrega o custo do fornecedor, entao comissionar
+ * faturamento pagaria igual por uma venda que rende e por uma que sangra. Sobre
+ * lucro, o interesse do vendedor e o mesmo da casa.
  *
- * A base e lucro, e nao faturamento. Cada real de consumo carrega o custo do
- * fornecedor junto, entao comissionar sobre faturamento pagaria igual por uma
- * venda que rende e por uma que sangra. Sobre lucro, o interesse do vendedor e
- * o mesmo da Avalia.
+ * Aliquota unica para todo plano e toda faixa; nao mora no Plano porque e
+ * parametro comercial da Avalia, e nao atributo de plano (PDD.md, secao 5).
  *
- * Quem calcula o lucro e Margem::baseComissaoCents, e e de la que este valor
- * tem de vir: duas contas diferentes para a mesma comissao viram divergencia no
- * primeiro repasse.
+ * O lucro vem de `Margem::baseComissaoCents`, e tem de vir de la: duas contas
+ * para a mesma comissao viram divergencia no primeiro repasse.
  */
 final class Comissao
 {
     /**
      * Aliquota unica, em pontos percentuais.
      *
-     * Nao ha adicional por excedente. Ele existia quando a comissao lia
-     * faturamento e servia para o vendedor ganhar quando o cliente consumia
-     * acima da franquia. Comissionando sobre lucro isso ja acontece sozinho:
-     * consumo a mais gera lucro a mais, e 10% dele tambem. Dobrar a aliquota
-     * em cima pagaria o mesmo ganho duas vezes.
+     * Nao ha adicional por excedente. Ele existia quando a base era faturamento;
+     * sobre lucro o efeito ja acontece sozinho, e dobrar em cima pagaria o mesmo
+     * ganho duas vezes.
      */
     public const PCT_PADRAO = 10;
 
-    /** Teto de sanidade: comissao acima disso comeria a operacao inteira. */
+    /** Teto de sanidade: acima disso a comissao come a operacao. */
     public const PCT_MAXIMO = 50;
 
     /**
      * Aliquota valida, com o padrao para quem nao tem taxa propria.
      *
-     * A administracao negocia caso a caso, entao cada vendedor pode ter a sua.
-     * Fora da faixa, vale o padrao: taxa invalida no cadastro nao pode virar
-     * repasse errado no fechamento.
+     * A administracao negocia caso a caso. Fora da faixa vale o padrao, porque
+     * taxa invalida no cadastro nao pode virar repasse errado no fechamento.
      */
     public static function pct(?int $doVendedor = null): int
     {
@@ -53,9 +47,8 @@ final class Comissao
     /**
      * Comissao em centavos sobre o lucro da competencia.
      *
-     * Mes no prejuizo nao gera comissao, e nao comissao negativa: o vendedor
-     * nao ganha sobre lucro que nao existiu, mas tambem nao paga para ter
-     * vendido.
+     * Mes no prejuizo da zero, e nao comissao negativa: o vendedor nao ganha
+     * sobre lucro que nao houve, mas tambem nao paga por ter vendido.
      */
     public static function cents(int $lucroCents, ?int $pct = null): int
     {
@@ -63,16 +56,14 @@ final class Comissao
             return 0;
         }
 
-        // round e nao trunca: sempre a favor de ninguem em particular, mas
-        // estavel: dois calculos do mesmo mes dao o mesmo centavo.
+        // round, nao trunca: dois calculos do mesmo mes dao o mesmo centavo.
         return (int) round($lucroCents * self::pct($pct) / 100);
     }
 
     /**
-     * Parte do vendedor na taxa de adesao: metade.
+     * Parte do vendedor na taxa de adesao: metade, e a outra e da casa.
      *
-     * A outra metade e da Avalia. Isentar a adesao zera as duas, nao so a da
-     * empresa.
+     * Isentar a adesao zera as duas, e nao so a da empresa.
      */
     public static function parteAdesaoCents(int $adesaoCents): int
     {
