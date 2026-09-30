@@ -99,7 +99,7 @@
 
     <div class="cartao overflow-hidden"
          @if ($campanha && $pacote->isNotEmpty())
-             x-data="tiragem(@js(['pasta' => $campanha->pasta(), 'etiquetas' => $pacote]))"
+             x-data="tiragem(@js(['pasta' => $campanha->pasta(), 'etiquetas' => $pacote, 'pastaLocal' => config('etiquetas.pasta_local')]))"
          @endif>
         {{-- Os filtros moram DENTRO da tabela, e o pacote da campanha sai do
              proprio seletor: escolher a campanha e baixar o ZIP dela sao a
@@ -151,8 +151,8 @@
         </form>
 
         @if ($campanha && $pacote->isNotEmpty())
-            {{-- Barra propria: o caminho de extracao e um campo largo, e na
-                 mesma linha dos filtros ele empurrava tudo. --}}
+            {{-- Barra propria: filtrar e exportar sao tarefas diferentes, e na
+                 mesma linha os controles de uma empurravam os da outra. --}}
             <div class="barra-secao">
                 <div>
                     <label for="formato" class="rotulo-campo">Formato</label>
@@ -161,22 +161,6 @@
                         <option value="png">PNG</option>
                         <option value="ambos">SVG e PNG</option>
                     </select>
-                </div>
-
-                {{-- So a pasta BASE: o nome da campanha entra sozinho no CSV,
-                     porque o ZIP ja traz uma pasta com ele dentro. Digita-se
-                     uma vez e vale para as campanhas seguintes. --}}
-                <div class="min-w-[20rem] flex-1">
-                    <label for="pasta-local" class="rotulo-campo">Pasta onde você extrai o ZIP</label>
-                    <input id="pasta-local" type="text" x-model="pastaLocal" class="campo"
-                           placeholder="/Users/voce/Downloads">
-                    <span class="ajuda-campo" x-show="pastaLocal !== ''" x-cloak>
-                        No CSV: <span x-text="pastaLocal.replace(/\/+$/, '')"></span>/{{ $campanha->pasta() }}/{{ $pacote->first()["arquivo"] }}.<span x-text="formato === 'png' ? 'png' : 'svg'"></span>
-                    </span>
-                    <span x-show="pastaLocal === ''" x-cloak
-                          class="ajuda-campo text-warning-600 dark:text-warning-400">
-                        Em branco, o CSV sai sem caminho e a mala direta não acha a imagem.
-                    </span>
                 </div>
 
                 <div class="flex items-center gap-3">

@@ -81,6 +81,17 @@ return [
      * endereco da conta de verdade, e a lista tem de casar com o que esta na
      * tabela `staff`, nao com o que seria mais bonito.
      */
+    /*
+     * A pasta onde o ZIP da tiragem e extraido, que vira o caminho da imagem no
+     * CSV da mala direta.
+     *
+     * Fica aqui e nao em campo de tela: e sempre a mesma pasta, e o campo so
+     * fazia quem gera digitar de novo o que nunca muda. O nome da campanha entra
+     * sozinho, porque o ZIP ja traz uma pasta com ele dentro.
+     *
+     * Em branco, o CSV sai so com o nome do arquivo.
+     */
+    'pasta_local' => env('ETIQUETAS_PASTA_LOCAL', '/Users/pedrohenriquemorais/Downloads'),
     'comissao_pct' => 25,
 
     'socios' => array_values(array_filter(array_map(
