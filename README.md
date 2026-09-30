@@ -1,131 +1,93 @@
 # Avalia
 
-Aplicação Laravel para gestão de consultas de crédito, clientes, vendedores,
-planos, faturamento e atendimento.
+Software house e as tres operacoes que ela vende: **Avalia One** (consultas de
+credito), **Avalia Gestor** (venda parcelada e cobranca) e **QR dinamico**
+(plaquinha com NFC e encurtador).
 
-Os requisitos de produto e negócio estão em [PDD.md](PDD.md).
+Regra de negocio nao mora aqui, mora na [PDD.md](PDD.md). Este arquivo poe para
+rodar.
 
 ## Stack
 
-- PHP 8.2+, Laravel 12 e Blade;
-- PostgreSQL;
-- Tailwind CSS, Alpine.js e Vite;
-- Pest para testes.
+PHP 8.2 ou superior (producao roda 8.5), Laravel 12, Blade, Tailwind 4,
+Alpine.js, Vite, Pest 4. **MySQL em producao, SQLite em memoria nos testes.**
 
-## Pré-requisitos
+## Rodar
 
-- PHP 8.2 ou superior;
-- Composer;
-- Node.js 18 ou superior e npm;
-- PostgreSQL.
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+npm run build
+composer run dev      # servidor, fila, logs e Vite juntos
+```
 
-## Instalação
+Banco e conta administrativa saem do `.env`, que nao e versionado, e nem ele nem
+credencial nenhuma entram em commit.
 
-    composer install
-    npm install
-    copy .env.example .env
-    php artisan key:generate
-    php artisan migrate --seed
-    npm run build
+## Conferir
 
-Configure as variáveis de banco e a conta administrativa no .env. Não versione
-arquivos de ambiente ou qualquer credencial.
+```bash
+php vendor/bin/pest                               # suite inteira
+php vendor/bin/pest tests/Unit/DiretivaTest.php    # catraca das diretivas
+vendor/bin/pint                                    # estilo
+npm run build                                      # obrigatorio depois de Blade ou CSS
+```
 
-## Desenvolvimento
+A suite usa SQLite em memoria por configuracao do `phpunit.xml`, entao nao ha
+como apontar teste para producao por engano.
 
-    composer run dev
+Sob PHP 8.5 a saida marca quase todo teste como `DEPR`. **Nao e falha nossa**:
+vem de `vendor/laravel/framework/config/database.php`, que ainda le
+`PDO::MYSQL_ATTR_SSL_CA`. Leia a linha `Tests:` no fim, que diz `0 failed`.
 
-O comando inicia o servidor Laravel, a fila, os logs e o Vite.
+## Diagnostico
 
-## Qualidade
+```bash
+php artisan avalia:inventario        # linhas por tabela
+php artisan avalia:ambiente          # ambiente seguro para producao
+php artisan avalia:conferir          # fechamento, cobrancas, webhooks, trilha
+php artisan avalia:conferir-exclusao --email= --empresa=
+php artisan avalia:exportar          # copia do banco, sem mysqldump
+php artisan avalia:importar          # restaura o que avalia:exportar gerou
+```
 
-    composer run test
-    vendor/bin/pint
-    npm run build
+Existem com nome proprio porque producao nao tem SSH: o unico caminho e cron, e
+o campo de comando do provedor nao aceita aspas em tres niveis. Detalhe na
+[DEPLOY.md](DEPLOY.md).
 
-Os testes devem usar uma base isolada. Nunca execute migrações destrutivas ou
-testes apontando para uma base de produção.
+## Onde as coisas ficam
 
-## Estrutura
+```
+app/Actions/<Modulo>/   uma regra de negocio por classe, transacional
+app/Support/            calculo puro, sem banco (Dinheiro, Margem, Comissao)
+app/Services/Conectores/ bureau externo, atras de contrato
+resources/views/        telas Blade
+resources/css/app.css   @utility do tema, o vocabulario da casa
+database/migrations/    schema; migration nao reescreve historia
+tests/                  Pest, um arquivo por assunto
+temp/                   referencia para transcricao, nunca fonte em runtime
+```
 
-    app/                    Código da aplicação
-    database/migrations/    Schema do banco de dados
-    resources/views/        Telas Blade
-    routes/                 Rotas web e comandos agendados
-    tests/                  Testes Pest
-    PDD.md                  Especificação de produto
-    temp/                   Documentos de referência e tabelas de preço
+Dinheiro em centavos inteiros do banco ate a tela, e preco e custo gravados na
+emissao. Essas duas sustentam o faturamento inteiro; a [PDD.md](PDD.md) diz por
+que.
 
-O diretório `temp/` contém arquivos de referência usados para transcrição de
-preços e contratos. Ele não deve ser usado como fonte de dados em runtime.
+## Documentos
 
-## Produção
+| Arquivo | Assunto |
+|---|---|
+| [PDD.md](PDD.md) | regra de negocio, papeis, precos, decisoes pendentes |
+| [PLANO-FINANCEIRO.md](PLANO-FINANCEIRO.md) | avaliacao ERP/CRM e para onde o financeiro vai |
+| [DEPLOY.md](DEPLOY.md) | publicar sem SSH |
+| [PRECOS-FORNECEDOR.md](PRECOS-FORNECEDOR.md) | custo de aquisicao, provisorio |
+| [AUDITORIA.md](AUDITORIA.md) | achados da auditoria de 29/09/2026 |
 
-- Use HTTPS, APP_DEBUG=false e variáveis de ambiente seguras.
-- Execute workers de fila e o agendador quando os módulos assíncronos estiverem ativos.
-- Faça backup do PostgreSQL e teste a restauração periodicamente.
-- Gere os ativos com npm run build e otimize o Laravel no deploy.
+Como se escreve codigo e tela: skills `padroes` e `enxugar`, em
+`.claude/skills/`.
 
-## Avalia 360 (cobrança)
+## Licenca
 
-O Avalia 360 é a estrutura de venda parcelada em boleto e Pix da Avalia One.
-A fase entregue é a captação: a página pública e o pré-cadastro de produtor.
-
-Rotas:
-
-    GET  /cobranca                 apresentação do produto
-    POST /cobranca/pre-cadastro    pré-cadastro, com teto de 10 por minuto
-
-Para rodar só os testes do módulo:
-
-    vendor/bin/pest --filter=Cobranca
-
-O pré-cadastro grava em `interessados_cobranca` e avisa por e-mail o endereço
-de `config/empresa.php`. Nenhuma variável de ambiente nova foi introduzida:
-o envio usa a configuração de e-mail que já existe, e o destinatário sai do
-cadastro da empresa.
-
-Documento e WhatsApp são gravados cifrados (cast `encrypted`), então dependem
-de `APP_KEY`. Trocar a chave da aplicação torna esses campos ilegíveis, sem
-erro visível na tela: quem for rotacionar `APP_KEY` precisa reescrever esses
-registros antes.
-
-### Modelo de dados
-
-    produtores           quem vende parcelado; guarda a subconta no provedor
-      +- produtos_360    o que ele vende
-           +- ofertas_360    condições de venda (valor, parcelas, entrada, slug)
-                +- pedidos_360    a venda, com preço e taxa COPIADOS da oferta
-                     +- parcelas_360      número 0 é a entrada
-                     +- lancamentos_360   o razão, imutável
-
-Regras que o schema carrega:
-
-- **Preço e taxa são copiados** da oferta para o pedido na compra. Reajuste de
-  hoje não mexe em venda de ontem, a mesma regra que vale para consulta e
-  fatura no resto do sistema.
-- **A parcela só nasce depois de `efetivado`**, que exige contrato assinado e
-  entrada confirmada (`Pedido360::podeParcelar()`). Emitir boleto antes disso é
-  cobrar por um contrato que ninguém assinou.
-- **O razão é imutável**: `lancamentos_360` não tem `updated_at`, e estorno é
-  lançamento de sinal contrário. Saldo não é coluna em lugar nenhum, é a soma
-  da tabela.
-- **Os quatro lançamentos de um pagamento somam zero** (bruto, taxa do
-  provedor, taxa da plataforma, repasse). É a invariante que pega erro de
-  arredondamento sem ninguém reconferir extrato: `tests/Unit/RateioTest.php`.
-- **O split vai em percentual**, não em valor: se a cobrança mudar de valor
-  depois de criada, a divisão continua certa.
-- **Vencido vem do provedor**, não do nosso calendário. Relógio de servidor
-  decidindo dinheiro é como nasce divergência com o extrato.
-
-O dado pessoal do cliente final mora no pedido, cifrado, e não vira cadastro:
-quem compra de um produtor não entra na base da Avalia One.
-
-Testes da fase: `vendor/bin/pest --filter=Cobranca360` e `--filter=Rateio`.
-Nenhum deles fala com o provedor de verdade; a integração é mockada com
-`Http::fake`, porque teste que cria cobrança real cria cobrança que ninguém
-apaga.
-
-## Licença
-
-Consulte [LICENSE](LICENSE).
+[LICENSE](LICENSE).

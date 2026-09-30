@@ -1,11 +1,23 @@
 # Documento de Produto: Avalia
 
-Revisão de 29/09/2026 · escrita contra o commit `7a9b2bf` · substitui a versão
-anterior, que descrevia apenas o produto de consultas.
+Revisão de 29/09/2026. Descreve o que existe, o que está decidido e o que falta
+decidir. Onde uma regra ainda não foi implementada, está dito; onde depende de
+decisão comercial, está na seção 14.
 
-Este documento descreve o que existe, o que está decidido e o que falta decidir.
-Onde uma regra ainda não foi implementada, está dito. Onde depende de decisão
-comercial, está na seção 14.
+**Aqui fica a regra de negócio, e só ela.** O resto tem endereço próprio:
+
+| Assunto | Onde |
+|---|---|
+| Rodar o projeto | `README.md` |
+| Publicar | `DEPLOY.md` |
+| Para onde o financeiro vai | `PLANO-FINANCEIRO.md` |
+| Custo do fornecedor | `PRECOS-FORNECEDOR.md` |
+| Como se escreve código e tela | skill `padroes`, skill `enxugar` |
+| Estado medido do repositório | `php vendor/bin/pest`, `php artisan avalia:inventario` |
+
+A última linha é decisão: a versão anterior trazia uma seção com contagem de
+rotas, models e testes, datada num commit. Ela nasceu errada no dia seguinte, e
+quem quer o número tem o comando.
 
 ---
 
@@ -407,6 +419,15 @@ saídas saem negativas. Conferir um pedido é somar a coluna.
 A sobra da divisão fica com o produtor: um centavo a mais na parte maior nunca gerou
 reclamação; um centavo a menos no repasse, sim.
 
+**A parcela só nasce depois de `efetivado`**, que exige contrato assinado e entrada
+confirmada (`Pedido360::podeParcelar()`). Emitir boleto antes disso é cobrar por um
+contrato que ninguém assinou.
+
+**O razão do Gestor é imutável**: `lancamentos_360` não tem `updated_at`, e estorno
+é lançamento de sinal contrário. Saldo não é coluna em lugar nenhum, é a soma da
+tabela. Essa é a regra que a `PLANO-FINANCEIRO.md` generaliza para o resto do
+sistema, onde resultado ainda mora como coluna em `faturas`.
+
 ### Situação da parcela
 
 A situação segue **o que o provedor informa por webhook**, e não o calendário.
@@ -702,14 +723,10 @@ unitário do catálogo vira rateio estimado, e a margem real do mês depende do 
 Ratear a mensalidade pelas consultas informa custo atribuído, mas não cria despesa
 nova. Com zero consultas o custo fixo continua existindo, e não se divide por zero.
 
-### O que já existe e o que falta
+### O que falta
 
-Existe: plano de contas, sócios, as nove naturezas, o razão com a invariante de
-soma zero, estorno com motivo, a tela com caixa, saldo por sócio, resultado do mês
-e extrato.
-
-Falta: comprovante anexado, conciliação contra extrato bancário, orçamento e
-projeção de caixa.
+Comprovante anexado, conciliação contra extrato bancário, orçamento e projeção de
+caixa. A ordem em que isso entra está na `PLANO-FINANCEIRO.md`.
 
 ### A ligação com o financeiro, e por que ela tem uma direção só
 
@@ -768,25 +785,14 @@ resto é constante em código, e mudar exige publicar versão.
 
 Para uma operação que negocia contrato a contrato, isso é rígido demais.
 
-Cada Diretiva precisa de chave estável, descrição, tipo, unidade, limites, padrão,
-escopo, exceção permitida, vigência, permissão de leitura e alteração, autor, motivo
-e auditoria. Teto diário, por exemplo, faz mais sentido por empresa do que global.
+Um cadastro de Diretivas com vigência, autor e motivo é pendência, não desenho
+fechado.
 
-**Retenção e validade de convite não são preferência comercial**: são compromisso
-legal e de segurança. Entram como leitura, ou com trava de faixa.
+**Retenção da resposta e validade do convite não são preferência comercial**: são
+compromisso legal e de segurança, e entram como leitura ou com trava de faixa.
 
-Alterar Diretiva hoje não recalcula fatura histórica. Exceção comercial não desativa
+Alterar Diretiva não recalcula fatura histórica, e exceção comercial não desativa
 trava de segurança.
-
-### Três objetos que não se confundem
-
-1. **Política interna**: versão, responsável, público, aprovação.
-2. **Documento contratual**: versão publicada, conteúdo preservado, hash, evidência
-   de aceite por pessoa.
-3. **Parâmetro executável**: schema, validação, vigência, efeito testado.
-
-Texto livre não vira regra executável. Mudança em documento não altera preço nem
-autorização em silêncio.
 
 ---
 
@@ -844,17 +850,8 @@ aplicação responder a si mesma durante a publicação.
 ## 13. Operação
 
 Hospedagem compartilhada da Hostinger, MySQL, sem npm e sem composer no servidor.
-`public/build` é versionado porque o front precisa chegar pronto.
-
-A publicação roda `deploy.sh`: tira do ar, busca a versão, roda migrations, refaz
-caches, confere o ambiente e sobe. Fora do ar por cerca de 7 segundos.
-
-O cron do hPanel bate por minuto; o aquecimento mitiga a partida fria da hospedagem
-compartilhada, que era a causa do "logout lento".
-
-Cópia do banco sai por `avalia:exportar`, sem depender de `pg_dump`, e a rotina das
-02:00 envia a cópia comprimida para fora da máquina. Falha de envio mantém a cópia
-local e termina em erro, para aparecer no log.
+`public/build` é versionado porque o front precisa chegar pronto. O resto está na
+`DEPLOY.md`.
 
 ---
 
@@ -912,114 +909,3 @@ homologação separado, antivírus em upload, BI com coorte e tendência.
 
 **Módulo de projeto para os serviços de software** também fica de fora: é trabalho
 fechado por contrato, e não há volume que justifique tela.
-
----
-
-## 15. Estado do repositório
-
-Medido no commit `7a9b2bf`, em 29/09/2026.
-
-| | |
-|---|---|
-| Stack | Laravel 12.26.4, PHP 8.5, MySQL em produção, SQLite em teste |
-| Rotas web | 167 |
-| Migrations | 62 |
-| Models | 34 |
-| Actions | 41 |
-| Testes | **929**, 3371 asserções, 0 falhas, 21,7s |
-
-A versão anterior deste documento afirmava 460 testes.
-
-### Onde cada coisa mora
-
-| Camada | Responsabilidade |
-|---|---|
-| `routes/` | Só declaração. Grupo por guard e por papel. |
-| `Http/Controllers` | Fluxo HTTP. Sem regra de negócio. |
-| `Http/Requests` | Validação e normalização da entrada. |
-| `Actions/<Modulo>` | Uma regra de negócio, classe com `__invoke`, transacional. |
-| `Support` | Cálculo, testável isolado. |
-| `Enums` | Conjunto fechado, com `rotulo()` e `tentar()`. |
-| `Models` | Persistência, relações e leitura para tela. |
-| `Services/Conectores` | Integração com bureau, atrás de contrato. |
-
-Dinheiro vive em `Support`: `Dinheiro`, `Margem`, `Comissao`, `RepartePlaquinha`,
-`Rateio`, `Simulacao`. Regra que grava vive em `Actions`.
-
-### O que não existe
-
-Credencial e homologação de bureau (o código está pronto); ciclo real de cobrança
-Asaas em produção; pagamento de repasse com baixa; assinatura eletrônica.
-
-O módulo de gestão financeira dos sócios passou a existir em 29/09/2026, com o que
-a seção 10 descreve.
-
----
-
-## Anexo A. Preços de referência: crédito
-
-> Transcrito da tabela de crédito do fornecedor (`temp/`). Valores unitários
-> em reais, por faixa de consumo mínimo contratada. Provisórios até homologação
-> comercial.
-
-| Serviço | Sem mínimo | 75 | 200 | 500 | 900 | 1.500 | 5.000 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Cheques sem fundos - Banco Central PF/PJ | 2,09 | 1,88 | 1,70 | 1,53 | 1,37 | 1,24 | 0,98 |
-| Ações judiciais - nacional PF/PJ | 5,94 | 5,22 | 4,60 | 4,05 | 3,56 | 3,13 | 2,34 |
-| SCPC BVS PF/PJ - Base III | 6,31 | 5,94 | 5,58 | 5,24 | 4,93 | 4,63 | 3,70 |
-| Relatório Plus PF/PJ + cartórios e CCF Bacen - Base III | 7,81 | 7,42 | 7,05 | 6,70 | 6,36 | 6,04 | 5,40 |
-| Crédito Net Básica PF/PJ - Base I | 15,93 | 15,13 | 14,37 | 13,66 | 12,97 | 12,32 | 10,97 |
-| Mix PF/PJ - Base I e II | 18,52 | 17,41 | 16,37 | 15,39 | 14,46 | 13,60 | 12,01 |
-| Crédito Net PF/PJ - Base I e III | 18,97 | 17,83 | 16,76 | 15,75 | 14,81 | 13,92 | 12,26 |
-| Crédito Net Top + cartórios e CCF Bacen - Base I e III | 21,91 | 20,59 | 19,36 | 18,20 | 17,10 | 16,08 | 14,21 |
-| Relatório Score Positivo + filtros - Base III | 9,93 | 9,44 | 8,97 | 8,52 | 8,09 | 7,69 | 6,94 |
-| Risco de Crédito Top PF/PJ + filtros - Base I | 20,95 | 19,69 | 18,51 | 17,40 | 16,36 | 15,38 | 13,59 |
-| Relatório Top PF/PJ + filtros - Base I e III | 28,57 | 27,43 | 26,33 | 25,28 | 24,27 | 23,30 | 21,25 |
-| Relatório Top + SCR Bacen - Base I e III | 44,50 | 40,94 | 37,67 | 34,65 | 31,88 | 29,33 | 26,99 |
-| Maxi Top PF/PJ + score e filtros - Base I e II | 28,15 | 27,03 | 25,95 | 24,91 | 23,91 | 22,96 | 20,94 |
-| Relatório Prime Básica + cartórios e CCF Bacen - Base I, II e III | 26,70 | 25,10 | 23,59 | 22,18 | 20,85 | 19,60 | 17,09 |
-| Relatório Prime Completa + filtros - Base I, II e III | 37,05 | 35,20 | 33,44 | 31,77 | 30,18 | 28,67 | 25,60 |
-| Relatório Prime Completa + SCR Bacen - Base I, II e III | 52,89 | 48,66 | 44,77 | 41,18 | 37,89 | 34,86 | 32,42 |
-| SCR Bacen + score PF/PJ | 20,03 | 18,83 | 17,70 | 16,64 | 15,64 | 14,70 | 12,99 |
-| Cadastro especial PF - endereço, telefone, e-mail, trabalho, renda | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
-| Cadastro especial PJ - dados da empresa, sócios, regime fiscal, faturamento | 3,03 | 2,73 | 2,46 | 2,21 | 1,99 | 1,79 | 1,45 |
-| Telefones por CPF/CNPJ | 1,11 | 1,00 | 0,90 | 0,81 | 0,73 | 0,66 | 0,53 |
-| Endereços por CPF/CNPJ | 1,11 | 1,00 | 0,90 | 0,81 | 0,73 | 0,66 | 0,53 |
-| InfoBusca por CPF/CNPJ - telefone, endereço e e-mails | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
-| InfoBusca por nome (mostra CPF) | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
-| Localizador por telefone (mostra nome e CPF/CNPJ) | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
-| Localizador por CEP (mostra nomes e CPF/CNPJ) | 2,07 | 1,86 | 1,67 | 1,51 | 1,36 | 1,22 | 0,99 |
-| Negativação | 17,90 | 17,90 | 17,90 | 17,90 | 17,90 | 17,90 | 17,90 |
-
-Os filtros extras citados nos nomes são score, faturamento e renda presumida,
-pontualidade de pagamento, balanço máximo e mínimo, quantidade de funcionários,
-endereços, telefones, pessoas de contato, cartórios e Bacen direto.
-
-## Anexo B. Preços de referência: veicular
-
-> Transcrito da tabela veicular do fornecedor (`temp/`). Mesmas regras do
-> anexo A.
-
-| Serviço | Sem mínimo | 75 | 200 | 500 | 900 | 1.500 | 5.000 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Localiza veículos por CPF/CNPJ | 21,56 | 20,48 | 19,46 | 18,49 | 17,56 | 16,68 | 14,26 |
-| Histórico de proprietário (somente São Paulo) | 14,30 | 13,87 | 13,45 | 13,05 | 12,66 | 12,28 | 11,55 |
-| Proprietário atual | 5,94 | 5,76 | 5,59 | 5,42 | 5,26 | 5,10 | 4,80 |
-| Agregados | 3,63 | 3,52 | 3,42 | 3,31 | 3,21 | 3,12 | 2,93 |
-| RenaJud | 10,55 | 10,13 | 9,73 | 9,34 | 8,96 | 8,61 | 7,93 |
-| RenaInf - infrações completa | 8,97 | 8,61 | 8,27 | 7,94 | 7,62 | 7,31 | 6,74 |
-| CRLV - documento de licenciamento | 23,78 | 23,07 | 22,37 | 21,70 | 21,05 | 20,42 | 19,21 |
-| BIN - base estadual e nacional | 5,96 | 5,72 | 5,49 | 5,27 | 5,06 | 4,86 | 4,48 |
-| Leilão - Base I | 11,94 | 11,58 | 11,23 | 10,89 | 10,57 | 10,25 | 9,54 |
-| Leilão conjugado completo + score do veículo - Base II | 21,95 | 21,29 | 20,65 | 20,03 | 19,43 | 18,84 | 17,55 |
-| CSV - certificado de segurança veicular | 7,95 | 7,71 | 7,48 | 7,25 | 7,03 | 6,82 | 6,35 |
-| Histórico de roubo e furto | 7,99 | 7,67 | 7,37 | 7,07 | 6,79 | 6,52 | 5,94 |
-| Gravame indicativo | 7,95 | 7,63 | 7,32 | 7,03 | 6,75 | 6,48 | 5,97 |
-| Gravame indicativo + agregados | 11,00 | 10,56 | 10,14 | 9,73 | 9,34 | 8,97 | 8,27 |
-| Confere RG/CNH | 5,88 | 5,70 | 5,53 | 5,37 | 5,21 | 5,05 | 4,75 |
-| Precificador / decodificador | 5,95 | 5,77 | 5,60 | 5,43 | 5,27 | 5,11 | 4,81 |
-| VIP Car - informação completa do veículo | 55,30 | 53,64 | 52,03 | 50,47 | 48,96 | 47,49 | 44,68 |
-
-> Os preços acima foram transcritos quando a alíquota vigente era 8,60%. Com
-> 13,50%, o piso de cada linha subiu: conferir contra `Margem::pisoCents` antes
-> de homologar. Ver a seção 4, "Margem e piso".
