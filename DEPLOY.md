@@ -256,6 +256,27 @@ Para publicar à mão, é o mesmo arquivo:
 ssh avalia@SEU_IP 'cd /var/www/avalia && ./deploy.sh'
 ```
 
+### Sem commit novo, ele não faz nada
+
+Primeira coisa que o script faz é `git fetch` e comparar `HEAD` com
+`origin/main`. Iguais, ele imprime `nada novo em <sha>, o site nem sai do ar` e
+termina com sucesso. **Isso não é falha.**
+
+Existe porque o cron de publicação bate de minuto em minuto e o script tirava o
+site do ar antes de olhar se havia o que publicar: eram 4 a 6 segundos de 503 a
+cada minuto, 7% do tempo, medidos em 01/10/2026. O `fetch` não mexe no que está
+publicado, então comparar antes é o que torna a batida de minuto inofensiva.
+
+Para publicar sem commit novo, quando só os caches precisam ser refeitos:
+
+```bash
+./deploy.sh --forcar
+```
+
+`AVALIA_FORCAR=1` tem o mesmo efeito, para quem chama por cron.
+
+### O que ele desfaz, e o que não
+
 O `deploy.sh` volta sozinho para a versão anterior se qualquer passo falhar,
 incluindo o `avalia:ambiente`. O que ele **não** desfaz é o banco: migration
 aplicada continua aplicada.
