@@ -61,6 +61,9 @@ class MenuHelper
             // socios. Item proprio e so de admin: o vendedor entra no QR
             // dinamico ao lado e ve o que e dele.
             ['icon' => 'charts', 'name' => 'Vendas QR', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
+            // A base de clientes da frente de marketing: hoje plaquinha e perfil
+            // no Google, e o que vier depois usa o mesmo cadastro.
+            ['icon' => 'user-profile', 'name' => 'Negócios', 'path' => '/negocios', 'papeis' => ['admin']],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }

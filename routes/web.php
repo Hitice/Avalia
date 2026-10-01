@@ -6,6 +6,7 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RecuperacaoController;
 use App\Http\Controllers\Auth\SenhaController;
+use App\Http\Controllers\CadastroNegocioController;
 use App\Http\Controllers\CalculadoraController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\CarteiraController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\NegociosController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
@@ -167,6 +169,18 @@ Route::get('/credito', CreditoController::class)->name('credito');
  */
 Route::get('/cobranca', [CobrancaController::class, 'mostrar'])->name('cobranca');
 
+/*
+ * O cadastro do negocio local, preenchido pelo proprio cliente.
+ *
+ * Link que o vendedor manda por WhatsApp, com `?origem=` para saber quem
+ * distribuiu. Aberto pela mesma razao do checkout: pedir conta antes de pedir o
+ * nome da loja e nao receber nada.
+ */
+Route::get('/cadastro', [CadastroNegocioController::class, 'mostrar'])->name('cadastro-negocio');
+
+Route::post('/cadastro', [CadastroNegocioController::class, 'cadastrar'])
+    ->middleware('throttle:10,1')
+    ->name('cadastro-negocio.enviar');
 /*
  * O checkout de uma oferta do Avalia Gestor.
  *
@@ -462,6 +476,16 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
      * chamada "vendas". Fora do grupo tambem, porque aquele abre para cliente e
      * produtor e esta tela mostra a margem da casa.
      */
+    /*
+     * A base de negocios da frente de marketing.
+     *
+     * `admin` e nao `vendedor`: a lista mostra e-mail e telefone de todos os
+     * clientes da casa, e vendedor ve o que e dele no QR dinamico ao lado.
+     */
+    Route::middleware('admin')->group(function () {
+        Route::get('/negocios', [NegociosController::class, 'index'])->name('negocios');
+        Route::put('/negocios/{negocio}', [NegociosController::class, 'atualizar'])->name('negocios.atualizar');
+    });
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
         ->middleware('admin')->name('plaquinhas.vendas');
 

@@ -103,6 +103,10 @@ final class Rotulos
         'consulta.laudo_emitido' => 'Laudo de consulta emitido',
         'preco.alvo' => 'Preço subiu para a margem alvo',
         'servico.produto_sugerido' => 'Produto do fornecedor preenchido por sugestão',
+        // Frente de marketing: o negocio local e a base que os produtos usam.
+        'negocio.cadastrado' => 'Negócio cadastrado pelo link',
+        'negocio.situacao' => 'Situação do negócio alterada',
+
         'etiquetas.lote.gerado' => 'Campanha de etiquetas gerada',
         'etiquetas.avulsa.criada' => 'Código dinâmico avulso criado',
         'etiquetas.vendida' => 'Etiqueta cadastrada e posta no ar',

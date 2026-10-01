@@ -17,12 +17,22 @@ beforeEach(function () {
     $this->seed(Database\Seeders\ContasFinanceirasSeeder::class);
 });
 
+/*
+ * A competencia padrao e a de HOJE, e nao uma data escrita a mao.
+ *
+ * `ExcluirLancamento` so aceita apagar na competencia corrente, entao com mes
+ * fixo estes testes passavam em setembro e quebravam sozinhos em 01/10/2026,
+ * sem ninguem ter mexido em nada. Teste que depende do calendario mente sobre
+ * o que esta certo no codigo.
+ *
+ * Onde o assunto E a competencia antiga, o proprio teste passa a sua.
+ */
 function lancar(NaturezaLancamento $natureza, array $dados = []): LancamentoFinanceiro
 {
     return app(App\Actions\Socios\RegistrarLancamento::class)($natureza, array_merge([
         'descricao' => 'teste',
-        'competencia' => '2026-09',
-        'ocorrido_em' => '2026-09-15',
+        'competencia' => now()->format('Y-m'),
+        'ocorrido_em' => now()->toDateString(),
         'valor_cents' => 10_000,
     ], $dados));
 }
@@ -196,7 +206,7 @@ it('devolve o saldo ao ponto de partida', function () {
 it('lanca o estorno na competencia de hoje, e nao na do original', function () {
     // Mes fechado continua com o numero que teve; a correcao pertence ao mes em
     // que foi decidida.
-    $lancamento = lancar(NaturezaLancamento::Despesa, ['competencia' => '2026-01']);
+    $lancamento = lancar(NaturezaLancamento::Despesa, ['competencia' => now()->subMonths(3)->format('Y-m')]);
 
     expect(estornar($lancamento)->competencia)->toBe(now()->format('Y-m'));
 });
@@ -465,7 +475,7 @@ it('guarda na trilha o que o razao perde', function () {
 
 it('nao apaga lancamento de competencia anterior', function () {
     // Mes anterior pode ja ter sido conferido.
-    $antigo = lancar(NaturezaLancamento::Despesa, ['competencia' => '2026-01']);
+    $antigo = lancar(NaturezaLancamento::Despesa, ['competencia' => now()->subMonths(3)->format('Y-m')]);
 
     expect(fn () => apagar($antigo))->toThrow(Recusa::class)
         ->and(LancamentoFinanceiro::count())->toBe(1);
@@ -491,7 +501,7 @@ it('nao apaga estorno nem lancamento ja estornado', function () {
 it('so oferece o botao de apagar quando ele funciona', function () {
     // Botao que sempre recusa ensina o operador a nao clicar em botao nenhum.
     $atual = lancar(NaturezaLancamento::Despesa);
-    $antigo = lancar(NaturezaLancamento::Despesa, ['competencia' => '2026-01']);
+    $antigo = lancar(NaturezaLancamento::Despesa, ['competencia' => now()->subMonths(3)->format('Y-m')]);
     $daFatura = lancar(NaturezaLancamento::Receita, ['origem_tipo' => 'fatura', 'origem_id' => 3]);
 
     expect($atual->podeSerApagado())->toBeTrue()
