@@ -84,13 +84,32 @@ if [ -z "${AVALIA_COM_TRAVA:-}" ]; then
     exec flock -n "$HOME/.avalia-deploy.lock" "$0" "$@"
 fi
 
+# Nada novo, nada de manutencao.
+#
+# O cron de publicacao bate de minuto em minuto, e ate 01/10/2026 este script
+# tirava o site do ar ANTES de olhar se havia commit novo. Resultado: a cada
+# minuto o site passava 4 a 6 segundos devolvendo 503, mesmo sem nada para
+# publicar, e isso e 7% do tempo. Medido de fora, a falha caia sempre entre os
+# segundos 06 e 12; o `git reflog` do servidor mostrava `reset: moving to
+# origin/main` repetindo com o MESMO commit minuto apos minuto.
+#
+# O `fetch` sai barato e nao mexe no que esta no ar. Comparar antes e o que
+# transforma a batida de minuto em algo inofensivo.
+echo "==> Conferindo se ha versao nova"
+git fetch --quiet origin main
+
+if [ -z "${AVALIA_FORCAR:-}" ] && [ "${1:-}" != "--forcar" ] \
+    && [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
+    echo "    nada novo em $(git rev-parse --short HEAD), o site nem sai do ar"
+    exit 0
+fi
+
 echo "==> Tirando do ar"
 # `|| true` porque `down` falha quando ja esta em manutencao, e uma publicacao
 # repetida depois de erro nao pode parar por causa disso.
 php artisan down --render=errors::503 --retry=15 || true
 
-echo "==> Buscando a versao nova"
-git fetch --quiet origin main
+echo "==> Trazendo a versao nova"
 git reset --hard --quiet origin/main
 echo "    $(git rev-parse --short HEAD)  $(git log -1 --format=%s)"
 
