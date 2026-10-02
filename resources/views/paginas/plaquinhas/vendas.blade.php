@@ -4,12 +4,14 @@
     use App\Support\Dinheiro;
 
 
-    // As linhas do negocio, na ordem em que o dinheiro sai.
+    // As linhas do negocio, na ordem em que o dinheiro sai. A classe da bolinha
+    // vai literal: montada em tempo de execucao o Tailwind nao a gera, e a
+    // legenda saiu sem cor durante semanas sem ninguem perceber.
     $linhas = [
-        ['rotulo' => 'Receita', 'chave' => 'bruto', 'serie' => null, 'sinal' => ''],
-        ['rotulo' => 'Custo das placas', 'chave' => 'custo', 'serie' => 3, 'sinal' => '−'],
-        ['rotulo' => 'Comissões', 'chave' => 'comissao', 'serie' => 2, 'sinal' => '−'],
-        ['rotulo' => 'Lucro', 'chave' => 'lucro', 'serie' => 1, 'sinal' => ''],
+        ['rotulo' => 'Receita', 'chave' => 'bruto', 'ponto' => null, 'sinal' => ''],
+        ['rotulo' => 'Custo das placas', 'chave' => 'custo', 'ponto' => 'ponto-serie-3', 'sinal' => '−'],
+        ['rotulo' => 'Comissões', 'chave' => 'comissao', 'ponto' => 'ponto-serie-2', 'sinal' => '−'],
+        ['rotulo' => 'Lucro', 'chave' => 'lucro', 'ponto' => 'ponto-serie-1', 'sinal' => ''],
     ];
 @endphp
 
@@ -75,8 +77,8 @@
                         <tr @class(['bg-gray-50/60 dark:bg-gray-800/40' => $ehLucro])>
                             <td class="tabela-td">
                                 <span class="flex items-center gap-2 {{ $ehLucro ? 'font-medium text-gray-800 dark:text-white/90' : 'text-gray-600 dark:text-gray-300' }}">
-                                    @if ($linha['serie'])
-                                        <span class="ponto-serie-{{ $linha['serie'] }} size-2.5 shrink-0 rounded-full"></span>
+                                    @if ($linha['ponto'])
+                                        <span class="{{ $linha['ponto'] }} size-2.5 shrink-0 rounded-full"></span>
                                     @else
                                         <span class="size-2.5 shrink-0"></span>
                                     @endif

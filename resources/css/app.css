@@ -499,15 +499,7 @@
   @apply fill-brand-500;
 }
 
-@utility serie-2 {
-  @apply fill-orange-500 dark:fill-orange-600;
-}
-
-@utility serie-3 {
-  @apply fill-theme-purple-500;
-}
-
-/* As mesmas tres como fundo, para a bolinha da legenda. */
+/* As cores das series como fundo, para a bolinha da legenda. */
 @utility ponto-serie-1 {
   @apply bg-brand-500;
 }
@@ -963,10 +955,6 @@
 /* A caixinha que carrega o icone no topo de cada bloco. */
 @utility icone-caixa {
   @apply bg-brand-50 text-brand-600 inline-flex size-11 items-center justify-center rounded-xl;
-}
-
-@utility icone-caixa-claro {
-  @apply bg-white/10 text-white;
 }
 
 /* Trilho de termos que corre sem fim no pe do heroi. Sao dois grupos
