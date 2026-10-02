@@ -54,18 +54,6 @@ final class Marca
         'M1572.31 715.91c0,-34.9 -28.3,-63.2 -63.2,-63.2 -34.91,0 -63.2,28.3 -63.2,63.2 0,34.9 28.29,63.2 63.2,63.2 34.9,0 63.2,-28.3 63.2,-63.2z',
     ];
 
-    /** O par de magenta da faixa principal, o mesmo do nome escrito. */
-    public static function magenta(): array
-    {
-        return [self::FAIXAS[2][4], self::FAIXAS[2][5]];
-    }
-
-    /** O par de azul da faixa principal, para o nome escrito no tema escuro. */
-    public static function noite(): array
-    {
-        return self::NOITE[2];
-    }
-
     /** O prefixo evita id repetido quando a marca aparece duas vezes na pagina. */
     public static function arco(string $prefixo = 'marca'): string
     {

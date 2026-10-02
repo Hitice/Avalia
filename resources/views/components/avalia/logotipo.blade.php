@@ -50,13 +50,13 @@
     </svg>
 
     @unless ($somenteIcone)
-        {{-- O lockup e um so: o nome da casa no magenta do desenho e, quando a
-             tela pertence a um produto, o sufixo dele em cinza ao lado, como o
-             "One" do original. Sobre fundo claro o cinza do desenho sumiria,
+        {{-- O lockup e um so: o nome da casa no degrade de bureau, o mesmo do
+             "movimento." da home, e, quando a tela pertence a um produto, o
+             sufixo dele em cinza ao lado, como o "One" do original. Sobre fundo claro o cinza do desenho sumiria,
              por isso ele escurece. --}}
         <span class="leading-none font-semibold tracking-tight"
               style="font-size: {{ $texto ?? '1.35rem' }}">
-            <span class="nome-marca">{{ Empresa::marca() }}</span>{{-- O espaco antes do sufixo e escrito a mao porque o Blade come o
+            <span class="texto-bureau">{{ Empresa::marca() }}</span>{{-- O espaco antes do sufixo e escrito a mao porque o Blade come o
                  que houver entre as diretivas: sem ele a marca sai
                  "AvaliaOne", grudada, que e outro nome. --}}@if ($sufixo !== '')<span class="{{ $claro ? 'text-gray-200' : 'text-gray-400 dark:text-gray-200' }}">&nbsp;{{ $sufixo }}</span>@endif
         </span>

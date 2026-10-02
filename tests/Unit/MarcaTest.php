@@ -32,22 +32,18 @@ it('desenha o miolo do QR com o arco e o ponteiro de Marca, ponteiro preto', fun
         ->and($qr)->toMatch('/id="fundo"[^>]*fill="none"/');
 });
 
-it('escreve o nome no magenta do desenho', function () use ($raiz) {
-    $css = (string) file_get_contents($raiz.'/resources/css/app.css');
-    [$escura, $clara] = Marca::magenta();
+it('escreve o nome no degrade de bureau, o mesmo do "movimento." da home', function () use ($raiz) {
+    $logotipo = (string) file_get_contents($raiz.'/resources/views/components/avalia/logotipo.blade.php');
+    $login = (string) file_get_contents($raiz.'/resources/views/paginas/acesso/entrar.blade.php');
 
-    expect($css)->toContain("--color-marca-escura: {$escura};")
-        ->and($css)->toContain("--color-marca-clara: {$clara};");
+    expect($logotipo)->toContain('class="texto-bureau">{{ Empresa::marca() }}')
+        ->and($login)->toContain('class="texto-bureau">{{ App\\Support\\Empresa::marca() }}');
 });
 
 it('pinta os degraus de azul no tema escuro, no CSS e no favicon', function () use ($raiz) {
     $css = (string) file_get_contents($raiz.'/resources/css/app.css');
     $favicon = (string) file_get_contents($raiz.'/public/favicon.svg');
-    [$escura, $clara] = Marca::noite();
-
     expect($css)->toContain(Marca::regrasDaNoite('.dark '))
-        ->and($css)->toContain("--color-marca-noite-escura: {$escura};")
-        ->and($css)->toContain("--color-marca-noite-clara: {$clara};")
         ->and($css)->toContain('rotate(-'.Marca::VARREDURA_GRAUS.'deg)')
         ->and($css)->toContain('--lido: var(--nivel')
         ->and($css)->toContain('transform-origin: '.str_replace(' ', 'px ', Marca::EIXO).'px')

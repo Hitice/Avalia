@@ -50,12 +50,6 @@
   --color-white: #ffffff;
   --color-black: #101828;
 
-  /* O magenta do desenho da marca (App\Support\Marca), para o nome escrito. */
-  --color-marca-escura: #bb00bf;
-  --color-marca-clara: #f000e4;
-  --color-marca-noite-escura: #3641f5;
-  --color-marca-noite-clara: #7592ff;
-
   --color-brand-25: #f2f7ff;
   --color-brand-50: #ecf3ff;
   --color-brand-100: #dde9ff;
@@ -759,11 +753,6 @@
   to   { transform: scaleX(1); }
 }
 
-/* O nome escrito da marca: o magenta do desenho, azul no tema escuro. */
-@utility nome-marca {
-  @apply bg-linear-to-tr from-marca-escura to-marca-clara bg-clip-text text-transparent dark:from-marca-noite-escura dark:to-marca-noite-clara;
-}
-
 /* Os degraus do arco no tema escuro, gerados de App\Support\Marca::regrasDaNoite('.dark ');
    MarcaTest cobra que sejam os mesmos. */
 .dark .marca-de-1{stop-color:#9cb9ff}.dark .marca-para-1{stop-color:#dde9ff}.dark .marca-de-2{stop-color:#7592ff}.dark .marca-para-2{stop-color:#c2d6ff}.dark .marca-de-3{stop-color:#3641f5}.dark .marca-para-3{stop-color:#7592ff}.dark .marca-de-4{stop-color:#2a31d8}.dark .marca-para-4{stop-color:#465fff}
@@ -845,7 +834,7 @@
 }
 
 /* Texto na cor de bureau: o mesmo degrade rosa-azul da pontuacao, para
-   frases curtas de marca. */
+   frases curtas de marca e para o nome escrito no logotipo (02/10/2026). */
 @utility texto-bureau {
   background-image: linear-gradient(90deg, var(--color-theme-pink-500), var(--color-brand-500));
   background-clip: text;
