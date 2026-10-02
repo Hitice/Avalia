@@ -106,6 +106,7 @@ final class Rotulos
         // Frente de marketing: o negocio local e a base que os produtos usam.
         'negocio.cadastrado' => 'Negócio cadastrado pelo link',
         'negocio.situacao' => 'Situação do negócio alterada',
+        'negocio.link-avaliacao' => 'Link de avaliação do Google gerado',
 
         'etiquetas.lote.gerado' => 'Campanha de etiquetas gerada',
         'etiquetas.avulsa.criada' => 'Código dinâmico avulso criado',

@@ -57,6 +57,21 @@ final class Fornecedores
                 ],
             ],
 
+            'google' => [
+                'nome' => 'Google Maps Platform',
+                'categoria' => 'Marketing',
+                'descricao' => 'Acha o Place ID de um estabelecimento pelo nome, que é o que monta o link de avaliação do Google.',
+                'doc' => 'https://developers.google.com/maps/documentation/places/web-service/text-search',
+                'campos' => [
+                    // Uma chave so, e secreta: ela e cobrada por requisicao, e
+                    // chave vazada vira fatura de outra pessoa.
+                    ['chave' => 'api_key', 'rotulo' => 'Chave da API', 'secreto' => true,
+                        'ajuda' => 'Gerada no Google Cloud, em APIs e serviços > Credenciais, com a Places API (New) habilitada no projeto. Restrinja a chave a essa API: sem restrição, ela serve para qualquer serviço cobrado do Maps.'],
+                ],
+                'ambientes' => [
+                    'producao' => 'https://places.googleapis.com/v1',
+                ],
+            ],
             'serasa' => [
                 'nome' => 'Serasa Experian',
                 'categoria' => 'Bureau de crédito',

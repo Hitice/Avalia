@@ -24,6 +24,7 @@ class Negocio extends Model
     protected $fillable = [
         'nome', 'categoria', 'descricao', 'site', 'instagram',
         'responsavel', 'email', 'whatsapp', 'telefone', 'documento',
+        'place_id', 'link_avaliacao_id',
         'atende_no_endereco', 'cep', 'logradouro', 'numero', 'complemento',
         'bairro', 'cidade', 'uf', 'horarios',
         'situacao', 'origem', 'lead_id', 'staff_id',
@@ -47,6 +48,11 @@ class Negocio extends Model
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
+    }
+
+    public function linkAvaliacao(): BelongsTo
+    {
+        return $this->belongsTo(Link::class, 'link_avaliacao_id');
     }
 
     public function etiquetas(): HasMany

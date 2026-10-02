@@ -21,6 +21,75 @@
 
     @include('paginas.catalogo.avisos')
 
+    {{-- O servico: nome do estabelecimento entra, link curto de avaliacao sai.
+         Fica no topo porque e o pedido mais frequente do cliente de marketing, e
+         nao depende de ele estar na base. --}}
+    <div class="cartao mb-6 p-5">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Link de avaliação do Google</h2>
+        <p class="ajuda-campo mt-1">
+            Digite o nome como ele aparece no perfil do Google. A gente acha o Place ID,
+            monta o link de avaliação e devolve encurtado, pronto para o adesivo.
+        </p>
+
+        @if (session('linkPronto'))
+            <div class="aviso aviso-ok mt-4 flex flex-wrap items-center gap-3">
+                <span class="font-semibold">{{ session('linkPronto') }}</span>
+                <button type="button" class="botao botao-secundario botao-sm"
+                        onclick="navigator.clipboard.writeText('{{ session('linkPronto') }}')">Copiar</button>
+            </div>
+        @endif
+
+        @if (session('erro'))
+            <p class="aviso aviso-erro mt-4">{{ session('erro') }}</p>
+        @endif
+
+        <form method="POST" action="{{ route('negocios.avaliacao.buscar') }}"
+              class="mt-4 flex flex-wrap items-end gap-3">
+            @csrf
+
+            <div class="min-w-[18rem] flex-1">
+                <label for="nome-lugar" class="rotulo-campo">Nome do estabelecimento</label>
+                <input id="nome-lugar" name="nome" type="text" class="campo" required maxlength="150"
+                       value="{{ old('nome') }}" placeholder="Como está no Google Meu Negócio">
+                @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="min-w-[12rem]">
+                <label for="cidade-lugar" class="rotulo-campo">Cidade</label>
+                <input id="cidade-lugar" name="cidade" type="text" class="campo" maxlength="120"
+                       value="{{ old('cidade') }}" placeholder="Ajuda quando o nome repete">
+            </div>
+
+            <x-avalia.botao>Gerar link</x-avalia.botao>
+        </form>
+
+        {{-- Mais de um homonimo: quem conhece o cliente escolhe, porque link errado
+             manda a freguesia dele avaliar o concorrente. --}}
+        @if (session('lugares'))
+            <div class="mt-5">
+                <p class="rotulo-grupo">O Google achou mais de um. Qual é o seu cliente?</p>
+
+                <div class="mt-3 grid gap-2">
+                    @foreach (session('lugares') as $lugar)
+                        <form method="POST" action="{{ route('negocios.avaliacao.gerar') }}"
+                              class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-800">
+                            @csrf
+                            <input type="hidden" name="place_id" value="{{ $lugar['place_id'] }}">
+                            <input type="hidden" name="nome" value="{{ $lugar['nome'] }}">
+
+                            <span>
+                                <span class="font-medium text-gray-800 dark:text-white/90">{{ $lugar['nome'] }}</span>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">{{ $lugar['endereco'] }}</span>
+                            </span>
+
+                            <x-avalia.botao variante="secundario" class="botao-sm">É este</x-avalia.botao>
+                        </form>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    </div>
+
     <div class="cartao overflow-hidden">
         <form method="GET" class="barra-secao">
             <div class="min-w-[14rem] flex-1">
@@ -52,6 +121,7 @@
                         <th class="tabela-th text-left">Responsável</th>
                         <th class="tabela-th text-left">Onde</th>
                         <th class="tabela-th text-left">Falta</th>
+                        <th class="tabela-th text-left">Avaliação</th>
                         <th class="tabela-th text-right">Placas</th>
                         <th class="tabela-th text-left">Origem</th>
                         <th class="tabela-th text-left">Situação</th>
@@ -91,6 +161,25 @@
                                 @endif
                             </td>
 
+                            <td class="tabela-td">
+                                @if ($negocio->linkAvaliacao)
+                                    <a href="{{ route('l', ['codigo' => $negocio->linkAvaliacao->codigo]) }}"
+                                       class="text-brand-600 dark:text-brand-400" target="_blank" rel="noopener">
+                                        /l/{{ $negocio->linkAvaliacao->codigo }}
+                                    </a>
+                                    <span class="block text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $negocio->linkAvaliacao->cliques }} cliques
+                                    </span>
+                                @else
+                                    <form method="POST" action="{{ route('negocios.avaliacao.buscar') }}">
+                                        @csrf
+                                        <input type="hidden" name="nome" value="{{ $negocio->nome }}">
+                                        <input type="hidden" name="cidade" value="{{ $negocio->cidade }}">
+                                        <input type="hidden" name="negocio_id" value="{{ $negocio->id }}">
+                                        <x-avalia.botao variante="secundario" class="botao-sm">Gerar</x-avalia.botao>
+                                    </form>
+                                @endif
+                            </td>
                             <td class="tabela-td text-right tabular-nums">{{ $negocio->etiquetas_count }}</td>
                             <td class="tabela-td">{{ $negocio->origem ?: '—' }}</td>
 
@@ -118,7 +207,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="tabela-vazia">
+                            <td colspan="8" class="tabela-vazia">
                                 Nenhum negócio ainda. Mande o link de cadastro acima para o cliente preencher.
                             </td>
                         </tr>

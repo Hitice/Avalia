@@ -485,6 +485,13 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/negocios', [NegociosController::class, 'index'])->name('negocios');
         Route::put('/negocios/{negocio}', [NegociosController::class, 'atualizar'])->name('negocios.atualizar');
+
+        // O link de avaliacao do Google. Duas portas porque a busca pode voltar
+        // com mais de um homonimo, e ai quem conhece o cliente escolhe.
+        Route::post('/negocios/avaliacao/buscar', [NegociosController::class, 'buscarLugar'])
+            ->name('negocios.avaliacao.buscar');
+        Route::post('/negocios/avaliacao/gerar', [NegociosController::class, 'gerarLink'])
+            ->name('negocios.avaliacao.gerar');
     });
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
         ->middleware('admin')->name('plaquinhas.vendas');

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Negocios\GerarLinkDeAvaliacao;
 use App\Enums\SituacaoNegocio;
+use App\Exceptions\Recusa;
 use App\Models\Negocio;
+use App\Services\Google\BuscarLugar;
 use App\Support\Auditar;
 use Illuminate\Http\Request;
 
@@ -28,6 +31,7 @@ class NegociosController extends Controller
                 ->orWhere('responsavel', 'like', "%{$busca}%")
                 ->orWhere('cidade', 'like', "%{$busca}%")
                 ->orWhere('email', 'like', "%{$busca}%")))
+            ->with('linkAvaliacao:id,codigo,cliques')
             ->withCount('etiquetas')
             ->orderByDesc('created_at')
             ->paginate(30)
@@ -71,5 +75,70 @@ class NegociosController extends Controller
         Auditar::registrar('negocio.situacao', $negocio, ['situacao' => $situacao->value]);
 
         return back()->with('ok', $negocio->nome.': '.$situacao->rotulo().'.');
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | O link de avaliacao do Google
+    |--------------------------------------------------------------------------
+    |
+    | Pede o nome como ele aparece no perfil, acha o Place ID na Places API,
+    | monta o endereco de avaliacao e encurta. Em um passo quando o Google acha
+    | um so; com escolha quando acha mais de um, porque nome de loja repete e
+    | link errado manda a freguesia avaliar o concorrente.
+    */
+
+    public function buscarLugar(Request $pedido, BuscarLugar $buscar, GerarLinkDeAvaliacao $gerar)
+    {
+        $dados = $pedido->validate([
+            'nome' => ['required', 'string', 'max:150'],
+            'cidade' => ['nullable', 'string', 'max:120'],
+            'negocio_id' => ['nullable', 'integer', 'exists:negocios,id'],
+        ]);
+
+        $negocio = isset($dados['negocio_id']) ? Negocio::find($dados['negocio_id']) : null;
+
+        try {
+            $lugares = $buscar($dados['nome'], $dados['cidade'] ?? null);
+        } catch (Recusa $recusa) {
+            return back()->with('erro', $recusa->getMessage())->withInput();
+        }
+
+        // Um resultado nao pede confirmacao: pedir clique para escolher entre uma
+        // opcao so e passo que nao decide nada.
+        if (count($lugares) === 1) {
+            return $this->entregar($gerar, $lugares[0], $negocio);
+        }
+
+        return back()->with('lugares', $lugares)->withInput();
+    }
+
+    public function gerarLink(Request $pedido, GerarLinkDeAvaliacao $gerar)
+    {
+        $dados = $pedido->validate([
+            'place_id' => ['required', 'string', 'max:255'],
+            'nome' => ['required', 'string', 'max:150'],
+            'negocio_id' => ['nullable', 'integer', 'exists:negocios,id'],
+        ]);
+
+        $negocio = isset($dados['negocio_id']) ? Negocio::find($dados['negocio_id']) : null;
+
+        return $this->entregar($gerar, [
+            'place_id' => $dados['place_id'],
+            'nome' => $dados['nome'],
+        ], $negocio);
+    }
+
+    /** @param array{place_id: string, nome: string, endereco?: string} $lugar */
+    private function entregar(GerarLinkDeAvaliacao $gerar, array $lugar, ?Negocio $negocio)
+    {
+        try {
+            $link = $gerar($lugar['place_id'], $lugar['nome'], $negocio);
+        } catch (Recusa $recusa) {
+            return back()->with('erro', $recusa->getMessage())->withInput();
+        }
+
+        return back()
+            ->with('ok', $lugar['nome'].': link de avaliação pronto.')
+            ->with('linkPronto', route('l', ['codigo' => $link->codigo]));
     }
 }
