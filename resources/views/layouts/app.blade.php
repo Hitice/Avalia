@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=3" type="image/svg+xml">
     {{-- O painel inteiro fica fora de buscador. Estava so na casca das
          ferramentas; ao unificar, subiu para ca e passou a cobrir o CRM
          tambem, que nunca teve. --}}

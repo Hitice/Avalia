@@ -45,10 +45,10 @@ const VAO = LOGO + 4;
  * meio de mil arquivos.
  */
 const MARCA = [
-    '<path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="#fb6514" stroke-opacity="0.35" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
-    '<path d="M4.5 22.5A11.5 11.5 0 0 1 16 11" stroke="#fb6514" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
-    '<path d="M16 22.5 22.3 14.6" stroke="#fb6514" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
-    '<circle cx="16" cy="22.5" r="3" fill="#fb6514"/>',
+    '<path d="M4.5 22.5a11.5 11.5 0 0 1 23 0" stroke="#465fff" stroke-opacity="0.35" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
+    '<path d="M4.5 22.5A11.5 11.5 0 0 1 16 11" stroke="#465fff" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
+    '<path d="M16 22.5 22.3 14.6" stroke="#465fff" stroke-width="3.6" stroke-linecap="round" fill="none"/>',
+    '<circle cx="16" cy="22.5" r="3" fill="#465fff"/>',
 ].join('');
 
 /** O intervalo de modulos que o logo ocupa, no centro da grade. */
@@ -133,7 +133,10 @@ export function svg(texto, { mm = 30, nivel = 'H', logo = true, pixels = null } 
 
     return [
         `<svg xmlns="http://www.w3.org/2000/svg" ${medida} viewBox="0 0 ${lado} ${lado}" shape-rendering="crispEdges">`,
-        `<rect id="fundo" width="${lado}" height="${lado}" fill="#ffffff"/>`,
+        // Transparente: o codigo mostra a cor da peca, e nao um quadrado branco
+        // em cima dela (02/10/2026). A zona de silencio vem da propria peca. O
+        // elemento fica, com id, para quem quiser pintar o fundo no Corel.
+        `<rect id="fundo" width="${lado}" height="${lado}" fill="none"/>`,
         `<path d="${d}" fill="#000000" fill-rule="evenodd"/>`,
         logo ? miolo(lado) : '',
         '</svg>',
@@ -172,8 +175,8 @@ export async function png(texto, { pixels = 1200, nivel = 'H', logo = true } = {
     const pincel = tela.getContext('2d');
     const passo = pixels / lado;
 
-    pincel.fillStyle = '#ffffff';
-    pincel.fillRect(0, 0, pixels, pixels);
+    // Sem fundo branco: o canvas nasce transparente e o codigo mostra a cor
+    // da peca, igual ao SVG (02/10/2026).
     pincel.fillStyle = '#000000';
 
     const vao = logo ? vaoDoMiolo(n) : null;

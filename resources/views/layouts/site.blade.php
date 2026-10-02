@@ -43,8 +43,8 @@
     {{-- A versao no endereco existe porque o navegador guarda favicon com
          teimosia: sem ela, quem ja abriu o site continua vendo o icone antigo
          por tempo indeterminado. --}}
-    <link rel="icon" href="{{ asset('favicon.svg') }}?v=2" type="image/svg+xml">
-    <link rel="mask-icon" href="{{ asset('favicon.svg') }}?v=2" color="#fb6514">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=3" type="image/svg+xml">
+    <link rel="mask-icon" href="{{ asset('favicon.svg') }}?v=3" color="#465fff">
     <meta name="description" content="{{ $descricao }}">
     <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
     <link rel="canonical" href="{{ url()->current() }}">
