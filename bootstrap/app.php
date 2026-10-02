@@ -119,7 +119,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $origem = (string) $request->headers->get('referer');
 
             if ($e->getStatusCode() !== 403 || $request->expectsJson() || $origem === ''
-                || ! str_starts_with($origem, $request->getSchemeAndHttpHost())
+                || ! str_starts_with($origem, $request->getSchemeAndHttpHost().'/')
                 || strtok($origem, '?') === strtok($request->fullUrl(), '?')) {
                 return null;
             }

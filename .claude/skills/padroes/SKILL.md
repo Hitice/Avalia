@@ -62,8 +62,8 @@ uma variacao por pagina: quem navega entre elas percebe a diferenca e conclui
 que saiu do site.
 
 - **Topo** de 60px (`h-[60px]`), conteudo em `mx-auto w-full max-w-[87rem] px-6`,
-  com a marca a esquerda. Nas telas do 360, a marca leva a etiqueta `360` ao
-  lado. A direita fica a acao da tela (Voltar, Sair, Entrar), com
+  com a marca a esquerda, assinando com o produto da tela (`marca="..."`).
+  A direita fica a acao da tela (Voltar, Sair, Entrar), com
   `pr-12 sm:pr-14 min-[1550px]:pr-0` para reservar o canto.
 - **Interruptor de tema em toda tela DO SISTEMA**, via `<x-avalia.tema />`, e sempre na
   PONTA EXTREMA: `class="absolute top-1/2 right-3 size-11 -translate-y-1/2
@@ -97,16 +97,22 @@ A excecao e reconhecida pelo caminho em `TemaEscuroTest`, entao pagina nova do
 site nasce coberta. Fora desse diretorio a regra do interruptor continua
 valendo inteira, e `RevisaoDeSegurancaTest` cobra.
 
-### Tres marcas, e nenhuma escrita a mao
+### Quatro marcas, e nenhuma escrita a mao
 
-- **Avalia**, a casa e a software house: `Empresa::marca()`
-- **Avalia One**, o produto de pesquisa de score: `Empresa::marcaCredito()`
-- **Avalia Gestor**, o de venda parcelada e cobranca: `Empresa::marcaCobranca()`
+- **Avalia**, a casa: `Empresa::marca()`
+- **Avalia One**, pesquisa de score: `Empresa::marcaCredito()`
+- **Avalia Gestor**, venda parcelada: `Empresa::marcaCobranca()`
+- **Avalia Sales**, vendas de rua: `Empresa::marcaVendas()`
 
-O wordmark sai de `<x-avalia.logotipo marca="casa|credito|cobranca" />`, e a
-tela assina com a marca do produto a que ela pertence. As tres ja mudaram
-juntas uma vez: escritas a mao nas telas, sobrou "Avalia 360" em pagina que ja
-falava de outro produto.
+O logotipo sai de `<x-avalia.logotipo marca="casa|credito|cobranca|vendas" />`:
+o desenho vem de `App\Support\Marca` (arco e ponteiro do dono) e o nome escrito
+de `texto-bureau`. A lateral escolhe marca e menu pela rota
+(`MenuHelper::naSales()`). As marcas ja mudaram juntas uma vez: escritas a mao
+nas telas, sobrou "Avalia 360" em pagina que ja falava de outro produto.
+
+Porta fechada (403) devolve a pessoa para a tela de origem com aviso; tela
+inteira so para quem digitou o endereco. Item de menu que leva a 403 nao
+existe: `papeis`, `exigeFinanceiro`, `exigeSocios`, `exigeSales`.
 
 Nome de classe, tabela, rota e migration **nao** acompanham a troca de marca:
 `Produto360`, `Lancamento360` e `/cobranca` continuam com o nome que tem.

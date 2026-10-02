@@ -1,6 +1,6 @@
 ---
 name: depurar
-description: Investigar bug ou comportamento estranho no Avalia. Monta o PHP portatil, roda a suite ou um teste so, e checa primeiro as armadilhas que este projeto ja produziu (Tailwind nao reconstruido, sessao e 419, Supabase remoto, boolean no Postgres, acessador Eloquent).
+description: Investigar bug ou comportamento estranho no Avalia. Roda a suite ou um teste so, e checa primeiro as armadilhas que este projeto ja produziu (Tailwind nao reconstruido, sessao e 419, 503 de publicacao, classe montada em runtime, acessador Eloquent).
 ---
 
 # Depurar o Avalia
@@ -32,10 +32,10 @@ Tres detalhes que custam tempo se forem descobertos no meio de um bug:
 - **O `-a` no grep e obrigatorio:** a saida do Pest tem bytes que o grep trata
   como binario e engole o resultado.
 
-O `.env` local aponta para um Postgres sem credenciais, entao pagina que
-consulta o banco devolve 500 em `artisan serve`. A suite nao sofre com isso
-(`phpunit.xml` usa SQLite em memoria), e paginas sem banco, como o site
-institucional, abrem normalmente.
+Producao e MySQL na Hostinger; a suite roda em SQLite em memoria
+(`phpunit.xml`). O dono nao serve em localhost: o ciclo dele e publicar e
+conferir em producao, entao bug de tela se reproduz com teste de Feature ou
+com mock renderizado (`Blade::render` + CSS do build + `qlmanage`).
 
 ## 2. Armadilhas ja pagas neste projeto
 
@@ -48,9 +48,10 @@ Antes de teorizar, elimine estas. Cada uma custou tempo aqui:
 | "R$ 0,00" onde deveria estar "Sem minimo" | Faixa veio do banco como string e `=== 0` falhou. Use `Catalogo::faixasDe()` e `Dinheiro::faixa()`. |
 | 419 Page Expired intermitente no login | Laravel converte `TokenMismatchException` antes dos render callbacks. Tratar em `bootstrap/app.php` por `HttpExceptionInterface` com status 419. |
 | Acesso nao fica salvo entre sessoes | `ConfereSessao` precisa semear a versao na sessao quando o login veio de `viaRemember()`. |
-| Tela leva 6 segundos | Supabase esta em ca-central-1, ~172ms de ida e volta. Cada round trip conta: procure N+1 e sessao ou cache em banco. |
-| `operator does not exist: boolean = integer` so em producao | `DB_EMULA_PREPARE=true`. Os testes em SQLite nao pegam isso. Mantenha desligado. |
-| Seeder estoura o tempo | Um insert por linha contra banco remoto. Use `upsert` em lote. |
+| 503 por alguns segundos, de vez em quando | Cada push derruba o site ~6s (`deploy.sh`). Agrupe publicacoes. Ver skill `saude-do-site`. |
+| Classe de tema que nao pinta | Nome montado em tempo de execucao (`ponto-serie-{{ n }}`): o Tailwind so gera o que ve literal. |
+| Instancia recem-criada toma 403 | `Staff` nao leu o default do banco; `$attributes` do model precisa trazer o padrao. |
+| Seeder estoura o tempo | Um insert por linha contra banco remoto. Use `insert` em lote. |
 
 ## 3. Achar de verdade quem usa um simbolo
 

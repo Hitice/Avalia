@@ -27,6 +27,13 @@ it('devolve o vendedor que veio por link para a tela de origem, com o aviso', fu
         ->assertSessionHas('erro', 'Área restrita à administração.');
 });
 
+it('nao devolve para dominio que so comeca igual ao da casa', function () {
+    $maria = Staff::factory()->create(['papel' => 'vendedor']);
+
+    comoVendedor($maria)->withHeaders(['referer' => config('app.url').'.evil.com/x'])
+        ->get(route('negocios'))->assertForbidden();
+});
+
 it('mostra o cadeado no painel a quem digitou o endereco', function () {
     $maria = Staff::factory()->create(['papel' => 'vendedor']);
 
