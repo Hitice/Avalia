@@ -53,7 +53,7 @@ class MenuHelper
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
             /*
-             * Avalia Salles, o produto de vendas externas.
+             * Avalia Operacao, o produto de vendas externas.
              *
              * UM item, e nao os tres que havia (QR dinamico, Vendas QR,
              * Negocios): aquilo misturava as telas de outro produto no menu
@@ -64,7 +64,7 @@ class MenuHelper
              * Sem `papeis`: cliente e produtor tambem entram, e o que limita
              * cada um e o dono gravado no codigo, e nao o papel.
              */
-            ['icon' => 'qr', 'name' => 'Avalia Salles', 'path' => '/etiquetas'],
+            ['icon' => 'qr', 'name' => 'Avalia Operação', 'path' => '/etiquetas'],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }

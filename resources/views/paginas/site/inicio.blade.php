@@ -330,6 +330,27 @@
                         </svg>
                     </span>
                 </a>
+
+                {{-- O terceiro produto. Mesmo cartao dos outros dois de proposito:
+                     na vitrine eles sao pares, e dar menos destaque a este diria
+                     que ele e acessorio dos outros. --}}
+                <a href="{{ route('digitais.index') }}" class="bloco group" data-revelar style="--atraso: 0.2s">
+                    <div class="flex items-center justify-between">
+                        <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="operacao" />
+                        <span class="etiqueta etiqueta-sucesso">Em operação</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">Presença local e vendas de rua</h3>
+                    <p class="text-gray-600">
+                        Plaquinha de QR e NFC com destino editável, link curto de avaliação no Google
+                        e o que mais o comércio da esquina precisa para ser achado.
+                    </p>
+                    <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
+                        Conhecer o {{ Empresa::marcaOperacao() }}
+                        <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                        </svg>
+                    </span>
+                </a>
             </div>
 
             <a href="{{ route('area') }}" class="mt-6 flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-theme-md">

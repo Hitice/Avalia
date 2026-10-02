@@ -8,7 +8,7 @@
     // tema da pagina. Antes isso era um seletor arbitrario no ponto de uso,
     // que quebrava calado se a estrutura interna daqui mudasse.
     'claro' => false,
-    // Qual das tres marcas esta assinando a tela: a casa, o produto de score
+    // Qual das quatro marcas esta assinando a tela: a casa, o produto de score
     // ou o de cobranca. Vem por parametro porque o mesmo desenho serve as
     // tres, e so o sufixo muda.
     'marca' => 'casa',
@@ -24,6 +24,7 @@
     $completa = match ($marca) {
         'credito' => Empresa::marcaCredito(),
         'cobranca' => Empresa::marcaCobranca(),
+        'operacao' => Empresa::marcaOperacao(),
         default => Empresa::marca(),
     };
 
