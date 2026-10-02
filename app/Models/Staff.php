@@ -23,7 +23,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'comissao_pct', 'pode_financeiro', 'pode_socios', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'codigo_indicacao', 'pode_financeiro', 'pode_socios', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
@@ -60,6 +60,24 @@ class Staff extends Authenticatable implements ContaAutenticavel
      * Nao e carteira: lead nao tem contrato, e o mesmo lead pode estar com mais
      * de um vendedor. Quem distribui e sempre a administracao.
      */
+    /** As placas que estao na mao dele, vendidas ou nao. */
+    public function placasConsignadas(): HasMany
+    {
+        return $this->hasMany(Etiqueta::class, 'consignada_para_id');
+    }
+
+    /** As placas que ele vendeu, que e outra pergunta: ver a PDD, secao 6. */
+    public function vendasDePlaquinha(): HasMany
+    {
+        return $this->hasMany(Etiqueta::class, 'vendedor_id');
+    }
+
+    /** O link publico de cadastro de cliente dele. */
+    public function linkDeCadastro(): string
+    {
+        return route('cadastro-negocio', ['v' => $this->codigo_indicacao]);
+    }
+
     public function leads(): BelongsToMany
     {
         return $this->belongsToMany(Lead::class, 'lead_staff', 'staff_id', 'lead_id')

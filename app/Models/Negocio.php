@@ -27,7 +27,7 @@ class Negocio extends Model
         'place_id', 'link_avaliacao_id',
         'atende_no_endereco', 'cep', 'logradouro', 'numero', 'complemento',
         'bairro', 'cidade', 'uf', 'horarios',
-        'situacao', 'origem', 'lead_id', 'staff_id',
+        'situacao', 'origem', 'lead_id', 'staff_id', 'vendedor_id',
         'cadastrado_no_google_em', 'observacao',
     ];
 
@@ -43,6 +43,12 @@ class Negocio extends Model
     public function lead(): BelongsTo
     {
         return $this->belongsTo(Lead::class);
+    }
+
+    /** Quem trouxe o cliente, pelo link de cadastro dele. */
+    public function vendedor(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'vendedor_id');
     }
 
     public function staff(): BelongsTo

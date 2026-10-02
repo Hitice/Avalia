@@ -16,6 +16,7 @@ use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\ControladoriaController;
+use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
@@ -509,7 +510,15 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
             ->name('negocios.avaliacao.buscar');
         Route::post('/negocios/avaliacao/gerar', [NegociosController::class, 'gerarLink'])
             ->name('negocios.avaliacao.gerar');
+
+        // Estoque pessoal: o vendedor ve o que esta na mao dele, a administracao
+        // ve de todos e entrega lotes. A entrega e so de admin, porque mexe no
+        // que cada um vai prestar conta.
+        Route::post('/estoque/entregar', [EstoqueController::class, 'entregar'])->name('salles.estoque.entregar');
+        Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->name('salles.estoque.devolver');
     });
+    Route::get('/estoque', [EstoqueController::class, 'index'])->name('salles.estoque');
+
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
         ->middleware('admin')->name('plaquinhas.vendas');
 

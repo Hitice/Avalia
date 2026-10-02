@@ -1,4 +1,4 @@
-@extends('layouts.ferramenta', ['title' => 'Negócios'])
+@extends('layouts.app', ['title' => 'Negócios'])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">

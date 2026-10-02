@@ -5,7 +5,7 @@
     $estado = $etiqueta->estado();
 @endphp
 
-@extends('layouts.ferramenta', ['title' => 'Código '.$etiqueta->codigo])
+@extends('layouts.app', ['title' => 'Código '.$etiqueta->codigo])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">

@@ -30,7 +30,7 @@ class Etiqueta extends Model
     protected $fillable = [
         'codigo', 'lote_id', 'sequencia', 'tipo', 'situacao', 'destino',
         'titulo', 'cliente_nome', 'cliente_contato',
-        'vendida_em', 'vence_em', 'avisada_em', 'valor_cents', 'custo_cents', 'gravada_em',
+        'vendida_em', 'vence_em', 'avisada_em', 'consignada_para_id', 'consignada_em', 'valor_cents', 'custo_cents', 'gravada_em',
         'asaas_subscription_id', 'total_acessos', 'ultimo_acesso_em', 'staff_id',
         'vendedor_id', 'dono_tipo', 'dono_id',
     ];
@@ -46,6 +46,7 @@ class Etiqueta extends Model
             'vendida_em' => 'datetime',
             'vence_em' => 'date',
             'avisada_em' => 'datetime',
+            'consignada_em' => 'datetime',
             'gravada_em' => 'datetime',
             'ultimo_acesso_em' => 'datetime',
         ];
@@ -261,6 +262,29 @@ class Etiqueta extends Model
      * impede um cliente de trocar o destino da placa de outro. Ver
      * App\Support\Dono.
      */
+    public function consignadaPara(): BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'consignada_para_id');
+    }
+
+    /**
+     * O estoque pessoal de um vendedor: na mao dele e ainda nao vendida.
+     *
+     * Consulta, e nao contador: contador precisa ser decrementado por quem
+     * vende, e o dia em que a venda sair por outro caminho ele fica errado sem
+     * ninguem notar.
+     */
+    public function scopeNoEstoqueDe(Builder $consulta, int $staffId): Builder
+    {
+        return $consulta->where('consignada_para_id', $staffId)->whereNull('vendida_em');
+    }
+
+    /** As que ninguem pegou ainda: o bolo comum da equipe. */
+    public function scopeSemDono(Builder $consulta): Builder
+    {
+        return $consulta->whereNull('consignada_para_id')->whereNull('vendida_em');
+    }
+
     public function scopeVisiveis(Builder $consulta): Builder
     {
         return Dono::tipo() === 'staff' ? $consulta : Dono::limitar($consulta);

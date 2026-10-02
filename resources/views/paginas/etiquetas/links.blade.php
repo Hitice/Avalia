@@ -1,4 +1,4 @@
-@extends('layouts.ferramenta', ['title' => 'Encurtador'])
+@extends('layouts.app', ['title' => 'Encurtador'])
 
 @section('content')
     <div class="mb-6">

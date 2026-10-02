@@ -200,16 +200,16 @@ it('nao repete id em pagina nenhuma do site', function () {
     }
 });
 
-it('abre a ferramenta fora do CRM do Avalia One', function () {
-    // Negocio proprio, casca propria. Abrir com a barra lateral e a marca do
-    // Avalia One diria ao operador que ele entrou no sistema de credito.
+it('abre a ferramenta no painel do Avalia Salles', function () {
+    // Mesmo boilerplate do Avalia One, menu do Salles. A casca sem lateral
+    // nasceu quando o produto tinha duas telas; com seis, lateral deixou de ser
+    // moldura maior que o quadro.
     $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
 
-    expect($conteudo)->toContain('QR dinâmico')
-        // Nada da moldura do CRM: sem sidebar, sem os modulos de la.
-        ->and($conteudo)->not->toContain('id="sidebar"')
-        ->and($conteudo)->not->toContain('Consultas')
-        ->and($conteudo)->not->toContain('Financeiro');
+    expect($conteudo)->toContain('Avalia Salles')
+        ->and($conteudo)->toContain('id="sidebar"')
+        // E nenhum modulo do credito no menu.
+        ->and($conteudo)->not->toContain('Catálogo');
 });
 
 it('marca a ferramenta como fora de buscador', function () {

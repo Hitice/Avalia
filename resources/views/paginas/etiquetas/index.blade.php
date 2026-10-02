@@ -2,7 +2,7 @@
     use App\Support\Dinheiro;
 @endphp
 
-@extends('layouts.ferramenta', ['title' => 'Códigos'])
+@extends('layouts.app', ['title' => 'Códigos'])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">

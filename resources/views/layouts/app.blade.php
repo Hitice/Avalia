@@ -4,6 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- O painel inteiro fica fora de buscador. Estava so na casca das
+         ferramentas; ao unificar, subiu para ca e passou a cobrir o CRM
+         tambem, que nunca teve. --}}
+    <meta name="robots" content="noindex">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Avalia One' }} | Avalia One</title>

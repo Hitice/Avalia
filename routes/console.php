@@ -12,15 +12,21 @@ Artisan::command('inspire', function () {
  * Batida do cron: prova viva de que o agendador esta rodando.
  *
  * O cron falha em silencio absoluto: nada quebra, nada aparece, so deixa de
- * acontecer. Este arquivo com carimbo de minuto em minuto e o jeito de
- * qualquer diagnostico (ou qualquer pessoa por SSH) responder na hora "o cron
- * esta vivo?" olhando uma linha.
+ * acontecer. Este arquivo com carimbo e o jeito de qualquer diagnostico
+ * responder na hora "o cron esta vivo?" olhando uma linha.
+ *
+ * De 5 em 5 minutos, e nao de minuto em minuto. Medido em 01/10/2026: o
+ * `schedule:run` por minuto deixava o site em 503 por 4 a 6 segundos a cada
+ * minuto, sempre entre os segundos 05 e 13. O boot do PHP em CLI consome o
+ * limite de processo da hospedagem compartilhada, e o LiteSpeed recusa a
+ * requisicao do visitante enquanto isso. Nenhuma tarefa daqui precisa de
+ * resolucao de um minuto, e todas as diarias caem em minuto multiplo de 5.
  */
 Schedule::call(function () {
     file_put_contents(storage_path('logs/cron-batida.txt'), now()->toDateTimeString());
 })
     ->name('cron:batida')
-    ->everyMinute();
+    ->everyFiveMinutes();
 
 /*
  * Aquecimento do servidor web.
@@ -33,7 +39,10 @@ Schedule::call(function () {
  */
 Schedule::call(function () {
     try {
-        \Illuminate\Support\Facades\Http::timeout(10)->get(config('app.url'));
+        // 3s e nao 10: enquanto espera, o processo do cron ocupa um slot e a
+        // propria requisicao precisa de outro. Se o site nao responde em 3s,
+        // insistir so rouba lugar de quem esta na loja lendo uma placa.
+        \Illuminate\Support\Facades\Http::timeout(3)->get(config('app.url'));
     } catch (\Throwable) {
         // Sem log: o proximo toque tenta de novo.
     }

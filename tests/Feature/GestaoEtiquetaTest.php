@@ -335,22 +335,26 @@ it('desenha o codigo da plaquinha na propria ficha', function () {
         ->assertSee('/q/K7M2PX');
 });
 
-it('nao leva o Avalia One para dentro da ferramenta', function () {
-    // Negocio proprio. Um link para o CRM no cabecalho diria que ele e um
-    // modulo de la.
+it('abre no painel do Avalia Salles, com o menu do produto e nao o do credito', function () {
+    // A casca sem lateral nasceu quando o produto tinha duas telas. Agora tem
+    // seis, e lateral de 290px deixou de ser moldura maior que o quadro. O que
+    // continua valendo e nao misturar os produtos: mesma moldura, menu do Salles.
     $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
 
-    expect($conteudo)->not->toContain('Avalia One');
+    expect($conteudo)->toContain('Avalia Salles')
+        ->and($conteudo)->toContain('Meu estoque')
+        // Nenhum modulo do Avalia One no menu daqui.
+        ->and($conteudo)->not->toContain('Catálogo')
+        ->and($conteudo)->not->toContain('Simulador');
 });
 
-it('nao poe interruptor de tema na ferramenta', function () {
-    // O de tema e ferramenta de quem passa o dia no CRM. Aqui ele encostava no
-    // botao de sair nas telas largas e ficava sem clique, e mantido sem
-    // interruptor o tema escuro prenderia quem o tivesse marcado no CRM.
+it('tem o interruptor de tema, como o resto do painel', function () {
+    // Ele saiu quando a casca era propria e sem lateral. No boilerplate ele
+    // existe em toda tela, e quem marcou escuro no CRM continua no escuro aqui
+    // em vez de trocar de tema ao trocar de produto.
     $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
 
-    expect($conteudo)->not->toContain('$store.theme')
-        ->and($conteudo)->not->toContain("localStorage.getItem('theme')");
+    expect($conteudo)->toContain('$store.theme');
 });
 
 it('resolve a operacao inteira numa pagina so', function () {

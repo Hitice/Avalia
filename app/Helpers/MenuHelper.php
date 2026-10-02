@@ -90,6 +90,54 @@ class MenuHelper
         ];
     }
 
+    /*
+     * As rotas do Avalia Salles: a lateral decide por elas qual menu e qual
+     * marca mostrar. Por prefixo de rota, e nao por URL.
+     */
+    public const ROTAS_SALLES = ['etiquetas.', 'negocios', 'plaquinhas.', 'salles.'];
+
+    public static function naSalles(): bool
+    {
+        $rota = (string) request()->route()?->getName();
+
+        foreach (self::ROTAS_SALLES as $prefixo) {
+            if (str_starts_with($rota, $prefixo)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function marcaDaArea(): string
+    {
+        return self::naSalles() ? 'vendas' : 'credito';
+    }
+
+    public static function inicioDaArea(): string
+    {
+        if (self::naSalles()) {
+            return route('etiquetas.index');
+        }
+
+        return auth('empresa')->check() ? route('empresa.painel') : route('painel');
+    }
+
+    /**
+     * Menu do Avalia Salles. Tela de administracao aparece so para quem
+     * administra: margem da casa nao e assunto de quem vende.
+     */
+    public static function getItensDaSalles()
+    {
+        return [
+            ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
+            ['icon' => 'tables', 'name' => 'Meu estoque', 'path' => '/estoque'],
+            ['icon' => 'user-profile', 'name' => 'Negócios', 'path' => '/negocios'],
+            ['icon' => 'plug', 'name' => 'Encurtador', 'path' => '/etiquetas/links'],
+            ['icon' => 'charts', 'name' => 'Vendas', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
+        ];
+    }
+
     public static function getMenuGroups()
     {
         // A area do cliente tem menu proprio: os dois guards nunca coexistem na
@@ -107,6 +155,13 @@ class MenuHelper
             // que leva a 403 ensina o operador a ignorar o menu.
             && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro())
             && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios());
+
+        if (self::naSalles()) {
+            return [[
+                'title' => \App\Support\Empresa::marcaVendas(),
+                'items' => array_values(array_filter(self::getItensDaSalles(), $permitido)),
+            ]];
+        }
 
         return [
             ['title' => 'Menu', 'items' => array_values(array_filter(self::getMainNavItems(), $permitido))],

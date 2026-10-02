@@ -67,12 +67,12 @@
         'xl:justify-center' :
         'justify-start'">
         {{-- A marca leva a porta de entrada de quem esta logado. --}}
-        <a href="{{ auth('empresa')->check() ? route('empresa.painel') : route('painel') }}">
+        <a href="{{ App\Helpers\MenuHelper::inicioDaArea() }}">
             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
-                <x-avalia.logotipo :tamanho="40" marca="credito" />
+                <x-avalia.logotipo :tamanho="40" :marca="App\Helpers\MenuHelper::marcaDaArea()" />
             </span>
             <span x-show="!($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)">
-                <x-avalia.logotipo :tamanho="40" somente-icone marca="credito" />
+                <x-avalia.logotipo :tamanho="40" somente-icone :marca="App\Helpers\MenuHelper::marcaDaArea()" />
             </span>
 
         </a>

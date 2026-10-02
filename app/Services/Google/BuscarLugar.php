@@ -20,7 +20,20 @@ use Illuminate\Support\Facades\Http;
  */
 class BuscarLugar
 {
-    private const CAMPOS = 'places.id,places.displayName,places.formattedAddress';
+    /*
+     * Os campos pedidos, e por que estes.
+     *
+     * O Google cobra pela faixa MAIS ALTA do pedido. `id` e Essentials IDs Only,
+     * gratuito sem limite; `formattedAddress` e Essentials, com 10 mil chamadas
+     * gratis por mes; `displayName` e Pro, e arrastava o pedido inteiro para a
+     * faixa mais caro sem precisar.
+     *
+     * O endereco basta para escolher entre homonimos, e escolhe melhor que o
+     * nome: dois "Pizzaria do Centro" tem o mesmo nome e enderecos diferentes. O
+     * nome que aparece na tela e o que a pessoa digitou, que e o que ela
+     * reconhece.
+     */
+    private const CAMPOS = 'places.id,places.formattedAddress';
 
     /*
      * Quanto tempo a mesma busca vale sem ser cobrada de novo.
@@ -57,7 +70,7 @@ class BuscarLugar
         $lugares = Cache::remember(
             self::chave($termo),
             now()->addDays(self::DIAS_DE_CACHE),
-            fn () => $this->perguntarAoGoogle($base, $chave, $termo),
+            fn () => $this->perguntarAoGoogle($base, $chave, $termo, trim($nome)),
         );
 
         // A recusa fica FORA do cache, e a lista vazia dentro: o Google cobra a
@@ -71,7 +84,7 @@ class BuscarLugar
     }
 
     /** @return list<array{place_id: string, nome: string, endereco: string}> */
-    private function perguntarAoGoogle(string $base, string $chave, string $termo): array
+    private function perguntarAoGoogle(string $base, string $chave, string $termo, string $nome): array
     {
         $resposta = Http::withHeaders([
             'X-Goog-Api-Key' => $chave,
@@ -95,7 +108,7 @@ class BuscarLugar
         return collect($resposta->json('places') ?? [])
             ->map(fn (array $lugar) => [
                 'place_id' => (string) ($lugar['id'] ?? ''),
-                'nome' => (string) ($lugar['displayName']['text'] ?? ''),
+                'nome' => $nome,
                 'endereco' => (string) ($lugar['formattedAddress'] ?? ''),
             ])
             ->filter(fn (array $lugar) => $lugar['place_id'] !== '')
