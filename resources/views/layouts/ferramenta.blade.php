@@ -1,5 +1,5 @@
 {{--
-    A casca do Avalia Operacao: vendas externas e presenca local.
+    A casca do Avalia Salles: vendas externas e presenca local.
 
     Fora do CRM de proposito: nada daqui e modulo do Avalia One, e abrir com a
     barra lateral e a marca de la diz ao operador que ele entrou no sistema de
@@ -27,7 +27,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex">
 
-    <title>{{ $title ?? 'Avalia Operação' }} · {{ App\Support\Empresa::marcaOperacao() }}</title>
+    <title>{{ $title ?? 'Avalia Salles' }} · {{ App\Support\Empresa::marcaVendas() }}</title>
 
     <link rel="icon" href="{{ asset('favicon.svg') }}?v=2" type="image/svg+xml">
 
@@ -43,7 +43,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 1.5a3.5 3.5 0 1 0 3.5 3.5m0-3.5V12m0 3.5H17" />
                 </svg>
                 <span class="text-sm font-semibold tracking-tight text-gray-800">
-                    {{ App\Support\Empresa::marcaOperacao() }}
+                    {{ App\Support\Empresa::marcaVendas() }}
                 </span>
             </a>
 
@@ -52,7 +52,7 @@
                 $ehAdmin = (bool) ($daCasa?->ehAdmin() || $daCasa?->ehSuper());
             @endphp
 
-            <nav class="flex items-center gap-1" aria-label="{{ App\Support\Empresa::marcaOperacao() }}">
+            <nav class="flex items-center gap-1" aria-label="{{ App\Support\Empresa::marcaVendas() }}">
                 {{-- A tiragem nao entra aqui: ela e um filtro da tabela de
                      codigos, e nao uma tela. --}}
                 @if ($ehAdmin)
@@ -99,7 +99,7 @@
     </main>
 
     <footer class="mx-auto w-full max-w-[87rem] px-6 pb-10 text-xs text-gray-400">
-        {{ App\Support\Empresa::marcaOperacao() }}, um produto da {{ App\Support\Empresa::marca() }}.
+        {{ App\Support\Empresa::marcaVendas() }}, um produto da {{ App\Support\Empresa::marca() }}.
     </footer>
 </body>
 

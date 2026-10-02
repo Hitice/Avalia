@@ -294,7 +294,7 @@
                 </p>
             </div>
 
-            <div class="mt-10 grid gap-6 lg:grid-cols-2">
+            <div class="mt-10 grid gap-6 lg:grid-cols-3">
                 <a href="{{ route('credito') }}" class="bloco group" data-revelar>
                     <div class="flex items-center justify-between">
                         <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="credito" />
@@ -336,16 +336,16 @@
                      que ele e acessorio dos outros. --}}
                 <a href="{{ route('digitais.index') }}" class="bloco group" data-revelar style="--atraso: 0.2s">
                     <div class="flex items-center justify-between">
-                        <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="operacao" />
+                        <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="vendas" />
                         <span class="etiqueta etiqueta-sucesso">Em operação</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Presença local e vendas de rua</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">Vendas, Marketing, Produtos Digitais</h3>
                     <p class="text-gray-600">
-                        Plaquinha de QR e NFC com destino editável, link curto de avaliação no Google
-                        e o que mais o comércio da esquina precisa para ser achado.
+                        Integração de comunicação visual orientada a serviços inteligentes com
+                        infraestrutura própria.
                     </p>
                     <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
-                        Conhecer o {{ Empresa::marcaOperacao() }}
+                        Conhecer o {{ Empresa::marcaVendas() }}
                         <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
                         </svg>

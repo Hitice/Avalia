@@ -24,7 +24,7 @@
     $completa = match ($marca) {
         'credito' => Empresa::marcaCredito(),
         'cobranca' => Empresa::marcaCobranca(),
-        'operacao' => Empresa::marcaOperacao(),
+        'vendas' => Empresa::marcaVendas(),
         default => Empresa::marca(),
     };
 

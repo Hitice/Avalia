@@ -40,9 +40,9 @@ final class Empresa
     }
 
     /** A marca das vendas externas: plaquinha e presenca local. */
-    public static function marcaOperacao(): string
+    public static function marcaVendas(): string
     {
-        return (string) config('empresa.marca_operacao', '');
+        return (string) config('empresa.marca_vendas', '');
     }
 
     public static function cnpj(): string

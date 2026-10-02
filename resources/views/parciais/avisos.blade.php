@@ -1,7 +1,7 @@
 {{-- O resultado da ultima acao, em qualquer tela de qualquer produto.
 
      Saiu de paginas/catalogo/ porque nao e do catalogo: 27 telas o incluem, e
-     partial generico dentro da pasta de um produto faz o Avalia Operacao
+     partial generico dentro da pasta de um produto faz o Avalia Salles
      depender do Avalia One para mostrar "salvo". --}}
 
 @if (session('ok'))

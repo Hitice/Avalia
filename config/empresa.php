@@ -29,7 +29,7 @@ return [
     'marca_cobranca' => 'Avalia Gestor',
     // Vendas externas: plaquinha e os servicos de presenca local que a
     // sustentam, e o que mantem o time de rua operacional.
-    'marca_operacao' => 'Avalia Operação',
+    'marca_vendas' => 'Avalia Salles',
 
     'cnpj' => '68.715.987/0001-64',
     'abertura' => '21/08/2026',
