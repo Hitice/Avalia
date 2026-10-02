@@ -33,7 +33,7 @@ use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
-use App\Http\Controllers\SallesController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SociosController;
@@ -520,14 +520,14 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // Estoque pessoal: o vendedor ve o que esta na mao dele, a administracao
         // ve de todos e entrega lotes. A entrega e so de admin, porque mexe no
         // que cada um vai prestar conta.
-        Route::post('/estoque/entregar', [EstoqueController::class, 'entregar'])->name('salles.estoque.entregar');
-        Route::post('/estoque/entregar-codigos', [EstoqueController::class, 'entregarPorCodigos'])->name('salles.estoque.entregar-codigos');
-        Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->name('salles.estoque.devolver');
+        Route::post('/estoque/entregar', [EstoqueController::class, 'entregar'])->name('sales.estoque.entregar');
+        Route::post('/estoque/entregar-codigos', [EstoqueController::class, 'entregarPorCodigos'])->name('sales.estoque.entregar-codigos');
+        Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->name('sales.estoque.devolver');
     });
     // A home do produto, para a equipe. Cliente e produtor entram pelo QR
     // dinamico e veem o proprio codigo; home de estoque e comissao nao e deles.
-    Route::get('/sales', [SallesController::class, 'inicio'])->name('salles.inicio');
-    Route::get('/estoque', [EstoqueController::class, 'index'])->name('salles.estoque');
+    Route::get('/sales', [SalesController::class, 'inicio'])->name('sales.inicio');
+    Route::get('/estoque', [EstoqueController::class, 'index'])->name('sales.estoque');
 
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
         ->middleware('admin')->name('plaquinhas.vendas');
@@ -548,6 +548,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // duas. Porta separada da de apontar, onde o valor so e gravado na
         // primeira venda.
         Route::put('/{etiqueta}/valor', [EtiquetaController::class, 'corrigirValor'])->name('valor');
+
+        Route::post('/comissao/{vendedor}/pagar', [VendasPlaquinhasController::class, 'pagarComissao'])->name('comissao.pagar');
     });
 
     /*

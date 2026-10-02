@@ -19,7 +19,7 @@ uses(RefreshDatabase::class);
 */
 
 it('leva aos serviços pelo cartao do produto, e nao por aba propria', function () {
-    // A aba saiu do menu: os servicos digitais sao o Avalia Salles, e produto se
+    // A aba saiu do menu: os servicos digitais sao o Avalia Sales, e produto se
     // alcanca pelo cartao da secao de aplicacoes, como o One e o Gestor. Aba para
     // um dos tres era o item fora do padrao, e dava dois caminhos para a mesma
     // pagina.
@@ -200,13 +200,13 @@ it('nao repete id em pagina nenhuma do site', function () {
     }
 });
 
-it('abre a ferramenta no painel do Avalia Salles', function () {
-    // Mesmo boilerplate do Avalia One, menu do Salles. A casca sem lateral
+it('abre a ferramenta no painel do Avalia Sales', function () {
+    // Mesmo boilerplate do Avalia One, menu do Sales. A casca sem lateral
     // nasceu quando o produto tinha duas telas; com seis, lateral deixou de ser
     // moldura maior que o quadro.
     $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
 
-    expect($conteudo)->toContain('Avalia Salles')
+    expect($conteudo)->toContain('Avalia Sales')
         ->and($conteudo)->toContain('id="sidebar"')
         // E nenhum modulo do credito no menu.
         ->and($conteudo)->not->toContain('Catálogo');

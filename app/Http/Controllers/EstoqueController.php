@@ -22,7 +22,7 @@ class EstoqueController extends Controller
         $conta = $pedido->user('staff');
         $ehAdmin = (bool) ($conta?->ehAdmin() || $conta?->ehSuper());
 
-        return view('paginas.salles.estoque', [
+        return view('paginas.sales.estoque', [
             'ehAdmin' => $ehAdmin,
             'minhas' => Etiqueta::noEstoqueDe((int) $conta->id)->orderBy('sequencia')->get(),
 

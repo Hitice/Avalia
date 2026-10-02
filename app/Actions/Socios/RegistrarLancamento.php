@@ -74,6 +74,13 @@ class RegistrarLancamento
         $caixa = $this->conta(ContaFinanceira::CAIXA, $dados['conta_id'] ?? null);
 
         return match ($natureza) {
+            // Quita a comissao devida e reduz o caixa. A despesa ja foi lancada na
+            // venda. Fora do formulario: so a tela de vendas sabe a quem se deve.
+            NaturezaLancamento::Pagamento => [
+                $this->conta('comissao-a-pagar') => $valor,
+                $caixa => -$valor,
+            ],
+
             // Entra dinheiro e cresce o patrimonio do socio. Receita nao entra
             // na conversa: ninguem vendeu nada.
             NaturezaLancamento::Aporte => [

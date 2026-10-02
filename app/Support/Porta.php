@@ -50,7 +50,7 @@ final class Porta
     {
         return match ($produto) {
             'vendas' => match (true) {
-                Auth::guard('staff')->check() => route('salles.inicio'),
+                Auth::guard('staff')->check() => route('sales.inicio'),
                 self::painelDaSessao() !== null => route('etiquetas.index'),
                 default => null,
             },

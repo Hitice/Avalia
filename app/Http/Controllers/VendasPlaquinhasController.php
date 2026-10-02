@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Etiquetas\PagarComissao;
 use App\Actions\Etiquetas\VendaNoRazao;
+use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Models\Staff;
+use App\Support\Dinheiro;
 use App\Support\RepartePlaquinha;
 use App\Support\SociosDaPlaquinha;
 use Illuminate\Http\Request;
@@ -84,7 +87,10 @@ class VendasPlaquinhasController extends Controller
             // tela em vez de falhar calada.
             'sociosAusentes' => $socios['ausentes'],
 
-            'porDia' => $this->porDia($mes),
+            'porDia' => Etiqueta::vendasPorDia($mes),
+
+            // Em aberto desde sempre, e nao so do mes: a sexta paga o que ficou.
+            'aPagar' => $this->comissoesEmAberto($socios['ids']),
 
             // O mes inteiro, e nao as dez ultimas: esta tabela e a leitura
             // alternativa dos graficos, para quem confere numero a numero ou usa
@@ -201,41 +207,36 @@ class VendasPlaquinhasController extends Controller
         });
     }
 
-    /**
-     * Placas por DIA do mes escolhido.
-     *
-     * Era por mes, e mes nao responde a pergunta de quem vende: a variacao util
-     * esta dentro da semana, e ela desaparece quando trinta dias viram uma
-     * barra. Todos os dias entram, inclusive os sem venda, porque buraco no meio
-     * da serie e informacao.
-     *
-     * @return Collection<int, array{dia: int, rotulo: string, fimDeSemana: bool, placas: int, bruto: int}>
-     */
-    private function porDia(Carbon $mes): Collection
+    /** @return Collection<int, array{id: int, nome: string, placas: int, cents: int}> */
+    private function comissoesEmAberto(array $sociosIds): Collection
     {
-        $vendas = Etiqueta::query()
-            ->vendidasEntre($mes->copy()->startOfMonth(), $mes->copy()->endOfMonth())
-            ->get(['vendida_em', 'valor_cents'])
-            ->groupBy(fn (Etiqueta $e) => (int) $e->vendida_em->day);
+        $porVendedor = [];
 
-        $dias = collect();
-        $cursor = $mes->copy()->startOfMonth();
+        foreach (Etiqueta::comissaoEmAberto()->whereNotNull('vendedor_id')->with('vendedor:id,nome')->get() as $venda) {
+            $cents = VendaNoRazao::reparte($venda, $sociosIds)['comissao'];
 
-        while ($cursor->month === $mes->month) {
-            $doDia = $vendas->get($cursor->day, collect());
+            if ($cents <= 0) {
+                continue;
+            }
 
-            $dias->push([
-                'dia' => $cursor->day,
-                'rotulo' => $cursor->format('d/m'),
-                'fimDeSemana' => $cursor->isWeekend(),
-                'placas' => $doDia->count(),
-                'bruto' => (int) $doDia->sum('valor_cents'),
-            ]);
-
-            $cursor->addDay();
+            $id = (int) $venda->vendedor_id;
+            $porVendedor[$id] ??= ['id' => $id, 'nome' => $venda->vendedor?->nome ?? 'Conta removida', 'placas' => 0, 'cents' => 0];
+            $porVendedor[$id]['placas']++;
+            $porVendedor[$id]['cents'] += $cents;
         }
 
-        return $dias;
+        return collect($porVendedor)->sortByDesc('cents')->values();
+    }
+
+    public function pagarComissao(Staff $vendedor, PagarComissao $pagar)
+    {
+        try {
+            $pago = $pagar($vendedor);
+        } catch (Recusa $e) {
+            return back()->with('erro', $e->getMessage());
+        }
+
+        return back()->with('ok', 'Comissão de '.$vendedor->nome.' paga: '.Dinheiro::brl($pago['cents']).' por '.$pago['placas'].' '.($pago['placas'] === 1 ? 'placa' : 'placas').'.');
     }
 
     /**

@@ -10,7 +10,7 @@ function entregarCodigos(string $codigos, ?Staff $para = null): Illuminate\Testi
 {
     $para ??= Staff::factory()->create(['papel' => 'vendedor']);
 
-    return admin()->post(route('salles.estoque.entregar-codigos'), ['vendedor_id' => $para->id, 'codigos' => $codigos]);
+    return admin()->post(route('sales.estoque.entregar-codigos'), ['vendedor_id' => $para->id, 'codigos' => $codigos]);
 }
 
 it('entrega as placas escolhidas pelos codigos, e corrige letra parecida', function () {
@@ -60,6 +60,6 @@ it('nao abre a entrega por codigo ao vendedor', function () {
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
     test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => 1])
-        ->post(route('salles.estoque.entregar-codigos'), ['vendedor_id' => $vendedor->id, 'codigos' => 'AB1CD2'])
+        ->post(route('sales.estoque.entregar-codigos'), ['vendedor_id' => $vendedor->id, 'codigos' => 'AB1CD2'])
         ->assertForbidden();
 });

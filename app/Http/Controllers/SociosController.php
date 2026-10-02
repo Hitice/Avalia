@@ -59,7 +59,7 @@ class SociosController extends Controller
             'contas' => $contas,
             'socios' => $socios,
             'lancamentos' => $doMes,
-            'naturezas' => NaturezaLancamento::rotulos(),
+            'naturezas' => NaturezaLancamento::rotulosManuais(),
 
             // Para ligar o socio a uma conta de acesso, quando ele tiver uma.
             'equipe' => \App\Models\Staff::orderBy('nome')->get(['id', 'nome']),

@@ -660,6 +660,11 @@ Retirada. Centavo ímpar fica com o sócio. Decidido em 02/10/2026.
 vendedores. É o ciclo que a conferência do razão e a tela de vendas precisam
 respeitar, e o que define "a semana" para quem confere o repasse.
 
+A comissão se paga em Vendas QR, por vendedor, com o botão Pagar: marca cada venda
+como paga (`etiquetas.comissao_paga_em`) e lança no razão a baixa de `comissao-a-pagar`
+contra `caixa`. A comissão atual do vendedor, na home do Sales, é a soma do que ainda
+não foi marcado.
+
 **Pendência:** não existe regra escrita para a divisão do resultado do Avalia One nem
 do Gestor entre os sócios. Hoje só as plaquinhas têm split definido.
 

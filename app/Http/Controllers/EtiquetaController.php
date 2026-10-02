@@ -58,11 +58,12 @@ class EtiquetaController extends Controller
             ->when($vendedor !== '' && $vendedor !== 'sem', fn ($consulta) => $consulta->where('vendedor_id', $vendedor))
             ->when($busca !== '', function ($consulta) use ($busca) {
                 // O codigo e procurado normalizado: quem copia da placa digita
-                // minusculo, e quem le do acrilico troca 1 por I.
+                // minusculo, e quem le do acrilico troca 1 por I. Por prefixo,
+                // porque a busca roda a cada tecla e o codigo ainda esta pela metade.
                 $codigo = CodigoCurto::normalizar($busca);
 
                 $consulta->where(fn ($ou) => $ou
-                    ->when($codigo !== '', fn ($q) => $q->orWhere('codigo', $codigo))
+                    ->when($codigo !== '', fn ($q) => $q->orWhere('codigo', 'like', $codigo.'%'))
                     ->orWhere('titulo', 'like', "%{$busca}%")
                     ->orWhere('cliente_nome', 'like', "%{$busca}%")
                     ->orWhere('cliente_contato', 'like', "%{$busca}%")
@@ -74,13 +75,14 @@ class EtiquetaController extends Controller
             })
             ->orderByDesc('id')
             ->paginate(25)
-            ->withQueryString();
+            // Sem `parcial`: o link de pagina dentro da tabela trocada abriria so a tabela.
+            ->appends($pedido->except('parcial', 'page'));
 
         // Com uma campanha escolhida, a tabela ganha o pacote dela: o ZIP
         // precisa da tiragem INTEIRA, e a tabela mostra 25 por pagina.
         $campanha = LoteEtiqueta::visiveis()->find($pedido->query('lote'));
 
-        return view('paginas.etiquetas.index', [
+        return view($pedido->boolean('parcial') ? 'paginas.etiquetas._tabela' : 'paginas.etiquetas.index', [
             'etiquetas' => $etiquetas,
             // So os da pagina atual: a miniatura e desenhada no navegador, e
             // mandar mil codigos para desenhar 25 seria trabalho jogado fora.

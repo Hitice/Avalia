@@ -155,19 +155,19 @@ it('so monta o pacote quando ha campanha escolhida', function () {
 |--------------------------------------------------------------------------
 */
 
-it('poe o Avalia Salles na lateral, sem esconder atras de um pai', function () {
+it('poe o Avalia Sales na lateral, sem esconder atras de um pai', function () {
     // Item solto, e nao submenu. Submenu comeca fechado, e o modulo que so
     // aparece depois de um clique e o modulo que ninguem acha: foi assim que
     // as telas do vendedor sumiram dentro de Carteira.
     //
     // UM item, e nao os tres que havia (QR dinamico, Vendas QR, Negocios): o
-    // Avalia Salles e produto, com casca e menu proprios, e tres telas dele
+    // Avalia Sales e produto, com casca e menu proprios, e tres telas dele
     // soltas na lateral do Avalia One faziam quem clicava sair do CRM sem
     // perceber que tinha trocado de sistema.
     $painel = admin()->get(route('painel'))->assertOk();
 
     // A lateral monta href com caminho relativo, e nao com a URL inteira.
-    $painel->assertSee('Avalia Salles')->assertSee('href="/sales"', false);
+    $painel->assertSee('Avalia Sales')->assertSee('href="/sales"', false);
 
     // As telas de dentro do produto nao se repetem aqui.
     expect($painel->getContent())->not->toContain('Vendas QR')
@@ -183,6 +183,6 @@ it('leva toda conta ao produto, com o nome que faz sentido para ela', function (
     // comercial do nosso produto de vendas nao diz nada a ele.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
-    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertSee('Avalia Salles');
+    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertSee('Avalia Sales');
     comoEmpresa(empresaComPlano())->get(route('empresa.painel'))->assertOk()->assertSee('QR dinâmico');
 });

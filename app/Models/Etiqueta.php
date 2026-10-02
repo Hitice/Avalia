@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -30,7 +32,7 @@ class Etiqueta extends Model
     protected $fillable = [
         'codigo', 'lote_id', 'sequencia', 'tipo', 'situacao', 'destino',
         'titulo', 'cliente_nome', 'cliente_contato',
-        'vendida_em', 'vence_em', 'avisada_em', 'consignada_para_id', 'consignada_em', 'negocio_id', 'valor_cents', 'custo_cents', 'gravada_em',
+        'vendida_em', 'comissao_paga_em', 'vence_em', 'avisada_em', 'consignada_para_id', 'consignada_em', 'negocio_id', 'valor_cents', 'custo_cents', 'gravada_em',
         'asaas_subscription_id', 'total_acessos', 'ultimo_acesso_em', 'staff_id',
         'vendedor_id', 'dono_tipo', 'dono_id',
     ];
@@ -44,6 +46,7 @@ class Etiqueta extends Model
             'custo_cents' => 'integer',
             'total_acessos' => 'integer',
             'vendida_em' => 'datetime',
+            'comissao_paga_em' => 'datetime',
             'vence_em' => 'date',
             'avisada_em' => 'datetime',
             'consignada_em' => 'datetime',
@@ -288,6 +291,45 @@ class Etiqueta extends Model
     public function scopeSemDono(Builder $consulta): Builder
     {
         return $consulta->whereNull('consignada_para_id')->whereNull('vendida_em');
+    }
+
+    /** Vendida e com a comissao ainda nao paga. */
+    public function scopeComissaoEmAberto(Builder $consulta): Builder
+    {
+        return $consulta->whereNotNull('vendida_em')->whereNull('comissao_paga_em');
+    }
+
+    /**
+     * Placas e bruto de cada dia do mes, com os dias vazios, para o grafico.
+     *
+     * @return Collection<int, array{dia: int, rotulo: string, fimDeSemana: bool, placas: int, bruto: int}>
+     */
+    public static function vendasPorDia(Carbon $mes, ?int $vendedorId = null): Collection
+    {
+        $vendas = static::query()
+            ->vendidasEntre($mes->copy()->startOfMonth(), $mes->copy()->endOfMonth())
+            ->when($vendedorId !== null, fn ($q) => $q->where('vendedor_id', $vendedorId))
+            ->get(['vendida_em', 'valor_cents'])
+            ->groupBy(fn (Etiqueta $e) => (int) $e->vendida_em->day);
+
+        $dias = collect();
+        $cursor = $mes->copy()->startOfMonth();
+
+        while ($cursor->month === $mes->month) {
+            $doDia = $vendas->get($cursor->day, collect());
+
+            $dias->push([
+                'dia' => $cursor->day,
+                'rotulo' => $cursor->format('d/m'),
+                'fimDeSemana' => $cursor->isWeekend(),
+                'placas' => $doDia->count(),
+                'bruto' => (int) $doDia->sum('valor_cents'),
+            ]);
+
+            $cursor->addDay();
+        }
+
+        return $dias;
     }
 
     public function scopeVisiveis(Builder $consulta): Builder

@@ -50,6 +50,10 @@
   --color-white: #ffffff;
   --color-black: #101828;
 
+  /* O magenta do desenho da marca (App\Support\Marca), para o nome escrito. */
+  --color-marca-escura: #bb00bf;
+  --color-marca-clara: #f000e4;
+
   --color-brand-25: #f2f7ff;
   --color-brand-50: #ecf3ff;
   --color-brand-100: #dde9ff;

@@ -343,13 +343,13 @@ it('desenha o codigo da plaquinha na propria ficha', function () {
         ->assertSee('/q/K7M2PX');
 });
 
-it('abre no painel do Avalia Salles, com o menu do produto e nao o do credito', function () {
+it('abre no painel do Avalia Sales, com o menu do produto e nao o do credito', function () {
     // A casca sem lateral nasceu quando o produto tinha duas telas. Agora tem
     // seis, e lateral de 290px deixou de ser moldura maior que o quadro. O que
-    // continua valendo e nao misturar os produtos: mesma moldura, menu do Salles.
+    // continua valendo e nao misturar os produtos: mesma moldura, menu do Sales.
     $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
 
-    expect($conteudo)->toContain('Avalia Salles')
+    expect($conteudo)->toContain('Avalia Sales')
         ->and($conteudo)->toContain('Meu estoque')
         // Nenhum modulo do Avalia One no menu daqui.
         ->and($conteudo)->not->toContain('Catálogo')

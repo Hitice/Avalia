@@ -303,7 +303,7 @@ it('abre a porta no proprio cartao de quem nao tem sessao', function () {
     $html = $this->get(route('inicio'))->assertOk()->getContent();
 
     expect($html)->toContain('abrir-porta')
-        // O destino do Avalia Salles tem ferramenta propria; os outros dois caem
+        // O destino do Avalia Sales tem ferramenta propria; os outros dois caem
         // no painel do guard de quem entrar.
         ->and($html)->toContain("destino: 'plaquinhas'");
 });
@@ -314,7 +314,7 @@ it('leva cada produto a area DELE, e nao todos ao Avalia One', function () {
     $html = admin()->get(route('inicio'))->assertOk()->getContent();
 
     expect($html)->toContain('href="'.route('painel').'"')
-        ->and($html)->toContain('href="'.route('salles.inicio').'"')
+        ->and($html)->toContain('href="'.route('sales.inicio').'"')
         // Quem tem sessao nao ve porta de login.
         ->and($html)->not->toContain('abrir-porta');
 });
@@ -325,7 +325,7 @@ it('nao oferece Entrar no Gestor a quem nao tem tela dele', function () {
     // ensina o operador a ignorar o botao.
     $html = admin()->get(route('inicio'))->assertOk()->getContent();
 
-    // Dois Entrar, e nao tres: One e Salles tem entrada, o Gestor nao.
+    // Dois Entrar, e nao tres: One e Sales tem entrada, o Gestor nao.
     expect(substr_count($html, '>Entrar</a>'))->toBe(2)
         ->and(substr_count($html, '>Conhecer</a>'))->toBe(3);
 });

@@ -44,6 +44,9 @@ enum NaturezaLancamento: string
     /** Distribuicao de resultado, que e decisao e nao calculo automatico. */
     case Distribuicao = 'distribuicao';
 
+    /** Quita uma divida ja reconhecida (comissao a pagar). Sai do sistema, nunca do formulario. */
+    case Pagamento = 'pagamento';
+
     public function rotulo(): string
     {
         return match ($this) {
@@ -56,6 +59,7 @@ enum NaturezaLancamento: string
             self::Transferencia => 'Transferência entre contas',
             self::Retirada => 'Retirada do sócio',
             self::Distribuicao => 'Distribuição de resultado',
+            self::Pagamento => 'Pagamento de dívida',
         };
     }
 
@@ -81,6 +85,7 @@ enum NaturezaLancamento: string
             self::Transferencia => 'Saiu de uma conta e entrou na outra. O resultado não muda.',
             self::Retirada => 'O caixa caiu {valor} e o que a empresa devia a {socio} diminuiu.',
             self::Distribuicao => 'O caixa caiu {valor} e o patrimônio de {socio} diminuiu.',
+            self::Pagamento => 'O caixa caiu {valor} e a dívida diminuiu no mesmo tanto. Não gera despesa nova.',
         };
     }
 
@@ -113,6 +118,12 @@ enum NaturezaLancamento: string
             fn (array $mapa, self $caso) => $mapa + [$caso->value => $caso->rotulo()],
             [],
         );
+    }
+
+    /** As que o formulario oferece: Pagamento nasce da tela que sabe a quem se deve. */
+    public static function rotulosManuais(): array
+    {
+        return array_diff_key(self::rotulos(), [self::Pagamento->value => true]);
     }
 
     public static function tentar(?string $valor): ?self

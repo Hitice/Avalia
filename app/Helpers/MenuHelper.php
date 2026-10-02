@@ -53,7 +53,7 @@ class MenuHelper
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
             /*
-             * Avalia Salles, o produto de vendas externas.
+             * Avalia Sales, o produto de vendas externas.
              *
              * UM item, e nao os tres que havia (QR dinamico, Vendas QR,
              * Negocios): aquilo misturava as telas de outro produto no menu
@@ -64,7 +64,7 @@ class MenuHelper
              * Sem `papeis`: cliente e produtor tambem entram, e o que limita
              * cada um e o dono gravado no codigo, e nao o papel.
              */
-            ['icon' => 'qr', 'name' => 'Avalia Salles', 'path' => '/sales'],
+            ['icon' => 'qr', 'name' => 'Avalia Sales', 'path' => '/sales'],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
@@ -91,16 +91,16 @@ class MenuHelper
     }
 
     /*
-     * As rotas do Avalia Salles: a lateral decide por elas qual menu e qual
+     * As rotas do Avalia Sales: a lateral decide por elas qual menu e qual
      * marca mostrar. Por prefixo de rota, e nao por URL.
      */
-    public const ROTAS_SALLES = ['etiquetas.', 'negocios', 'plaquinhas.', 'salles.'];
+    public const ROTAS_SALES = ['etiquetas.', 'negocios', 'plaquinhas.', 'sales.'];
 
-    public static function naSalles(): bool
+    public static function naSales(): bool
     {
         $rota = (string) request()->route()?->getName();
 
-        foreach (self::ROTAS_SALLES as $prefixo) {
+        foreach (self::ROTAS_SALES as $prefixo) {
             if (str_starts_with($rota, $prefixo)) {
                 return true;
             }
@@ -111,24 +111,24 @@ class MenuHelper
 
     public static function marcaDaArea(): string
     {
-        return self::naSalles() ? 'vendas' : 'credito';
+        return self::naSales() ? 'vendas' : 'credito';
     }
 
     public static function inicioDaArea(): string
     {
-        if (self::naSalles()) {
+        if (self::naSales()) {
             // A equipe tem home; cliente e produtor caem no QR, que e o que veem.
-            return auth('staff')->check() ? route('salles.inicio') : route('etiquetas.index');
+            return auth('staff')->check() ? route('sales.inicio') : route('etiquetas.index');
         }
 
         return auth('empresa')->check() ? route('empresa.painel') : route('painel');
     }
 
     /**
-     * Menu do Avalia Salles. Tela de administracao aparece so para quem
+     * Menu do Avalia Sales. Tela de administracao aparece so para quem
      * administra: margem da casa nao e assunto de quem vende.
      */
-    public static function getItensDaSalles()
+    public static function getItensDaSales()
     {
         return [
             ['icon' => 'dashboard', 'name' => 'Início', 'path' => '/sales'],
@@ -159,10 +159,10 @@ class MenuHelper
             && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro())
             && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios());
 
-        if (self::naSalles()) {
+        if (self::naSales()) {
             return [[
                 'title' => \App\Support\Empresa::marcaVendas(),
-                'items' => array_values(array_filter(self::getItensDaSalles(), $permitido)),
+                'items' => array_values(array_filter(self::getItensDaSales(), $permitido)),
             ]];
         }
 

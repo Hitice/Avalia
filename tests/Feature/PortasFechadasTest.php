@@ -201,7 +201,7 @@ it('exige permissao de administracao em tudo que nao e do vendedor', function ()
         // O estoque pessoal de placas. O recorte sai de quem esta logado, e nao
         // da URL: nao existe parametro que peca o estoque de outro. A entrega e
         // a devolucao, que mexem no que cada um presta conta, exigem admin.
-        'salles.estoque', 'salles.inicio',
+        'sales.estoque', 'sales.inicio',
         // Os leads que a administracao compartilhou com ele. Nao mostra numero
         // interno nenhum, e o recorte sai do vinculo, nao da URL: nao existe
         // parametro que peca a lista de outro vendedor.

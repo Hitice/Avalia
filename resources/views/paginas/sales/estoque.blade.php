@@ -9,7 +9,7 @@
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <x-avalia.cartao-indicador rotulo="Na minha mão" :valor="$minhas->count()"
+        <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$minhas->count()"
                                    tom="text-brand-600 dark:text-brand-400" />
 
         @if ($ehAdmin)
@@ -21,7 +21,7 @@
         <div class="cartao mb-6 p-5">
             <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Entregar placas</h2>
 
-            <form method="POST" action="{{ route('salles.estoque.entregar') }}"
+            <form method="POST" action="{{ route('sales.estoque.entregar') }}"
                   class="flex flex-wrap items-end gap-3">
                 @csrf
 
@@ -53,7 +53,7 @@
         <div class="cartao mb-6 p-5">
             <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Entregar por código</h2>
 
-            <form method="POST" action="{{ route('salles.estoque.entregar-codigos') }}" class="grid gap-3">
+            <form method="POST" action="{{ route('sales.estoque.entregar-codigos') }}" class="grid gap-3">
                 @csrf
 
                 <div class="grid gap-3 sm:grid-cols-[14rem_1fr]">
@@ -101,7 +101,7 @@
                                 <td class="tabela-td text-right tabular-nums">{{ $pessoa->vendidas }}</td>
                                 <td class="tabela-td text-right">
                                     @if ($pessoa->em_maos > 0)
-                                        <form method="POST" action="{{ route('salles.estoque.devolver', $pessoa) }}">
+                                        <form method="POST" action="{{ route('sales.estoque.devolver', $pessoa) }}">
                                             @csrf
                                             <x-avalia.botao variante="secundario" class="botao-sm">
                                                 Devolver {{ $pessoa->em_maos }}
@@ -125,7 +125,7 @@
 
     <div class="cartao overflow-hidden">
         <h2 class="p-5 pb-0 text-lg font-semibold text-gray-800 dark:text-white/90">
-            As minhas, uma a uma
+            Placas em estoque
         </h2>
 
         <div class="tabela-rolagem mt-4">

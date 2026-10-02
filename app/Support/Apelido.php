@@ -34,7 +34,8 @@ final class Apelido
      */
     private const GUARDADAS = [
         'admin', 'api', 'app', 'assets', 'avalia', 'blog', 'build', 'cdn', 'css',
-        'email', 'favicon', 'fonts', 'ftp', 'images', 'img', 'js', 'mail', 'media',
+        'email', 'favicon', 'fonts', 'ftp', 'images', 'img', 'js', 'mail', 'marca',
+        'media',
         'robots', 'sitemap', 'ssl', 'static', 'storage', 'suporte', 'up', 'vendor',
         'webmail', 'www',
     ];

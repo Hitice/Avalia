@@ -72,7 +72,7 @@ it('acha a placa pelo telefone do cliente na busca', function () {
 });
 
 it('tirou da tela do estoque o link de cadastro por vendedor', function () {
-    $html = admin()->get(route('salles.estoque'))->assertOk()->getContent();
+    $html = admin()->get(route('sales.estoque'))->assertOk()->getContent();
 
     expect($html)->not->toContain('Link para mandar ao cliente')
         ->and($html)->not->toContain('Meu link de cadastro');

@@ -11,7 +11,7 @@
         /*
          * Sem aba de Servicos, de proposito.
          *
-         * Os servicos digitais sao o Avalia Salles, e produto se alcanca pelo
+         * Os servicos digitais sao o Avalia Sales, e produto se alcanca pelo
          * cartao da secao de aplicacoes, como o One e o Gestor. Aba propria para
          * um dos tres era o item fora do padrao, e oferecia dois caminhos para a
          * mesma pagina.
@@ -37,13 +37,13 @@
 
     <title>{{ Empresa::marca() }} · {{ $titulo }}</title>
 
-    {{-- O medidor da marca no azul da casa (02/10/2026). Era laranja para se
-         achar entre os favicons de sistema; a identidade pesou mais. --}}
+    {{-- O medidor da marca, do desenho do dono. --}}
     {{-- A versao no endereco existe porque o navegador guarda favicon com
          teimosia: sem ela, quem ja abriu o site continua vendo o icone antigo
          por tempo indeterminado. --}}
-    <link rel="icon" href="{{ asset('favicon.svg') }}?v=3" type="image/svg+xml">
-    <link rel="mask-icon" href="{{ asset('favicon.svg') }}?v=3" color="#465fff">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
+    <link rel="mask-icon" href="{{ asset('favicon.svg') }}?v=4" color="#bb00bf">
+    <link rel="apple-touch-icon" href="{{ asset('marca/icone-180.png') }}">
     <meta name="description" content="{{ $descricao }}">
     <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
     <link rel="canonical" href="{{ url()->current() }}">
