@@ -185,8 +185,7 @@ class VendasPlaquinhasController extends Controller
         $pct = (int) config('etiquetas.retencao_pct');
 
         return $contas->map(function (Staff $socio, int $posicao) use ($mes, $total, $pct) {
-            // `mes` e `total` continuam sendo a PARTE inteira, que e o que os
-            // testes de divisao conferem. O que sai na sexta e o pro-labore.
+            // `mes` e `total` seguem sendo a parte inteira; o que sai e o pro-labore.
             $doMes = RepartePlaquinha::retencao($mes[$posicao] ?? 0, $pct);
             $deSempre = RepartePlaquinha::retencao($total[$posicao] ?? 0, $pct);
 

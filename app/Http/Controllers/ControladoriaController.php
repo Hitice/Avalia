@@ -49,8 +49,7 @@ class ControladoriaController extends Controller
 
                 // Nao e o que ele tem a receber: distribuicao depende de decisao,
                 // e nao de calculo. Dai o nome da coluna.
-                // A parte dele no lucro, pela participacao, ja dividida entre o que
-                // fica na empresa e o pro-labore que sai na sexta.
+                // A parte dele, ja dividida entre o que fica e o pro-labore.
                 ...$this->parteDoSocio($lucro, $socio->participacao_bps),
 
                 'aportou' => $this->doSocio($socio, ContaFinanceira::APORTE),
@@ -61,9 +60,7 @@ class ControladoriaController extends Controller
         ]);
     }
 
-    /**
-     * @return array{parte: int, retido: int, prolabore: int}
-     */
+    /** @return array{parte: int, retido: int, prolabore: int} */
     private function parteDoSocio(int $lucro, int $participacaoBps): array
     {
         $parte = (int) round($lucro * $participacaoBps / 10000);
