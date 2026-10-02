@@ -410,14 +410,11 @@
         {{-- O detalhe de um cartao. Um overlay so para todos: o conteudo vem
              do cartao clicado, entao acrescentar um assunto novo e acrescentar
              uma linha no array la em cima, e nao mais um bloco de markup. --}}
-        <div x-cloak x-show="detalhe !== null" x-transition.opacity.duration.200ms
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="detalhe = null" role="dialog" aria-modal="true">
+        <x-avalia.modal aberto="detalhe !== null" fechar="detalhe = null" largura="max-w-lg" :recheio="false" class="overflow-hidden">
             {{-- Mesma construcao do popup dos pilares da pagina inicial: a
                  grade viva no cabecalho, o simbolo do assunto numa caixa e o
                  texto no corpo branco. Duas caixas diferentes para a mesma
                  funcao fariam a pessoa achar que mudou de site. --}}
-            <div class="flutuante w-full max-w-lg overflow-hidden">
                 <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
@@ -425,13 +422,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" :d="detalhe?.icone"/>
                             </svg>
                         </div>
-
-                        <button type="button" @click="detalhe = null" aria-label="Fechar"
-                                class="text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
-                            <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                            </svg>
-                        </button>
                     </div>
 
                     <h2 class="mt-4 text-xl font-semibold tracking-tight text-gray-800 dark:text-white" x-text="detalhe?.titulo"></h2>
@@ -444,8 +434,7 @@
                         Fechar
                     </x-avalia.botao>
                 </div>
-            </div>
-        </div>
+        </x-avalia.modal>
 
         {{-- O formulario vive num overlay, e nao no corpo da pagina.
 
@@ -453,17 +442,7 @@
              ja decidiu falar com alguem, e empurrava as duvidas para baixo. Em
              overlay, quem quer preencher chama, e quem esta lendo continua
              lendo. Esc, clique fora e o X fecham. --}}
-        <div x-cloak x-show="formulario" x-transition.opacity.duration.200ms
-             class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gray-900/60 p-4 py-10 backdrop-blur-sm"
-             @click.self="formulario = false" role="dialog" aria-modal="true" aria-label="Fale com a {{ Empresa::marcaCobranca() }}">
-            <div class="flutuante relative w-full max-w-lg px-6 py-6 sm:px-8">
-                <button type="button" @click="formulario = false" aria-label="Fechar"
-                        class="absolute top-4 right-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                    </svg>
-                </button>
-
+        <x-avalia.modal aberto="formulario" fechar="formulario = false" largura="max-w-lg" rotulo="Fale com a {{ Empresa::marcaCobranca() }}">
                 <h2 class="text-xl font-semibold tracking-tight">Fale com a {{ Empresa::marcaCobranca() }}</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Preencha abaixo e um especialista entra em contato pelo WhatsApp informado,
@@ -558,8 +537,7 @@
                         Seus dados ficam só com a Avalia One e servem apenas para este contato.
                     </p>
                 </form>
-            </div>
-        </div>
+        </x-avalia.modal>
 
 
         <footer class="border-t border-gray-100 dark:border-gray-800">

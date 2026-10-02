@@ -575,10 +575,7 @@
              num clique nao delimita responsabilidade depois, e quem chega pela
              segunda vez nao veria mais nada. Aqui ele ganha a atencao que a
              letra pequena nao tem; la embaixo ele fica para sempre. --}}
-        <div x-cloak x-show="avisoLegal" x-transition.opacity.duration.300ms
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="fecharAviso()" role="dialog" aria-modal="true" aria-label="Uso responsável da informação">
-            <div class="flutuante w-full max-w-lg px-7 py-6">
+        <x-avalia.modal aberto="avisoLegal" fechar="fecharAviso()" largura="max-w-lg" rotulo="Uso responsável da informação" sem-fechar>
                 <h2 class="text-lg font-semibold tracking-tight">Uso responsável da informação</h2>
 
                 <p class="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
@@ -594,8 +591,7 @@
                 <button type="button" @click="fecharAviso()" class="botao botao-primario mt-6 w-full">
                     Entendi
                 </button>
-            </div>
-        </div>
+        </x-avalia.modal>
 
         {{-- O aviso de uso responsavel fecha o conteudo, centralizado e fora
              do rodape: e nota legal, nao assinatura. As citacoes conferem:
@@ -636,33 +632,25 @@
              que desliza. A altura e unica por construcao (os slides dividem a
              mesma linha de flex), entao folhear nao muda o tamanho do card.
              Setinha, arrasto de mouse ou dedo, Esc e clique fora. --}}
-        <div x-cloak x-show="pilares.includes(aberto)" x-transition.opacity.duration.500ms
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Sobre a Avalia One">
-            <div class="relative w-full max-w-4xl">
+        <x-avalia.modal aberto="pilares.includes(aberto)" fechar="aberto = null" largura="max-w-4xl" :recheio="false" rotulo="Sobre a Avalia One">
+                {{-- As setas ficam sobre o card, dentro do modal: fora dele
+                     seriam recortadas pela rolagem. No celular e o dedo que folheia. --}}
                 <button type="button" x-show="idxPilar() > 0" @click="anteriorPilar()" aria-label="Assunto anterior"
-                        class="absolute top-1/2 -left-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
-                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        class="absolute top-1/2 left-2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-theme-md transition hover:bg-white sm:flex dark:bg-gray-800/80 dark:text-white">
+                    <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
                 <button type="button" x-show="idxPilar() < 2" @click="proximoPilar()" aria-label="Próximo assunto"
-                        class="absolute top-1/2 -right-11 z-10 hidden -translate-y-1/2 text-white transition hover:scale-125 sm:block">
-                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        class="absolute top-1/2 right-2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-theme-md transition hover:bg-white sm:flex dark:bg-gray-800/80 dark:text-white">
+                    <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </button>
-                <button type="button" @click="aberto = null" aria-label="Fechar"
-                        class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
-                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
                     </svg>
                 </button>
 
                 {{-- O recorte do trilho: sem ele o card vizinho fica inteiro
-                     visivel ao lado. A margem negativa com o mesmo padding
-                     preserva a sombra do card dentro da area recortada. --}}
-                <div class="entra-popup -m-6 touch-pan-y overflow-hidden p-6 select-none"
+                     visivel ao lado. --}}
+                <div class="touch-pan-y overflow-hidden p-6 select-none"
                      @pointerdown="comecaArrasto($event)" @pointermove="moveArrasto($event)"
                      @pointerup="soltaArrasto()" @pointercancel="soltaArrasto()" @pointerleave="soltaArrasto()">
                     <div class="flex items-stretch gap-8"
@@ -709,24 +697,12 @@
                         @endforeach
                     </div>
                 </div>
-            </div>
-        </div>
+        </x-avalia.modal>
 
         {{-- O formulario da campanha. Os dados entram no nosso banco e a
              conversa comeca do nosso lado: nome e telefone sao dado pessoal e
              nao viajam em URL de WhatsApp. --}}
-        <div x-cloak x-show="aberto === 'campanha'" x-transition.opacity.duration.500ms
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido de contato">
-            <div class="relative w-full max-w-md">
-                <button type="button" @click="aberto = null" aria-label="Fechar"
-                        class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
-                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                    </svg>
-                </button>
-
-            <div class="flutuante entra-popup max-h-[92vh] w-full overflow-y-auto p-7">
+        <x-avalia.modal aberto="aberto === 'campanha'" fechar="aberto = null" rotulo="Pedido de contato">
                 <div>
                     <h3 class="text-xl font-semibold">Quase lá</h3>
                     <p class="subtitulo-pagina">
@@ -794,15 +770,10 @@
                         Retornamos em horário comercial. Seus dados ficam só com a Avalia One.
                     </p>
                 </form>
-            </div>
-            </div>
-        </div>
+        </x-avalia.modal>
 
         {{-- Confirmacao de que o pedido chegou. --}}
-        <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.500ms
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido recebido">
-            <div class="flutuante entra-popup w-full max-w-sm p-8 text-center">
+        <x-avalia.modal aberto="aberto === 'obrigado'" fechar="aberto = null" largura="max-w-sm" rotulo="Pedido recebido" class="text-center">
                 <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
                     <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
@@ -816,7 +787,6 @@
                 <x-avalia.botao variante="secundario" class="mt-6 w-full" @click="aberto = null" type="button">
                     Fechar
                 </x-avalia.botao>
-            </div>
-        </div>
+        </x-avalia.modal>
     </div>
 @endsection

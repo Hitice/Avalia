@@ -571,6 +571,25 @@
   @apply rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800;
 }
 
+/* Modal: folha que sobe do pe no celular, caixa centrada no desktop. O X tem
+   44px de alvo, que e o minimo que um dedo acerta. */
+@utility modal-fundo {
+  @apply fixed inset-0 z-50 flex items-end justify-center bg-gray-900/60 backdrop-blur-sm sm:items-center sm:p-4;
+}
+
+@utility modal {
+  @apply relative w-full max-h-[92dvh] overflow-y-auto rounded-t-2xl border border-gray-200 bg-white shadow-theme-lg sm:max-h-[90vh] sm:rounded-2xl dark:border-gray-700 dark:bg-gray-800;
+}
+
+@utility modal-recheio {
+  @apply p-5 sm:p-7;
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+@utility modal-fechar {
+  @apply absolute top-3 right-3 z-10 flex size-11 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/10 dark:hover:text-gray-200;
+}
+
 @utility rotulo-grupo {
   @apply text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500;
 }
@@ -1304,4 +1323,10 @@
 @media (prefers-reduced-motion: reduce) {
   /* Sem movimento, a saida inteira ja esta escrita. */
   .surge-linha { animation: none; opacity: 1; }
+}
+
+/* No celular o campo tem 16px: abaixo disso o iOS da zoom na pagina ao focar,
+   e a pessoa sai do modal sem querer. */
+@media (max-width: 639px) {
+  .campo { font-size: 1rem; }
 }

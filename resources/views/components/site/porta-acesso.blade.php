@@ -16,16 +16,9 @@
 
 @if (App\Support\Dono::tipo() === null)
 <div x-data="{ aberta: false, destino: '' }"
-     x-on:abrir-porta.window="aberta = true; destino = $event.detail.destino; $nextTick(() => $refs.email?.focus())"
-     x-on:keydown.escape.window="aberta = false">
+     x-on:abrir-porta.window="aberta = true; destino = $event.detail.destino; $nextTick(() => $refs.email?.focus())">
 
-    <div x-show="aberta" x-cloak x-transition.opacity
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-         x-on:click.self="aberta = false" role="dialog" aria-modal="true" aria-labelledby="porta-titulo">
-
-        <div x-show="aberta" x-cloak x-transition
-             class="flutuante w-full max-w-sm p-7">
-
+    <x-avalia.modal aberto="aberta" fechar="aberta = false" largura="max-w-sm" rotulo="Acesso da administração">
             <h2 id="porta-titulo" class="text-lg font-semibold tracking-tight text-gray-900">Acesso da administração</h2>
             <p class="mt-2 text-sm leading-relaxed text-gray-600">
                 Esta ferramenta é interna. Entre para criar e gerenciar os códigos.
@@ -60,7 +53,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
+    </x-avalia.modal>
 </div>
 @endif

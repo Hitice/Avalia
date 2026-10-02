@@ -128,6 +128,11 @@ bolso de quem ja recebeu o antigo.
 
 Convencoes de interacao ja decididas:
 
+- **modal e `<x-avalia.modal aberto="..." fechar="...">`**, sempre: no celular
+  vira folha que sobe do pe da tela, no desktop caixa centrada; Esc, clique fora e
+  o X fecham. `ModalTest` recusa overlay escrito a mao. Modal sem recheio proprio
+  (`:recheio="false"`) quando o conteudo traz o cabecalho.
+
 - **editar linha a linha**, um botao Editar por linha, nunca matriz de campos
 - acao de um clique (ligar/desligar) usa `x-avalia.interruptor`, que grava no
   proprio clique sem abrir formulario

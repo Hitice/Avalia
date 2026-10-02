@@ -510,18 +510,9 @@
     {{-- O detalhe da frente escolhida. Um overlay so, com o conteudo trocando:
          sete overlays empilhados seriam sete copias da mesma moldura para
          divergir. Fecha no clique fora, no Esc e no botao. --}}
-    <div x-cloak x-show="aberto !== null" x-transition.opacity.duration.200ms
-         class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-         @click.self="aberto = null" role="dialog" aria-modal="true">
+    <x-avalia.modal aberto="aberto !== null" fechar="aberto = null" largura="max-w-2xl">
         @foreach ($softwares as $ancora => $software)
-            <div x-cloak x-show="aberto === '{{ $ancora }}'" class="entra-popup relative w-full max-w-2xl">
-                <div class="cartao max-h-[85vh] overflow-y-auto p-6 sm:p-8">
-                    <button type="button" @click="aberto = null" aria-label="Fechar"
-                            class="absolute top-4 right-4 flex size-9 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">
-                        <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12M18 6 6 18" />
-                        </svg>
-                    </button>
+            <div x-cloak x-show="aberto === '{{ $ancora }}'">
 
                     <span class="icone-caixa">
                         <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -566,10 +557,9 @@
                             Ver todos os softwares
                         </x-avalia.botao>
                     </div>
-                </div>
             </div>
         @endforeach
-    </div>
+    </x-avalia.modal>
     </div>
     <x-site.porta-acesso />
 

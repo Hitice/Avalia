@@ -241,18 +241,7 @@
 
         {{-- Modal do pedido de cadastro: mesmo formulario da campanha, mesma
              fila no painel da administracao, origem propria. --}}
-        <div x-cloak x-show="cadastro" x-transition.opacity.duration.300ms
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
-             @click.self="cadastro = false" role="dialog" aria-modal="true" aria-label="Pedido de cadastro">
-            <div class="relative w-full max-w-md">
-                <button type="button" @click="cadastro = false" aria-label="Fechar"
-                        class="absolute -top-10 right-0 z-10 text-white transition hover:scale-125">
-                    <svg class="size-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                    </svg>
-                </button>
-
-                <div class="flutuante entra-popup max-h-[92vh] w-full overflow-y-auto p-7">
+        <x-avalia.modal aberto="cadastro" fechar="cadastro = false" rotulo="Pedido de cadastro">
                     @if (session('interesse_ok'))
                         <div class="py-4 text-center">
                             <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
@@ -338,8 +327,6 @@
                             </p>
                         </form>
                     @endif
-                </div>
-            </div>
-        </div>
+        </x-avalia.modal>
     </div>
 @endsection
