@@ -40,6 +40,20 @@ it('escreve o nome no magenta do desenho', function () use ($raiz) {
         ->and($css)->toContain("--color-marca-clara: {$clara};");
 });
 
+it('pinta os degraus de azul no tema escuro, no CSS e no favicon', function () use ($raiz) {
+    $css = (string) file_get_contents($raiz.'/resources/css/app.css');
+    $favicon = (string) file_get_contents($raiz.'/public/favicon.svg');
+    [$escura, $clara] = Marca::noite();
+
+    expect($css)->toContain(Marca::regrasDaNoite('.dark '))
+        ->and($css)->toContain("--color-marca-noite-escura: {$escura};")
+        ->and($css)->toContain("--color-marca-noite-clara: {$clara};")
+        ->and($css)->toContain('rotate(-'.Marca::VARREDURA_GRAUS.'deg)')
+        ->and($css)->toContain('--lido: var(--nivel')
+        ->and($css)->toContain('transform-origin: '.str_replace(' ', 'px ', Marca::EIXO).'px')
+        ->and($favicon)->toContain(Marca::regrasDaNoite(''));
+});
+
 it('nao repete id de degrade quando a marca aparece duas vezes', function () {
     expect(Marca::arco('a'))->not->toBe(Marca::arco('b'))
         ->and(Marca::arco('a'))->toContain('id="a-1"')->toContain('url(#a-4)');

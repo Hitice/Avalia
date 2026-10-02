@@ -53,6 +53,8 @@
   /* O magenta do desenho da marca (App\Support\Marca), para o nome escrito. */
   --color-marca-escura: #bb00bf;
   --color-marca-clara: #f000e4;
+  --color-marca-noite-escura: #3641f5;
+  --color-marca-noite-clara: #7592ff;
 
   --color-brand-25: #f2f7ff;
   --color-brand-50: #ecf3ff;
@@ -757,28 +759,46 @@
   to   { transform: scaleX(1); }
 }
 
-/* O medidor por nivel: a faixa sobe ate a fracao de --nivel e o ponteiro gira
-   ate o mesmo ponto, no compasso da contagem da pontuacao. Roda quando o
-   slide aparece, entao recarrega a cada consulta, clique ou auto-avanco. */
-@utility medidor-nivel-faixa {
-  stroke-dasharray: 100;
-  animation: medidor-nivel-faixa 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+/* O nome escrito da marca: o magenta do desenho, azul no tema escuro. */
+@utility nome-marca {
+  @apply bg-linear-to-tr from-marca-escura to-marca-clara bg-clip-text text-transparent dark:from-marca-noite-escura dark:to-marca-noite-clara;
 }
 
-@keyframes medidor-nivel-faixa {
-  from { stroke-dashoffset: 100; }
-  to   { stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
+/* Os degraus do arco no tema escuro, gerados de App\Support\Marca::regrasDaNoite('.dark ');
+   MarcaTest cobra que sejam os mesmos. */
+.dark .marca-de-1{stop-color:#9cb9ff}.dark .marca-para-1{stop-color:#dde9ff}.dark .marca-de-2{stop-color:#7592ff}.dark .marca-para-2{stop-color:#c2d6ff}.dark .marca-de-3{stop-color:#3641f5}.dark .marca-para-3{stop-color:#7592ff}.dark .marca-de-4{stop-color:#2a31d8}.dark .marca-para-4{stop-color:#465fff}
+
+/* O medidor por nivel: a leitura (--lido) sobe de zero ate --nivel e cada faixa
+   acende quando ela passa pelo seu quarto; o ponteiro gira ate o mesmo ponto, no
+   compasso da contagem da pontuacao. Roda quando o slide aparece, entao
+   recarrega a cada consulta, clique ou auto-avanco. O angulo e o eixo vem de
+   App\Support\Marca: o ponteiro desenhado esta VARREDURA_GRAUS acima de
+   "apontando para a esquerda", que e o nivel zero. */
+@property --lido {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@utility medidor-nivel-faixa {
+  animation: medidor-leitura 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+@keyframes medidor-leitura {
+  from { --lido: 0; }
+  to   { --lido: var(--nivel, 0.75); }
 }
 
 @utility medidor-nivel-ponteiro {
-  transform-origin: 16px 22.5px;
+  transform-box: view-box;
+  transform-origin: 1509.11px 715.91px;
   /* Mesma curva e mesmo tempo da faixa: os dois chegam juntos ao nivel. */
-  animation: medidor-nivel-ponteiro 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+  animation: medidor-nivel 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
-@keyframes medidor-nivel-ponteiro {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
+@keyframes medidor-nivel {
+  from { transform: rotate(-152.86deg); }
+  to   { transform: rotate(calc(var(--nivel, 0.75) * 180deg - 152.86deg)); }
 }
 
 /* A pontuacao com a cor de bureau, contando do zero ate o alvo enquanto o
@@ -855,8 +875,8 @@
   .celula-viva { animation: none; opacity: 0.4; }
   .celula-vira { animation: none; opacity: 0; }
   .entra-suave { animation: none; opacity: 1; }
-  .medidor-nivel-faixa { animation: none; stroke-dashoffset: calc(100 - (var(--nivel, 0.75) * 100)); }
-  .medidor-nivel-ponteiro { animation: none; transform: rotate(calc(var(--nivel, 0.75) * 180deg)); }
+  .medidor-nivel-faixa { animation: none; --lido: var(--nivel, 0.75); }
+  .medidor-nivel-ponteiro { animation: none; transform: rotate(calc(var(--nivel, 0.75) * 180deg - 152.86deg)); }
   .flutua { animation: none; }
   .flutua-alto { animation: none; }
 

@@ -19,6 +19,24 @@ final class Marca
     /** Um quadrado em volta do arco, com o arco centrado na vertical. */
     public const CAIXA = '907.99 -360.75 1500.6 1500.6';
 
+    /** O eixo do ponteiro, para o medidor girar. */
+    public const EIXO = '1509.11 715.91';
+
+    /** Quanto o ponteiro desenhado esta acima de "apontando para a esquerda" (nivel zero). */
+    public const VARREDURA_GRAUS = 152.86;
+
+    /**
+     * O mesmo arco no tema escuro, em azul: a escala da casa, uma faixa do
+     * desenho para cada par de degraus. Magenta sobre fundo escuro e so no
+     * site, que vive no tema claro.
+     */
+    private const NOITE = [
+        ['#9cb9ff', '#dde9ff'],
+        ['#7592ff', '#c2d6ff'],
+        ['#3641f5', '#7592ff'],
+        ['#2a31d8', '#465fff'],
+    ];
+
     /** x1, y1, x2, y2 do degrade, cor inicial, cor final e o tracado. */
     private const FAIXAS = [
         ['834.39', '611.61', '1235.85', '404.28', '#f365e8', '#ffafef',
@@ -42,19 +60,55 @@ final class Marca
         return [self::FAIXAS[2][4], self::FAIXAS[2][5]];
     }
 
+    /** O par de azul da faixa principal, para o nome escrito no tema escuro. */
+    public static function noite(): array
+    {
+        return self::NOITE[2];
+    }
+
     /** O prefixo evita id repetido quando a marca aparece duas vezes na pagina. */
     public static function arco(string $prefixo = 'marca'): string
     {
-        $defs = '';
-        $faixas = '';
+        return '<defs>'.self::degrades($prefixo).'</defs>'.self::faixas($prefixo);
+    }
 
-        foreach (self::FAIXAS as $i => [$x1, $y1, $x2, $y2, $de, $para, $d]) {
-            $id = $prefixo.'-'.($i + 1);
-            $defs .= "<linearGradient id=\"{$id}\" gradientUnits=\"userSpaceOnUse\" x1=\"{$x1}\" y1=\"{$y1}\" x2=\"{$x2}\" y2=\"{$y2}\"><stop offset=\"0\" stop-color=\"{$de}\"/><stop offset=\"1\" stop-color=\"{$para}\"/></linearGradient>";
-            $faixas .= "<path d=\"{$d}\" fill=\"url(#{$id})\"/>";
+    /** As classes nos degraus sao o gancho do tema escuro, ver regrasDaNoite(). */
+    public static function degrades(string $prefixo = 'marca'): string
+    {
+        $defs = '';
+
+        foreach (self::FAIXAS as $i => [$x1, $y1, $x2, $y2, $de, $para]) {
+            $n = $i + 1;
+            $defs .= "<linearGradient id=\"{$prefixo}-{$n}\" gradientUnits=\"userSpaceOnUse\" x1=\"{$x1}\" y1=\"{$y1}\" x2=\"{$x2}\" y2=\"{$y2}\"><stop class=\"marca-de-{$n}\" offset=\"0\" stop-color=\"{$de}\"/><stop class=\"marca-para-{$n}\" offset=\"1\" stop-color=\"{$para}\"/></linearGradient>";
         }
 
-        return "<defs>{$defs}</defs>{$faixas}";
+        return $defs;
+    }
+
+    /** $extra recebe o numero da faixa (1 a 4) e devolve atributos a mais, como o estilo que o medidor anima. */
+    public static function faixas(string $prefixo = 'marca', ?callable $extra = null): string
+    {
+        $faixas = '';
+
+        foreach (self::FAIXAS as $i => $faixa) {
+            $n = $i + 1;
+            $faixas .= '<path d="'.$faixa[6].'" fill="url(#'.$prefixo.'-'.$n.')"'.($extra ? ' '.$extra($n) : '').'/>';
+        }
+
+        return $faixas;
+    }
+
+    /** As regras que pintam os degraus de azul, para app.css e para o favicon. */
+    public static function regrasDaNoite(string $prefixo): string
+    {
+        $regras = '';
+
+        foreach (self::NOITE as $i => [$de, $para]) {
+            $n = $i + 1;
+            $regras .= "{$prefixo}.marca-de-{$n}{stop-color:{$de}}{$prefixo}.marca-para-{$n}{stop-color:{$para}}";
+        }
+
+        return $regras;
     }
 
     public static function ponteiro(string $cor): string

@@ -56,7 +56,7 @@
              por isso ele escurece. --}}
         <span class="leading-none font-semibold tracking-tight"
               style="font-size: {{ $texto ?? '1.35rem' }}">
-            <span class="bg-linear-to-tr from-marca-escura to-marca-clara bg-clip-text text-transparent">{{ Empresa::marca() }}</span>{{-- O espaco antes do sufixo e escrito a mao porque o Blade come o
+            <span class="nome-marca">{{ Empresa::marca() }}</span>{{-- O espaco antes do sufixo e escrito a mao porque o Blade come o
                  que houver entre as diretivas: sem ele a marca sai
                  "AvaliaOne", grudada, que e outro nome. --}}@if ($sufixo !== '')<span class="{{ $claro ? 'text-gray-200' : 'text-gray-400 dark:text-gray-200' }}">&nbsp;{{ $sufixo }}</span>@endif
         </span>
