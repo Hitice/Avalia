@@ -314,7 +314,7 @@ it('leva cada produto a area DELE, e nao todos ao Avalia One', function () {
     $html = admin()->get(route('inicio'))->assertOk()->getContent();
 
     expect($html)->toContain('href="'.route('painel').'"')
-        ->and($html)->toContain('href="'.route('etiquetas.index').'"')
+        ->and($html)->toContain('href="'.route('salles.inicio').'"')
         // Quem tem sessao nao ve porta de login.
         ->and($html)->not->toContain('abrir-porta');
 });

@@ -49,7 +49,11 @@ final class Porta
     public static function entradaDe(string $produto): ?string
     {
         return match ($produto) {
-            'vendas' => self::painelDaSessao() === null ? null : route('etiquetas.index'),
+            'vendas' => match (true) {
+                Auth::guard('staff')->check() => route('salles.inicio'),
+                self::painelDaSessao() !== null => route('etiquetas.index'),
+                default => null,
+            },
 
             'credito' => match (true) {
                 Auth::guard('staff')->check() => route('painel'),

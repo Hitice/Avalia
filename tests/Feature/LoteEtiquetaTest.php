@@ -167,7 +167,7 @@ it('poe o Avalia Salles na lateral, sem esconder atras de um pai', function () {
     $painel = admin()->get(route('painel'))->assertOk();
 
     // A lateral monta href com caminho relativo, e nao com a URL inteira.
-    $painel->assertSee('Avalia Salles')->assertSee('href="/etiquetas"', false);
+    $painel->assertSee('Avalia Salles')->assertSee('href="/sales"', false);
 
     // As telas de dentro do produto nao se repetem aqui.
     expect($painel->getContent())->not->toContain('Vendas QR')

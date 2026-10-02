@@ -64,7 +64,7 @@ class MenuHelper
              * Sem `papeis`: cliente e produtor tambem entram, e o que limita
              * cada um e o dono gravado no codigo, e nao o papel.
              */
-            ['icon' => 'qr', 'name' => 'Avalia Salles', 'path' => '/etiquetas'],
+            ['icon' => 'qr', 'name' => 'Avalia Salles', 'path' => '/sales'],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
@@ -117,7 +117,8 @@ class MenuHelper
     public static function inicioDaArea(): string
     {
         if (self::naSalles()) {
-            return route('etiquetas.index');
+            // A equipe tem home; cliente e produtor caem no QR, que e o que veem.
+            return auth('staff')->check() ? route('salles.inicio') : route('etiquetas.index');
         }
 
         return auth('empresa')->check() ? route('empresa.painel') : route('painel');
@@ -130,6 +131,7 @@ class MenuHelper
     public static function getItensDaSalles()
     {
         return [
+            ['icon' => 'dashboard', 'name' => 'Início', 'path' => '/sales'],
             ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
             ['icon' => 'pages', 'name' => 'Gerar códigos', 'path' => '/etiquetas/gerar', 'papeis' => ['admin']],
             ['icon' => 'tables', 'name' => 'Meu estoque', 'path' => '/estoque'],

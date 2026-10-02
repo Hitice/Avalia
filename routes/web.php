@@ -33,6 +33,7 @@ use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
+use App\Http\Controllers\SallesController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SociosController;
@@ -523,6 +524,9 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::post('/estoque/entregar-codigos', [EstoqueController::class, 'entregarPorCodigos'])->name('salles.estoque.entregar-codigos');
         Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->name('salles.estoque.devolver');
     });
+    // A home do produto, para a equipe. Cliente e produtor entram pelo QR
+    // dinamico e veem o proprio codigo; home de estoque e comissao nao e deles.
+    Route::get('/sales', [SallesController::class, 'inicio'])->name('salles.inicio');
     Route::get('/estoque', [EstoqueController::class, 'index'])->name('salles.estoque');
 
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
