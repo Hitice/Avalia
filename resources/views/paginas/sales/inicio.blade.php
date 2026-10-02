@@ -3,10 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">{{ App\Support\Empresa::marcaVendas() }}</h1>
-        <p class="rotulo-grupo mt-1">{{ now()->translatedFormat('F') }}</p>
-    </div>
+    <x-avalia.cabecalho-pagina :titulo="App\Support\Empresa::marcaVendas()" :rotulo="now()->translatedFormat('F')" />
 
     @include('parciais.avisos')
 

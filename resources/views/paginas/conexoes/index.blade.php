@@ -1,13 +1,12 @@
 @extends('layouts.app', ['title' => 'Conexões'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Conexões</h1>
-        <p class="subtitulo-pagina">
+    <x-avalia.cabecalho-pagina titulo="Conexões">
+        <x-slot:subtitulo>
             Credenciais dos serviços que a Avalia One usa: cobrança, bureaus e consulta veicular.
-            Ficam criptografadas e nunca voltam para a tela.
-        </p>
-    </div>
+                        Ficam criptografadas e nunca voltam para a tela.
+        </x-slot:subtitulo>
+    </x-avalia.cabecalho-pagina>
 
     @if (session('ok'))
         <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>

@@ -1,16 +1,9 @@
 @extends('layouts.app', ['title' => 'Planos'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Planos</h1>
-            <p class="subtitulo-pagina">
-                Faixas de consumo que a empresa contrata.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Planos" subtitulo="Faixas de consumo que a empresa contrata.">
         <x-avalia.botao :href="route('catalogo.planos.criar')">Novo plano</x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('paginas.catalogo.abas', ['atual' => 'planos'])
 

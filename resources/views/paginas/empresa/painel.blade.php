@@ -6,13 +6,12 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">{{ $empresa->razao_social }}</h1>
-            <p class="subtitulo-pagina">Competência {{ $competencia }}</p>
-        </div>
+    <x-avalia.cabecalho-pagina :titulo="$empresa->razao_social">
+        <x-slot:subtitulo>
+            Competência {{ $competencia }}
+        </x-slot:subtitulo>
         <x-avalia.ajuda assunto="Painel">Falar com a Avalia One</x-avalia.ajuda>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     {{-- Conta suspensa entra, mas nao consulta. A tela diz o porque em vez de
          so esconder o botao. Cliente sem explicacao liga para o vendedor. --}}

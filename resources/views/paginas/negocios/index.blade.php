@@ -1,14 +1,7 @@
 @extends('layouts.app', ['title' => 'Negócios'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Negócios</h1>
-            <p class="rotulo-grupo mt-1">Os clientes da frente de marketing</p>
-        </div>
-
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Negócios" rotulo="Os clientes da frente de marketing" />
     @include('parciais.avisos')
 
     {{-- O servico: nome do estabelecimento entra, link curto de avaliacao sai.

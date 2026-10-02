@@ -42,8 +42,7 @@
 @endphp
 
 @section('content')
-    <h1 class="titulo-pagina mb-6">TABELAS</h1>
-
+    <x-avalia.cabecalho-pagina titulo="TABELAS" />
     @include('paginas.catalogo.abas', ['atual' => 'catalogo'])
 
     @include('parciais.avisos')

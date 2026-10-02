@@ -1,10 +1,11 @@
 @extends('layouts.app', ['title' => 'Minha conta'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Minha conta</h1>
-        <p class="subtitulo-pagina">{{ $conta->nome ?? $conta->razao_social }} · {{ $conta->email }}</p>
-    </div>
+    <x-avalia.cabecalho-pagina titulo="Minha conta">
+        <x-slot:subtitulo>
+            {{ $conta->nome ?? $conta->razao_social }} · {{ $conta->email }}
+        </x-slot:subtitulo>
+    </x-avalia.cabecalho-pagina>
 
     @if (session('ok'))
         <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>

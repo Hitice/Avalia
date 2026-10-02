@@ -1,13 +1,9 @@
 @extends('layouts.app', ['title' => 'Consultar'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Nova consulta</h1>
-            <p class="subtitulo-pagina">{{ $empresa->razao_social }}</p>
-        </div>
+    <x-avalia.cabecalho-pagina titulo="Nova consulta" :subtitulo="$empresa->razao_social">
         <x-avalia.ajuda assunto="Consulta">Falar com a Avalia One</x-avalia.ajuda>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     {{-- A consulta que acabou de sair abre aqui, por cima da tela: nao ha
          pagina de resultado no meio do caminho. --}}

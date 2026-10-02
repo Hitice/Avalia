@@ -1,16 +1,9 @@
 @extends('layouts.app', ['title' => 'Serviços'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Serviços</h1>
-            <p class="subtitulo-pagina">
-                Serviços do catálogo, agrupados por categoria.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Serviços" subtitulo="Serviços do catálogo, agrupados por categoria.">
         <x-avalia.botao :href="route('catalogo.servicos.criar')">Novo serviço</x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('paginas.catalogo.abas', ['atual' => 'servicos'])
 

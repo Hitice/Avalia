@@ -5,10 +5,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Minha carteira</h1>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Minha carteira" />
     @include('paginas.carteira.abas')
 
     @if ($planos->isEmpty())

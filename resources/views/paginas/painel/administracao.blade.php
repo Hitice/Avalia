@@ -5,10 +5,14 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Olá, {{ $staff->nome }}</h1>
-        <p class="subtitulo-pagina">Resumo da operação · {{ $competencia }}</p>
-    </div>
+    <x-avalia.cabecalho-pagina>
+        <x-slot:titulo>
+            Olá, {{ $staff->nome }}
+        </x-slot:titulo>
+        <x-slot:subtitulo>
+            Resumo da operação · {{ $competencia }}
+        </x-slot:subtitulo>
+    </x-avalia.cabecalho-pagina>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {{-- Cada número leva ao lugar onde ele é detalhado: a pergunta seguinte

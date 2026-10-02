@@ -13,8 +13,7 @@
         Tabelas
     </a>
 
-    <h1 class="titulo-pagina mb-6">Parâmetros comerciais</h1>
-
+    <x-avalia.cabecalho-pagina titulo="Parâmetros comerciais" />
     @include('parciais.avisos')
 
     <div class="cartao p-6">

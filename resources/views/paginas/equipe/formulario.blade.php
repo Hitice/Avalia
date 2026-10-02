@@ -9,10 +9,7 @@
         Equipe
     </a>
 
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="titulo-pagina">
-            {{ $membro->exists ? $membro->nome : 'Nova pessoa' }}
-        </h1>
+    <x-avalia.cabecalho-pagina :titulo="$membro->exists ? $membro->nome : 'Nova pessoa'">
 
         @if ($membro->exists)
             {{-- Fora do formulario principal: form dentro de form nao existe
@@ -24,7 +21,7 @@
                 </x-avalia.botao>
             </form>
         @endif
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

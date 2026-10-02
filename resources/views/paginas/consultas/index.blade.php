@@ -6,11 +6,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Consultas</h1>
-        <p class="subtitulo-pagina">Todas as empresas contratantes</p>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Consultas" subtitulo="Todas as empresas contratantes" />
     <x-avalia.filtro-consultas :acao="route('consultas')" :servicos="$servicos" :escolha="$escolha" />
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

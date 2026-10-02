@@ -1,11 +1,7 @@
 @extends('layouts.app', ['title' => 'Meu estoque'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Meu estoque</h1>
-        <p class="rotulo-grupo mt-1">As placas que estão na sua mão, ainda sem venda</p>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Meu estoque" rotulo="As placas que estão na sua mão, ainda sem venda" />
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

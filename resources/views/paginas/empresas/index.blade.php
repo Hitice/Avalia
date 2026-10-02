@@ -6,14 +6,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Clientes</h1>
-            <p class="subtitulo-pagina">
-                As empresas que contratam a Avalia One e a situação de cada uma.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Clientes" subtitulo="As empresas que contratam a Avalia One e a situação de cada uma.">
         <div class="flex flex-wrap items-center gap-3">
             {{-- Exporta o recorte que está na tela: o filtro inteiro vai na
                  query string, então o link já carrega a escolha. --}}
@@ -23,7 +16,7 @@
 
             <x-avalia.botao :href="route('empresas.criar')">Novo cliente</x-avalia.botao>
         </div>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @if ($quantidadeRemovidas > 0 || $removidas)
         <div class="mb-6">

@@ -24,9 +24,7 @@
         Planos
     </a>
 
-    <h1 class="titulo-pagina mb-6">
-        {{ $plano->exists ? $plano->nome : 'Novo plano' }}
-    </h1>
+    <x-avalia.cabecalho-pagina :titulo="$plano->exists ? $plano->nome : 'Novo plano'" />
 
     @include('parciais.avisos')
 

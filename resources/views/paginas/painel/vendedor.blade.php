@@ -6,10 +6,14 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Olá, {{ $staff->nome }}</h1>
-        <p class="subtitulo-pagina">Resumo da sua carteira · {{ $competencia }}</p>
-    </div>
+    <x-avalia.cabecalho-pagina>
+        <x-slot:titulo>
+            Olá, {{ $staff->nome }}
+        </x-slot:titulo>
+        <x-slot:subtitulo>
+            Resumo da sua carteira · {{ $competencia }}
+        </x-slot:subtitulo>
+    </x-avalia.cabecalho-pagina>
 
     {{-- Nenhum numero da operacao aqui: "a receber" e "em atraso" sao dinheiro
          da Avalia, e apareciam nesta tela sem que o vendedor pudesse fazer nada

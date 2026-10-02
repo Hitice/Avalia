@@ -3,9 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 class="titulo-pagina">Sócios</h1>
-
+    <x-avalia.cabecalho-pagina titulo="Sócios">
         <div class="flex flex-wrap items-center gap-2">
             <form method="GET">
                 <label for="competencia" class="sr-only">Competência</label>
@@ -17,7 +15,7 @@
             </form>
             <x-avalia.botao variante="secundario" :href="route('socios.planilha', ['competencia' => $competencia])">Baixar planilha</x-avalia.botao>
         </div>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

@@ -6,13 +6,9 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Faturas</h1>
-            <p class="subtitulo-pagina">{{ $empresa->razao_social }}</p>
-        </div>
+    <x-avalia.cabecalho-pagina titulo="Faturas" :subtitulo="$empresa->razao_social">
         <x-avalia.ajuda assunto="Fatura">Falar com a Avalia One</x-avalia.ajuda>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     <div class="cartao overflow-hidden">
         <div class="tabela-rolagem">

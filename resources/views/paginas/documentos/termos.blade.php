@@ -1,13 +1,7 @@
 @extends('layouts.app', ['title' => 'Termos'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Termos da equipe</h1>
-        <p class="subtitulo-pagina">
-            Documentos do seu trabalho como vendedor. Os que exigem aceite destravam as demonstrações.
-        </p>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Termos da equipe" subtitulo="Documentos do seu trabalho como vendedor. Os que exigem aceite destravam as demonstrações." />
     @if (session('ok'))
         <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>
     @endif

@@ -1,13 +1,7 @@
 @extends('layouts.app', ['title' => 'Leads'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Leads</h1>
-        <p class="subtitulo-pagina">
-            Leads, prospecção e controle.
-        </p>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Leads" subtitulo="Leads, prospecção e controle." />
     @include('parciais.avisos')
 
     @if ($total > 0 || $convertidos > 0)

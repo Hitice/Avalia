@@ -13,19 +13,14 @@
         Consultas
     </a>
 
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">
-                {{ $consulta->servico?->nome ?? 'Serviço descontinuado' }}
-            </h1>
-            <p class="subtitulo-pagina">
-                {{ $consulta->cliente?->razao_social ?? 'Consulta da casa' }}
-                · {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
-                @if ($consulta->referencia_externa)
-                    · protocolo {{ $consulta->referencia_externa }}
-                @endif
-            </p>
-        </div>
+    <x-avalia.cabecalho-pagina :titulo="$consulta->servico?->nome ?? 'Serviço descontinuado'">
+        <x-slot:subtitulo>
+            {{ $consulta->cliente?->razao_social ?? 'Consulta da casa' }}
+                            · {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
+                            @if ($consulta->referencia_externa)
+                                · protocolo {{ $consulta->referencia_externa }}
+                            @endif
+        </x-slot:subtitulo>
 
         <div class="flex flex-wrap items-center gap-2">
             <x-avalia.botao variante="secundario" tamanho="sm" :href="route('consultas')">
@@ -34,7 +29,7 @@
 
             <x-avalia.visor-laudo :url="route('consultas.pdf', $consulta)" rotulo="Ver laudo" />
         </div>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     {{-- O aviso existe porque esta tela é a única em que a administração vê o
          dado de um titular que não é cliente dela. Dizer que a abertura ficou

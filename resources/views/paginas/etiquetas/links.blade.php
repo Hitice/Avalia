@@ -1,13 +1,12 @@
 @extends('layouts.app', ['title' => 'Encurtador'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Encurtador</h1>
-        <p class="subtitulo-pagina">
+    <x-avalia.cabecalho-pagina titulo="Encurtador">
+        <x-slot:subtitulo>
             Endereços longos atrás de um código curto, para caberem nos {{ $bytesDaTag }} bytes
-            úteis da tag NFC.
-        </p>
-    </div>
+                        úteis da tag NFC.
+        </x-slot:subtitulo>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

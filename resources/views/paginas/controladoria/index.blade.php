@@ -3,12 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Controladoria</h1>
-            <p class="rotulo-grupo mt-1">O resultado da casa, somado do razão</p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Controladoria" rotulo="O resultado da casa, somado do razão">
         <form method="GET" class="flex flex-wrap items-center gap-2">
             <label for="competencia" class="sr-only">Competência</label>
             <select id="competencia" name="competencia" class="campo w-auto py-2" onchange="this.form.submit()">
@@ -17,7 +12,7 @@
                 @endforeach
             </select>
         </form>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

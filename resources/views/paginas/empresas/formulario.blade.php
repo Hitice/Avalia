@@ -18,10 +18,7 @@
         {{ $ehAdmin ? ($empresa->exists ? $empresa->razao_social : 'Clientes') : 'Minha carteira' }}
     </a>
 
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="titulo-pagina">
-            {{ $empresa->exists ? 'Editar cadastro' : ($ehAdmin ? 'Novo cliente' : 'Nova empresa') }}
-        </h1>
+    <x-avalia.cabecalho-pagina :titulo="$empresa->exists ? 'Editar cadastro' : ($ehAdmin ? 'Novo cliente' : 'Nova empresa')">
 
         @if ($empresa->exists)
             {{-- Fora do formulario principal: form dentro de form nao existe
@@ -33,7 +30,7 @@
                 </x-avalia.botao>
             </form>
         @endif
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

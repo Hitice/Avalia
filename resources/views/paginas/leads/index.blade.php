@@ -1,14 +1,7 @@
 @extends('layouts.app', ['title' => 'Leads'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Leads</h1>
-            <p class="subtitulo-pagina">
-                A base de prospecção e a distribuição dela.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Leads" subtitulo="A base de prospecção e a distribuição dela.">
         <div class="flex flex-wrap items-center gap-3">
             {{-- Exporta o recorte que está na tela: o filtro inteiro vai na
                  query string, então o link já carrega a escolha. --}}
@@ -18,7 +11,7 @@
 
             <x-avalia.botao :href="route('leads.criar')">Novo lead</x-avalia.botao>
         </div>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @if ($quantidadeRemovidos > 0 || $removidos)
         <div class="mb-6">

@@ -5,13 +5,9 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Consultas</h1>
-            <p class="subtitulo-pagina">{{ $empresa->razao_social }}</p>
-        </div>
+    <x-avalia.cabecalho-pagina titulo="Consultas" :subtitulo="$empresa->razao_social">
         <x-avalia.botao :href="route('empresa.consultar')">Nova consulta</x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     <x-avalia.filtro-consultas :acao="route('empresa.consultas')" :servicos="$servicos" :escolha="$escolha" />
 

@@ -17,18 +17,15 @@
         Empresa
     </a>
 
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">{{ $empresa->razao_social }}</h1>
-            <p class="subtitulo-pagina">
-                {{ $empresa->cnpjRotulo() ?: 'sem CNPJ' }}
-                @if ($plano) · {{ $plano->nome }} @endif
-                @if ($empresa->vendedor) · carteira de {{ $empresa->vendedor->nome }} @endif
-            </p>
-        </div>
+    <x-avalia.cabecalho-pagina :titulo="$empresa->razao_social">
+        <x-slot:subtitulo>
+            {{ $empresa->cnpjRotulo() ?: 'sem CNPJ' }}
+                            @if ($plano) · {{ $plano->nome }} @endif
+                            @if ($empresa->vendedor) · carteira de {{ $empresa->vendedor->nome }} @endif
+        </x-slot:subtitulo>
 
         <x-avalia.botao variante="secundario" :href="route('empresas.editar', $empresa)">Editar cadastro</x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

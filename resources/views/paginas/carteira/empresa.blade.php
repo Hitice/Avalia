@@ -14,18 +14,15 @@
         Minha carteira
     </a>
 
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">{{ $empresa->razao_social }}</h1>
-            <p class="subtitulo-pagina">
-                {{ $empresa->cnpjRotulo() }}
-                <span class="etiqueta {{ Rotulos::empresaEtiqueta($empresa->situacao) }} ml-2">{{ Rotulos::empresa($empresa->situacao) }}</span>
-            </p>
-        </div>
+    <x-avalia.cabecalho-pagina :titulo="$empresa->razao_social">
+        <x-slot:subtitulo>
+            {{ $empresa->cnpjRotulo() }}
+                            <span class="etiqueta {{ Rotulos::empresaEtiqueta($empresa->situacao) }} ml-2">{{ Rotulos::empresa($empresa->situacao) }}</span>
+        </x-slot:subtitulo>
         <div class="flex gap-2">
             <x-avalia.botao variante="secundario" tamanho="sm" :href="route('empresas.editar', $empresa)">Editar cadastro</x-avalia.botao>
         </div>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="cartao p-5">

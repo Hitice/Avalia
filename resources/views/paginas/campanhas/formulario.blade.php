@@ -8,14 +8,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">
-            {{ $campanha->exists ? $campanha->nome : 'Nova campanha' }}
-        </h1>
-        <p class="subtitulo-pagina">
-            Defina o público e comunique a oferta. Preços continuam definidos no catálogo.
-        </p>
-    </div>
+    <x-avalia.cabecalho-pagina :titulo="$campanha->exists ? $campanha->nome : 'Nova campanha'" subtitulo="Defina o público e comunique a oferta. Preços continuam definidos no catálogo." />
 
     @include('parciais.avisos')
 

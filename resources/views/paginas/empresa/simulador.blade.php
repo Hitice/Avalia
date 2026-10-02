@@ -5,15 +5,9 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Simulador</h1>
-            <p class="subtitulo-pagina">
-                Quanto sai o mês para o seu plano, antes de consultar. Nada aqui é cobrado.
-            </p>
-        </div>
+    <x-avalia.cabecalho-pagina titulo="Simulador" subtitulo="Quanto sai o mês para o seu plano, antes de consultar. Nada aqui é cobrado.">
         <x-avalia.ajuda assunto="Simulador">Falar com a Avalia One</x-avalia.ajuda>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @if (! $plano)
         <div class="cartao p-6">

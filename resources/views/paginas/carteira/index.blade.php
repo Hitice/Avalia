@@ -6,16 +6,9 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Minha carteira</h1>
-            <p class="subtitulo-pagina">
-                Suas empresas e a sua comissão. A comissão é liberada quando a empresa paga a fatura.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Minha carteira" subtitulo="Suas empresas e a sua comissão. A comissão é liberada quando a empresa paga a fatura.">
         <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('paginas.carteira.abas')
 

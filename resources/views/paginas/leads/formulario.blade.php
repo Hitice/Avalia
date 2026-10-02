@@ -14,10 +14,7 @@
         Leads
     </a>
 
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="titulo-pagina">
-            {{ $lead->exists ? $lead->nome : 'Novo lead' }}
-        </h1>
+    <x-avalia.cabecalho-pagina :titulo="$lead->exists ? $lead->nome : 'Novo lead'">
 
         @if ($lead->exists)
             {{-- Fora do formulario principal: form dentro de form nao existe em
@@ -29,7 +26,7 @@
                 <x-avalia.botao variante="secundario" tamanho="sm">Remover da base</x-avalia.botao>
             </form>
         @endif
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

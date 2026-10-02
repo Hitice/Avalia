@@ -1,16 +1,9 @@
 @extends('layouts.app', ['title' => 'Equipe'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Equipe</h1>
-            <p class="subtitulo-pagina">
-                Quem trabalha na casa, a comissão de cada vendedor e o que cada um acessa.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Equipe" subtitulo="Quem trabalha na casa, a comissão de cada vendedor e o que cada um acessa.">
         <x-avalia.botao :href="route('equipe.criar')">Nova pessoa</x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

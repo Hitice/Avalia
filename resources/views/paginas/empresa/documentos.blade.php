@@ -1,13 +1,9 @@
 @extends('layouts.app', ['title' => 'Documentos'])
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Documentos e aceites</h1>
-            <p class="subtitulo-pagina">{{ $empresa->razao_social }}</p>
-        </div>
+    <x-avalia.cabecalho-pagina titulo="Documentos e aceites" :subtitulo="$empresa->razao_social">
         <x-avalia.ajuda assunto="Documentos">Falar com a Avalia One</x-avalia.ajuda>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @if (session('ok'))
         <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>

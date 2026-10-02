@@ -17,14 +17,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-            <h1 class="titulo-pagina">Financeiro</h1>
-            <p class="subtitulo-pagina">
-                Acompanhe as faturas de todos os clientes e confirme os pagamentos recebidos.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Financeiro" subtitulo="Acompanhe as faturas de todos os clientes e confirme os pagamentos recebidos.">
         {{-- Exporta o recorte que está na tela, com os números internos. É a
              planilha do contador e da conciliação, e por isso o nome do arquivo
              diz "interno": ela não pode ser encaminhada a cliente nem a
@@ -33,7 +26,7 @@
                         title="Planilha interna: leva custo, lucro e comissão">
             Exportar
         </x-avalia.botao>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

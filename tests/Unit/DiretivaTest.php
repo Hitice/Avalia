@@ -17,7 +17,7 @@ use App\Support\Diretiva;
 */
 
 const TETO_DE_COMENTARIO = 30.39;
-const PISO_DE_ADERENCIA = 60.0;
+const PISO_DE_ADERENCIA = 63.0;
 
 $raiz = dirname(__DIR__, 2);
 

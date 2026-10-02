@@ -63,7 +63,9 @@ final class Diretiva
         $cru = '/\b(bg-(?!white\b)|text-(?:gray|brand|success|error|warning)|border-(?:gray|brand)|rounded-(?:lg|xl|full)|shadow-|font-(?:medium|semibold|bold))/';
 
         foreach (self::arquivos($diretorio, 'blade.php') as $caminho) {
-            preg_match_all('/class="([^"]*)"/', (string) file_get_contents($caminho), $achados);
+            $fonte = (string) file_get_contents($caminho);
+            $daCasa += preg_match_all('/<x-avalia\.[a-z-]+/', $fonte);
+            preg_match_all('/class="([^"]*)"/', $fonte, $achados);
 
             foreach ($achados[1] as $classe) {
                 if (preg_match('/\b(cartao|campo|botao|tabela|etiqueta|aviso|rotulo|segmento|interruptor|ajuda-campo|erro-campo|grade-grafico|ponto-serie|serie-|titulo-|subtitulo-|flutuante|menu-item)/', $classe)) {

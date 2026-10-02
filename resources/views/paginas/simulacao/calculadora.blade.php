@@ -8,13 +8,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Calculadora</h1>
-        <p class="subtitulo-pagina">
-            Quanto um contrato rende para a Avalia One, antes de ele existir.
-        </p>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Calculadora" subtitulo="Quanto um contrato rende para a Avalia One, antes de ele existir." />
     @include('paginas.simulacao.abas', ['atual' => 'calculadora'])
 
     @if (! $catalogo || $faixas === [])

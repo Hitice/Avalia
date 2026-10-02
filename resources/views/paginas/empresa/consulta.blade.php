@@ -19,15 +19,14 @@
         Dúvida sobre esta consulta
     </x-avalia.ajuda>
 
-    <div class="mb-6">
-        <h1 class="titulo-pagina">{{ $consulta->servico->nome }}</h1>
-        <p class="subtitulo-pagina">
+    <x-avalia.cabecalho-pagina :titulo="$consulta->servico->nome">
+        <x-slot:subtitulo>
             Consultado em {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
-            @if ($consulta->referencia_externa)
-                · protocolo {{ $consulta->referencia_externa }}
-            @endif
-        </p>
-    </div>
+                        @if ($consulta->referencia_externa)
+                            · protocolo {{ $consulta->referencia_externa }}
+                        @endif
+        </x-slot:subtitulo>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

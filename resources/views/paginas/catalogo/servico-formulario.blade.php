@@ -20,9 +20,7 @@
         Serviços
     </a>
 
-    <h1 class="titulo-pagina mb-6">
-        {{ $servico->exists ? $servico->nome : 'Novo serviço' }}
-    </h1>
+    <x-avalia.cabecalho-pagina :titulo="$servico->exists ? $servico->nome : 'Novo serviço'" />
 
     @include('parciais.avisos')
 

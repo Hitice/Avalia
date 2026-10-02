@@ -5,14 +5,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">Auditoria</h1>
-            <p class="subtitulo-pagina">
-                Histórico das ações feitas na plataforma.
-            </p>
-        </div>
-
+    <x-avalia.cabecalho-pagina titulo="Auditoria" subtitulo="Histórico das ações feitas na plataforma.">
         {{-- Cada registro carrega o resumo do anterior: alterar uma linha no
              meio quebra a conferencia de todas as seguintes. O botao responde
              "esta trilha foi mexida?", que e a pergunta de quem a entrega a
@@ -21,7 +14,7 @@
             @csrf
             <x-avalia.botao variante="secundario" tamanho="sm">Conferir integridade</x-avalia.botao>
         </form>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @if (session('ok'))
         <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>

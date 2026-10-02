@@ -1,11 +1,7 @@
 @extends('layouts.app', ['title' => 'Gerar códigos'])
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">Gerar códigos</h1>
-        <p class="rotulo-grupo mt-1">Gerador de QR</p>
-    </div>
-
+    <x-avalia.cabecalho-pagina titulo="Gerar códigos" rotulo="Gerador de QR" />
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2">

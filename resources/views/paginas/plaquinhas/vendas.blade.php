@@ -16,9 +16,7 @@
 @endphp
 
 @section('content')
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 class="titulo-pagina">Vendas QR</h1>
-
+    <x-avalia.cabecalho-pagina titulo="Vendas QR">
         <form method="GET" action="{{ route('plaquinhas.vendas') }}" class="flex flex-wrap items-center gap-2">
             <label for="mes" class="sr-only">Mês</label>
             <select id="mes" name="mes" class="campo w-auto py-2" onchange="this.form.submit()">
@@ -29,7 +27,7 @@
                 @endforeach
             </select>
         </form>
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @include('parciais.avisos')
 

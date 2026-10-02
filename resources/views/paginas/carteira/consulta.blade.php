@@ -15,16 +15,13 @@
         Consultar
     </a>
 
-    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-            <h1 class="titulo-pagina">{{ $consulta->servico->nome }}</h1>
-            <p class="subtitulo-pagina">
-                Consultado em {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
-                @if ($consulta->referencia_externa)
-                    · protocolo {{ $consulta->referencia_externa }}
-                @endif
-            </p>
-        </div>
+    <x-avalia.cabecalho-pagina :titulo="$consulta->servico->nome">
+        <x-slot:subtitulo>
+            Consultado em {{ $consulta->created_at->format('d/m/Y \à\s H:i') }}
+                            @if ($consulta->referencia_externa)
+                                · protocolo {{ $consulta->referencia_externa }}
+                            @endif
+        </x-slot:subtitulo>
 
         @if ($consulta->deuCerto() && ! $consulta->expurgada())
             {{-- O unico jeito aprovado de o resultado sair da tela: arquivo em
@@ -38,7 +35,7 @@
                                   :aberto="request('laudo') === 'aberto'" />
             </div>
         @endif
-    </div>
+    </x-avalia.cabecalho-pagina>
 
     @if (! $consulta->deuCerto())
         <div class="aviso aviso-erro mb-6">
