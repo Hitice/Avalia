@@ -316,3 +316,25 @@ it('desconta a comissao do vendedor e divide so o que sobra entre os socios', fu
         // E o lucro dividido e o liquido MENOS a comissao, nunca o liquido inteiro.
         ->and($conta['lucro'])->toBe($conta['liquido'] - $conta['comissao']);
 });
+
+it('mostra de cada socio o que sai na sexta e o que fica na empresa', function () {
+    // Da parte de cada um, metade e pro-labore e metade fica no caixa. Decidido
+    // em 02/10/2026. O numero que ele usa para pagar e o pro-labore.
+    socios();
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+    Etiqueta::factory()->ativa()->count(2)->create(['vendedor_id' => $warley->id]);
+
+    $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
+    $pct = (int) config('etiquetas.retencao_pct');
+    $partes = App\Support\RepartePlaquinha::dividir(contaDaPlaca(2)['lucro'], 2);
+
+    foreach ($tela->viewData('porSocio') as $i => $socio) {
+        $esperado = App\Support\RepartePlaquinha::retencao($partes[$i], $pct);
+
+        expect($socio['mes'])->toBe($partes[$i])
+            ->and($socio['retido'])->toBe($esperado['retido'])
+            ->and($socio['prolabore'])->toBe($esperado['prolabore'])
+            // Fecha: nada some entre a parte e as duas metades.
+            ->and($socio['retido'] + $socio['prolabore'])->toBe($socio['mes']);
+    }
+});

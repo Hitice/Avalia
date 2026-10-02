@@ -643,6 +643,11 @@ centavo ímpar sempre na mesma pessoa.
 Sócio configurado sem conta na equipe aparece como aviso na tela: lista errada em
 silêncio vira repasse errado.
 
+**Da parte de cada sócio, metade volta ao caixa da empresa e metade é pró-labore.**
+Em R$ 100 de lucro: R$ 50 ficam na empresa, R$ 25 para cada sócio. O que fica não
+gera lançamento, porque já está no caixa desde a venda; o pró-labore sai como
+Retirada. Centavo ímpar fica com o sócio. Decidido em 02/10/2026.
+
 **Os pagamentos saem toda sexta-feira**: o pró-labore dos sócios e as comissões dos
 vendedores. É o ciclo que a conferência do razão e a tela de vendas precisam
 respeitar, e o que define "a semana" para quem confere o repasse.

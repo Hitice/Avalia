@@ -97,6 +97,10 @@ return [
     'pasta_local' => env('ETIQUETAS_PASTA_LOCAL', '/Users/pedrohenriquemorais/Downloads'),
     'comissao_pct' => 25,
 
+    // Da parte de cada socio no lucro, quanto volta ao caixa da empresa. O
+    // resto e pro-labore, pago toda sexta. Ver RepartePlaquinha::retencao().
+    'retencao_pct' => 50,
+
     'socios' => array_values(array_filter(array_map(
         'trim',
         explode(',', (string) env(

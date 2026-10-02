@@ -82,3 +82,32 @@ it('sobrevive a config sem socio nenhum', function () {
     // Lista vazia mostra uma coluna a menos; dividir por zero derrubaria a tela.
     expect(RepartePlaquinha::dividir(6_367, 0))->toBe([]);
 });
+
+/*
+|--------------------------------------------------------------------------
+| A retencao: metade da parte volta ao caixa
+|--------------------------------------------------------------------------
+*/
+
+it('devolve metade da parte ao caixa e deixa metade de pro-labore', function () {
+    // Em R$ 100 de lucro cada socio tem R$ 50: R$ 25 ficam, R$ 25 saem.
+    expect(RepartePlaquinha::retencao(5_000, 50))->toBe(['retido' => 2_500, 'prolabore' => 2_500]);
+});
+
+it('deixa o centavo impar com o socio, e nao com o caixa', function () {
+    // Um centavo a menos no repasse e o que gera reclamacao.
+    expect(RepartePlaquinha::retencao(5_001, 50))->toBe(['retido' => 2_500, 'prolabore' => 2_501]);
+});
+
+it('fecha sempre: retido mais pro-labore e a parte inteira', function () {
+    foreach ([0, 1, 99, 5_000, 5_001, 123_457] as $parte) {
+        $r = RepartePlaquinha::retencao($parte, 50);
+        expect($r['retido'] + $r['prolabore'])->toBe($parte);
+    }
+});
+
+it('nao inventa parte negativa nem retencao fora de 0 a 100', function () {
+    expect(RepartePlaquinha::retencao(-10, 50))->toBe(['retido' => 0, 'prolabore' => 0])
+        ->and(RepartePlaquinha::retencao(1_000, 150)['retido'])->toBe(1_000)
+        ->and(RepartePlaquinha::retencao(1_000, -5)['retido'])->toBe(0);
+});

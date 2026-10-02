@@ -90,7 +90,8 @@
                         <tr>
                             <th class="tabela-th">Sócio</th>
                             <th class="tabela-th text-right">Participação</th>
-                            <th class="tabela-th text-right">Cabe a ele no mês</th>
+                            <th class="tabela-th text-right">Pró-labore no mês</th>
+                            <th class="tabela-th text-right">Fica na empresa</th>
                             <th class="tabela-th text-right">Aportou</th>
                             <th class="tabela-th text-right">A devolver</th>
                         </tr>
@@ -100,7 +101,8 @@
                             <tr>
                                 <td class="tabela-td">{{ $socio['nome'] }}</td>
                                 <td class="tabela-td text-right">{{ number_format($socio['participacao'] / 100, 2, ',', '.') }}%</td>
-                                <td class="tabela-td text-right">{{ Dinheiro::brl($socio['cabe']) }}</td>
+                                <td class="tabela-td text-right">{{ Dinheiro::brl($socio['prolabore']) }}</td>
+                                <td class="tabela-td text-right">{{ Dinheiro::brl($socio['retido']) }}</td>
                                 <td class="tabela-td text-right">{{ Dinheiro::brl($socio['aportou']) }}</td>
                                 <td class="tabela-td text-right">{{ Dinheiro::brl($socio['a_devolver']) }}</td>
                             </tr>
@@ -112,13 +114,13 @@
             @if ($participacaoTotal !== 10000)
                 <div class="aviso aviso-alerta mt-4">
                     As participações somam {{ number_format($participacaoTotal / 100, 2, ',', '.') }}%, e não 100%.
-                    A coluna "cabe a ele" está errada enquanto isso.
+                    As colunas de pró-labore estão erradas enquanto isso.
                 </div>
             @endif
 
             <p class="ajuda-campo mt-3">
-                "Cabe a ele" é a parte no lucro pela participação, e não o que há para retirar:
-                distribuição depende de decisão, e entra como lançamento em Sócios.
+                Pró-labore é o que sai toda sexta, como Retirada em Sócios. O que fica na empresa já
+                está no caixa desde a venda e não precisa de lançamento.
             </p>
         @endif
     </div>

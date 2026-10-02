@@ -119,4 +119,24 @@ final class RepartePlaquinha
             range(0, $entre - 1),
         );
     }
+
+    /**
+     * A parte de um socio, dividida entre o que volta ao caixa e o pro-labore.
+     *
+     * Decidido em 02/10/2026: de cada parte, 50% fica na empresa e 50% e
+     * pro-labore. Pago toda sexta-feira, pela Retirada do modulo de socios; o
+     * que fica nao precisa de lancamento, porque ja esta no caixa desde a venda.
+     *
+     * Centavo impar fica com o SOCIO, nao com o caixa: um centavo a menos no
+     * repasse e o que gera reclamacao, como o resto desta classe ja registra.
+     *
+     * @return array{retido: int, prolabore: int}
+     */
+    public static function retencao(int $parteCents, int $pct): array
+    {
+        $parte = max(0, $parteCents);
+        $retido = intdiv($parte * max(0, min(100, $pct)), 100);
+
+        return ['retido' => $retido, 'prolabore' => $parte - $retido];
+    }
 }

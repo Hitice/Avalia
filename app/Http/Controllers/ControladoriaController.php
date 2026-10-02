@@ -6,6 +6,7 @@ use App\Contabil\Competencia;
 use App\Contabil\Resultado;
 use App\Models\ContaFinanceira;
 use App\Models\Socio;
+use App\Support\RepartePlaquinha;
 use Illuminate\Http\Request;
 
 /**
@@ -48,7 +49,9 @@ class ControladoriaController extends Controller
 
                 // Nao e o que ele tem a receber: distribuicao depende de decisao,
                 // e nao de calculo. Dai o nome da coluna.
-                'cabe' => (int) round($lucro * $socio->participacao_bps / 10000),
+                // A parte dele no lucro, pela participacao, ja dividida entre o que
+                // fica na empresa e o pro-labore que sai na sexta.
+                ...$this->parteDoSocio($lucro, $socio->participacao_bps),
 
                 'aportou' => $this->doSocio($socio, ContaFinanceira::APORTE),
                 'a_devolver' => $this->doSocio($socio, ContaFinanceira::EMPRESTIMO),
@@ -56,6 +59,16 @@ class ControladoriaController extends Controller
 
             'participacaoTotal' => $socios->sum('participacao_bps'),
         ]);
+    }
+
+    /**
+     * @return array{parte: int, retido: int, prolabore: int}
+     */
+    private function parteDoSocio(int $lucro, int $participacaoBps): array
+    {
+        $parte = (int) round($lucro * $participacaoBps / 10000);
+
+        return ['parte' => $parte] + RepartePlaquinha::retencao($parte, (int) config('etiquetas.retencao_pct'));
     }
 
     /** O saldo de uma conta pessoal do socio, que nasce sob demanda. */

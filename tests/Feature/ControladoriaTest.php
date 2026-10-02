@@ -89,3 +89,31 @@ it('nao mostra tabela de socio quando nenhum esta cadastrado', function () {
 
     expect($html)->toContain('Nenhum sócio cadastrado');
 });
+
+it('separa, por socio, o pro-labore do que fica na empresa', function () {
+    $emails = config('etiquetas.socios');
+    Staff::factory()->admin()->create(['email' => $emails[0]]);
+    Staff::factory()->admin()->create(['email' => $emails[1]]);
+    Socio::create(['nome' => 'Pedro', 'participacao_bps' => 5_000, 'ativo' => true]);
+    Socio::create(['nome' => 'Ruan', 'participacao_bps' => 5_000, 'ativo' => true]);
+
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+    Etiqueta::factory()->ativa()->count(2)->create(['vendedor_id' => $warley->id]);
+    test()->artisan('avalia:lastrear-plaquinhas')->assertSuccessful();
+
+    // O lucro do razao e receita menos custo menos comissao, por venda.
+    $valor = (int) config('etiquetas.precos.placa_cents');
+    $custo = (int) config('etiquetas.custo_cents');
+    $comissao = (int) round(($valor - $custo) * (int) config('etiquetas.comissao_pct') / 100);
+    $lucro = 2 * ($valor - $custo - $comissao);
+
+    $parte = (int) round($lucro * 5_000 / 10_000);
+    $r = App\Support\RepartePlaquinha::retencao($parte, (int) config('etiquetas.retencao_pct'));
+
+    $html = daCasa()->get(route('controladoria'))->assertOk()->getContent();
+
+    expect($html)->toContain('Pró-labore no mês')
+        ->and($html)->toContain('Fica na empresa')
+        ->and($html)->toContain(Dinheiro::brl($r['prolabore']))
+        ->and($html)->toContain(Dinheiro::brl($r['retido']));
+});

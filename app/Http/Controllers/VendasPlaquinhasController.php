@@ -182,11 +182,24 @@ class VendasPlaquinhasController extends Controller
      */
     private function nomearSocios(Collection $contas, array $mes, array $total): Collection
     {
-        return $contas->map(fn (Staff $socio, int $posicao) => [
-            'nome' => $socio->nome,
-            'mes' => $mes[$posicao] ?? 0,
-            'total' => $total[$posicao] ?? 0,
-        ]);
+        $pct = (int) config('etiquetas.retencao_pct');
+
+        return $contas->map(function (Staff $socio, int $posicao) use ($mes, $total, $pct) {
+            // `mes` e `total` continuam sendo a PARTE inteira, que e o que os
+            // testes de divisao conferem. O que sai na sexta e o pro-labore.
+            $doMes = RepartePlaquinha::retencao($mes[$posicao] ?? 0, $pct);
+            $deSempre = RepartePlaquinha::retencao($total[$posicao] ?? 0, $pct);
+
+            return [
+                'nome' => $socio->nome,
+                'mes' => $mes[$posicao] ?? 0,
+                'total' => $total[$posicao] ?? 0,
+                'retido' => $doMes['retido'],
+                'prolabore' => $doMes['prolabore'],
+                'retidoTotal' => $deSempre['retido'],
+                'prolaboreTotal' => $deSempre['prolabore'],
+            ];
+        });
     }
 
     /**
