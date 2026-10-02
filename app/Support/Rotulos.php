@@ -128,6 +128,7 @@ final class Rotulos
         'links.excluido' => 'Link sem cliques apagado',
         'clientes.exportados' => 'Carteira de clientes exportada',
         'faturas.exportadas' => 'Faturas exportadas em planilha',
+        'caixa.exportado' => 'Livro-caixa exportado em planilha',
         'cobranca.criada' => 'Cobrança emitida',
         'cliente.inadimplente' => 'Empresa suspensa por débito',
         'empresa.removida' => 'Empresa removida',

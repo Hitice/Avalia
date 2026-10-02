@@ -6,14 +6,17 @@
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Sócios</h1>
 
-        <form method="GET" class="flex flex-wrap items-center gap-2">
-            <label for="competencia" class="sr-only">Competência</label>
-            <select id="competencia" name="competencia" class="campo w-auto py-2" onchange="this.form.submit()">
-                @foreach ($competencias as $mes)
-                    <option value="{{ $mes }}" @selected($mes === $competencia)>{{ $mes }}</option>
-                @endforeach
-            </select>
-        </form>
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="GET">
+                <label for="competencia" class="sr-only">Competência</label>
+                <select id="competencia" name="competencia" class="campo w-auto py-2" onchange="this.form.submit()">
+                    @foreach ($competencias as $mes)
+                        <option value="{{ $mes }}" @selected($mes === $competencia)>{{ $mes }}</option>
+                    @endforeach
+                </select>
+            </form>
+            <x-avalia.botao variante="secundario" :href="route('socios.planilha', ['competencia' => $competencia])">Baixar planilha</x-avalia.botao>
+        </div>
     </div>
 
     @include('parciais.avisos')
@@ -21,8 +24,8 @@
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-avalia.cartao-indicador rotulo="Caixa" :valor="Dinheiro::brl($caixa)"
                                    tom="text-brand-600 dark:text-brand-400" />
-        <x-avalia.cartao-indicador rotulo="Receita no mês" :valor="Dinheiro::brl($receita)" />
-        <x-avalia.cartao-indicador rotulo="Despesa no mês" :valor="Dinheiro::brl($despesa)" />
+        <x-avalia.cartao-indicador rotulo="Entradas no mês" :valor="Dinheiro::brl($entradas)" ajuda="O que entrou no dinheiro" />
+        <x-avalia.cartao-indicador rotulo="Saídas no mês" :valor="Dinheiro::brl($saidas)" ajuda="O que saiu do dinheiro" />
         <x-avalia.cartao-indicador rotulo="Resultado do mês" :valor="Dinheiro::brl($receita - $despesa)"
                                    ajuda="Só receita e despesa entram." />
     </div>
@@ -184,6 +187,24 @@
                     @error('socio_id')<p class="erro-campo">{{ $message }}</p>@enderror
                 </div>
 
+                <div x-show="['despesa','despesa_do_socio'].includes(natureza)" x-cloak>
+                    <label for="categoria_despesa" class="rotulo-campo">Categoria</label>
+                    <select id="categoria_despesa" class="campo" x-bind:name="['despesa','despesa_do_socio'].includes(natureza) ? 'categoria_id' : ''">
+                        @foreach ($contas->where('grupo', 'despesa') as $conta)
+                            <option value="{{ $conta->id }}" @selected($conta->codigo === 'despesa')>{{ $conta->nome }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div x-show="natureza === 'receita'" x-cloak>
+                    <label for="categoria_receita" class="rotulo-campo">Categoria</label>
+                    <select id="categoria_receita" class="campo" x-bind:name="natureza === 'receita' ? 'categoria_id' : ''">
+                        @foreach ($contas->where('grupo', 'receita') as $conta)
+                            <option value="{{ $conta->id }}" @selected($conta->codigo === 'receita')>{{ $conta->nome }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div x-show="natureza === 'transferencia'" x-cloak>
                     <label for="destino_id" class="rotulo-campo">Conta de destino</label>
                     <select id="destino_id" name="destino_id" class="campo">
@@ -201,40 +222,66 @@
         </form>
     </div>
 
-    <div class="mt-6 cartao overflow-hidden">
-        <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Extrato de {{ $competencia }}</h2>
-        </div>
-        <div class="tabela-rolagem">
-            <table class="tabela min-w-[40rem]">
-                <thead class="tabela-cabecalho"><tr>
-                    <th scope="col" class="tabela-th text-left">Quando</th>
-                    <th scope="col" class="tabela-th text-left">Natureza</th>
-                    <th scope="col" class="tabela-th text-left">Descrição</th>
-                    <th scope="col" class="tabela-th text-right">Valor</th>
-                    <th scope="col" class="tabela-th text-right">Corrigir</th>
-                </tr></thead>
+    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_2fr]">
+        <div class="cartao overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Por categoria</h2>
+            </div>
+            <table class="tabela">
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    @forelse ($lancamentos as $lancamento)
-                        <tr @class(['opacity-60' => $lancamento->estorna_id !== null])>
-                            <td class="tabela-td tabular-nums text-gray-600 dark:text-gray-300">
-                                {{ $lancamento->ocorrido_em->format('d/m') }}
-                            </td>
+                    @forelse ($porCategoria as $linha)
+                        <tr>
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
-                                {{ $lancamento->natureza->rotulo() }}
+                                {{ $linha['nome'] }}
+                                <span class="ajuda-campo">{{ $linha['grupo'] === 'receita' ? 'receita' : 'despesa' }}</span>
                             </td>
-                            <td class="tabela-td text-gray-800 dark:text-white/90">
-                                {{ $lancamento->descricao }}
-                                <span class="ajuda-campo">{{ $lancamento->staff?->nome }}</span>
+                            <td class="tabela-td text-right tabular-nums {{ $linha['grupo'] === 'receita' ? 'text-success-600 dark:text-success-500' : 'text-gray-800 dark:text-white/90' }}">
+                                {{ Dinheiro::brl($linha['cents']) }}
                             </td>
-                            <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">
-                                {{ Dinheiro::brl($lancamento->valorCents()) }}
-                            </td>
-                            {{-- Apagar so aparece enquanto o lancamento e da
-                                 competencia corrente e ninguem mexeu nele.
-                                 Depois disso sobra estornar, que e o caminho
-                                 que preserva o que ja foi conferido. --}}
-                            <td class="tabela-td text-right whitespace-nowrap">
+                        </tr>
+                    @empty
+                        <tr><td colspan="2" class="tabela-vazia">Nada lançado neste mês.</td></tr>
+                    @endforelse
+                    <tr class="border-t-2 border-gray-200 dark:border-gray-700">
+                        <td class="tabela-td font-medium text-gray-800 dark:text-white/90">Resultado</td>
+                        <td class="tabela-td text-right font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl($receita - $despesa) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {{-- O livro-caixa: so o que passou pelo dinheiro, com o saldo depois de
+             cada linha. Lancamento que nao mexe no caixa (despesa paga pelo
+             socio, fatura fechada) nao aparece aqui; esta no por categoria. --}}
+        <div class="cartao overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="font-medium text-gray-800 dark:text-white/90">Livro-caixa de {{ $competencia }}</h2>
+            </div>
+            <div class="tabela-rolagem">
+                <table class="tabela min-w-[48rem]">
+                    <thead class="tabela-cabecalho"><tr>
+                        <th scope="col" class="tabela-th text-left">Quando</th>
+                        <th scope="col" class="tabela-th text-left">Descrição</th>
+                        <th scope="col" class="tabela-th text-left">Categoria</th>
+                        <th scope="col" class="tabela-th text-right">Entrada</th>
+                        <th scope="col" class="tabela-th text-right">Saída</th>
+                        <th scope="col" class="tabela-th text-right">Saldo</th>
+                        <th scope="col" class="tabela-th text-right">Corrigir</th>
+                    </tr></thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @forelse ($movimentos as $m)
+                            @php $lancamento = $m['lancamento']; @endphp
+                            <tr @class(['opacity-60' => $lancamento->estorna_id !== null])>
+                                <td class="tabela-td tabular-nums text-gray-600 dark:text-gray-300">{{ $lancamento->ocorrido_em->format('d/m') }}</td>
+                                <td class="tabela-td text-gray-800 dark:text-white/90">
+                                    {{ $lancamento->descricao }}
+                                    <span class="ajuda-campo">{{ $lancamento->natureza->rotulo() }}{{ $lancamento->contraparte ? ' · '.$lancamento->contraparte : '' }}</span>
+                                </td>
+                                <td class="tabela-td text-gray-600 dark:text-gray-300">{{ $m['categoria'] }}</td>
+                                <td class="tabela-td text-right tabular-nums text-success-600 dark:text-success-500">{{ $m['entrada'] ? Dinheiro::brl($m['entrada']) : '' }}</td>
+                                <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ $m['saida'] ? Dinheiro::brl($m['saida']) : '' }}</td>
+                                <td class="tabela-td text-right tabular-nums text-gray-500 dark:text-gray-400">{{ Dinheiro::brl($m['saldo']) }}</td>
+                                <td class="tabela-td text-right whitespace-nowrap">
                                 @if ($lancamento->estorna_id !== null)
                                     <span class="etiqueta etiqueta-neutra">estorno</span>
                                 @elseif ($lancamento->estornado())
@@ -258,13 +305,14 @@
                                         </form>
                                     </div>
                                 @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="5" class="tabela-vazia">Nenhum lançamento nesta competência.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="7" class="tabela-vazia">Nenhum movimento no caixa nesta competência.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 @endsection

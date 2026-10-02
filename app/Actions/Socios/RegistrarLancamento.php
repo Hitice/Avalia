@@ -96,7 +96,7 @@ class RegistrarLancamento
 
             // Sai dinheiro da empresa e o resultado piora.
             NaturezaLancamento::Despesa => [
-                $this->conta(ContaFinanceira::DESPESA) => $valor,
+                $this->conta(ContaFinanceira::DESPESA, $dados['categoria_id'] ?? null, 'despesa') => $valor,
                 $caixa => -$valor,
             ],
 
@@ -104,7 +104,7 @@ class RegistrarLancamento
             // socio, e a empresa passa a dever a ele. Duas coisas num evento so,
             // e e por isso que esta natureza existe separada de Despesa.
             NaturezaLancamento::DespesaDoSocio => [
-                $this->conta(ContaFinanceira::DESPESA) => $valor,
+                $this->conta(ContaFinanceira::DESPESA, $dados['categoria_id'] ?? null, 'despesa') => $valor,
                 $this->doSocio(ContaFinanceira::EMPRESTIMO, $socio) => -$valor,
             ],
 
@@ -117,7 +117,7 @@ class RegistrarLancamento
 
             NaturezaLancamento::Receita => [
                 $caixa => $valor,
-                $this->conta(ContaFinanceira::RECEITA) => -$valor,
+                $this->conta(ContaFinanceira::RECEITA, $dados['categoria_id'] ?? null, 'receita') => -$valor,
             ],
 
             // Duas contas de ativo. O resultado nao muda, e e isso que a
@@ -221,11 +221,17 @@ class RegistrarLancamento
     }
 
     /** A conta da empresa, pelo codigo, ou a que veio escolhida. */
-    private function conta(string $codigo, ?int $escolhida = null): int
+    /** $grupo, quando dado, e o que a conta escolhida precisa ser: categoria de receita numa despesa trocaria o sinal do mes. */
+    private function conta(string $codigo, ?int $escolhida = null, ?string $grupo = null): int
     {
         if ($escolhida !== null) {
-            return (int) ContaFinanceira::whereKey($escolhida)->value('id')
-                ?: throw new Recusa('Conta não encontrada.');
+            $conta = ContaFinanceira::find($escolhida) ?? throw new Recusa('Conta não encontrada.');
+
+            if ($grupo !== null && $conta->grupo !== $grupo) {
+                throw new Recusa('A categoria escolhida não é de '.$grupo.'.');
+            }
+
+            return (int) $conta->id;
         }
 
         $conta = ContaFinanceira::firstWhere('codigo', $codigo);

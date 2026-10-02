@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Planilha\MontarPlanilhaCaixa;
 use App\Actions\Socios\EstornarLancamento;
 use App\Actions\Socios\ExcluirLancamento;
 use App\Actions\Socios\RegistrarLancamento;
 use App\Contabil\Competencia;
+use App\Contabil\LivroCaixa;
 use App\Enums\NaturezaLancamento;
 use App\Models\ContaFinanceira;
 use App\Models\LancamentoFinanceiro;
@@ -14,6 +16,7 @@ use App\Support\Auditar;
 use App\Support\Dinheiro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * O caixa da sociedade.
@@ -39,9 +42,15 @@ class SociosController extends Controller
             ->orderByDesc('ocorrido_em')->orderByDesc('id')
             ->get();
 
+        $caixa = LivroCaixa::doMes($doMes, $competencia);
+
         return view('paginas.socios.index', [
             'competencia' => $competencia,
             'competencias' => Competencia::existentes(),
+            'movimentos' => $caixa['movimentos'],
+            'entradas' => $caixa['entradas'],
+            'saidas' => $caixa['saidas'],
+            'porCategoria' => LivroCaixa::porCategoria($doMes),
 
             'caixa' => $contas->where('grupo', 'ativo')->sum(fn (ContaFinanceira $c) => $c->saldoCents()),
 
@@ -112,6 +121,7 @@ class SociosController extends Controller
             'ocorrido_em' => ['required', 'date'],
             'socio_id' => ['nullable', 'integer', 'exists:socios,id'],
             'conta_id' => ['nullable', 'integer', 'exists:contas_financeiras,id'],
+            'categoria_id' => ['nullable', 'integer', 'exists:contas_financeiras,id'],
             'destino_id' => ['nullable', 'integer', 'exists:contas_financeiras,id'],
             'contraparte' => ['nullable', 'string', 'max:150'],
             'documento' => ['nullable', 'string', 'max:100'],
@@ -135,6 +145,7 @@ class SociosController extends Controller
 
             'socio_id' => $dados['socio_id'] ?? null,
             'conta_id' => $dados['conta_id'] ?? null,
+            'categoria_id' => $dados['categoria_id'] ?? null,
             'destino_id' => $dados['destino_id'] ?? null,
             'contraparte' => $dados['contraparte'] ?? null,
             'documento' => $dados['documento'] ?? null,
@@ -176,6 +187,23 @@ class SociosController extends Controller
 
     /** @return list<string> */
     /** @param \Illuminate\Support\Collection<int, LancamentoFinanceiro> $lancamentos */
+    /** O mes em planilha: o livro-caixa e o por categoria, para conferir fora do sistema. */
+    public function planilha(Request $pedido, MontarPlanilhaCaixa $montar): StreamedResponse
+    {
+        $competencia = Competencia::pedida($pedido->query('competencia'));
+        $doMes = LancamentoFinanceiro::daCompetencia($competencia)
+            ->with(['partidas.conta', 'staff:id,nome'])->orderBy('ocorrido_em')->orderBy('id')->get();
+
+        $conteudo = $montar($doMes, $competencia);
+        Auditar::registrar('caixa.exportado', null, ['competencia' => $competencia, 'lancamentos' => $doMes->count()]);
+
+        return response()->streamDownload(
+            fn () => print $conteudo,
+            'avalia-caixa-'.$competencia.'.xlsx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        );
+    }
+
     private function doGrupo($lancamentos, string $grupo): int
     {
         return (int) $lancamentos
