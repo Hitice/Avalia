@@ -153,7 +153,9 @@ it('diz o que fazer quando o google recusa a chave', function () {
 
     $resposta = admin()->post(route('negocios.avaliacao.buscar'), ['nome' => 'Barbearia Dom']);
 
-    expect(session('erro'))->toContain('Conexões');
+    // Aponta para o Google Cloud, e nao para Conexoes: um 403 com a chave ativa
+    // e restricao de site ou API nao habilitada, e isso se resolve la.
+    expect(session('erro'))->toContain('Google Cloud');
     $resposta->assertRedirect();
 });
 
@@ -172,4 +174,35 @@ it('nao abre para vendedor', function () {
     test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => 1])
         ->post(route('negocios.avaliacao.buscar'), ['nome' => 'Barbearia Dom'])
         ->assertForbidden();
+});
+
+it('pede a cidade so depois de nao achar', function () {
+    // Na primeira tentativa a cidade e ruido; na segunda e o que desempata.
+    conexaoGoogle();
+    googleResponde([]);
+
+    admin()->post(route('negocios.avaliacao.buscar'), ['nome' => 'Loja que nao existe'])
+        ->assertSessionHas('pedirCidade', true);
+
+    expect(session('erro'))->toContain('tente de novo');
+});
+
+it('manda conferir o link antes de usar', function () {
+    conexaoGoogle();
+    googleResponde([['ChIJabc123def456', 'Barbearia Dom', 'Rua A, 10']]);
+
+    // from(): o back() do controller volta para onde veio, e sem referer o
+    // teste caia na home, onde o aviso nao esta.
+    $html = admin()->from(route('negocios'))->followingRedirects()
+        ->post(route('negocios.avaliacao.buscar'), ['nome' => 'Barbearia Dom'])
+        ->getContent();
+
+    expect($html)->toContain('Confira o link antes de cadastrar');
+});
+
+it('tirou de Negocios o link de cadastro por vendedor', function () {
+    $html = admin()->get(route('negocios'))->assertOk()->getContent();
+
+    expect($html)->not->toContain('SEU_NOME')
+        ->and($html)->not->toContain('Link de cadastro para enviar');
 });

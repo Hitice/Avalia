@@ -52,6 +52,29 @@ class EstoqueController extends Controller
         return back()->with('ok', $quantas.' placas entregues a '.$vendedor->nome.'.');
     }
 
+    /** Entrega pelos codigos digitados, separados por virgula. Tudo ou nada. */
+    public function entregarPorCodigos(Request $pedido, ConsignarPlacas $consignar)
+    {
+        $dados = $pedido->validate([
+            'vendedor_id' => ['required', 'integer', 'exists:staff,id'],
+            'codigos' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $vendedor = Staff::findOrFail($dados['vendedor_id']);
+        // Virgula ou linha separam; espaco dentro do codigo ("EF O GH3") e de quem
+        // le da placa e some. Separar por espaco partia um codigo em tres.
+        $lista = array_map(fn ($c) => preg_replace('/\s+/', '', $c),
+            preg_split('/[,;\n]+/', $dados['codigos'], -1, PREG_SPLIT_NO_EMPTY));
+
+        try {
+            $entregues = $consignar->porCodigos($vendedor, $lista);
+        } catch (Recusa $recusa) {
+            return back()->with('erro', $recusa->getMessage())->withInput();
+        }
+
+        return back()->with('ok', count($entregues).' placas entregues a '.$vendedor->nome.': '.implode(', ', $entregues).'.');
+    }
+
     public function devolver(Request $pedido, ConsignarPlacas $consignar, Staff $vendedor)
     {
         try {

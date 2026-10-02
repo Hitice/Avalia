@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Negocios\GerarLinkDeAvaliacao;
 use App\Enums\SituacaoNegocio;
+use App\Exceptions\NaoEncontrado;
 use App\Exceptions\Recusa;
 use App\Models\Negocio;
 use App\Services\Google\BuscarLugar;
@@ -99,6 +100,10 @@ class NegociosController extends Controller
 
         try {
             $lugares = $buscar($dados['nome'], $dados['cidade'] ?? null);
+        } catch (NaoEncontrado $nao) {
+            // Pede a cidade so agora: na primeira tentativa ela e ruido, e na
+            // segunda e o que desempata.
+            return back()->with('erro', $nao->getMessage())->with('pedirCidade', true)->withInput();
         } catch (Recusa $recusa) {
             return back()->with('erro', $recusa->getMessage())->withInput();
         }

@@ -43,7 +43,7 @@ it('lanca a venda registrada com receita, custo e comissao separados', function 
 
     // Comissao arredonda POR VENDA, e nao sobre o total do mes: e a regra que o
     // painel aplica, e somar diferente aqui reabriria a divergencia.
-    $comissao = 2 * (int) round(($valor - $custo) * $pct / 100);
+    $comissao = 2 * (int) round($valor * $pct / 100);
 
     expect(saldo('receita:plaquinha'))->toBe($bruto)
         ->and(saldo('custo:plaquinha'))->toBe($custoTotal)
@@ -164,13 +164,13 @@ it('conserta o custo zero e com isso a comissao que saiu inflada', function () {
     $pct = (int) config('etiquetas.comissao_pct');
 
     expect(VendaNoRazao::reparte($etiqueta, [])['comissao'])
-        ->toBe((int) round($valor * $pct / 100), 'antes do conserto a comissao sai sobre o preco cheio');
+        ->toBe((int) round($valor * $pct / 100));
 
     (require database_path('migrations/2026_09_29_000009_custo_zero_das_placas_de_28_de_setembro.php'))->up();
 
     expect($etiqueta->fresh()->custo_cents)->toBe($custo)
         ->and(VendaNoRazao::reparte($etiqueta->fresh(), [])['comissao'])
-        ->toBe((int) round(($valor - $custo) * $pct / 100));
+        ->toBe((int) round($valor * $pct / 100));
 });
 
 it('nao regrava zero se a chave do custo sair do config', function () {

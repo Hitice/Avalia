@@ -64,10 +64,9 @@ return [
     /*
      * O reparte de cada placa vendida.
      *
-     * A comissao incide sobre o LIQUIDO (venda menos custo), e nao sobre o
-     * preco cheio. E a regra que App\Support\Comissao ja aplica no resto da
-     * casa, pelo motivo escrito la: sobre faturamento, uma venda que rende e
-     * uma que sangra pagariam igual.
+     * A comissao incide sobre o VALOR DE VENDA, decisao do dono em 02/10/2026.
+     * E diferente do Avalia One, que comissiona sobre o lucro: aqui a placa tem
+     * custo fixo e conhecido, e o vendedor nao influi nele.
      *
      * O que sobra depois da comissao e dividido entre os socios. Venda feita
      * por socio nao gera comissao: o liquido inteiro vai para a divisao.

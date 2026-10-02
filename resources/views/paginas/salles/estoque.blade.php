@@ -12,22 +12,9 @@
         <x-avalia.cartao-indicador rotulo="Na minha mão" :valor="$minhas->count()"
                                    tom="text-brand-600 dark:text-brand-400" />
 
-        <x-avalia.cartao-indicador rotulo="Meu link de cadastro de cliente"
-                                   :valor="auth('staff')->user()->codigo_indicacao"
-                                   ajuda="Cadastra o cliente no seu nome, mesmo sem venda" />
-
         @if ($ehAdmin)
             <x-avalia.cartao-indicador rotulo="Livres no estoque da casa" :valor="$noBolo" />
         @endif
-    </div>
-
-    <div class="cartao mb-6 p-5">
-        <label for="meu-link" class="rotulo-campo">Link para mandar ao cliente</label>
-        <input id="meu-link" type="text" class="campo" readonly onfocus="this.select()"
-               value="{{ auth('staff')->user()->linkDeCadastro() }}">
-        <span class="ajuda-campo">
-            Quem preencher entra na base como seu cliente, com venda ou sem.
-        </span>
     </div>
 
     @if ($ehAdmin)
@@ -59,6 +46,38 @@
             <p class="ajuda-campo mt-3">
                 Saem as de menor número primeiro, para o lote chegar em ordem à bancada.
             </p>
+        </div>
+
+        {{-- Entregar placas ESCOLHIDAS: o admin le os codigos impressos nas que
+             separou e digita. Tudo ou nada, e a recusa nomeia o codigo errado. --}}
+        <div class="cartao mb-6 p-5">
+            <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Entregar por código</h2>
+
+            <form method="POST" action="{{ route('salles.estoque.entregar-codigos') }}" class="grid gap-3">
+                @csrf
+
+                <div class="grid gap-3 sm:grid-cols-[14rem_1fr]">
+                    <div>
+                        <label for="vendedor_codigos" class="rotulo-campo">Para quem</label>
+                        <select id="vendedor_codigos" name="vendedor_id" class="campo" required>
+                            @foreach ($equipe as $pessoa)
+                                <option value="{{ $pessoa->id }}" @selected(old('vendedor_id') == $pessoa->id)>{{ $pessoa->nome }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="codigos" class="rotulo-campo">Códigos, separados por vírgula</label>
+                        <textarea id="codigos" name="codigos" rows="2" class="campo font-mono" required maxlength="2000"
+                                  placeholder="4VRBD6, FSNSE3, 1R94CH">{{ old('codigos') }}</textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <x-avalia.botao>Entregar estas</x-avalia.botao>
+                    <span class="ajuda-campo">De 10 em 10 funciona bem. Um código errado recusa o lote inteiro e diz qual.</span>
+                </div>
+            </form>
         </div>
 
         <div class="cartao mb-6 overflow-hidden">

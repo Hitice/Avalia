@@ -490,12 +490,12 @@ Confundi-los creditava toda venda a quem operou a impressora.
 ### Reparte de cada placa
 
     liquido  = venda − custo
-    comissão = 25% do líquido, para quem vendeu
+    comissão = 25% do valor de venda, para quem vendeu
     lucro    = líquido − comissão
     split    = lucro dividido entre os sócios
 
-A comissão incide sobre o **líquido**, pelo mesmo motivo do Avalia One: sobre
-faturamento, uma venda que rende e uma que sangra pagariam igual.
+A comissão incide sobre o **valor de venda**, decisão de 02/10/2026. Difere do
+Avalia One de propósito: a placa tem custo fixo e conhecido, e o vendedor não influi nele.
 
 **Não geram comissão:** venda de sócio, porque ele já recebe pela divisão; e venda
 sem vendedor, quando o cliente apontou o próprio código, porque não houve venda de
@@ -505,6 +505,14 @@ ninguém. Comissionar uma venda órfã criaria dinheiro sem destinatário.
 A assimetria é deliberada: o vendedor confere placa a placa, então cada linha tem de
 fechar; dividir a sobra placa a placa daria o centavo ímpar sempre ao primeiro do
 config, e em cem placas isso vira cinquenta centavos de viés.
+
+### A venda é o cadastro
+
+Apontar uma placa com nome e contato cria o negócio na base de marketing, ou acha o
+que já existe pelo telefone. Não há link de cadastro por vendedor: havia um, e saiu
+em 02/10/2026 por ser redundante com a venda e por estar inerte (o código ia na URL
+e nada o lia). O formulário público de `/cadastro` continua, porque colhe o que a
+venda não colhe: endereço, horário e categoria para o perfil do Google.
 
 ### Cancelar venda
 
@@ -623,7 +631,7 @@ caso, correção de valor passa pela tela, com trilha.
 | | Avalia One | Avalia Gestor | Plaquinhas |
 |---|---|---|---|
 | Quem recebe | Vendedor da carteira | Produtor | Vendedor |
-| Base | Lucro do mês | Pagamento recebido | Líquido da venda |
+| Base | Lucro do mês | Pagamento recebido | Valor da venda |
 | Percentual | 10%, por vendedor, teto 50% | 95% (taxa da casa é 5%) | 25% |
 | Quando é elegível | Liquidação da fatura | Liquidação da parcela | Venda registrada |
 | Onde o percentual mora | `staff.comissao_pct` | `config/cobranca.php` | `config/etiquetas.php` |

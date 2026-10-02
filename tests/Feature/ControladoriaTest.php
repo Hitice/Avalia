@@ -57,7 +57,7 @@ it('mostra o resultado do produto que lancou, somado do razao', function () {
 
     $valor = (int) config('etiquetas.precos.placa_cents');
     $custo = (int) config('etiquetas.custo_cents');
-    $comissao = 3 * (int) round(($valor - $custo) * (int) config('etiquetas.comissao_pct') / 100);
+    $comissao = 3 * (int) round($valor * (int) config('etiquetas.comissao_pct') / 100);
 
     $html = daCasa()->get(route('controladoria'))->assertOk()->getContent();
 
@@ -104,7 +104,7 @@ it('separa, por socio, o pro-labore do que fica na empresa', function () {
     // O lucro do razao e receita menos custo menos comissao, por venda.
     $valor = (int) config('etiquetas.precos.placa_cents');
     $custo = (int) config('etiquetas.custo_cents');
-    $comissao = (int) round(($valor - $custo) * (int) config('etiquetas.comissao_pct') / 100);
+    $comissao = (int) round($valor * (int) config('etiquetas.comissao_pct') / 100);
     $lucro = 2 * ($valor - $custo - $comissao);
 
     $parte = (int) round($lucro * 5_000 / 10_000);

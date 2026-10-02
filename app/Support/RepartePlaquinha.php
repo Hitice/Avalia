@@ -9,7 +9,7 @@ namespace App\Support;
  * da casa e nao margem de ninguem. Sobre o que resta incide a comissao de quem
  * vendeu, e o que sobra depois disso se divide entre os socios.
  *
- * A base da comissao e o LIQUIDO, e nao o preco cheio. E a mesma escolha de
+ * A base da comissao e o VALOR DE VENDA (02/10/2026). Diferente da escolha de
  * App\Support\Comissao, pelo mesmo motivo: comissionar faturamento pagaria
  * igual por uma venda que rende e por uma que sangra.
  *
@@ -55,7 +55,9 @@ final class RepartePlaquinha
         $custo = max(0, min($custoCents, $bruto));
         $liquido = $bruto - $custo;
 
-        $comissao = $geraComissao ? self::comissaoCents($liquido, $pct) : 0;
+        // Sobre o BRUTO, por decisao do dono em 02/10/2026. A primeira versao
+        // espelhava o Avalia One (sobre o lucro); na plaquinha a regra e outra.
+        $comissao = $geraComissao ? self::comissaoCents($bruto, $pct) : 0;
         $lucro = $liquido - $comissao;
 
         return [
@@ -68,14 +70,14 @@ final class RepartePlaquinha
     }
 
     /**
-     * A comissao sobre o liquido, com o percentual limitado ao que faz sentido.
+     * A comissao sobre a base dada, com o percentual limitado ao que faz sentido.
      *
      * Teto emprestado de App\Support\Comissao: percentual invalido digitado no
      * config nao pode virar repasse maior que a venda.
      */
-    public static function comissaoCents(int $liquidoCents, int $pct): int
+    public static function comissaoCents(int $baseCents, int $pct): int
     {
-        if ($liquidoCents <= 0) {
+        if ($baseCents <= 0) {
             return 0;
         }
 
@@ -83,7 +85,7 @@ final class RepartePlaquinha
 
         // round, e nao trunca: dois calculos do mesmo mes precisam dar o mesmo
         // centavo, senao o painel e o repasse divergem sem ninguem mexer em nada.
-        return (int) round($liquidoCents * $valido / 100);
+        return (int) round($baseCents * $valido / 100);
     }
 
     /**

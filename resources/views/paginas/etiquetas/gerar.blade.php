@@ -3,7 +3,7 @@
 @section('content')
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Gerar códigos</h1>
-        <p class="rotulo-grupo mt-1">Códigos em branco, para a bancada imprimir</p>
+        <p class="rotulo-grupo mt-1">Gerador de QR</p>
     </div>
 
     @include('parciais.avisos')

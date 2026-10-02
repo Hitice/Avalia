@@ -23,7 +23,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'comissao_pct', 'codigo_indicacao', 'pode_financeiro', 'pode_socios', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'pode_financeiro', 'pode_socios', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
@@ -70,12 +70,6 @@ class Staff extends Authenticatable implements ContaAutenticavel
     public function vendasDePlaquinha(): HasMany
     {
         return $this->hasMany(Etiqueta::class, 'vendedor_id');
-    }
-
-    /** O link publico de cadastro de cliente dele. */
-    public function linkDeCadastro(): string
-    {
-        return route('cadastro-negocio', ['v' => $this->codigo_indicacao]);
     }
 
     public function leads(): BelongsToMany

@@ -9,13 +9,13 @@ use App\Support\RepartePlaquinha;
 */
 
 it('tira o custo antes de comissionar', function () {
-    // A placa de 89,90 custa 5,00. A comissao de 25% incide sobre os 84,90 que
+    // A placa de 89,90 custa 5,00. A comissao de 25% incide sobre os 89,90 da
     // sobram, e nao sobre o preco cheio: 21,23 e nao 22,48.
     $parte = RepartePlaquinha::de(8_990, 500, true, 25);
 
     expect($parte['liquido'])->toBe(8_490)
-        ->and($parte['comissao'])->toBe(2_123)
-        ->and($parte['lucro'])->toBe(6_367);
+        ->and($parte['comissao'])->toBe(2_248)
+        ->and($parte['lucro'])->toBe(6_242);
 });
 
 it('manda o liquido inteiro para a divisao quando nao ha comissao', function () {
@@ -61,15 +61,17 @@ it('nao acumula vies quando a divisao e feita uma vez no fim', function () {
         ->and($primeiro + $segundo)->toBe($lucroDoMes);
 });
 
-it('nao deixa o custo virar comissao negativa', function () {
-    // Placa vendida abaixo do custo e prejuizo da casa. Quem vendeu nao paga
-    // para ter vendido.
+it('paga a comissao sobre a venda mesmo abaixo do custo, e a casa absorve o prejuizo', function () {
+    // Comissao sobre o VALOR DE VENDA (02/10/2026): quem vendeu recebe os 25%
+    // de qualquer jeito, e o prejuizo e da casa. O lucro negativo fica visivel
+    // de proposito: esconde-lo seria mentir no razao. So acontece se alguem
+    // corrigir um valor abaixo do custo.
     $parte = RepartePlaquinha::de(300, 500, true, 25);
 
     expect($parte['custo'])->toBe(300)
         ->and($parte['liquido'])->toBe(0)
-        ->and($parte['comissao'])->toBe(0)
-        ->and($parte['lucro'])->toBe(0);
+        ->and($parte['comissao'])->toBe(75)
+        ->and($parte['lucro'])->toBe(-75);
 });
 
 it('ignora percentual absurdo em vez de estourar o repasse', function () {

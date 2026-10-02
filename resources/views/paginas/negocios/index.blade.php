@@ -7,16 +7,6 @@
             <p class="rotulo-grupo mt-1">Os clientes da frente de marketing</p>
         </div>
 
-        {{-- O link que o vendedor manda. `origem` identifica quem distribuiu, e e
-             o que evita cadastro orfao, o mesmo problema que a venda de plaquinha
-             teve antes de ter `vendedor_id`. --}}
-        <div class="min-w-[22rem]">
-            <label for="link" class="rotulo-campo">Link de cadastro para enviar ao cliente</label>
-            <input id="link" type="text" class="campo" readonly
-                   value="{{ route('cadastro-negocio') }}?origem=SEU_NOME"
-                   onfocus="this.select()">
-            <span class="ajuda-campo">Troque SEU_NOME por quem está enviando.</span>
-        </div>
     </div>
 
     @include('parciais.avisos')
@@ -37,6 +27,7 @@
                 <button type="button" class="botao botao-secundario botao-sm"
                         onclick="navigator.clipboard.writeText('{{ session('linkPronto') }}')">Copiar</button>
             </div>
+            <p class="ajuda-campo mt-2">Confira o link antes de cadastrar: abra e veja se cai no cliente certo. O gerador pode errar com nomes parecidos.</p>
         @endif
 
         @if (session('erro'))
@@ -54,11 +45,13 @@
                 @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
             </div>
 
-            <div class="min-w-[12rem]">
-                <label for="cidade-lugar" class="rotulo-campo">Cidade</label>
-                <input id="cidade-lugar" name="cidade" type="text" class="campo" maxlength="120"
-                       value="{{ old('cidade') }}" placeholder="Ajuda quando o nome repete">
-            </div>
+            @if (session('pedirCidade'))
+                <div class="min-w-[12rem]">
+                    <label for="cidade-lugar" class="rotulo-campo">Cidade</label>
+                    <input id="cidade-lugar" name="cidade" type="text" class="campo" maxlength="120"
+                           value="{{ old('cidade') }}" autofocus placeholder="Para desempatar">
+                </div>
+            @endif
 
             <x-avalia.botao>Gerar link</x-avalia.botao>
         </form>

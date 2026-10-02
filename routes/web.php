@@ -520,6 +520,7 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         // ve de todos e entrega lotes. A entrega e so de admin, porque mexe no
         // que cada um vai prestar conta.
         Route::post('/estoque/entregar', [EstoqueController::class, 'entregar'])->name('salles.estoque.entregar');
+        Route::post('/estoque/entregar-codigos', [EstoqueController::class, 'entregarPorCodigos'])->name('salles.estoque.entregar-codigos');
         Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->name('salles.estoque.devolver');
     });
     Route::get('/estoque', [EstoqueController::class, 'index'])->name('salles.estoque');

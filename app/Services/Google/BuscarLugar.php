@@ -2,6 +2,7 @@
 
 namespace App\Services\Google;
 
+use App\Exceptions\NaoEncontrado;
 use App\Exceptions\Recusa;
 use App\Models\Conexao;
 use Illuminate\Support\Facades\Cache;
@@ -86,7 +87,7 @@ class BuscarLugar
         // busca que nao achou nada igual, e sem guardar o vazio quem insiste no
         // mesmo nome errado paga de novo a cada tentativa.
         if ($lugares === []) {
-            throw new Recusa('O Google não achou esse estabelecimento. Confira o nome como está no perfil dele, e tente com a cidade.');
+            throw new NaoEncontrado('O Google não achou esse estabelecimento. Confira o nome como está no perfil e tente de novo; se repetir, diga a cidade.');
         }
 
         return $lugares;
@@ -144,7 +145,9 @@ class BuscarLugar
     private function motivo(int $status, ?string $doGoogle): string
     {
         return match (true) {
-            $status === 403 => 'O Google recusou a chave. Confira em Conexões se ela está ativa e se a Places API está habilitada no projeto.',
+            // O texto do Google entra: e ele que distingue "chave com restrição de
+            // site, que não vale para chamada de servidor" de "API não habilitada".
+            $status === 403 => 'O Google recusou a chave'.($doGoogle ? ': '.$doGoogle : '.').' Confira no Google Cloud: a Places API (New) habilitada, e a chave sem restrição de site (a chamada sai do servidor).',
             $status === 429 => 'O Google recusou por excesso de consultas. Tente de novo em alguns minutos.',
 
             // O detalhe do Google entra porque e ele que diz qual campo esta

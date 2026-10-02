@@ -85,10 +85,14 @@ it('nao abre a base para vendedor, que ve e-mail e telefone de todo cliente', fu
         ->assertForbidden();
 });
 
-it('mostra o link de cadastro para a casa enviar', function () {
+it('nao oferece mais o link de cadastro para a casa enviar', function () {
+    // Saiu em 02/10/2026: a venda ja cadastra nome e contato, e o link estava
+    // inerte, com um codigo na URL que controller nenhum lia. O formulario
+    // publico de /cadastro continua, pelo que a venda nao colhe.
     $html = admin()->get(route('negocios'))->assertOk()->getContent();
 
-    expect($html)->toContain(route('cadastro-negocio'));
+    expect($html)->not->toContain('Link de cadastro para enviar')
+        ->and($this->get(route('cadastro-negocio'))->status())->toBe(200);
 });
 
 it('diz o que falta para conseguir cadastrar no google', function () {

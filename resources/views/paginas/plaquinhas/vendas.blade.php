@@ -231,7 +231,7 @@
                                     {{ Dinheiro::brl((int) $venda->valor_cents) }}
                                 </td>
                                 <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">
-                                    {{ $venda->vendida_em->format('d/m') }}
+                                    {{ $venda->vendida_em->format('d/m H:i') }}
                                 </td>
                             </tr>
                         @empty

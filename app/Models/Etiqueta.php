@@ -30,7 +30,7 @@ class Etiqueta extends Model
     protected $fillable = [
         'codigo', 'lote_id', 'sequencia', 'tipo', 'situacao', 'destino',
         'titulo', 'cliente_nome', 'cliente_contato',
-        'vendida_em', 'vence_em', 'avisada_em', 'consignada_para_id', 'consignada_em', 'valor_cents', 'custo_cents', 'gravada_em',
+        'vendida_em', 'vence_em', 'avisada_em', 'consignada_para_id', 'consignada_em', 'negocio_id', 'valor_cents', 'custo_cents', 'gravada_em',
         'asaas_subscription_id', 'total_acessos', 'ultimo_acesso_em', 'staff_id',
         'vendedor_id', 'dono_tipo', 'dono_id',
     ];
@@ -262,6 +262,11 @@ class Etiqueta extends Model
      * impede um cliente de trocar o destino da placa de outro. Ver
      * App\Support\Dono.
      */
+    public function negocio(): BelongsTo
+    {
+        return $this->belongsTo(Negocio::class);
+    }
+
     public function consignadaPara(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'consignada_para_id');

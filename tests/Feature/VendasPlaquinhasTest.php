@@ -46,7 +46,8 @@ function contaDaPlaca(int $quantas = 1, bool $comComissao = true): array
 
     // Por venda, e nao sobre o total: e assim que o vendedor confere, placa por
     // placa, e repasse que nao bate com a conta de quem recebe vira discussao.
-    $comissaoDeUma = $comComissao ? (int) round(($valor - $custo) * $pct / 100) : 0;
+    // Sobre o valor de venda, nao sobre o liquido: regra da plaquinha.
+    $comissaoDeUma = $comComissao ? (int) round($valor * $pct / 100) : 0;
 
     return [
         'bruto' => $quantas * $valor,
@@ -76,7 +77,7 @@ it('nao abre para quem nao entrou', function () {
 |--------------------------------------------------------------------------
 */
 
-it('apura a venda do vendedor comum com a comissao sobre o liquido', function () {
+it('apura a venda do vendedor comum com a comissao sobre o valor de venda', function () {
     socios();
     $warley = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Warley']);
 
@@ -337,4 +338,16 @@ it('mostra de cada socio o que sai na sexta e o que fica na empresa', function (
             // Fecha: nada some entre a parte e as duas metades.
             ->and($socio['retido'] + $socio['prolabore'])->toBe($socio['mes']);
     }
+});
+
+it('mostra a hora de cada venda do mes', function () {
+    Illuminate\Support\Carbon::setTestNow('2026-10-02 14:37:00');
+    socios();
+    $warley = Staff::factory()->create(['papel' => 'vendedor']);
+    Etiqueta::factory()->ativa()->create(['vendedor_id' => $warley->id]);
+
+    $html = admin()->get(route('plaquinhas.vendas'))->assertOk()->getContent();
+
+    expect($html)->toContain('02/10 14:37');
+    Illuminate\Support\Carbon::setTestNow();
 });

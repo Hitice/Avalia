@@ -73,11 +73,16 @@
              proprio seletor: escolher a campanha e baixar o ZIP dela sao a
              mesma tarefa, e separa-las em dois cartoes fazia o operador
              procurar em dois lugares o que e um gesto so. --}}
-        <form method="GET" class="barra-secao">
+        <form method="GET" class="barra-secao" x-data>
             <div class="min-w-[14rem] flex-1">
                 <label for="busca" class="rotulo-campo">Buscar</label>
+                {{-- Busca no servidor a cada tecla, com debounce: a tabela pagina em
+                     25, e filtrar so a pagina na tela esconderia resultado das outras.
+                     O foco volta ao campo depois do recarregamento, no fim do texto. --}}
                 <input id="busca" name="busca" type="search" value="{{ $filtros['busca'] }}" class="campo"
-                       placeholder="Código, cliente, campanha ou destino">
+                       placeholder="Empresa, contato, telefone, código ou destino"
+                       x-on:input.debounce.400ms="$el.form.requestSubmit()"
+                       @if ($filtros['busca'] !== '') autofocus onfocus="this.setSelectionRange(this.value.length, this.value.length)" @endif>
             </div>
 
             <div>

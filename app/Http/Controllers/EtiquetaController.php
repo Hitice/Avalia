@@ -65,7 +65,12 @@ class EtiquetaController extends Controller
                     ->when($codigo !== '', fn ($q) => $q->orWhere('codigo', $codigo))
                     ->orWhere('titulo', 'like', "%{$busca}%")
                     ->orWhere('cliente_nome', 'like', "%{$busca}%")
-                    ->orWhere('destino', 'like', "%{$busca}%"));
+                    ->orWhere('cliente_contato', 'like', "%{$busca}%")
+                    ->orWhere('destino', 'like', "%{$busca}%")
+                    // O telefone mora no negocio, que a venda cadastra.
+                    ->orWhereHas('negocio', fn ($n) => $n
+                        ->where('whatsapp', 'like', "%{$busca}%")
+                        ->orWhere('telefone', 'like', "%{$busca}%")));
             })
             ->orderByDesc('id')
             ->paginate(25)

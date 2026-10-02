@@ -24,6 +24,10 @@
                                 onclick="navigator.clipboard.writeText('{{ session('linkPronto') }}')">Copiar</button>
                     </div>
 
+                    <p class="aviso aviso-alerta mt-3">
+                        Confira o link antes de imprimir: abra e veja se cai no seu estabelecimento.
+                        O gerador pode errar quando há nomes parecidos.
+                    </p>
                     <p class="ajuda-campo mt-3">
                         Use no adesivo do balcão, no cardápio ou na plaquinha. O link conta quantas
                         pessoas abriram o pedido, e a gente entra em contato para acompanhar.
@@ -80,11 +84,14 @@
                         @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 
-                    <div class="sm:col-span-2">
-                        <label for="av-cidade" class="rotulo-campo">Cidade</label>
-                        <input id="av-cidade" name="cidade" type="text" class="campo" maxlength="120"
-                               value="{{ old('cidade') }}" placeholder="Ajuda quando o nome repete">
-                    </div>
+                    {{-- So depois de nao achar: na primeira tentativa a cidade e ruido. --}}
+                    @if (session('pedirCidade'))
+                        <div class="sm:col-span-2">
+                            <label for="av-cidade" class="rotulo-campo">Cidade</label>
+                            <input id="av-cidade" name="cidade" type="text" class="campo" maxlength="120"
+                                   value="{{ old('cidade') }}" autofocus placeholder="Para desempatar">
+                        </div>
+                    @endif
 
                     <div>
                         <label for="av-whatsapp" class="rotulo-campo">WhatsApp</label>
