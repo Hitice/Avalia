@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'sessao' => App\Http\Middleware\ConfereSessao::class,
             'admin' => App\Http\Middleware\SomenteAdmin::class,
+            'produto' => App\Http\Middleware\AcessoAoProduto::class,
             'financeiro' => App\Http\Middleware\SomenteFinanceiro::class,
             'socios' => App\Http\Middleware\SomenteSocios::class,
         ]);

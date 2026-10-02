@@ -64,7 +64,7 @@ class MenuHelper
              * Sem `papeis`: cliente e produtor tambem entram, e o que limita
              * cada um e o dono gravado no codigo, e nao o papel.
              */
-            ['icon' => 'qr', 'name' => 'Avalia Sales', 'path' => '/sales'],
+            ['icon' => 'qr', 'name' => 'Avalia Sales', 'path' => '/sales', 'exigeSales' => true],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
@@ -121,7 +121,7 @@ class MenuHelper
             return auth('staff')->check() ? route('sales.inicio') : route('etiquetas.index');
         }
 
-        return auth('empresa')->check() ? route('empresa.painel') : route('painel');
+        return auth('empresa')->check() ? route('empresa.painel') : \App\Support\Porta::painelDe('staff');
     }
 
     /**
@@ -157,7 +157,9 @@ class MenuHelper
             // Item que exige permissao financeira some de quem nao a tem: menu
             // que leva a 403 ensina o operador a ignorar o menu.
             && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro())
-            && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios());
+            && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios())
+            // Sem acesso ao Sales, a porta some; cliente e produtor (sem conta) entram.
+            && (empty($item['exigeSales']) || $conta === null || $conta->acessa('sales'));
 
         if (self::naSales()) {
             return [[

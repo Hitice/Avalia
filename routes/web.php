@@ -139,7 +139,7 @@ Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('site.sitem
 | grupo: ela responde a desconhecido e nao pode carregar sessao.
 |
 */
-Route::middleware(['auth:staff,empresa,produtor', 'sessao:staff', 'sessao:empresa', 'sessao:produtor'])
+Route::middleware(['auth:staff,empresa,produtor', 'sessao:staff', 'sessao:empresa', 'sessao:produtor', 'produto'])
     ->prefix('etiquetas')->name('etiquetas.')->group(function () {
         Route::get('/', [EtiquetaController::class, 'index'])->name('index');
 
@@ -342,7 +342,7 @@ Route::post('/webhooks/asaas', WebhookAsaasController::class)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
+Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () {
     // Em /painel, e nao em /: a raiz e a pagina publica de apresentacao, e o
     // nome de rota continua o mesmo, entao nenhum redirect mudou.
     Route::get('/painel', PainelController::class)->name('painel');
@@ -490,6 +490,8 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
         Route::delete('/{membro}', [EquipeController::class, 'remover'])->name('remover');
         Route::post('/{id}/restaurar', [EquipeController::class, 'restaurar'])->name('restaurar');
         Route::delete('/{id}/excluir', [EquipeController::class, 'excluir'])->name('excluir');
+        // Liga ou desliga um produto para a pessoa, no clique.
+        Route::patch('/{membro}/acesso/{produto}', [EquipeController::class, 'acesso'])->whereIn('produto', ['one', 'sales'])->name('acesso');
     });
 
     /*

@@ -49,7 +49,7 @@
             </button>
 
             <!-- Logo (mobile only) -->
-            <a href="{{ auth('empresa')->check() ? route('empresa.painel') : route('painel') }}" class="xl:hidden">
+            <a href="{{ App\Helpers\MenuHelper::inicioDaArea() }}" class="xl:hidden">
                 <x-avalia.logotipo :tamanho="32" marca="credito" />
             </a>
 

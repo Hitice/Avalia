@@ -31,7 +31,8 @@ final class Porta
     public static function painelDe(string $guarda): string
     {
         return match ($guarda) {
-            'staff' => route('painel'),
+            // Quem so vende na rua entra direto no Sales.
+            'staff' => Auth::guard('staff')->user()?->acessa('one') === false ? route('sales.inicio') : route('painel'),
             'produtor' => route('produtor.painel'),
             default => route('empresa.painel'),
         };
@@ -50,13 +51,13 @@ final class Porta
     {
         return match ($produto) {
             'vendas' => match (true) {
-                Auth::guard('staff')->check() => route('sales.inicio'),
+                Auth::guard('staff')->check() => Auth::guard('staff')->user()->acessa('sales') ? route('sales.inicio') : null,
                 self::painelDaSessao() !== null => route('etiquetas.index'),
                 default => null,
             },
 
             'credito' => match (true) {
-                Auth::guard('staff')->check() => route('painel'),
+                Auth::guard('staff')->check() => Auth::guard('staff')->user()->acessa('one') ? route('painel') : null,
                 Auth::guard('empresa')->check() => route('empresa.painel'),
                 default => null,
             },

@@ -168,7 +168,25 @@ class EquipeController extends Controller
             'papel' => $membro->papel,
             'comissao_pct' => $membro->comissao_pct,
             'pode_financeiro' => (bool) $membro->pode_financeiro,
+            'acessa_one' => (bool) $membro->acessa_one,
+            'acessa_sales' => (bool) $membro->acessa_sales,
         ];
+    }
+
+    /** Liga ou desliga um produto para o vendedor. Administracao entra nos dois e nao tem chave. */
+    public function acesso(Staff $membro, string $produto)
+    {
+        if ($membro->ehAdmin() || $membro->ehSuper()) {
+            return back()->with('erro', 'Administração acessa os dois produtos.');
+        }
+
+        $coluna = 'acessa_'.$produto;
+        $membro->update([$coluna => ! $membro->{$coluna}]);
+        Auditar::registrar('equipe.alterada', $membro, $this->rastreavel($membro));
+
+        $marca = $produto === 'sales' ? \App\Support\Empresa::marcaVendas() : \App\Support\Empresa::marcaCredito();
+
+        return back()->with('ok', $membro->nome.($membro->{$coluna} ? ' agora acessa ' : ' não acessa mais ').$marca.'.');
     }
 
     public function editar(Staff $membro)

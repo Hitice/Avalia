@@ -5,7 +5,7 @@
         <div>
             <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Equipe</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Quem trabalha na Avalia One e a comissão de cada vendedor.
+                Quem trabalha na casa, a comissão de cada vendedor e o que cada um acessa.
             </p>
         </div>
 
@@ -16,13 +16,15 @@
 
     <div class="cartao overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="tabela min-w-[46rem]">
+            <table class="tabela min-w-[58rem]">
                 <thead class="tabela-cabecalho">
                     <tr>
                         <th class="px-5 py-3 text-left font-medium">Pessoa</th>
                         <th class="px-5 py-3 text-left font-medium">Função</th>
                         <th class="px-5 py-3 text-right font-medium">Comissão</th>
                         <th class="px-5 py-3 text-right font-medium">Empresas</th>
+                        <th class="px-5 py-3 text-left font-medium">{{ App\Support\Empresa::marcaCredito() }}</th>
+                        <th class="px-5 py-3 text-left font-medium">{{ App\Support\Empresa::marcaVendas() }}</th>
                         <th class="px-5 py-3 text-left font-medium">Situação</th>
                         <th class="px-5 py-3 text-right font-medium">Ações</th>
                     </tr>
@@ -46,6 +48,21 @@
                             <td class="px-5 py-4 text-right tabular-nums text-gray-600 dark:text-gray-300">
                                 {{ $membro->ehAdmin() ? '-' : $membro->clientes_count }}
                             </td>
+                            {{-- Uma chave por produto, so para vendedor em atividade: a
+                                 administracao entra nos dois. --}}
+                            @foreach (['one', 'sales'] as $produto)
+                                <td class="px-5 py-4 text-left">
+                                    @if ($membro->ehAdmin() || $membro->ehSuper())
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Sempre</span>
+                                    @elseif (! $membro->trashed())
+                                        <x-avalia.interruptor :ligado="(bool) $membro->{'acessa_'.$produto}"
+                                                              :acao="route('equipe.acesso', [$membro, $produto])"
+                                                              ligado-rotulo="Com acesso" desligado-rotulo="Sem acesso" />
+                                    @else
+                                        <span class="text-sm text-gray-400">-</span>
+                                    @endif
+                                </td>
+                            @endforeach
                             <td class="px-5 py-4 text-left">
                                 @if ($membro->trashed())
                                     <span class="etiqueta etiqueta-erro">Removido</span>

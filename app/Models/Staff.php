@@ -23,10 +23,14 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'comissao_pct', 'pode_financeiro', 'pode_socios', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'pode_financeiro', 'pode_socios', 'acessa_one', 'acessa_sales', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
+
+    // Ligados por padrao tambem na instancia recem-criada, que ainda nao leu o
+    // default do banco: sem isto a conta nova toma 403 ate ser recarregada.
+    protected $attributes = ['acessa_one' => true, 'acessa_sales' => true];
 
     protected function casts(): array
     {
@@ -36,6 +40,8 @@ class Staff extends Authenticatable implements ContaAutenticavel
             'ativo' => 'boolean',
             'pode_financeiro' => 'boolean',
             'pode_socios' => 'boolean',
+            'acessa_one' => 'boolean',
+            'acessa_sales' => 'boolean',
             'comissao_pct' => 'integer',
             'sessao_versao' => 'integer',
             'ultimo_acesso_em' => 'datetime',
@@ -100,6 +106,19 @@ class Staff extends Authenticatable implements ContaAutenticavel
     public function podeSocios(): bool
     {
         return $this->ehSuper() || ($this->ehAdmin() && (bool) $this->pode_socios);
+    }
+
+    /**
+     * Que produto a pessoa abre. Administracao entra nos dois; vendedor so
+     * onde foi ligado, porque a equipe de rua nao e a mesma do CRM.
+     */
+    public function acessa(string $produto): bool
+    {
+        if ($this->ehAdmin() || $this->ehSuper()) {
+            return true;
+        }
+
+        return $produto === 'sales' ? (bool) $this->acessa_sales : (bool) $this->acessa_one;
     }
 
     public function ehAdmin(): bool
