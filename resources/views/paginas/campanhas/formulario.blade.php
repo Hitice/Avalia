@@ -9,10 +9,10 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+        <h1 class="titulo-pagina">
             {{ $campanha->exists ? $campanha->nome : 'Nova campanha' }}
         </h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p class="subtitulo-pagina">
             Defina o público e comunique a oferta. Preços continuam definidos no catálogo.
         </p>
     </div>

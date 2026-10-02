@@ -13,7 +13,7 @@
             <h1 class="font-mono text-2xl font-semibold tracking-widest text-gray-800 dark:text-white/90">
                 {{ $etiqueta->codigo }}
             </h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p class="subtitulo-pagina">
                 {{ $etiqueta->titulo ?? $etiqueta->lote?->titulo ?? 'Sem campanha' }}
                 @if ($etiqueta->sequencia)
                     · nº {{ $etiqueta->sequencia }}

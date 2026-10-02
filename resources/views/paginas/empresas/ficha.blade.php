@@ -19,8 +19,8 @@
 
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $empresa->razao_social }}</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">{{ $empresa->razao_social }}</h1>
+            <p class="subtitulo-pagina">
                 {{ $empresa->cnpjRotulo() ?: 'sem CNPJ' }}
                 @if ($plano) · {{ $plano->nome }} @endif
                 @if ($empresa->vendedor) · carteira de {{ $empresa->vendedor->nome }} @endif
@@ -54,7 +54,7 @@
     <div class="grid gap-6">
         <div class="cartao p-6">
             <div class="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Competência {{ $competencia }}</h2>
+                <h2 class="titulo-cartao">Competência {{ $competencia }}</h2>
                 <span class="text-xs text-gray-500 dark:text-gray-400">{{ $quantidade }} consulta(s)</span>
             </div>
 
@@ -112,7 +112,7 @@
 
     <div class="cartao mt-6 overflow-hidden">
         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Faturas fechadas</h2>
+            <h2 class="titulo-cartao">Faturas fechadas</h2>
         </div>
 
         <div class="overflow-x-auto">

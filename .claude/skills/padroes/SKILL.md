@@ -44,7 +44,8 @@ Estilo repetido vira `@utility` em `resources/css/app.css`, na familia das
 utilities do tema. O Blade usa o nome semantico, e o nome aparece **literal**,
 nunca montado em tempo de execucao.
 
-Vocabulario ja existente: `cartao`, `tabela`, `tabela-cabecalho`,
+Vocabulario ja existente: `titulo-pagina`, `subtitulo-pagina`, `titulo-cartao`,
+`titulo-secao`, `flutuante` (menu da conta, modal, caixa de login), `cartao`, `tabela`, `tabela-cabecalho`,
 `tabela-cabecalho-fixo`, `tabela-rolagem`, `tabela-th`, `tabela-td`,
 `tabela-vazia`, `campo`, `campo-linha`, `campo-celula`, `rotulo-campo`,
 `ajuda-campo`, `erro-campo`, `etiqueta` + `etiqueta-{neutra,alerta,erro}`,
@@ -53,7 +54,13 @@ Vocabulario ja existente: `cartao`, `tabela`, `tabela-cabecalho`,
 `interruptor` + `interruptor-{ligado,desligado,bolinha}`, `menu-badge-embreve`.
 
 Componentes proprios em `resources/views/components/avalia/`: `botao`,
-`segmentado`, `interruptor`, `logotipo`, `tema`.
+`segmentado`, `interruptor`, `logotipo`, `medidor`, `tema`, `icone`,
+`cartao-indicador`, `grafico-vendas-dia`, `paginacao`.
+
+Icone vem de **um** mapa, `App\Support\Icones`, por nome em portugues
+(`<x-avalia.icone nome="lapis" />`); o menu lateral usa o mesmo. Icone novo
+entra no mapa, nunca inline na view, e `IconesTest` cobra que todo item de menu
+aponte para um nome que existe.
 
 ### Tela nova nasce com as tres partes
 

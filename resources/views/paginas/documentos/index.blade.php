@@ -3,8 +3,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Documentos</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Publique versões atualizadas para clientes e equipe.</p>
+            <h1 class="titulo-pagina">Documentos</h1>
+            <p class="subtitulo-pagina">Publique versões atualizadas para clientes e equipe.</p>
         </div>
         <x-avalia.botao :href="route('documentos.criar')">Novo documento</x-avalia.botao>
     </div>

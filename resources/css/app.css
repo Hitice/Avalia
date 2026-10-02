@@ -260,30 +260,6 @@
   @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
 }
 
-@utility menu-dropdown-item {
-  @apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium;
-}
-
-@utility menu-dropdown-item-active {
-  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
-}
-
-@utility menu-dropdown-item-inactive {
-  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
-}
-
-@utility menu-dropdown-badge {
-  @apply text-success-600 dark:text-success-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
-}
-
-@utility menu-dropdown-badge-active {
-  @apply bg-success-100 dark:bg-success-500/20;
-}
-
-@utility menu-dropdown-badge-inactive {
-  @apply bg-success-50 group-hover:bg-success-100 dark:bg-success-500/15 dark:group-hover:bg-success-500/20;
-}
-
 /* ---------------------------------------------------------------------------
    Vocabulario da Avalia.
 
@@ -571,20 +547,32 @@
   @apply cursor-not-allowed gap-1.5 text-gray-400 dark:text-gray-600;
 }
 
+/* Titulos. Tela nova usa estes nomes; a mesma pilha de classes repetida 48 vezes
+   foi o que fez cada pagina parecer de um sistema diferente. */
+@utility titulo-pagina {
+  @apply text-2xl font-semibold text-gray-800 dark:text-white/90;
+}
+
+@utility subtitulo-pagina {
+  @apply mt-1 text-sm text-gray-500 dark:text-gray-400;
+}
+
+@utility titulo-cartao {
+  @apply font-medium text-gray-800 dark:text-white/90;
+}
+
+@utility titulo-secao {
+  @apply mb-4 text-lg font-semibold text-gray-800 dark:text-white/90;
+}
+
+/* A moldura de tudo que flutua sobre a tela: menu da conta, modal, caixa de
+   login. Uma so, para o modal do One e o do Gestor serem o mesmo modal. */
+@utility flutuante {
+  @apply rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800;
+}
+
 @utility rotulo-grupo {
   @apply text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500;
-}
-
-@utility menu-dropdown-badge-pro {
-  @apply text-brand-600 dark:text-brand-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
-}
-
-@utility menu-dropdown-badge-pro-active {
-  @apply bg-brand-100 dark:bg-brand-500/20;
-}
-
-@utility menu-dropdown-badge-pro-inactive {
-  @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
 }
 
 @utility no-scrollbar {

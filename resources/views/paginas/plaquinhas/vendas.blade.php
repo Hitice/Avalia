@@ -17,7 +17,7 @@
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Vendas QR</h1>
+        <h1 class="titulo-pagina">Vendas QR</h1>
 
         <form method="GET" action="{{ route('plaquinhas.vendas') }}" class="flex flex-wrap items-center gap-2">
             <label for="mes" class="sr-only">Mês</label>
@@ -55,14 +55,14 @@
 
     <div class="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
         <div class="cartao p-6">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Vendas por dia</h2>
+            <h2 class="titulo-cartao">Vendas por dia</h2>
 
             <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" />
         </div>
 
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Caixa</h2>
+                <h2 class="titulo-cartao">Caixa</h2>
             </div>
 
             <table class="tabela">
@@ -132,7 +132,7 @@
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_1.35fr]">
         <div class="cartao p-6">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Por vendedor</h2>
+            <h2 class="titulo-cartao">Por vendedor</h2>
 
             @php $maiorVendedor = max(1, $porVendedor->max('placas') ?? 0); @endphp
 
@@ -183,7 +183,7 @@
 
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Vendas do mês</h2>
+                <h2 class="titulo-cartao">Vendas do mês</h2>
             </div>
             <div class="tabela-rolagem">
                 <table class="tabela min-w-[32rem]">

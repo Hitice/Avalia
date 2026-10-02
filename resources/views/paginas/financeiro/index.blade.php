@@ -19,8 +19,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Financeiro</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">Financeiro</h1>
+            <p class="subtitulo-pagina">
                 Acompanhe as faturas de todos os clientes e confirme os pagamentos recebidos.
             </p>
         </div>
@@ -348,7 +348,7 @@
     @if ($comissoes->isNotEmpty())
         <div class="cartao mt-6 overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão a repassar</h2>
+                <h2 class="titulo-cartao">Comissão a repassar</h2>
                 <p class="ajuda-campo mt-1">Valores já devidos, apurados sobre faturas com pagamento confirmado.</p>
             </div>
 

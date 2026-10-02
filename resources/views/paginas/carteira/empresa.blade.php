@@ -16,8 +16,8 @@
 
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $empresa->razao_social }}</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">{{ $empresa->razao_social }}</h1>
+            <p class="subtitulo-pagina">
                 {{ $empresa->cnpjRotulo() }}
                 <span class="etiqueta {{ Rotulos::empresaEtiqueta($empresa->situacao) }} ml-2">{{ Rotulos::empresa($empresa->situacao) }}</span>
             </p>
@@ -55,7 +55,7 @@
          conversa. Custo, lucro e margem sao da ficha da administracao. --}}
     <div class="cartao overflow-hidden">
         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Faturas</h2>
+            <h2 class="titulo-cartao">Faturas</h2>
         </div>
         <div class="tabela-rolagem">
             <table class="tabela min-w-[32rem]">

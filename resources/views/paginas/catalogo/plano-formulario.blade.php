@@ -24,7 +24,7 @@
         Planos
     </a>
 
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">
+    <h1 class="titulo-pagina mb-6">
         {{ $plano->exists ? $plano->nome : 'Novo plano' }}
     </h1>
 
@@ -116,7 +116,7 @@
 
     @if ($plano->exists)
         <div class="mt-6 cartao p-6">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Franquia por serviço</h2>
+            <h2 class="titulo-cartao">Franquia por serviço</h2>
             <p class="mt-1 mb-5 text-sm text-gray-500 dark:text-gray-400">
                 Quantas consultas de cada serviço já vêm pagas na mensalidade. Zero significa
                 que o serviço está liberado, mas toda consulta é excedente.

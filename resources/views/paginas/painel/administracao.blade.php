@@ -6,8 +6,8 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Olá, {{ $staff->nome }}</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Resumo da operação · {{ $competencia }}</p>
+        <h1 class="titulo-pagina">Olá, {{ $staff->nome }}</h1>
+        <p class="subtitulo-pagina">Resumo da operação · {{ $competencia }}</p>
     </div>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -89,7 +89,7 @@
     @if ($interessados->isNotEmpty())
         <div class="cartao mb-6 overflow-hidden border-brand-200 dark:border-brand-500/40">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Pedidos de contato aguardando retorno</h2>
+                <h2 class="titulo-cartao">Pedidos de contato aguardando retorno</h2>
                 <p class="ajuda-campo mt-1">Chegaram pela campanha da página pública. Retorno prometido: ainda hoje.</p>
             </div>
             <div class="overflow-x-auto">
@@ -142,7 +142,7 @@
              momento em que uma ligacao ainda evita a interrupcao. --}}
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">A caminho da suspensão</h2>
+                <h2 class="titulo-cartao">A caminho da suspensão</h2>
                 <p class="ajuda-campo mt-1">Fatura vencida, consultas ainda liberadas.</p>
             </div>
             <div class="overflow-x-auto">
@@ -179,7 +179,7 @@
 
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão liberada por vendedor</h2>
+                <h2 class="titulo-cartao">Comissão liberada por vendedor</h2>
                 <p class="ajuda-campo mt-1">Faturas já liquidadas, menos o custo das demonstrações de cada vendedor.</p>
             </div>
             <div class="overflow-x-auto">

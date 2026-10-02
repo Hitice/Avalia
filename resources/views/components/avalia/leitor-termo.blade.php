@@ -19,7 +19,7 @@
                  @click.outside="aberto = false">
                 <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                     <div>
-                        <h2 class="font-medium text-gray-800 dark:text-white/90">{{ $documento->titulo }}</h2>
+                        <h2 class="titulo-cartao">{{ $documento->titulo }}</h2>
                         <span class="ajuda-campo">Versão {{ $documento->versao }}</span>
                     </div>
                     <button type="button" @click="aberto = false"

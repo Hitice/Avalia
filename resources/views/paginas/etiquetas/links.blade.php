@@ -2,8 +2,8 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Encurtador</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <h1 class="titulo-pagina">Encurtador</h1>
+        <p class="subtitulo-pagina">
             Endereços longos atrás de um código curto, para caberem nos {{ $bytesDaTag }} bytes
             úteis da tag NFC.
         </p>

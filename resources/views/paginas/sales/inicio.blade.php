@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ App\Support\Empresa::marcaVendas() }}</h1>
+        <h1 class="titulo-pagina">{{ App\Support\Empresa::marcaVendas() }}</h1>
         <p class="rotulo-grupo mt-1">{{ now()->translatedFormat('F') }}</p>
     </div>
 
@@ -29,7 +29,7 @@
 
     @if ($ehAdmin)
         <div class="cartao mb-6 p-5">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Equipe no mês</h2>
+            <h2 class="titulo-secao">Equipe no mês</h2>
             <div class="grid gap-4 sm:grid-cols-3">
                 <x-avalia.cartao-indicador rotulo="Placas vendidas" :valor="$equipe['placas']" :href="route('plaquinhas.vendas')" />
                 <x-avalia.cartao-indicador rotulo="Bruto" :valor="Dinheiro::brl($equipe['bruto'])" :href="route('plaquinhas.vendas')" />
@@ -39,7 +39,7 @@
     @endif
 
     <div class="cartao p-6">
-        <h2 class="font-medium text-gray-800 dark:text-white/90">{{ $equipe === null ? 'Minhas vendas por dia' : 'Vendas por dia' }}</h2>
+        <h2 class="titulo-cartao">{{ $equipe === null ? 'Minhas vendas por dia' : 'Vendas por dia' }}</h2>
         <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" />
     </div>
 @endsection

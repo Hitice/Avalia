@@ -8,8 +8,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha carteira</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">Minha carteira</h1>
+            <p class="subtitulo-pagina">
                 Suas empresas e a sua comissão. A comissão é liberada quando a empresa paga a fatura.
             </p>
         </div>
@@ -44,7 +44,7 @@
 
     <div class="cartao overflow-hidden">
         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Empresas</h2>
+            <h2 class="titulo-cartao">Empresas</h2>
             <p class="ajuda-campo mt-1">Consumo de {{ $competencia }}, que ainda pode mudar até o fechamento.</p>
         </div>
 
@@ -119,7 +119,7 @@
 
     <div class="cartao mt-6 overflow-hidden">
         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Comissão por competência</h2>
+            <h2 class="titulo-cartao">Comissão por competência</h2>
         </div>
 
         <div class="overflow-x-auto">

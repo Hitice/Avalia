@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="grade-viva flex min-h-screen items-center justify-center bg-white p-6 dark:bg-gray-900">
-        <div class="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+        <div class="flutuante w-full max-w-md p-8">
             <div class="mb-5">
                 <x-avalia.botao variante="secundario" tamanho="sm" :href="route('entrar')">
                     <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -14,7 +14,7 @@
             <x-avalia.logotipo :tamanho="32" class="mb-6" marca="credito" />
 
             <h1 class="text-xl font-semibold text-gray-800 dark:text-white/90">Esqueci minha senha</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p class="subtitulo-pagina">
                 Informe o e-mail do seu acesso. Se ele estiver cadastrado, enviamos
                 um link para você definir uma senha nova.
             </p>

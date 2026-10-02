@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Sócios</h1>
+        <h1 class="titulo-pagina">Sócios</h1>
 
         <div class="flex flex-wrap items-center gap-2">
             <form method="GET">
@@ -33,7 +33,7 @@
     <div class="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">
+                <h2 class="titulo-cartao">
                     {{ $socios->isEmpty() ? 'Cadastrar sócio' : 'Por sócio' }}
                 </h2>
                 @if ($socios->isEmpty())
@@ -225,7 +225,7 @@
     <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_2fr]">
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Por categoria</h2>
+                <h2 class="titulo-cartao">Por categoria</h2>
             </div>
             <table class="tabela">
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -255,7 +255,7 @@
              socio, fatura fechada) nao aparece aqui; esta no por categoria. --}}
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Livro-caixa de {{ $competencia }}</h2>
+                <h2 class="titulo-cartao">Livro-caixa de {{ $competencia }}</h2>
             </div>
             <div class="tabela-rolagem">
                 <table class="tabela min-w-[48rem]">

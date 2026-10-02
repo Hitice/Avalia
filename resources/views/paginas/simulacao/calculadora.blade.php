@@ -9,8 +9,8 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Calculadora</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <h1 class="titulo-pagina">Calculadora</h1>
+        <p class="subtitulo-pagina">
             Quanto um contrato rende para a Avalia One, antes de ele existir.
         </p>
     </div>
@@ -77,7 +77,7 @@
             <div class="grid gap-6">
                 <div class="cartao p-6">
                     <div class="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-                        <h2 class="font-medium text-gray-800 dark:text-white/90">No mês</h2>
+                        <h2 class="titulo-cartao">No mês</h2>
                         @if ($plano)
                             <span class="text-xs text-gray-500 dark:text-gray-400">plano {{ $plano->nome }}</span>
                         @endif

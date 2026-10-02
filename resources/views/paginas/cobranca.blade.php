@@ -119,7 +119,7 @@
                         @csrf
 
                         <h2 class="text-lg font-semibold tracking-tight">Bem-vindo de volta</h2>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Entre com seu e-mail e senha.</p>
+                        <p class="subtitulo-pagina">Entre com seu e-mail e senha.</p>
 
                         @if ($errors->acessoProdutor->any())
                             <div class="aviso aviso-erro mt-4">{{ $errors->acessoProdutor->first() }}</div>
@@ -417,7 +417,7 @@
                  grade viva no cabecalho, o simbolo do assunto numa caixa e o
                  texto no corpo branco. Duas caixas diferentes para a mesma
                  funcao fariam a pessoa achar que mudou de site. --}}
-            <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="flutuante w-full max-w-lg overflow-hidden">
                 <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
@@ -456,7 +456,7 @@
         <div x-cloak x-show="formulario" x-transition.opacity.duration.200ms
              class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-gray-900/60 p-4 py-10 backdrop-blur-sm"
              @click.self="formulario = false" role="dialog" aria-modal="true" aria-label="Fale com a {{ Empresa::marcaCobranca() }}">
-            <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-6 py-6 shadow-theme-lg sm:px-8 dark:border-gray-700 dark:bg-gray-800">
+            <div class="flutuante relative w-full max-w-lg px-6 py-6 sm:px-8">
                 <button type="button" @click="formulario = false" aria-label="Fechar"
                         class="absolute top-4 right-4 text-gray-400 transition hover:text-gray-600 dark:hover:text-gray-200">
                     <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

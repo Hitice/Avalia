@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha carteira</h1>
+        <h1 class="titulo-pagina">Minha carteira</h1>
     </div>
 
     @include('paginas.carteira.abas')
@@ -21,7 +21,7 @@
              servico: "consulta 7" se dita e se anota. --}}
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Tabela de preços por plano</h2>
+                <h2 class="titulo-cartao">Tabela de preços por plano</h2>
                 <p class="ajuda-campo mt-1">Preço por consulta que a empresa contratante paga em cada plano.</p>
             </div>
 

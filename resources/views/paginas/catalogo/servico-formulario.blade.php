@@ -20,7 +20,7 @@
         Serviços
     </a>
 
-    <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">
+    <h1 class="titulo-pagina mb-6">
         {{ $servico->exists ? $servico->nome : 'Novo serviço' }}
     </h1>
 

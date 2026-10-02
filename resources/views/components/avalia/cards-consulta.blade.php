@@ -71,7 +71,7 @@
                          @click.outside="aberto = null">
                         <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-700">
                             <div>
-                                <h2 class="font-medium text-gray-800 dark:text-white/90">{{ $servico->nome }}</h2>
+                                <h2 class="titulo-cartao">{{ $servico->nome }}</h2>
                                 <p class="ajuda-campo mt-0.5">
                                     {{ $servico->rotuloCategoria() }}
                                     · {{ isset($precos[$servico->id]) ? Dinheiro::brl($precos[$servico->id]) : 'Sob consulta' }}

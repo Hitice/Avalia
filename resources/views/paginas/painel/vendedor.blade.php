@@ -7,8 +7,8 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Olá, {{ $staff->nome }}</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Resumo da sua carteira · {{ $competencia }}</p>
+        <h1 class="titulo-pagina">Olá, {{ $staff->nome }}</h1>
+        <p class="subtitulo-pagina">Resumo da sua carteira · {{ $competencia }}</p>
     </div>
 
     {{-- Nenhum numero da operacao aqui: "a receber" e "em atraso" sao dinheiro
@@ -40,7 +40,7 @@
              reclamacao. --}}
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Ligar hoje</h2>
+                <h2 class="titulo-cartao">Ligar hoje</h2>
                 <p class="ajuda-campo mt-1">Fatura vencida. Passado o prazo, as consultas são suspensas.</p>
             </div>
             <div class="overflow-x-auto">
@@ -74,7 +74,7 @@
         <div class="cartao overflow-hidden">
             <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <div>
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">Pararam de consultar</h2>
+                    <h2 class="titulo-cartao">Pararam de consultar</h2>
                     <p class="ajuda-campo mt-1">Sem consulta há mais de {{ Alertas::DIAS_SEM_CONSULTAR }} dias.</p>
                 </div>
                 <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400" href="{{ route('carteira.consultas') }}">Ver consultas</a>

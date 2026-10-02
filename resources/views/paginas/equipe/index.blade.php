@@ -3,8 +3,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Equipe</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">Equipe</h1>
+            <p class="subtitulo-pagina">
                 Quem trabalha na casa, a comissão de cada vendedor e o que cada um acessa.
             </p>
         </div>

@@ -7,8 +7,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Auditoria</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">Auditoria</h1>
+            <p class="subtitulo-pagina">
                 Histórico das ações feitas na plataforma.
             </p>
         </div>

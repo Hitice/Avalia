@@ -7,8 +7,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Simulador</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 class="titulo-pagina">Simulador</h1>
+            <p class="subtitulo-pagina">
                 Quanto sai o mês para o seu plano, antes de consultar. Nada aqui é cobrado.
             </p>
         </div>
@@ -25,7 +25,7 @@
         <form method="GET" action="{{ route('empresa.simulador') }}" class="grid gap-6 lg:grid-cols-[1fr_20rem]">
             <div class="cartao overflow-hidden">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">Consultas no mês</h2>
+                    <h2 class="titulo-cartao">Consultas no mês</h2>
                     <p class="ajuda-campo mt-1">Digite quantas consultas de cada serviço você estima fazer.</p>
                 </div>
                 <div class="tabela-rolagem">
@@ -63,7 +63,7 @@
                  excedente compara com o minimo, e o total e o que a fatura
                  traria. A tela e a fatura tem que fechar no centavo. --}}
             <div class="cartao h-fit p-6">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Fatura estimada</h2>
+                <h2 class="titulo-cartao">Fatura estimada</h2>
 
                 <dl class="mt-4 space-y-3 text-sm">
                     <div class="flex justify-between gap-4">

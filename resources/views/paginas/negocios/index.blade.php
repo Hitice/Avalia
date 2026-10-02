@@ -3,7 +3,7 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Negócios</h1>
+            <h1 class="titulo-pagina">Negócios</h1>
             <p class="rotulo-grupo mt-1">Os clientes da frente de marketing</p>
         </div>
 

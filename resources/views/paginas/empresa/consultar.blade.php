@@ -3,8 +3,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Nova consulta</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $empresa->razao_social }}</p>
+            <h1 class="titulo-pagina">Nova consulta</h1>
+            <p class="subtitulo-pagina">{{ $empresa->razao_social }}</p>
         </div>
         <x-avalia.ajuda assunto="Consulta">Falar com a Avalia One</x-avalia.ajuda>
     </div>

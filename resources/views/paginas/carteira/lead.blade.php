@@ -18,7 +18,7 @@
 
     <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $lead->nome }}</h1>
+            <h1 class="titulo-pagina">{{ $lead->nome }}</h1>
             <p class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <span class="etiqueta {{ $lead->situacao->etiqueta() }}">{{ $lead->situacao->rotulo() }}</span>
                 @if ($lead->cidadeRotulo())

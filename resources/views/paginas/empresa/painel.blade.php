@@ -8,8 +8,8 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">{{ $empresa->razao_social }}</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Competência {{ $competencia }}</p>
+            <h1 class="titulo-pagina">{{ $empresa->razao_social }}</h1>
+            <p class="subtitulo-pagina">Competência {{ $competencia }}</p>
         </div>
         <x-avalia.ajuda assunto="Painel">Falar com a Avalia One</x-avalia.ajuda>
     </div>
@@ -66,7 +66,7 @@
         @if ($plano)
             <div class="cartao overflow-hidden">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">Franquia de consultas</h2>
+                    <h2 class="titulo-cartao">Franquia de consultas</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="tabela min-w-[28rem]">
@@ -96,7 +96,7 @@
 
         <div class="cartao overflow-hidden">
             <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Faturas em aberto</h2>
+                <h2 class="titulo-cartao">Faturas em aberto</h2>
                 <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400" href="{{ route('empresa.faturas') }}">Ver todas</a>
             </div>
             <div class="overflow-x-auto">
@@ -126,7 +126,7 @@
 
     <div class="cartao mt-6 overflow-hidden">
         <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Últimas consultas</h2>
+            <h2 class="titulo-cartao">Últimas consultas</h2>
             <a class="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400" href="{{ route('empresa.consultas') }}">Ver todas</a>
         </div>
 

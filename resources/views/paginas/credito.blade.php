@@ -578,7 +578,7 @@
         <div x-cloak x-show="avisoLegal" x-transition.opacity.duration.300ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="fecharAviso()" role="dialog" aria-modal="true" aria-label="Uso responsável da informação">
-            <div class="w-full max-w-lg rounded-2xl border border-gray-200 bg-white px-7 py-6 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="flutuante w-full max-w-lg px-7 py-6">
                 <h2 class="text-lg font-semibold tracking-tight">Uso responsável da informação</h2>
 
                 <p class="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
@@ -669,7 +669,7 @@
                          :class="inicioX === null ? 'transition-transform duration-700 ease-out' : 'transition-none'"
                          :style="`transform: translateX(calc(${-idxPilar()} * (100% + 2rem) + ${arrasto}px))`">
                         @foreach ($pilares as $chave => $pilar)
-                            <div class="flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                            <div class="flutuante flex w-full shrink-0 flex-col overflow-hidden">
                                 <div class="grade-viva relative bg-gray-300/35 px-7 py-6 dark:bg-black/50">
                                     <div class="flex items-start justify-between">
                                         <div class="flex size-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
@@ -726,10 +726,10 @@
                     </svg>
                 </button>
 
-            <div class="entra-popup max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="flutuante entra-popup max-h-[92vh] w-full overflow-y-auto p-7">
                 <div>
                     <h3 class="text-xl font-semibold">Quase lá</h3>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <p class="subtitulo-pagina">
                         Deixe seu contato e um consultor retorna ainda hoje.
                     </p>
                 </div>
@@ -802,7 +802,7 @@
         <div x-cloak x-show="aberto === 'obrigado'" x-transition.opacity.duration.500ms
              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
              @click.self="aberto = null" role="dialog" aria-modal="true" aria-label="Pedido recebido">
-            <div class="entra-popup w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+            <div class="flutuante entra-popup w-full max-w-sm p-8 text-center">
                 <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
                     <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>

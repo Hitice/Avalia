@@ -39,7 +39,7 @@
                     <span class="etiqueta etiqueta-sucesso">Compra registrada</span>
 
                     <h1 class="mt-4 text-xl font-semibold tracking-tight">{{ $pedido->oferta->titulo }}</h1>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <p class="subtitulo-pagina">
                         {{ $pedido->cliente_nome }} · {{ Documento::mascarar($pedido->cliente_documento) }}
                     </p>
 

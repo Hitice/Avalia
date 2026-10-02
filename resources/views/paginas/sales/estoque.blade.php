@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Meu estoque</h1>
+        <h1 class="titulo-pagina">Meu estoque</h1>
         <p class="rotulo-grupo mt-1">As placas que estão na sua mão, ainda sem venda</p>
     </div>
 
@@ -19,7 +19,7 @@
 
     @if ($ehAdmin)
         <div class="cartao mb-6 p-5">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Entregar placas</h2>
+            <h2 class="titulo-secao">Entregar placas</h2>
 
             <form method="POST" action="{{ route('sales.estoque.entregar') }}"
                   class="flex flex-wrap items-end gap-3">
@@ -51,7 +51,7 @@
         {{-- Entregar placas ESCOLHIDAS: o admin le os codigos impressos nas que
              separou e digita. Tudo ou nada, e a recusa nomeia o codigo errado. --}}
         <div class="cartao mb-6 p-5">
-            <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Entregar por código</h2>
+            <h2 class="titulo-secao">Entregar por código</h2>
 
             <form method="POST" action="{{ route('sales.estoque.entregar-codigos') }}" class="grid gap-3">
                 @csrf

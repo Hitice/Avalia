@@ -24,7 +24,7 @@
             <div class="entra-popup flex h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-theme-lg dark:bg-gray-800"
                  @click.outside="aberto = false">
                 <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-6 py-3 dark:border-gray-700">
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">{{ $titulo }}</h2>
+                    <h2 class="titulo-cartao">{{ $titulo }}</h2>
 
                     <div class="flex items-center gap-2">
                         <a href="{{ $url }}" target="_blank" rel="noopener"

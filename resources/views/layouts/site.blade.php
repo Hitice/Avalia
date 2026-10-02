@@ -200,7 +200,7 @@
                      x-transition:enter-start="translate-y-1 scale-90 opacity-0"
                      x-transition:leave="transition duration-200 ease-in"
                      x-transition:leave-end="scale-50 opacity-0"
-                     class="absolute top-full right-0 z-10 mt-3 w-72 origin-top-right rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg"
+                     class="flutuante absolute top-full right-0 z-10 mt-3 w-72 origin-top-right p-4"
                      role="status">
                     <button type="button" @click="convite = false" aria-label="Fechar"
                             class="absolute top-2.5 right-2.5 flex size-7 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">

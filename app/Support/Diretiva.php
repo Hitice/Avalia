@@ -66,7 +66,7 @@ final class Diretiva
             preg_match_all('/class="([^"]*)"/', (string) file_get_contents($caminho), $achados);
 
             foreach ($achados[1] as $classe) {
-                if (preg_match('/\b(cartao|campo|botao|tabela|etiqueta|aviso|rotulo|segmento|interruptor|ajuda-campo|erro-campo|grade-grafico|ponto-serie|serie-)/', $classe)) {
+                if (preg_match('/\b(cartao|campo|botao|tabela|etiqueta|aviso|rotulo|segmento|interruptor|ajuda-campo|erro-campo|grade-grafico|ponto-serie|serie-|titulo-|subtitulo-|flutuante|menu-item)/', $classe)) {
                     $daCasa++;
                 }
 

@@ -24,7 +24,7 @@
          x-on:click.self="aberta = false" role="dialog" aria-modal="true" aria-labelledby="porta-titulo">
 
         <div x-show="aberta" x-cloak x-transition
-             class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg">
+             class="flutuante w-full max-w-sm p-7">
 
             <h2 id="porta-titulo" class="text-lg font-semibold tracking-tight text-gray-900">Acesso da administração</h2>
             <p class="mt-2 text-sm leading-relaxed text-gray-600">

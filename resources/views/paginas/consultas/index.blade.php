@@ -7,8 +7,8 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Consultas</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Todas as empresas contratantes</p>
+        <h1 class="titulo-pagina">Consultas</h1>
+        <p class="subtitulo-pagina">Todas as empresas contratantes</p>
     </div>
 
     <x-avalia.filtro-consultas :acao="route('consultas')" :servicos="$servicos" :escolha="$escolha" />
@@ -39,7 +39,7 @@
     @if ($saude['por_servico']->isNotEmpty())
         <div class="cartao mb-6 overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="font-medium text-gray-800 dark:text-white/90">Consultas não concluídas por serviço</h2>
+                <h2 class="titulo-cartao">Consultas não concluídas por serviço</h2>
                 <p class="ajuda-campo mt-1">Não são cobradas da empresa. Concentração em um serviço é assunto para o fornecedor.</p>
             </div>
             <div class="overflow-x-auto">

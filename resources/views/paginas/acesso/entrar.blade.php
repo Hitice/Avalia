@@ -252,7 +252,7 @@
                     </svg>
                 </button>
 
-                <div class="entra-popup max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-gray-200 bg-white p-7 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="flutuante entra-popup max-h-[92vh] w-full overflow-y-auto p-7">
                     @if (session('interesse_ok'))
                         <div class="py-4 text-center">
                             <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500">
@@ -272,7 +272,7 @@
                     @else
                         <div>
                             <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Solicite seu cadastro</h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <p class="subtitulo-pagina">
                                 Deixe seu contato e um consultor retorna ainda hoje com seus dados de acesso.
                             </p>
                         </div>

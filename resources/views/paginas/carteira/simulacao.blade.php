@@ -8,11 +8,11 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+        <h1 class="titulo-pagina">
             {{ $vendedor->ehAdmin() ? 'Simulador' : 'Minha carteira' }}
         </h1>
         @if ($vendedor->ehAdmin())
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p class="subtitulo-pagina">
                 Quanto o contrato custa para o cliente e quanto sobra para o vendedor.
             </p>
         @endif
@@ -87,7 +87,7 @@
         <div class="grid gap-6 lg:grid-cols-2">
             <div class="cartao overflow-hidden">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">O que a empresa paga por mês</h2>
+                    <h2 class="titulo-cartao">O que a empresa paga por mês</h2>
                 </div>
                 <dl class="divide-y divide-gray-100 dark:divide-gray-800">
                     <div class="flex items-center justify-between px-6 py-4">
@@ -116,7 +116,7 @@
 
             <div class="cartao overflow-hidden">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">O que você recebe</h2>
+                    <h2 class="titulo-cartao">O que você recebe</h2>
                     <p class="ajuda-campo mt-1">Comissão de {{ $pctComissao }}%, apurada no fechamento da competência.</p>
                 </div>
                 <dl class="divide-y divide-gray-100 dark:divide-gray-800">

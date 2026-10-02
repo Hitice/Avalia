@@ -19,7 +19,7 @@
     </a>
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+        <h1 class="titulo-pagina">
             {{ $empresa->exists ? 'Editar cadastro' : ($ehAdmin ? 'Novo cliente' : 'Nova empresa') }}
         </h1>
 
@@ -151,7 +151,7 @@
 
                 @if ($ehAdmin)
                     <div class="sm:col-span-2 border-t border-gray-100 pt-5 dark:border-gray-800">
-                        <h2 class="font-medium text-gray-800 dark:text-white/90">Condições comerciais</h2>
+                        <h2 class="titulo-cartao">Condições comerciais</h2>
                     </div>
                     {{-- Cada tipo mostra so as datas que lhe pertencem: 12 e 24
                          meses calculam o fim sozinhos a partir do inicio;
@@ -195,7 +195,7 @@
                 @endif
 
                 <div class="sm:col-span-2 border-t border-gray-100 pt-5 dark:border-gray-800">
-                    <h2 class="font-medium text-gray-800 dark:text-white/90">Endereço</h2>
+                    <h2 class="titulo-cartao">Endereço</h2>
                 </div>
                 <div>
                     <label for="cep" class="rotulo-campo">CEP</label>
@@ -227,7 +227,7 @@
              para "quem consultou este documento". A senha nasce aleatoria e o
              convite por e-mail leva o link para a pessoa definir a dela. --}}
         <div class="cartao mt-6 p-6 lg:p-8">
-            <h2 class="font-medium text-gray-800 dark:text-white/90">Operadores</h2>
+            <h2 class="titulo-cartao">Operadores</h2>
             <p class="ajuda-campo mt-1">
                 Pessoas da empresa que fazem consultas, cada uma com o próprio acesso e histórico.
                 Cada operador aceita os termos no primeiro acesso.

@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Controladoria</h1>
+            <h1 class="titulo-pagina">Controladoria</h1>
             <p class="rotulo-grupo mt-1">O resultado da casa, somado do razão</p>
         </div>
 
@@ -31,7 +31,7 @@
     </div>
 
     <div class="cartao mb-6 p-5">
-        <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Resultado por produto</h2>
+        <h2 class="titulo-secao">Resultado por produto</h2>
 
         <div class="tabela-rolagem">
             <table class="tabela">
@@ -79,7 +79,7 @@
     </div>
 
     <div class="cartao p-5">
-        <h2 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Sócios</h2>
+        <h2 class="titulo-secao">Sócios</h2>
 
         @if ($porSocio->isEmpty())
             <p class="tabela-vazia">Nenhum sócio cadastrado. O cadastro fica em Sócios.</p>

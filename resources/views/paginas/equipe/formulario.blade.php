@@ -10,7 +10,7 @@
     </a>
 
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+        <h1 class="titulo-pagina">
             {{ $membro->exists ? $membro->nome : 'Nova pessoa' }}
         </h1>
 

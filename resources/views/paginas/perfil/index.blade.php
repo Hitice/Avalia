@@ -2,8 +2,8 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white/90">Minha conta</h1>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $conta->nome ?? $conta->razao_social }} · {{ $conta->email }}</p>
+        <h1 class="titulo-pagina">Minha conta</h1>
+        <p class="subtitulo-pagina">{{ $conta->nome ?? $conta->razao_social }} · {{ $conta->email }}</p>
     </div>
 
     @if (session('ok'))
@@ -11,7 +11,7 @@
     @endif
 
     <div class="cartao max-w-xl p-6">
-        <h2 class="font-medium text-gray-800 dark:text-white/90">Trocar a senha</h2>
+        <h2 class="titulo-cartao">Trocar a senha</h2>
         <p class="ajuda-campo mt-1 mb-5">
             Ao trocar, as outras sessões desta conta são encerradas. Esta continua aberta.
         </p>
