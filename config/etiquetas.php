@@ -56,7 +56,10 @@ return [
      * todas as vendas passadas com o custo de hoje: o mes fechado mudaria de
      * numero depois de o repasse ja ter sido pago.
      */
-    'custo_cents' => 550,
+    // R$ 6,00 fechado, com margem: placa, fita dupla face, tag NFC, impressao
+    // e logistica. Um numero so, e nao a soma de cinco, porque e assim que a
+    // casa compra e e isso que se confere contra a nota do fornecedor.
+    'custo_cents' => 600,
 
     /*
      * O reparte de cada placa vendida.

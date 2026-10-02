@@ -453,8 +453,8 @@ faz a placa no balcão continuar valendo.
 
 | Parâmetro | Valor |
 |---|---|
-| Preço da placa | R$ 89,90 (QR e NFC juntos) |
-| Custo unitário | R$ 5,50 |
+| Preço da placa | R$ 99,90 (QR e NFC juntos) |
+| Custo unitário | R$ 6,00, fechado: placa, fita dupla face, NFC, impressão e logística |
 | Renovação | R$ 49,90 |
 | Avulso mensal | R$ 19,90 |
 | Validade | 12 meses |
@@ -643,6 +643,10 @@ centavo ímpar sempre na mesma pessoa.
 Sócio configurado sem conta na equipe aparece como aviso na tela: lista errada em
 silêncio vira repasse errado.
 
+**Os pagamentos saem toda sexta-feira**: o pró-labore dos sócios e as comissões dos
+vendedores. É o ciclo que a conferência do razão e a tela de vendas precisam
+respeitar, e o que define "a semana" para quem confere o repasse.
+
 **Pendência:** não existe regra escrita para a divisão do resultado do Avalia One nem
 do Gestor entre os sócios. Hoje só as plaquinhas têm split definido.
 
@@ -780,7 +784,7 @@ resto é constante em código, e mudar exige publicar versão.
 | Validade do convite | 48 h | `Convite::HORAS_DE_VALIDADE` |
 | Comissão padrão e teto | 10% e 50% | `Comissao` |
 | Alerta de cliente parado | 30 dias | `Alertas::DIAS_SEM_CONSULTAR` |
-| Preço e custo da plaquinha | 89,90 e 5,50 | `config/etiquetas.php` |
+| Preço e custo da plaquinha | 99,90 e 6,00 | `config/etiquetas.php` |
 | Taxa e parcelamento do Gestor | 5%, 12, R$ 100 | `config/cobranca.php` |
 
 Para uma operação que negocia contrato a contrato, isso é rígido demais.
