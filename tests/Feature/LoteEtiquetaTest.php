@@ -127,13 +127,15 @@ it('entrega o pacote da campanha dentro da propria tabela', function () {
 
 it('carimba o dono em cada codigo gerado', function () {
     // Sem dono, abrir a porta significaria que qualquer conta ve os codigos de
-    // todas as outras e troca o destino deles.
-    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+    // todas as outras e troca o destino deles. Gerar passou a ser so de
+    // administracao (producao, nao venda), entao quem carimba e o admin.
+    $admin = Staff::factory()->admin()->create();
 
-    comoVendedor($vendedor)->post(route('etiquetas.gerar'), ['quantidade' => 5]);
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->post(route('etiquetas.gerar'), ['quantidade' => 5]);
 
     expect(Etiqueta::pluck('dono_tipo')->unique()->all())->toBe(['staff'])
-        ->and(Etiqueta::pluck('dono_id')->unique()->all())->toBe([$vendedor->id]);
+        ->and(Etiqueta::pluck('dono_id')->unique()->all())->toBe([$admin->id]);
 });
 
 it('so monta o pacote quando ha campanha escolhida', function () {

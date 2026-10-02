@@ -142,10 +142,15 @@ Route::middleware(['auth:staff,empresa,produtor', 'sessao:staff', 'sessao:empres
     ->prefix('etiquetas')->name('etiquetas.')->group(function () {
         Route::get('/', [EtiquetaController::class, 'index'])->name('index');
 
-        // O fluxo, na ordem em que ele acontece: gera, imprime, vende, e so
-        // entao diz para onde cada codigo leva.
-        Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
+        // Apontar e tarefa de venda e fica aberta a toda conta. Gerar e tarefa
+        // de producao: esta no grupo de admin, logo abaixo, porque este grupo
+        // aceita cliente e produtor, e cliente nao pode gerar cem codigos.
         Route::post('/apontar', [EtiquetaController::class, 'apontarPorCodigo'])->name('apontar-codigo');
+
+        Route::middleware('admin')->group(function () {
+            Route::get('/gerar', [EtiquetaController::class, 'criar'])->name('criar');
+            Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
+        });
 
         // O encurtador, atras da mesma porta.
         Route::get('/links', [LinkController::class, 'index'])->name('links.index');

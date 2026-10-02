@@ -274,3 +274,45 @@ it('mostra o mes inteiro na serie diaria, inclusive dia sem venda', function () 
         ->and($porDia->firstWhere('dia', 3)['placas'])->toBe(1)
         ->and($porDia->firstWhere('dia', 1)['placas'])->toBe(0);
 });
+
+/*
+|--------------------------------------------------------------------------
+| A regra dos socios, nas palavras do dono
+|--------------------------------------------------------------------------
+*/
+
+it('poe a venda de um socio no lucro do outro, e vice-versa', function () {
+    // "As comissoes entre mim e o Ruan sao divididas 50/50 e precisam refletir
+    // as que ele vendeu no meu lucro e vice-versa." Venda de socio nao comissiona
+    // o socio: o liquido inteiro vai para a divisao, e metade e do outro.
+    [$pedro, $ruan] = socios();
+
+    Etiqueta::factory()->ativa()->count(2)->create(['vendedor_id' => $ruan->id]);
+
+    $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
+    $porSocio = $tela->viewData('porSocio')->keyBy('nome');
+
+    $lucro = contaDaPlaca(2, false)['lucro'];
+    [$dePedro, $deRuan] = App\Support\RepartePlaquinha::dividir($lucro, 2);
+
+    expect($tela->viewData('totais')['comissao'])->toBe(0)
+        ->and($porSocio['Pedro']['mes'])->toBe($dePedro)
+        ->and($porSocio['Ruan']['mes'])->toBe($deRuan)
+        ->and($dePedro + $deRuan)->toBe($lucro);
+});
+
+it('desconta a comissao do vendedor e divide so o que sobra entre os socios', function () {
+    // "Mas as vendas dos vendedores, o que sobra vai para a divisao de socios."
+    socios();
+    $warley = Staff::factory()->create(['papel' => 'vendedor', 'nome' => 'Warley']);
+
+    Etiqueta::factory()->ativa()->count(3)->create(['vendedor_id' => $warley->id]);
+
+    $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
+    $conta = contaDaPlaca(3);
+
+    expect($tela->viewData('totais')['comissao'])->toBe($conta['comissao'])
+        ->and($tela->viewData('porSocio')->sum('mes'))->toBe($conta['lucro'])
+        // E o lucro dividido e o liquido MENOS a comissao, nunca o liquido inteiro.
+        ->and($conta['lucro'])->toBe($conta['liquido'] - $conta['comissao']);
+});

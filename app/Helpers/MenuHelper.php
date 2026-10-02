@@ -131,6 +131,7 @@ class MenuHelper
     {
         return [
             ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
+            ['icon' => 'pages', 'name' => 'Gerar códigos', 'path' => '/etiquetas/gerar', 'papeis' => ['admin']],
             ['icon' => 'tables', 'name' => 'Meu estoque', 'path' => '/estoque'],
             ['icon' => 'user-profile', 'name' => 'Negócios', 'path' => '/negocios'],
             ['icon' => 'plug', 'name' => 'Encurtador', 'path' => '/etiquetas/links'],

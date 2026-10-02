@@ -17,46 +17,14 @@
 
     @include('parciais.avisos')
 
-    {{-- Os dois passos lado a lado, na ordem em que acontecem. Um formulario
-         so para gerar um ou cem, porque para quem usa e a mesma coisa com um
-         numero diferente. --}}
-    <div class="mb-5 grid gap-5 lg:grid-cols-2">
-        <form method="POST" action="{{ route('etiquetas.gerar') }}" class="cartao grid gap-4 p-6">
-            @csrf
-
-            <div>
-                <h2 class="rotulo-grupo">1 · Gerar novo QR Code em branco</h2>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Digite a quantidade de códigos a serem gerados. Para geração única, basta
-                    gerar 1 unidade.
-                </p>
-            </div>
-
-            <div class="flex flex-wrap items-end gap-3">
-                <div class="w-28">
-                    <label for="quantidade" class="rotulo-campo">Quantos</label>
-                    <input id="quantidade" name="quantidade" type="number" min="1"
-                           max="{{ config('etiquetas.lote_maximo') }}" required
-                           value="{{ old('quantidade', 1) }}" class="campo">
-                </div>
-
-                <div class="min-w-[12rem] flex-1">
-                    <label for="titulo" class="rotulo-campo">Campanha</label>
-                    <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
-                           value="{{ old('titulo') }}" placeholder="ex: Campanha Floripa 2026">
-                </div>
-
-                <x-avalia.botao>Gerar</x-avalia.botao>
-            </div>
-
-            @error('quantidade')<p class="erro-campo">{{ $message }}</p>@enderror
-        </form>
-
+    {{-- So o cadastro aqui. Gerar codigos tem pagina propria, de
+         administracao: e producao, e nao venda. --}}
+    <div class="mb-5">
         <form method="POST" action="{{ route('etiquetas.apontar-codigo') }}" class="cartao grid gap-4 p-6">
             @csrf
 
             <div>
-                <h2 class="rotulo-grupo">2 · Área de cadastro</h2>
+                <h2 class="rotulo-grupo">Área de cadastro</h2>
             </div>
 
             {{-- O codigo e curto e o nome e longo: lado a lado eles ocupam a

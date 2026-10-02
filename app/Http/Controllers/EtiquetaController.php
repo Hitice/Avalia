@@ -116,6 +116,15 @@ class EtiquetaController extends Controller
      * Abrir uma tela diferente quando a quantidade e um faria a mesma tarefa
      * ter dois roteiros, e o de uma unidade seria o que ninguem lembra.
      */
+    /** A pagina de gerar, so de administracao: producao, e nao venda. */
+    public function criar()
+    {
+        return view('paginas.etiquetas.gerar', [
+            'noBolo' => Etiqueta::semDono()->count(),
+            'campanhas' => LoteEtiqueta::count(),
+        ]);
+    }
+
     public function gerar(Request $pedido, GerarLote $lote)
     {
         $dados = $pedido->validate([

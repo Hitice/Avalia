@@ -16,7 +16,7 @@ use App\Support\Diretiva;
 | antes de escrever a proxima classe.
 */
 
-const TETO_DE_COMENTARIO = 30.45;
+const TETO_DE_COMENTARIO = 30.39;
 const PISO_DE_ADERENCIA = 51.0;
 
 $raiz = dirname(__DIR__, 2);

@@ -256,7 +256,8 @@ it('deixa o vendedor entrar e enxergar a tiragem inteira', function () {
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
     $daAdministracao = Etiqueta::factory()->ativa()->create(['codigo' => 'AAAAAA']);
 
-    comoVendedor($vendedor)->post(route('etiquetas.gerar'), ['quantidade' => 2, 'titulo' => 'Do vendedor']);
+    // Quem gera e a administracao; o vendedor so ve e aponta.
+    admin()->post(route('etiquetas.gerar'), ['quantidade' => 2, 'titulo' => 'Do vendedor']);
 
     comoVendedor($vendedor)->get(route('etiquetas.index'))
         ->assertOk()
@@ -267,15 +268,22 @@ it('deixa o vendedor entrar e enxergar a tiragem inteira', function () {
     comoVendedor($vendedor)->post(route('etiquetas.alternar', $daAdministracao))->assertRedirect();
 });
 
-it('deixa o cliente entrar pela conta da empresa dele', function () {
+it('deixa o cliente entrar pela conta da empresa dele, e ver so o que e dele', function () {
+    // O cliente NAO gera codigo: o grupo de rotas aceita empresa e produtor, e
+    // gerar ficava aberto a qualquer conta logada. Esse era o furo, e este
+    // teste o usava como setup. O que vale conferir e a visibilidade pelo dono.
     $empresa = empresaComPlano();
+    $admin = Staff::factory()->admin()->create();
 
-    comoEmpresa($empresa)->post(route('etiquetas.gerar'), ['quantidade' => 1, 'titulo' => 'Da empresa']);
+    Etiqueta::factory()->ativa()->create(['codigo' => 'DELA00', 'dono_tipo' => 'empresa', 'dono_id' => $empresa->id]);
+    Etiqueta::factory()->ativa()->create(['codigo' => 'CASA00', 'dono_tipo' => 'staff', 'dono_id' => $admin->id]);
 
-    comoEmpresa($empresa)->get(route('etiquetas.index'))->assertOk()->assertSee('Da empresa');
+    comoEmpresa($empresa)->post(route('etiquetas.gerar'), ['quantidade' => 1])->assertForbidden();
 
-    expect(App\Models\Etiqueta::sole()->dono_tipo)->toBe('empresa')
-        ->and(App\Models\Etiqueta::sole()->dono_id)->toBe($empresa->id);
+    comoEmpresa($empresa)->get(route('etiquetas.index'))
+        ->assertOk()
+        ->assertSee('DELA00')
+        ->assertDontSee('CASA00');
 });
 
 it('nao deixa um cliente cadastrar destino no codigo de outro', function () {
@@ -396,4 +404,46 @@ it('so apaga tudo quando alguem confirma por escrito', function () {
     expect(Etiqueta::count())->toBe(0)
         ->and(App\Models\LoteEtiqueta::count())->toBe(0)
         ->and(DestinoEtiqueta::count())->toBe(0);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Gerar e producao, e nao venda
+|--------------------------------------------------------------------------
+*/
+
+it('nao mostra ao vendedor o bloco de gerar codigos', function () {
+    // Gerar cem codigos e tarefa de producao. O vendedor recebe as placas pelo
+    // estoque e aponta uma a uma; o botao de gerar ao lado do campo de apontar
+    // so confundia.
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+
+    $html = test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => 1])
+        ->get(route('etiquetas.index'))->assertOk()->getContent();
+
+    expect($html)->not->toContain('Gerar novo QR Code')
+        ->and($html)->not->toContain(route('etiquetas.criar'));
+});
+
+it('fecha a geracao para o vendedor no servidor, e nao so na tela', function () {
+    $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
+    $como = test()->actingAs($vendedor, 'staff')->withSession(['versao_staff' => 1]);
+
+    $como->get(route('etiquetas.criar'))->assertForbidden();
+    $como->post(route('etiquetas.gerar'), ['quantidade' => 5])->assertForbidden();
+
+    expect(Etiqueta::count())->toBe(0);
+});
+
+it('da a geracao uma pagina propria, fora da busca e do cadastro', function () {
+    $html = admin()->get(route('etiquetas.criar'))->assertOk()->getContent();
+
+    expect($html)->toContain('name="quantidade"')
+        ->and($html)->toContain(route('etiquetas.gerar'));
+
+    // E a tela de cadastro nao carrega mais o formulario de gerar.
+    $indice = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
+
+    expect($indice)->not->toContain('name="quantidade"')
+        ->and($indice)->toContain('Área de cadastro');
 });
