@@ -18,11 +18,20 @@ uses(RefreshDatabase::class);
 |
 */
 
-it('abre a aba de serviços em todas as paginas do site', function () {
-    foreach (['inicio', 'site.softwares', 'site.quem-somos', 'site.contato'] as $rota) {
-        $this->get(route($rota))
-            ->assertOk()
-            ->assertSee('href="'.route('digitais.index').'"', false);
+it('leva aos serviços pelo cartao do produto, e nao por aba propria', function () {
+    // A aba saiu do menu: os servicos digitais sao o Avalia Salles, e produto se
+    // alcanca pelo cartao da secao de aplicacoes, como o One e o Gestor. Aba para
+    // um dos tres era o item fora do padrao, e dava dois caminhos para a mesma
+    // pagina.
+    $home = $this->get(route('inicio'))->assertOk();
+
+    $home->assertSee('href="'.route('digitais.index').'"', false)
+        ->assertSee(App\Support\Empresa::marcaVendas());
+
+    // E nas outras paginas do site a aba nao reaparece.
+    foreach (['site.softwares', 'site.quem-somos', 'site.contato'] as $rota) {
+        expect($this->get(route($rota))->assertOk()->getContent())
+            ->not->toContain('href="'.route('digitais.index').'"');
     }
 });
 
@@ -163,7 +172,7 @@ it('avisa que o QR gratis e estatico antes de alguem mandar imprimir mil', funct
 it('poe as paginas novas no mapa do site', function () {
     $mapa = $this->get(route('site.sitemap'))->assertOk();
 
-    foreach (['digitais.index', 'digitais.plaquinhas', 'digitais.qr'] as $rota) {
+    foreach (['digitais.index', 'digitais.plaquinhas', 'digitais.qr', 'digitais.avaliacao'] as $rota) {
         $mapa->assertSee(route($rota));
     }
 });
@@ -171,7 +180,7 @@ it('poe as paginas novas no mapa do site', function () {
 it('nao pede sessao em nenhuma pagina da vitrine', function () {
     // Vitrine. Quem chega aqui esta decidindo se compra, e pedir senha antes
     // de dizer o preco fecha a loja.
-    foreach (['digitais.index', 'digitais.plaquinhas', 'digitais.qr'] as $rota) {
+    foreach (['digitais.index', 'digitais.plaquinhas', 'digitais.qr', 'digitais.avaliacao'] as $rota) {
         $this->get(route($rota))->assertOk();
     }
 });

@@ -133,6 +133,7 @@ class SiteController extends Controller
             'digitais.index',
             'digitais.plaquinhas',
             'digitais.qr',
+            'digitais.avaliacao',
             'site.quem-somos',
             'site.blog',
             'site.contato',

@@ -8,9 +8,14 @@
     $menu = [
         ['rota' => 'inicio', 'rotulo' => 'Início'],
         ['rota' => 'site.softwares', 'rotulo' => 'Softwares'],
-        // "Serviços" e nao "Serviços digitais": o titulo inteiro cabe na
-        // pagina, mas na ilha ele empurra o menu contra o botao de acesso.
-        ['rota' => 'digitais.index', 'rotulo' => 'Serviços'],
+        /*
+         * Sem aba de Servicos, de proposito.
+         *
+         * Os servicos digitais sao o Avalia Salles, e produto se alcanca pelo
+         * cartao da secao de aplicacoes, como o One e o Gestor. Aba propria para
+         * um dos tres era o item fora do padrao, e oferecia dois caminhos para a
+         * mesma pagina.
+         */
         ['rota' => 'site.quem-somos', 'rotulo' => 'Quem somos'],
         ['rota' => 'site.blog', 'rotulo' => 'Blog'],
         ['rota' => 'site.contato', 'rotulo' => 'Contato'],

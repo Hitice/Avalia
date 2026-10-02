@@ -290,7 +290,7 @@
                     Negócios próprios, <span class="texto-bureau">no ar</span> e em operação.
                 </h2>
                 <p class="mt-4 text-lg leading-relaxed text-gray-600">
-                    Conheça nossas plataformas em destaque.
+                    Acesse nossas plataformas em destaque.
                 </p>
             </div>
 
