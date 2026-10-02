@@ -21,7 +21,7 @@ class SomenteSocios
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless(Auth::guard('staff')->user()?->podeSocios(), 403);
+        abort_unless(Auth::guard('staff')->user()?->podeSocios(), 403, 'Área restrita aos sócios.');
 
         return $next($request);
     }

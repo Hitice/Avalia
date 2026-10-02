@@ -21,7 +21,7 @@ class SomenteFinanceiro
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless(Auth::guard('staff')->user()?->podeFinanceiro(), 403);
+        abort_unless(Auth::guard('staff')->user()?->podeFinanceiro(), 403, 'Área restrita a quem tem a permissão financeira.');
 
         return $next($request);
     }

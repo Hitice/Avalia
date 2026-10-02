@@ -22,7 +22,7 @@ class SomenteAdmin
         $conta = Auth::guard('staff')->user();
 
         if (! $conta || ! ($conta->ehAdmin() || $conta->ehSuper())) {
-            abort(403, 'Area restrita a administracao.');
+            abort(403, 'Área restrita à administração.');
         }
 
         return $next($request);

@@ -106,4 +106,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (HttpExceptionInterface $e, Request $request) => $e->getStatusCode() === 419
             ? $expirou($request)
             : null);
+
+        /*
+         * Porta fechada (403) alcancada por um link da propria casa: a pessoa
+         * volta para a tela em que estava, com o aviso. A tela de erro inteira
+         * so fica para quem digitou o endereco, e ela e errors/403, com o
+         * cadeado, dentro do painel. O status 403 continua para JSON e para
+         * quem chega sem referencia, que e o que os testes cobram.
+         */
+        $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
+            $origem = (string) $request->headers->get('referer');
+
+            if ($e->getStatusCode() !== 403 || $request->expectsJson() || $origem === ''
+                || ! str_starts_with($origem, $request->getSchemeAndHttpHost())
+                || strtok($origem, '?') === strtok($request->fullUrl(), '?')) {
+                return null;
+            }
+
+            return redirect()->to($origem)->with('erro', $e->getMessage() ?: 'Área restrita.');
+        });
     })->create();

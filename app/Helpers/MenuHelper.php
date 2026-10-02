@@ -135,7 +135,7 @@ class MenuHelper
             ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
             ['icon' => 'pages', 'name' => 'Gerar códigos', 'path' => '/etiquetas/gerar', 'papeis' => ['admin']],
             ['icon' => 'tables', 'name' => 'Meu estoque', 'path' => '/estoque'],
-            ['icon' => 'user-profile', 'name' => 'Negócios', 'path' => '/negocios'],
+            ['icon' => 'user-profile', 'name' => 'Negócios', 'path' => '/negocios', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Encurtador', 'path' => '/etiquetas/links'],
             ['icon' => 'charts', 'name' => 'Vendas', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
         ];
