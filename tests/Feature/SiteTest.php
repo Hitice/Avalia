@@ -275,3 +275,54 @@ it('conta a mesma frente na vitrine e na pagina de softwares', function () {
             ->and($pagina)->toContain($frente['texto']);
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Os cartoes dos tres produtos
+|--------------------------------------------------------------------------
+*/
+
+it('oferece conhecer e entrar em cada produto, e nao um cartao clicavel inteiro', function () {
+    // Com o cartao inteiro virando link nao havia como oferecer os dois, e quem
+    // ja usava o sistema passava pela pagina de venda toda vez para chegar ao
+    // painel.
+    $html = $this->get(route('inicio'))->assertOk()->getContent();
+
+    // O botao de entrar do cartao e contado pelo que o distingue: o do modal da
+    // porta tambem se chama Entrar, e contar pelo rotulo daria quatro.
+    expect(substr_count($html, '>Conhecer</a>'))->toBe(3)
+        ->and(substr_count($html, "\$dispatch('abrir-porta'"))->toBe(3);
+
+    // Os tres caminhos informativos, um por produto.
+    foreach ([route('credito'), route('cobranca'), route('digitais.index')] as $destino) {
+        expect($html)->toContain('href="'.$destino.'"');
+    }
+});
+
+it('abre a porta no proprio cartao de quem nao tem sessao', function () {
+    $html = $this->get(route('inicio'))->assertOk()->getContent();
+
+    expect($html)->toContain('abrir-porta')
+        // O destino do Avalia Salles tem ferramenta propria; os outros dois caem
+        // no painel do guard de quem entrar.
+        ->and($html)->toContain("destino: 'plaquinhas'");
+});
+
+it('leva quem ja entrou direto ao painel, sem pedir senha de novo', function () {
+    $html = admin()->get(route('inicio'))->assertOk()->getContent();
+
+    expect($html)->toContain('href="'.route('painel').'"')
+        ->and($html)->not->toContain('abrir-porta');
+});
+
+it('leva o cliente ao painel dele, e nao ao da equipe', function () {
+    // A regra guard -> painel mora em App\Support\Porta, num lugar so: escrita
+    // duas vezes, um guard novo mandaria o produtor para o painel do cliente.
+    $empresa = App\Models\Cliente::factory()->create();
+
+    $html = test()->actingAs($empresa, 'empresa')->withSession(['versao_empresa' => 1])
+        ->get(route('inicio'))->assertOk()->getContent();
+
+    expect($html)->toContain('href="'.route('empresa.painel').'"')
+        ->and($html)->not->toContain('href="'.route('painel').'"');
+});

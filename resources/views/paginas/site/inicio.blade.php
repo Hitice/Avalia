@@ -295,62 +295,23 @@
             </div>
 
             <div class="mt-10 grid gap-6 lg:grid-cols-3">
-                <a href="{{ route('credito') }}" class="bloco group" data-revelar>
-                    <div class="flex items-center justify-between">
-                        <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="credito" />
-                        <span class="etiqueta etiqueta-sucesso">Em operação</span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Pesquisa de score para empresas</h3>
-                    <p class="text-gray-600">
-                        Pesquise o score e os dados públicos antes de fechar a venda a prazo.
-                        O resultado chega em segundos, direto no painel da sua equipe.
-                    </p>
-                    <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
-                        Conhecer o {{ Empresa::marcaCredito() }}
-                        <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                    </span>
-                </a>
+                <x-site.cartao-produto marca="credito" titulo="Pesquisa de score para empresas"
+                                       :conhecer="route('credito')">
+                    Pesquise o score e os dados públicos antes de fechar a venda a prazo.
+                    O resultado chega em segundos, direto no painel da sua equipe.
+                </x-site.cartao-produto>
 
-                <a href="{{ route('cobranca') }}" class="bloco group" data-revelar style="--atraso: 0.1s">
-                    <div class="flex items-center justify-between">
-                        <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="cobranca" />
-                        <span class="etiqueta etiqueta-sucesso">Em operação</span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Venda parcelada, cobrança e APIs</h3>
-                    <p class="text-gray-600">
-                        Parcele a venda em boleto e Pix sem depender do cartão do cliente, com a
-                        régua de cobrança e o repasse acontecendo sozinhos.
-                    </p>
-                    <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
-                        Conhecer o {{ Empresa::marcaCobranca() }}
-                        <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                    </span>
-                </a>
+                <x-site.cartao-produto marca="cobranca" titulo="Venda parcelada, cobrança e APIs"
+                                       :conhecer="route('cobranca')" atraso="0.1s">
+                    Parcele a venda em boleto e Pix sem depender do cartão do cliente, com a
+                    régua de cobrança e o repasse acontecendo sozinhos.
+                </x-site.cartao-produto>
 
-                {{-- O terceiro produto. Mesmo cartao dos outros dois de proposito:
-                     na vitrine eles sao pares, e dar menos destaque a este diria
-                     que ele e acessorio dos outros. --}}
-                <a href="{{ route('digitais.index') }}" class="bloco group" data-revelar style="--atraso: 0.2s">
-                    <div class="flex items-center justify-between">
-                        <x-avalia.logotipo :tamanho="34" texto="1.2rem" marca="vendas" />
-                        <span class="etiqueta etiqueta-sucesso">Em operação</span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900">Vendas, Marketing, Produtos Digitais</h3>
-                    <p class="text-gray-600">
-                        Integração de comunicação visual orientada a serviços inteligentes com
-                        infraestrutura própria.
-                    </p>
-                    <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600">
-                        Conhecer o {{ Empresa::marcaVendas() }}
-                        <svg class="size-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-                        </svg>
-                    </span>
-                </a>
+                <x-site.cartao-produto marca="vendas" titulo="Vendas, Marketing, Produtos Digitais"
+                                       :conhecer="route('digitais.index')" porta="plaquinhas" atraso="0.2s">
+                    Integração de comunicação visual orientada a serviços inteligentes com
+                    infraestrutura própria.
+                </x-site.cartao-produto>
             </div>
 
             <a href="{{ route('area') }}" class="mt-6 flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-brand-300 hover:shadow-theme-md">
@@ -610,4 +571,6 @@
         @endforeach
     </div>
     </div>
+    <x-site.porta-acesso />
+
 @endsection

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Contracts\ContaAutenticavel;
 use App\Http\Controllers\Controller;
 use App\Services\ProtecaoLogin;
+use App\Support\Porta;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -227,8 +228,9 @@ class LoginController extends Controller
         return null;
     }
 
+    /** O mapa guard -> painel mora em `Porta`, para a vitrine usar o mesmo. */
     private function destinoDe(string $guarda): string
     {
-        return $guarda === 'staff' ? route('painel') : route('empresa.painel');
+        return Porta::painelDe($guarda);
     }
 }
