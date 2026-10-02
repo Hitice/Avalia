@@ -27,7 +27,7 @@ it('fecha a base de leads para o vendedor', function () {
  * entra na lista dele. Menu que leva a 403 ensina o operador a ignorar o menu.
  */
 it('poe Leads no menu dos dois lados, cada um na sua porta', function () {
-    admin()->get(route('painel'))
+    admin()->get(route('gestao.inicio'))
         ->assertSee('href="/leads"', false)
         ->assertDontSee('href="/carteira/leads"', false);
 

@@ -94,12 +94,21 @@ final class LivroCaixa
         return $outra?->conta->nome ?? '';
     }
 
+    /** O dinheiro em conta hoje: toda perna nas contas de dinheiro, de sempre. */
+    public static function saldoAtual(): int
+    {
+        return (int) PartidaFinanceira::whereIn('conta_id', self::contasDeDinheiro())->sum('valor_cents');
+    }
+
     private static function saldoAntesDe(string $competencia): int
     {
-        $contas = ContaFinanceira::where('grupo', 'ativo')->whereNotIn('codigo', self::NAO_E_DINHEIRO)->pluck('id');
-
-        return (int) PartidaFinanceira::whereIn('conta_id', $contas)
+        return (int) PartidaFinanceira::whereIn('conta_id', self::contasDeDinheiro())
             ->whereHas('lancamento', fn ($q) => $q->where('competencia', '<', $competencia))
             ->sum('valor_cents');
+    }
+
+    private static function contasDeDinheiro(): Collection
+    {
+        return ContaFinanceira::where('grupo', 'ativo')->whereNotIn('codigo', self::NAO_E_DINHEIRO)->pluck('id');
     }
 }

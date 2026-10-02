@@ -33,9 +33,6 @@ class MenuHelper
             // "Clientes" e nao "Empresas": e assim que a operacao fala de quem
             // contrata, e e o mesmo nome que o vendedor ja usa na carteira. A
             // rota continua /empresas para nao quebrar link salvo.
-            // Antes de Clientes porque e essa a ordem do funil: o lead de hoje
-            // e o cliente do mes que vem.
-            ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads', 'papeis' => ['admin']],
             ['icon' => 'pessoas', 'name' => 'Clientes', 'path' => '/empresas', 'papeis' => ['admin']],
             ['icon' => 'pesquisa', 'name' => 'Consultas', 'path' => '/consultas', 'papeis' => ['admin']],
             ['icon' => 'paginas', 'name' => 'Catálogo', 'path' => '/catalogo', 'papeis' => ['admin']],
@@ -43,29 +40,7 @@ class MenuHelper
             // cliente ja chamava assim. Nome diferente para a mesma coisa
             // conforme quem abre a tela e o que a PDD manda evitar.
             ['icon' => 'calculadora', 'name' => 'Simulador', 'path' => '/simulacao', 'papeis' => ['admin']],
-            ['icon' => 'grafico', 'name' => 'Financeiro', 'path' => '/financeiro', 'papeis' => ['admin'], 'exigeFinanceiro' => true],
-            // O resultado da CASA: Financeiro e Vendas QR respondem por produto,
-            // e esta soma os tres. Mesma permissao de Socios.
-            ['icon' => 'grafico', 'name' => 'Controladoria', 'path' => '/controladoria', 'papeis' => ['admin'], 'exigeSocios' => true],
-            ['icon' => 'grafico', 'name' => 'Sócios', 'path' => '/socios', 'papeis' => ['admin'], 'exigeSocios' => true],
-            ['icon' => 'documentos', 'name' => 'Documentos', 'path' => '/documentos', 'papeis' => ['admin']],
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
-            ['icon' => 'tarefa', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
-            ['icon' => 'conexao', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
-            /*
-             * Avalia Sales, o produto de vendas externas.
-             *
-             * UM item, e nao os tres que havia (QR dinamico, Vendas QR,
-             * Negocios): aquilo misturava as telas de outro produto no menu
-             * deste, e quem entrava no QR dinamico pela lateral do Avalia One
-             * saia do CRM sem perceber que tinha trocado de sistema. O produto
-             * tem casca e menu proprios, e daqui sai so a porta.
-             *
-             * Sem `papeis`: cliente e produtor tambem entram, e o que limita
-             * cada um e o dono gravado no codigo, e nao o papel.
-             */
-            ['icon' => 'qr', 'name' => 'Avalia Sales', 'path' => '/sales', 'exigeSales' => true],
-            ['icon' => 'cadeado', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }
 
@@ -96,11 +71,24 @@ class MenuHelper
      */
     public const ROTAS_SALES = ['etiquetas.', 'negocios', 'plaquinhas.', 'sales.'];
 
+    /** As rotas do back office: o que e da casa, e nao de um produto. */
+    public const ROTAS_GESTAO = ['gestao.', 'equipe.', 'financeiro.', 'socios.', 'controladoria', 'auditoria', 'conexoes.', 'leads.', 'documentos.'];
+
     public static function naSales(): bool
+    {
+        return self::rotaEm(self::ROTAS_SALES);
+    }
+
+    public static function naGestao(): bool
+    {
+        return self::rotaEm(self::ROTAS_GESTAO);
+    }
+
+    private static function rotaEm(array $prefixos): bool
     {
         $rota = (string) request()->route()?->getName();
 
-        foreach (self::ROTAS_SALES as $prefixo) {
+        foreach ($prefixos as $prefixo) {
             if (str_starts_with($rota, $prefixo)) {
                 return true;
             }
@@ -111,7 +99,11 @@ class MenuHelper
 
     public static function marcaDaArea(): string
     {
-        return self::naSales() ? 'vendas' : 'credito';
+        return match (true) {
+            self::naSales() => 'vendas',
+            self::naGestao() => 'gestao',
+            default => 'credito',
+        };
     }
 
     public static function inicioDaArea(): string
@@ -119,6 +111,10 @@ class MenuHelper
         if (self::naSales()) {
             // A equipe tem home; cliente e produtor caem no QR, que e o que veem.
             return auth('staff')->check() ? route('sales.inicio') : route('etiquetas.index');
+        }
+
+        if (self::naGestao()) {
+            return route('gestao.inicio');
         }
 
         return auth('empresa')->check() ? route('empresa.painel') : \App\Support\Porta::painelDe('staff');
@@ -141,6 +137,46 @@ class MenuHelper
         ];
     }
 
+    /** O back office. A lateral inteira e de administracao; o que exige permissao propria some de quem nao a tem. */
+    public static function getItensDaGestao()
+    {
+        return [
+            ['icon' => 'inicio', 'name' => 'Início', 'path' => '/gestao'],
+            ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads'],
+            ['icon' => 'grafico', 'name' => 'Financeiro', 'path' => '/financeiro', 'exigeFinanceiro' => true],
+            ['icon' => 'grafico', 'name' => 'Sócios', 'path' => '/socios', 'exigeSocios' => true],
+            ['icon' => 'grafico', 'name' => 'Controladoria', 'path' => '/controladoria', 'exigeSocios' => true],
+            ['icon' => 'documentos', 'name' => 'Documentos', 'path' => '/documentos'],
+            ['icon' => 'tarefa', 'name' => 'Equipe', 'path' => '/equipe'],
+            ['icon' => 'conexao', 'name' => 'Conexões', 'path' => '/conexoes'],
+            ['icon' => 'cadeado', 'name' => 'Auditoria', 'path' => '/auditoria'],
+        ];
+    }
+
+    /**
+     * As outras areas que esta conta abre, no pe de toda lateral. E a unica
+     * porta entre produtos: item de um produto dentro do menu do outro fazia
+     * quem clicava trocar de sistema sem perceber.
+     */
+    private static function outrasAreas(string $atual): array
+    {
+        $conta = auth('staff')->user();
+
+        if ($conta === null) {
+            return [];
+        }
+
+        $areas = [
+            'credito' => ['icon' => 'pesquisa', 'name' => \App\Support\Empresa::marcaCredito(), 'path' => '/painel', 'abre' => $conta->acessa('one')],
+            'vendas' => ['icon' => 'qr', 'name' => \App\Support\Empresa::marcaVendas(), 'path' => '/sales', 'abre' => $conta->acessa('sales')],
+            'gestao' => ['icon' => 'inicio', 'name' => \App\Support\Empresa::marcaGestao(), 'path' => '/gestao', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
+        ];
+
+        unset($areas[$atual]);
+
+        return array_values(array_filter($areas, fn (array $area) => $area['abre']));
+    }
+
     public static function getMenuGroups()
     {
         // A area do cliente tem menu proprio: os dois guards nunca coexistem na
@@ -158,19 +194,23 @@ class MenuHelper
             // que leva a 403 ensina o operador a ignorar o menu.
             && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro())
             && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios())
-            // Sem acesso ao Sales, a porta some; cliente e produtor (sem conta) entram.
             && (empty($item['exigeSales']) || $conta === null || $conta->acessa('sales'));
 
-        if (self::naSales()) {
-            return [[
-                'title' => \App\Support\Empresa::marcaVendas(),
-                'items' => array_values(array_filter(self::getItensDaSales(), $permitido)),
-            ]];
+        $area = self::marcaDaArea();
+
+        [$titulo, $itens] = match ($area) {
+            'vendas' => [\App\Support\Empresa::marcaVendas(), self::getItensDaSales()],
+            'gestao' => [\App\Support\Empresa::marcaGestao(), self::getItensDaGestao()],
+            default => ['Menu', self::getMainNavItems()],
+        };
+
+        $grupos = [['title' => $titulo, 'items' => array_values(array_filter($itens, $permitido))]];
+
+        if ($outras = self::outrasAreas($area)) {
+            $grupos[] = ['title' => 'Áreas', 'items' => $outras];
         }
 
-        return [
-            ['title' => 'Menu', 'items' => array_values(array_filter(self::getMainNavItems(), $permitido))],
-        ];
+        return $grupos;
     }
 
     public static function isActive($path)

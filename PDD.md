@@ -24,6 +24,7 @@ nunca escrito na tela. Dois sócios meio a meio, Pedro e Ruan, tocam a operaçã
 | Pesquisa de score | **Avalia One** | Plano mensal com franquia de consultas | Mensalidade + consumo |
 | Venda parcelada | **Avalia Gestor** | Carnê e cobrança para quem vende a prazo | Taxa sobre cada pagamento |
 | Vendas de rua | **Avalia Sales** | Plaquinha de QR e NFC, encurtador, base de negócios | Venda unitária + renovação |
+| Back office | **Avalia Gestão** | Equipe, caixa, leads, documentos, auditoria: a casa | (não vende) |
 | Serviços de software | **Avalia** | RPA, integrações, URA, desenvolvimento | Projeto, sob contrato |
 
 As três primeiras são produtos de prateleira na mesma aplicação, cada um com
@@ -653,13 +654,15 @@ importação do extrato OFX do Nubank e conciliação contra a conta `caixa`.
 
 ### Back office
 
-Uma quarta lateral, no molde do Sales, com Contatos, Funil, Financeiro, Sócios,
-Equipe, Auditoria e Conexões. Sai tudo do painel do One, que fica com
-consultas, carteira e catálogo. Nome a decidir.
+**Avalia Gestão** (02/10/2026): a quarta lateral, no molde do Sales, com Leads,
+Financeiro, Sócios, Controladoria, Documentos, Equipe, Conexões e Auditoria. Saiu
+tudo do painel do One, que ficou com consultas, carteira, catálogo e campanhas.
+No pé de toda lateral, o grupo "Áreas" leva às outras que a conta abre; é a única
+porta entre produtos. Contatos e Funil entram aqui quando existirem.
 
 ### Ordem
 
-1. Lateral de back office, movendo o que existe.
+1. Lateral de back office, movendo o que existe. **Feita.**
 2. `contatos` + `contato_id` + lastro que casa os registros por documento e WhatsApp.
 3. Eventos das frentes para o CRM; teste de fronteira de `app/Crm`.
 4. Fases 2 a 4 do razão para One e Gestor; sexta unificada.
@@ -690,7 +693,6 @@ três primeiras erram dinheiro e vão antes.
   anual**; homologar preços de referência e margem; franquia por serviço.
 - **O que `/cobranca` promete e o Gestor não faz**: régua de lembrete, cobrança
   do atrasado, negativação, envio do link. Construir ou tirar da página.
-- **Nome da área de back office** (seção 15).
 
 ### Cobrança
 

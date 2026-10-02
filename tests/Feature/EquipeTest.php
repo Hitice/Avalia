@@ -192,11 +192,11 @@ it('nao mostra o financeiro no menu de quem nao pode abrir', function () {
 
     test()->actingAs($semPermissao, 'staff')
         ->withSession(['versao_staff' => $semPermissao->sessao_versao])
-        ->get('/painel')
+        ->get('/gestao')
         ->assertOk()
         ->assertDontSee('href="/financeiro"', false);
 
-    admin()->get('/painel')->assertOk()->assertSee('href="/financeiro"', false);
+    admin()->get('/gestao')->assertOk()->assertSee('href="/financeiro"', false);
 });
 
 it('nao deixa fechar competencia sem permissao financeira', function () {

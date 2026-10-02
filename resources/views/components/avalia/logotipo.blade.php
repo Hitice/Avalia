@@ -26,6 +26,7 @@
         'credito' => Empresa::marcaCredito(),
         'cobranca' => Empresa::marcaCobranca(),
         'vendas' => Empresa::marcaVendas(),
+        'gestao' => Empresa::marcaGestao(),
         default => Empresa::marca(),
     };
 

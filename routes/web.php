@@ -33,6 +33,7 @@ use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
+use App\Http\Controllers\GestaoController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServicoController;
 use App\Http\Controllers\SiteController;
@@ -529,6 +530,9 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
     // A home do produto, para a equipe. Cliente e produtor entram pelo QR
     // dinamico e veem o proprio codigo; home de estoque e comissao nao e deles.
     Route::get('/sales', [SalesController::class, 'inicio'])->name('sales.inicio');
+
+    // A home do back office: so administracao, como toda a lateral dele.
+    Route::get('/gestao', [GestaoController::class, 'inicio'])->middleware('admin')->name('gestao.inicio');
     Route::get('/estoque', [EstoqueController::class, 'index'])->name('sales.estoque');
 
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)

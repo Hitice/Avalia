@@ -45,6 +45,11 @@ final class Empresa
         return (string) config('empresa.marca_vendas', '');
     }
 
+    public static function marcaGestao(): string
+    {
+        return (string) config('empresa.marca_gestao', '');
+    }
+
     public static function cnpj(): string
     {
         return (string) config('empresa.cnpj', '');
