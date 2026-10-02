@@ -284,6 +284,28 @@
                 <div class="cartao p-6">
                     <h2 class="rotulo-grupo">Venda</h2>
 
+                    {{-- O valor cobrado. Fica aqui, e nao no campo de apontar: ali
+                         ele so e gravado na PRIMEIRA venda, de proposito, e era
+                         por isso que a edicao nao salvava e ainda dizia ter
+                         salvado. Corrigir aqui estorna e relanca no razao, para o
+                         painel e o extrato nao discordarem. --}}
+                    <form method="POST" action="{{ route('plaquinhas.valor', $etiqueta) }}" class="mt-4">
+                        @csrf
+                        @method('PUT')
+
+                        <label for="valor-venda" class="rotulo-campo">Valor cobrado</label>
+
+                        <div class="flex items-end gap-2">
+                            <input id="valor-venda" name="valor" type="text" class="campo"
+                                   value="{{ Dinheiro::numero((int) $etiqueta->valor_cents) }}">
+                            <x-avalia.botao variante="secundario" class="botao-sm">Corrigir</x-avalia.botao>
+                        </div>
+
+                        <span class="ajuda-campo">
+                            Muda a comissão do mês. O lançamento antigo é estornado e o novo entra no mês atual.
+                        </span>
+                        @error('valor') <span class="erro-campo">{{ $message }}</span> @enderror
+                    </form>
                     <form method="POST" action="{{ route('plaquinhas.vendedor', $etiqueta) }}" class="mt-4">
                         @csrf
                         @method('PUT')

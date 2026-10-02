@@ -28,6 +28,34 @@ function socios(): array
 |--------------------------------------------------------------------------
 */
 
+/*
+ * Os numeros da apuracao, derivados do config e nao escritos a mao.
+ *
+ * Com valores fixos no teste, trocar o preco da placa quebrava quatro testes de
+ * REGRA que nao tinham nada a ver com o preco. O que eles guardam e a regra: a
+ * comissao arredonda por venda, venda orfa nao comissiona, o mes nao e o
+ * acumulado.
+ *
+ * @return array{bruto: int, custo: int, liquido: int, comissao: int, lucro: int}
+ */
+function contaDaPlaca(int $quantas = 1, bool $comComissao = true): array
+{
+    $valor = (int) config('etiquetas.precos.placa_cents');
+    $custo = (int) config('etiquetas.custo_cents');
+    $pct = (int) config('etiquetas.comissao_pct');
+
+    // Por venda, e nao sobre o total: e assim que o vendedor confere, placa por
+    // placa, e repasse que nao bate com a conta de quem recebe vira discussao.
+    $comissaoDeUma = $comComissao ? (int) round(($valor - $custo) * $pct / 100) : 0;
+
+    return [
+        'bruto' => $quantas * $valor,
+        'custo' => $quantas * $custo,
+        'liquido' => $quantas * ($valor - $custo),
+        'comissao' => $quantas * $comissaoDeUma,
+        'lucro' => $quantas * ($valor - $custo - $comissaoDeUma),
+    ];
+}
 it('nao deixa o vendedor ver a margem da casa', function () {
     // A tela mostra custo e divisao entre socios. O vendedor ve a comissao dele
     // na propria tela; o resto nao e assunto de quem vende.
@@ -56,20 +84,13 @@ it('apura a venda do vendedor comum com a comissao sobre o liquido', function ()
 
     $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
 
-    // Duas placas de 89,90: bruto 179,80, custo 11,00, liquido 168,80.
-    //
-    // A comissao arredonda POR VENDA, e nao sobre o total do mes. E assim que o
-    // vendedor confere, placa por placa, e repasse que nao bate com a conta de
-    // quem recebe vira discussao todo mes.
-    $totais = $tela->viewData('totais');
+    $esperado = contaDaPlaca(2);
 
-    expect($totais['bruto'])->toBe(17_980)
-        ->and($totais['custo'])->toBe(1_100)
-        ->and($totais['liquido'])->toBe(16_880)
-        ->and($totais['comissao'])->toBe(4_220)
-        ->and($totais['lucro'])->toBe(12_660);
+    expect($tela->viewData('totais'))->toMatchArray($esperado);
 
-    expect($tela->viewData('porSocio')->pluck('mes')->all())->toBe([6_330, 6_330]);
+    // A divisao usa a propria regra da casa, inclusive o centavo impar.
+    expect($tela->viewData('porSocio')->pluck('mes')->all())
+        ->toBe(App\Support\RepartePlaquinha::dividir($esperado['lucro'], 2));
 });
 
 it('nao tira comissao quando quem vendeu e socio', function () {
@@ -79,9 +100,10 @@ it('nao tira comissao quando quem vendeu e socio', function () {
 
     $tela = admin()->get(route('plaquinhas.vendas'))->assertOk();
 
+    // Sem comissao, o liquido INTEIRO vai para a divisao.
     expect($tela->viewData('totais')['comissao'])->toBe(0)
-        // O liquido inteiro vai para a divisao: 84,40 em duas partes iguais.
-        ->and($tela->viewData('porSocio')->pluck('mes')->all())->toBe([4_220, 4_220]);
+        ->and($tela->viewData('porSocio')->pluck('mes')->all())
+        ->toBe(App\Support\RepartePlaquinha::dividir(contaDaPlaca(1, false)['lucro'], 2));
 });
 
 it('conta a venda pelo mes em que ela aconteceu, e nao pela geracao da placa', function () {
@@ -113,11 +135,11 @@ it('mostra a venda orfa em vez de dividi-la entre os outros', function () {
     expect($tela->viewData('semVendedor'))->toBe(1)
         ->and($tela->viewData('porVendedor'))->toHaveCount(0)
         // O dinheiro continua entrando na apuracao: o que falta e o nome.
-        ->and($tela->viewData('totais')['bruto'])->toBe(8_990)
+        ->and($tela->viewData('totais')['bruto'])->toBe(contaDaPlaca()['bruto'])
         // E nao gera comissao: nao houve venda de ninguem. O liquido inteiro
         // vai para a divisao.
         ->and($tela->viewData('totais')['comissao'])->toBe(0)
-        ->and($tela->viewData('totais')['lucro'])->toBe(8_440);
+        ->and($tela->viewData('totais')['lucro'])->toBe(contaDaPlaca(1, false)['lucro']);
 });
 
 it('nunca mostra mais comissao no total do que a soma dos vendedores', function () {
@@ -220,8 +242,8 @@ it('separa o caixa do mes do caixa de sempre', function () {
 
     // O recorte do mes responde "como foi este mes"; o acumulado responde
     // "quanto este produto deu ate hoje", e um nao e a soma visivel do outro.
-    expect($tela->viewData('totais')['bruto'])->toBe(8_990)
-        ->and($tela->viewData('total')['bruto'])->toBe(17_980)
+    expect($tela->viewData('totais')['bruto'])->toBe(contaDaPlaca()['bruto'])
+        ->and($tela->viewData('total')['bruto'])->toBe(contaDaPlaca(2)['bruto'])
         ->and($tela->viewData('placas'))->toBe(1)
         ->and($tela->viewData('placasTotal'))->toBe(2);
 });

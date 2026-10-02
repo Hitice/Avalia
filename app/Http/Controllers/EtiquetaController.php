@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Actions\Etiquetas\AlternarEtiqueta;
 use App\Actions\Etiquetas\CancelarVendaEtiqueta;
+use App\Actions\Etiquetas\CorrigirValorDaVenda;
 use App\Actions\Etiquetas\GerarLote;
 use App\Actions\Etiquetas\RenovarEtiqueta;
 use App\Actions\Etiquetas\TrocarVendedorEtiqueta;
 use App\Actions\Etiquetas\VenderEtiqueta;
 use App\Enums\SituacaoEtiqueta;
+use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Models\LoteEtiqueta;
 use App\Models\Staff;
@@ -288,5 +290,27 @@ class EtiquetaController extends Controller
     private function conferirDono(Etiqueta $etiqueta): void
     {
         abort_unless($etiqueta->podeMexer(), 404);
+    }
+
+    /**
+     * Corrige o valor de uma venda ja registrada.
+     *
+     * Porta separada da de apontar: ali o valor so e gravado na primeira venda, de
+     * proposito, e era por isso que a edicao nao salvava e ainda dizia que tinha
+     * salvado.
+     */
+    public function corrigirValor(Request $pedido, Etiqueta $etiqueta, CorrigirValorDaVenda $corrigir)
+    {
+        $dados = $pedido->validate(['valor' => ['required', 'string', 'max:20']]);
+
+        try {
+            $corrigir($etiqueta, Dinheiro::paraCentavos($dados['valor']));
+        } catch (Recusa $recusa) {
+            return back()->with('erro', $recusa->getMessage());
+        }
+
+        return back()->with('ok', 'Valor da venda corrigido para '
+            .Dinheiro::brl((int) $etiqueta->fresh()->valor_cents)
+            .'. A comissão do mês acompanha.');
     }
 }

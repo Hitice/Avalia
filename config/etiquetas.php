@@ -43,7 +43,7 @@ return [
         // Mudar aqui vale da proxima venda em diante: o que foi cobrado fica
         // gravado em `etiquetas.valor_cents`, e reajuste nao reescreve fatura
         // velha. E a mesma regra da consulta e da fatura da casa.
-        'placa_cents' => 8_990,
+        'placa_cents' => 9_990,
         'renovacao_cents' => 4_990,
         'avulso_mensal_cents' => 1_990,
     ],

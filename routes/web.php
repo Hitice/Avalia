@@ -16,11 +16,11 @@ use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\ControladoriaController;
-use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
+use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\InteresseController;
@@ -533,6 +533,11 @@ Route::middleware(['auth:staff', 'sessao:staff'])->group(function () {
     Route::middleware('admin')->prefix('plaquinhas')->name('plaquinhas.')->group(function () {
         Route::put('/{etiqueta}/vendedor', [EtiquetaController::class, 'trocarVendedor'])->name('vendedor');
         Route::delete('/{etiqueta}/venda', [EtiquetaController::class, 'cancelarVenda'])->name('cancelar-venda');
+
+        // Corrigir o valor mexe na comissao do mes, entao e admin como as outras
+        // duas. Porta separada da de apontar, onde o valor so e gravado na
+        // primeira venda.
+        Route::put('/{etiqueta}/valor', [EtiquetaController::class, 'corrigirValor'])->name('valor');
     });
 
     /*

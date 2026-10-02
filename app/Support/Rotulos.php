@@ -108,6 +108,7 @@ final class Rotulos
         'negocio.situacao' => 'Situação do negócio alterada',
         'negocio.link-avaliacao' => 'Link de avaliação do Google gerado',
 
+        'etiquetas.valor.corrigido' => 'Valor da venda da plaquinha corrigido',
         'etiquetas.consignadas' => 'Placas entregues ao vendedor',
         'etiquetas.devolvidas' => 'Placas devolvidas ao estoque da casa',
         'etiquetas.lote.gerado' => 'Campanha de etiquetas gerada',
