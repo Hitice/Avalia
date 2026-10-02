@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
  *
  * O que estes testes protegem nao e o layout: e o recorte. Numero da operacao
  * inteira na tela do vendedor volta a ensina-lo a ignorar a tela, que era o
- * problema descrito na secao 12 do PDD.
+ * problema descrito na secao 2 da PDD.
  */
 
 /*

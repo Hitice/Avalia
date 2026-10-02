@@ -14,7 +14,7 @@ use App\Models\Staff;
  * bruta no painel e liquida na carteira do vendedor.
  *
  * NAO sabe saldo de caixa de verdade: falta o pagamento de saida. Isso agora e
- * pergunta do razao, e a `PLANO-FINANCEIRO.md` diz quando esta classe sai.
+ * pergunta do razao, e a PDD (secao 15) diz quando esta classe sai.
  */
 final class Caixa
 {

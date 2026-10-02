@@ -1,4 +1,4 @@
-"""Transcreve a base de leads de docs/leads.html para o seeder.
+"""Transcreve a base de leads de database/seeders/dados/fonte-leads-2026-08.html para o seeder.
 
 Gera database/seeders/dados/leads_base_2026_08.php. Rode de novo quando a
 extracao dos PDFs produzir uma base nova; nao edite o PHP a mao.
@@ -37,7 +37,7 @@ def le():
     bruto = re.search(r'const SEED = (\[.*?\]);\n', html, re.S)
 
     if not bruto:
-        raise SystemExit('Nao achei a constante SEED em docs/leads.html.')
+        raise SystemExit('Nao achei a constante SEED em database/seeders/dados/fonte-leads-2026-08.html.')
 
     leads = []
     vistos = set()

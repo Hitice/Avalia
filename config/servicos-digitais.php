@@ -16,9 +16,9 @@
  * servico que ja esta decidido e ainda nao esta pronto, sem espalhar "em
  * breve" pela vitrine.
  *
- * O editor de tag NFC saiu daqui e vive so em docs/SERVICOS-DIGITAIS.md ate
- * voltar a ser prioridade. Entrada parada no catalogo vira codigo que ninguem
- * le e que todo mundo tem que entender ao passar por perto.
+ * O editor de tag NFC saiu daqui ate voltar a ser prioridade (PDD, secao 6).
+ * Entrada parada no catalogo vira codigo que ninguem le e que todo mundo tem
+ * que entender ao passar por perto.
  */
 return [
 

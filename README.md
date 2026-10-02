@@ -1,94 +1,89 @@
 # Avalia
 
-Software house e as tres operacoes que ela vende: **Avalia One** (consultas de
-credito), **Avalia Gestor** (venda parcelada e cobranca) e **QR dinamico**
-(plaquinha com NFC e encurtador).
+Software house de Uberlândia e os produtos que ela opera numa aplicação só:
 
-Regra de negocio nao mora aqui, mora na [PDD.md](PDD.md). Este arquivo poe para
-rodar.
+| Marca | O que é | Área |
+|---|---|---|
+| **Avalia One** | Pesquisa de score: plano mensal com franquia de consultas | `/painel` |
+| **Avalia Gestor** | Venda parcelada: carnê e cobrança para quem vende a prazo | `/cobranca` (produtor) |
+| **Avalia Sales** | Vendas de rua: plaquinha de QR e NFC, encurtador, base de negócios | `/sales` |
+| **Avalia** | O site, os serviços de software sob contrato e o back office | `/`, `/socios`, `/equipe` |
+
+A regra de negócio mora na [PDD.md](PDD.md). Publicar está na [DEPLOY.md](DEPLOY.md).
+Este arquivo põe para rodar.
 
 ## Stack
 
-PHP 8.2 ou superior (producao roda 8.5), Laravel 12, Blade, Tailwind 4,
-Alpine.js, Vite, Pest 4. **MySQL em producao, SQLite em memoria nos testes.**
+PHP 8.2+, Laravel 12, Blade, Tailwind 4, Alpine.js, Vite, Pest 4. MySQL em
+produção, SQLite em memória nos testes. Sem fila, sem worker: a hospedagem é
+compartilhada e a aplicação não enfileira nada.
 
 ## Rodar
 
 ```bash
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
+composer install && npm install
+cp .env.example .env && php artisan key:generate
 php artisan migrate --seed
 npm run build
-composer run dev      # servidor, fila, logs e Vite juntos
+composer run dev
 ```
 
-Banco e conta administrativa saem do `.env`, que nao e versionado, e nem ele nem
-credencial nenhuma entram em commit.
+Banco e conta administrativa saem do `.env`, que não é versionado.
 
-## Conferir
+## Conferir antes de publicar
 
 ```bash
-php vendor/bin/pest                               # suite inteira
-php vendor/bin/pest tests/Unit/DiretivaTest.php    # catraca das diretivas
-vendor/bin/pint                                    # estilo
-npm run build                                      # obrigatorio depois de Blade ou CSS
+vendor/bin/pint                                   # estilo
+php vendor/bin/pest                               # suíte inteira; leia a linha Tests:
+php vendor/bin/pest tests/Unit/DiretivaTest.php   # catraca: comentário, tema, razão único
+npm run build                                     # obrigatório depois de Blade ou CSS
 ```
 
-A suite usa SQLite em memoria por configuracao do `phpunit.xml`, entao nao ha
-como apontar teste para producao por engano.
+`public/build` é versionado de propósito: o servidor não tem Node, e o front
+precisa chegar pronto. Sob PHP 8.5 a suíte marca quase tudo como `DEPR`; vem do
+framework, não daqui. O que vale é `0 failed`.
 
-Sob PHP 8.5 a saida marca quase todo teste como `DEPR`. **Nao e falha nossa**:
-vem de `vendor/laravel/framework/config/database.php`, que ainda le
-`PDO::MYSQL_ATTR_SSL_CA`. Leia a linha `Tests:` no fim, que diz `0 failed`.
-
-## Diagnostico
+## Comandos da casa
 
 ```bash
-php artisan avalia:inventario        # linhas por tabela
-php artisan avalia:ambiente          # ambiente seguro para producao
-php artisan avalia:conferir          # fechamento, cobrancas, webhooks, trilha
+php artisan avalia:ambiente                  # o ambiente está seguro para produção
+php artisan avalia:conferir                  # fechamento, cobranças, webhooks, trilha
+php artisan avalia:inventario                # linhas por tabela
+php artisan avalia:exportar                  # cópia do banco, sem mysqldump
+php artisan avalia:importar <arquivo>        # restaura a cópia
 php artisan avalia:conferir-exclusao --email= --empresa=
-php artisan avalia:exportar          # copia do banco, sem mysqldump
-php artisan avalia:importar          # restaura o que avalia:exportar gerou
-php artisan avalia:lastrear-plaquinhas --simular   # vendas que entrariam no razao
+php artisan avalia:lastrear-plaquinhas --simular    # vendas de placa que entrariam no razão
+php artisan avalia:relancar-plaquinhas --simular    # relança as que mudaram de regra
+php artisan avalia:etiquetas-limpar
 ```
 
-Existem com nome proprio porque producao nao tem SSH: o unico caminho e cron, e
-o campo de comando do provedor nao aceita aspas em tres niveis. Detalhe na
-[DEPLOY.md](DEPLOY.md).
+Têm nome próprio porque produção não tem SSH: o único caminho é cron, e o campo
+de comando do provedor não aceita aspas em três níveis ([DEPLOY.md](DEPLOY.md)).
 
 ## Onde as coisas ficam
 
 ```
-app/Actions/<Modulo>/   uma regra de negocio por classe, transacional
-app/Support/            calculo puro, sem banco (Dinheiro, Margem, Comissao)
-app/Services/Conectores/ bureau externo, atras de contrato
-resources/views/        telas Blade
-resources/css/app.css   @utility do tema, o vocabulario da casa
-database/migrations/    schema; migration nao reescreve historia
-tests/                  Pest, um arquivo por assunto
-temp/                   referencia para transcricao, nunca fonte em runtime
+app/Actions/<Modulo>/     uma regra de negócio por classe, transacional
+app/Contabil/             o razão: único escritor (Lancar), partidas, competência, livro-caixa
+app/Support/              cálculo puro, sem banco (Dinheiro, Margem, Comissao, RepartePlaquinha, Marca)
+app/Services/Conectores/  bureaus, atrás do contrato ConectorBureau
+app/Helpers/MenuHelper    qual lateral e qual marca cada rota mostra
+resources/views/          telas Blade; componentes em components/avalia e components/site
+resources/css/app.css     @utility do tema, o vocabulário de tela da casa
+database/seeders/dados/   dados transcritos (preços, custos, leads) e a fonte deles; tools/ regenera
+tests/                    Pest, um arquivo por assunto
 ```
 
-Dinheiro em centavos inteiros do banco ate a tela, e preco e custo gravados na
-emissao. Essas duas sustentam o faturamento inteiro; a [PDD.md](PDD.md) diz por
-que.
+Duas regras sustentam o faturamento: dinheiro em centavos inteiros do banco até
+a tela, e preço e custo gravados na emissão. A PDD diz por quê.
 
 ## Documentos
 
 | Arquivo | Assunto |
 |---|---|
-| [PDD.md](PDD.md) | regra de negocio, papeis, precos, decisoes pendentes |
-| [PLANO-FINANCEIRO.md](PLANO-FINANCEIRO.md) | avaliacao ERP/CRM e para onde o financeiro vai |
-| [DEPLOY.md](DEPLOY.md) | publicar sem SSH |
-| [PRECOS-FORNECEDOR.md](PRECOS-FORNECEDOR.md) | custo de aquisicao, provisorio |
-| [AUDITORIA.md](AUDITORIA.md) | achados da auditoria de 29/09/2026 |
+| [PDD.md](PDD.md) | regra de negócio, papéis, dinheiro, rumo e decisões pendentes |
+| [DEPLOY.md](DEPLOY.md) | como a produção publica, roda e se recupera |
+| [PRECOS-FORNECEDOR.md](PRECOS-FORNECEDOR.md) | custo de aquisição por serviço, provisório |
 
-Como se escreve codigo e tela: skills `padroes` e `enxugar`, em
-`.claude/skills/`.
-
-## Licenca
-
-[LICENSE](LICENSE).
+Como se escreve código e tela: skills `padroes`, `enxugar`, `depurar` e
+`codigo-morto`, em `.claude/skills/`. Licença em [LICENSE](LICENSE).

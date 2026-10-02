@@ -25,7 +25,7 @@ const DOC_RECUSADO = '11144477730';
 */
 
 it('registra a consulta com o que foi perguntado e por que', function () {
-    // Finalidade e responsavel sao exigencia da secao 14 do PDD: sem eles nao
+    // Finalidade e responsavel sao exigencia da secao 4 da PDD: sem eles nao
     // ha base legal que se sustente numa fiscalizacao.
     $empresa = empresaComPlano();
     $servico = Servico::firstWhere('codigo', 'scpc-bvs');

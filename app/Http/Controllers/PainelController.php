@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
  * esta saudavel?"; o do vendedor responde "quem eu preciso ligar hoje?".
  *
  * Ate aqui era um painel so com seis numeros iguais, mudando apenas o filtro. O
- * efeito era o previsto na secao 12 do PDD: cada um aprendia a ignorar metade da
+ * efeito era o previsto na secao 2 da PDD: cada um aprendia a ignorar metade da
  * tela. Pior, o vendedor via "a receber" e "em atraso", que sao dinheiro da
  * Avalia e nao dele, e o administrador via "comissao liberada", que ele nao
  * recebe.

@@ -191,7 +191,7 @@ class AreaClienteController extends Controller
     /**
      * A consulta em si, pedida pela empresa.
      *
-     * A finalidade e obrigatoria e vai gravada junto: a secao 14 do PDD exige
+     * A finalidade e obrigatoria e vai gravada junto: a secao 4 da PDD exige
      * que cada consulta tenha motivo e responsavel rastreaveis, e e o que
      * sustenta a base legal se alguem perguntar depois por que aquele CPF foi
      * consultado.

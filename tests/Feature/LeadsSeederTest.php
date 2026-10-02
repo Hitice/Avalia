@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 |--------------------------------------------------------------------------
 |
 | O arquivo de dados e gerado por tools/gera_leads.py a partir de
-| docs/leads.html. Estes testes travam o que a carga promete: chega inteira,
+| database/seeders/dados/fonte-leads-2026-08.html. Estes testes travam o que a carga promete: chega inteira,
 | chega normalizada, e rodar de novo nao duplica nem desfaz correcao da tela.
 |
 */

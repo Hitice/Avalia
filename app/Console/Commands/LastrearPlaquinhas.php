@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 /**
  * Poe no razao as vendas de plaquinha anteriores as contas delas (Fase 3 do
- * PLANO-FINANCEIRO.md).
+ * PDD, secao 15).
  *
  * LE as etiquetas e nunca escreve nelas: QR impresso aponta para link publicado.
  *

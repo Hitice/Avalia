@@ -63,8 +63,8 @@ proprio codigo, sem emoji, sem travessao. O usuario e adulto e conhece o
 negocio.
 
 **7. Documento novo so quando nenhum existente cobre.** `PDD.md` diz o negocio,
-`README.md` poe para rodar, `DEPLOY.md` publica, `PLANO-FINANCEIRO.md` diz para
-onde o financeiro vai. Assunto novo entra no que ja trata dele. Prosa do
+`README.md` poe para rodar, `DEPLOY.md` publica. Para onde o financeiro e o CRM
+vao esta na secao 15 da PDD. Assunto novo entra no que ja trata dele. Prosa do
 repositorio tambem tem catraca, so que manual: se voce somou linha de documento,
 diga quanto e por que.
 

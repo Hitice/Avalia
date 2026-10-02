@@ -37,3 +37,6 @@ public/images/*.pdf
 # Chave e identidade de SSH da producao: nunca versionar
 SSH_CHAVE
 SSH_IDENTIDADE
+
+# Permissoes locais do Claude Code: de cada maquina, nunca do repositorio.
+.claude/settings.local.json
