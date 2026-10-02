@@ -116,6 +116,25 @@ it('pedir duas vezes devolve o mesmo codigo, sem dividir os cliques', function (
 |--------------------------------------------------------------------------
 */
 
+it('diz para ativar quando a chave esta cadastrada e a conexao esta desligada', function () {
+    // Salvar credencial nao ativa conexao, de proposito: a API e cobrada. Mas a
+    // mensagem unica mandava cadastrar a chave a quem ja tinha cadastrado, e isso
+    // custou tempo de verdade.
+    Conexao::create([
+        'fornecedor' => 'google',
+        'ambiente' => 'producao',
+        'credenciais' => ['api_key' => 'chave-de-teste'],
+        'ativa' => false,
+    ]);
+
+    Http::fake();
+
+    admin()->post(route('negocios.avaliacao.buscar'), ['nome' => 'Barbearia Dom']);
+
+    expect(session('erro'))->toContain('Ativar');
+    Http::assertNothingSent();
+});
+
 it('recusa sem a chave cadastrada, em vez de dizer que nao achou', function () {
     // Tela que diz "nenhum resultado" sem credencial ensina a operacao a achar
     // que o estabelecimento nao esta no Google.

@@ -61,8 +61,17 @@ class BuscarLugar
         // Recusa em vez de devolver vazio, pela mesma razao do bureau: tela que
         // diz "nenhum resultado" sem credencial ensina a operacao a achar que o
         // estabelecimento nao existe no Google.
+        //
+        // As duas faltas sao DITAS separadas, porque a acao e diferente e a
+        // mensagem unica custou tempo de verdade: ela mandava cadastrar a chave a
+        // quem ja tinha cadastrado, e o que faltava era clicar em Ativar. Salvar
+        // credencial nao ativa conexao, de proposito, porque esta API e cobrada.
         if ($chave === null) {
-            throw new Recusa('A conexão com o Google não está ativa. Cadastre a chave da API em Conexões antes de buscar.');
+            $guardada = Conexao::where('fornecedor', 'google')->first();
+
+            throw new Recusa($guardada?->configurada()
+                ? 'A chave do Google está cadastrada, mas a conexão está desativada. Abra Conexões e clique em Ativar no cartão do Google Maps Platform.'
+                : 'Cadastre a chave da API do Google em Conexões antes de buscar.');
         }
 
         $base = Conexao::urlBase('google') ?? 'https://places.googleapis.com/v1';
