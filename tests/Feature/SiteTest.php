@@ -308,11 +308,26 @@ it('abre a porta no proprio cartao de quem nao tem sessao', function () {
         ->and($html)->toContain("destino: 'plaquinhas'");
 });
 
-it('leva quem ja entrou direto ao painel, sem pedir senha de novo', function () {
+it('leva cada produto a area DELE, e nao todos ao Avalia One', function () {
+    // Era o defeito: com a sessao aberta os tres cartoes mandavam para o painel
+    // do Avalia One, porque a entrada saia do guard e ignorava o produto.
     $html = admin()->get(route('inicio'))->assertOk()->getContent();
 
     expect($html)->toContain('href="'.route('painel').'"')
+        ->and($html)->toContain('href="'.route('etiquetas.index').'"')
+        // Quem tem sessao nao ve porta de login.
         ->and($html)->not->toContain('abrir-porta');
+});
+
+it('nao oferece Entrar no Gestor a quem nao tem tela dele', function () {
+    // O Avalia Gestor e operado pelo produtor, e a equipe o acompanha pelo
+    // financeiro: nao existe tela dele do lado da casa. Botao que leva a 403
+    // ensina o operador a ignorar o botao.
+    $html = admin()->get(route('inicio'))->assertOk()->getContent();
+
+    // Dois Entrar, e nao tres: One e Salles tem entrada, o Gestor nao.
+    expect(substr_count($html, '>Entrar</a>'))->toBe(2)
+        ->and(substr_count($html, '>Conhecer</a>'))->toBe(3);
 });
 
 it('leva o cliente ao painel dele, e nao ao da equipe', function () {

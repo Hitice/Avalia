@@ -295,19 +295,19 @@
             </div>
 
             <div class="mt-10 grid gap-6 lg:grid-cols-3">
-                <x-site.cartao-produto marca="credito" titulo="Pesquisa de score para empresas"
+                <x-site.cartao-produto produto="credito" titulo="Pesquisa de score para empresas"
                                        :conhecer="route('credito')">
                     Pesquise o score e os dados públicos antes de fechar a venda a prazo.
                     O resultado chega em segundos, direto no painel da sua equipe.
                 </x-site.cartao-produto>
 
-                <x-site.cartao-produto marca="cobranca" titulo="Venda parcelada, cobrança e APIs"
+                <x-site.cartao-produto produto="cobranca" titulo="Venda parcelada, cobrança e APIs"
                                        :conhecer="route('cobranca')" atraso="0.1s">
                     Parcele a venda em boleto e Pix sem depender do cartão do cliente, com a
                     régua de cobrança e o repasse acontecendo sozinhos.
                 </x-site.cartao-produto>
 
-                <x-site.cartao-produto marca="vendas" titulo="Vendas, Marketing, Produtos Digitais"
+                <x-site.cartao-produto produto="vendas" titulo="Vendas, Marketing, Produtos Digitais"
                                        :conhecer="route('digitais.index')" porta="plaquinhas" atraso="0.2s">
                     Integração de comunicação visual orientada a serviços inteligentes com
                     infraestrutura própria.

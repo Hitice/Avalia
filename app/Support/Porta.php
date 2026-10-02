@@ -5,12 +5,10 @@ namespace App\Support;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Para onde a sessao de quem esta logado leva.
+ * Para onde cada produto leva a sessao de quem esta logado.
  *
- * Existe porque a resposta era privada dentro do `LoginController`, e os cartoes
- * da vitrine precisam da mesma: o botao "Entrar" leva direto quem ja tem sessao,
- * e abre a porta para quem nao tem. Escrita duas vezes, o dia em que um guard
- * novo entrasse deixaria a vitrine mandando o produtor para o painel do cliente.
+ * A resposta era privada no `LoginController` e mandava o produtor para o painel
+ * do cliente. A vitrine precisa dela, e duas copias divergem.
  */
 final class Porta
 {
@@ -36,6 +34,32 @@ final class Porta
             'staff' => route('painel'),
             'produtor' => route('produtor.painel'),
             default => route('empresa.painel'),
+        };
+    }
+
+    /**
+     * A entrada de UM produto para a sessao atual, ou null.
+     *
+     * Null quando nao ha sessao, e quando a sessao nao tem acesso ao produto. A
+     * vitrine abre a porta no primeiro caso e esconde o botao no segundo.
+     *
+     * O Gestor nao tem tela do lado da casa: ele e operado pelo produtor. Estado
+     * do sistema, e nao esquecimento.
+     */
+    public static function entradaDe(string $produto): ?string
+    {
+        return match ($produto) {
+            'vendas' => self::painelDaSessao() === null ? null : route('etiquetas.index'),
+
+            'credito' => match (true) {
+                Auth::guard('staff')->check() => route('painel'),
+                Auth::guard('empresa')->check() => route('empresa.painel'),
+                default => null,
+            },
+
+            'cobranca' => Auth::guard('produtor')->check() ? route('produtor.painel') : null,
+
+            default => null,
         };
     }
 }
