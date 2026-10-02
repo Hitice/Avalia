@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Negócios'])
+@extends('layouts.ferramenta', ['title' => 'Negócios'])
 
 @section('content')
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- O servico: nome do estabelecimento entra, link curto de avaliacao sai.
          Fica no topo porque e o pedido mais frequente do cliente de marketing, e

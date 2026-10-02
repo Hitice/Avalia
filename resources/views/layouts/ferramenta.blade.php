@@ -1,13 +1,15 @@
 {{--
-    A casca das ferramentas que sao negocio proprio.
+    A casca do Avalia Salles: vendas externas e presenca local.
 
-    Fora do CRM de proposito: o QR dinamico nao e um modulo do Avalia One, e
-    abrir com a barra lateral e a marca de la diz ao operador que ele entrou no
-    sistema de credito. E produto separado, com identidade separada, e so o
+    Fora do CRM de proposito: nada daqui e modulo do Avalia One, e abrir com a
+    barra lateral e a marca de la diz ao operador que ele entrou no sistema de
+    credito. E o terceiro produto da casa, ao lado do One e do Gestor, e so o
     login e compartilhado.
 
-    Sem barra lateral e sem menu de modulos: a ferramenta tem duas telas, e uma
-    lateral de 290px para duas telas e moldura maior que o quadro.
+    Menu horizontal e nao barra lateral: sao poucas telas, e uma lateral de
+    290px para elas e moldura maior que o quadro. Cada item aparece so para
+    quem pode abrir: cliente e produtor usam o QR dinamico do proprio codigo e
+    nao tem o que fazer na base de clientes nem na apuracao da margem.
 
     SO TEMA CLARO, como o site. O interruptor de tema e ferramenta de quem
     passa o dia dentro do CRM, e aqui ele so atrapalhava: encostava no botao de
@@ -25,7 +27,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex">
 
-    <title>{{ $title ?? 'QR dinâmico' }} · QR dinâmico</title>
+    <title>{{ $title ?? 'Avalia Salles' }} · {{ App\Support\Empresa::marcaVendas() }}</title>
 
     <link rel="icon" href="{{ asset('favicon.svg') }}?v=2" type="image/svg+xml">
 
@@ -41,13 +43,24 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 1.5a3.5 3.5 0 1 0 3.5 3.5m0-3.5V12m0 3.5H17" />
                 </svg>
                 <span class="text-sm font-semibold tracking-tight text-gray-800">
-                    QR dinâmico
+                    {{ App\Support\Empresa::marcaVendas() }}
                 </span>
             </a>
 
-            <nav class="flex items-center gap-1" aria-label="Ferramenta">
-                {{-- Duas ferramentas, dois itens. A tiragem nao entra aqui:
-                     ela e um filtro da tabela de codigos, e nao uma tela. --}}
+            @php
+                $daCasa = auth('staff')->user();
+                $ehAdmin = (bool) ($daCasa?->ehAdmin() || $daCasa?->ehSuper());
+            @endphp
+
+            <nav class="flex items-center gap-1" aria-label="{{ App\Support\Empresa::marcaVendas() }}">
+                {{-- A tiragem nao entra aqui: ela e um filtro da tabela de
+                     codigos, e nao uma tela. --}}
+                @if ($ehAdmin)
+                    <a href="{{ route('negocios') }}"
+                       class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('negocios*') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
+                        Negócios
+                    </a>
+                @endif
                 <a href="{{ route('etiquetas.index') }}"
                    class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.index') || request()->routeIs('etiquetas.ficha') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
                     QR dinâmico
@@ -56,6 +69,13 @@
                    class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('etiquetas.links.*') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
                     Encurtador
                 </a>
+
+                @if ($ehAdmin)
+                    <a href="{{ route('plaquinhas.vendas') }}"
+                       class="rounded-lg px-3 py-2 text-sm font-medium transition {{ request()->routeIs('plaquinhas.vendas') ? 'text-brand-500' : 'text-gray-500 hover:text-gray-800' }}">
+                        Vendas
+                    </a>
+                @endif
 
                 {{-- Nenhum caminho para o CRM daqui, de proposito. O QR
                      dinamico e negocio proprio: um link para o Avalia One no
@@ -79,7 +99,7 @@
     </main>
 
     <footer class="mx-auto w-full max-w-[87rem] px-6 pb-10 text-xs text-gray-400">
-        Um serviço da {{ App\Support\Empresa::marca() }}.
+        {{ App\Support\Empresa::marcaVendas() }}, um produto da {{ App\Support\Empresa::marca() }}.
     </footer>
 </body>
 

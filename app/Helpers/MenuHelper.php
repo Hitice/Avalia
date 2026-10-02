@@ -52,18 +52,19 @@ class MenuHelper
             ['icon' => 'campanha', 'name' => 'Campanhas', 'path' => '/campanhas', 'papeis' => ['admin']],
             ['icon' => 'task', 'name' => 'Equipe', 'path' => '/equipe', 'papeis' => ['admin']],
             ['icon' => 'plug', 'name' => 'Conexões', 'path' => '/conexoes', 'papeis' => ['admin']],
-            // QR dinamico. Sem `papeis`: a ferramenta atende toda conta, e o
-            // que limita cada uma nao e o papel, e o dono gravado em cada
-            // codigo. Item solto e nao submenu, porque submenu comeca fechado
-            // e modulo que so aparece depois de um clique ninguem acha.
-            ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
-            // A apuracao da venda das placas, que mostra margem e divisao entre
-            // socios. Item proprio e so de admin: o vendedor entra no QR
-            // dinamico ao lado e ve o que e dele.
-            ['icon' => 'charts', 'name' => 'Vendas QR', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
-            // A base de clientes da frente de marketing: hoje plaquinha e perfil
-            // no Google, e o que vier depois usa o mesmo cadastro.
-            ['icon' => 'user-profile', 'name' => 'Negócios', 'path' => '/negocios', 'papeis' => ['admin']],
+            /*
+             * Avalia Salles, o produto de vendas externas.
+             *
+             * UM item, e nao os tres que havia (QR dinamico, Vendas QR,
+             * Negocios): aquilo misturava as telas de outro produto no menu
+             * deste, e quem entrava no QR dinamico pela lateral do Avalia One
+             * saia do CRM sem perceber que tinha trocado de sistema. O produto
+             * tem casca e menu proprios, e daqui sai so a porta.
+             *
+             * Sem `papeis`: cliente e produtor tambem entram, e o que limita
+             * cada um e o dono gravado no codigo, e nao o papel.
+             */
+            ['icon' => 'qr', 'name' => 'Avalia Salles', 'path' => '/etiquetas'],
             ['icon' => 'authentication', 'name' => 'Auditoria', 'path' => '/auditoria', 'papeis' => ['admin']],
         ];
     }

@@ -8,7 +8,7 @@
         </div>
         <x-avalia.botao :href="route('documentos.criar')">Novo documento</x-avalia.botao>
     </div>
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
     <div class="cartao overflow-hidden"><div class="overflow-x-auto"><table class="tabela min-w-[48rem]">
         <thead class="tabela-cabecalho"><tr><th scope="col" class="px-5 py-3 text-left font-medium">Documento</th><th scope="col" class="px-5 py-3 text-left font-medium">Tipo</th><th scope="col" class="px-5 py-3 text-left font-medium">Versão</th><th scope="col" class="px-5 py-3 text-left font-medium">Situação</th><th scope="col" class="px-5 py-3 text-left font-medium">Aceite</th><th scope="col" class="px-5 py-3 text-right font-medium">Ações</th></tr></thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">

@@ -14,7 +14,7 @@
 
     @include('paginas.catalogo.abas', ['atual' => 'servicos'])
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- Serviço sem produto do fornecedor não consulta, e a mensagem de erro só
          aparece quando alguém tenta. Somar aqui transforma uma descoberta em

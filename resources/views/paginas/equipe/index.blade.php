@@ -12,7 +12,7 @@
         <x-avalia.botao :href="route('equipe.criar')">Nova pessoa</x-avalia.botao>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="cartao overflow-hidden">
         <div class="overflow-x-auto">

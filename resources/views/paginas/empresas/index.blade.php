@@ -36,7 +36,7 @@
         </div>
     @endif
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <x-avalia.filtro-clientes :acao="route('empresas.index')" :vendedores="$vendedores"
                               :planos="$planos" :escolha="$escolha" />

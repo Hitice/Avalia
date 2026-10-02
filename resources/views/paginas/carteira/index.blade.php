@@ -19,7 +19,7 @@
 
     @include('paginas.carteira.abas')
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-3">
         <div class="cartao p-5">

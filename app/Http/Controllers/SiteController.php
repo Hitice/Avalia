@@ -53,6 +53,13 @@ class SiteController extends Controller
         ]);
     }
 
+    public function avaliacaoGoogle()
+    {
+        return view('paginas.site.digitais.avaliacao-google', [
+            'servico' => config('servicos-digitais.avaliacao-google'),
+        ]);
+    }
+
     public function qrCode()
     {
         return view('paginas.site.digitais.qr-code', [

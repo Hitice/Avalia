@@ -9,7 +9,7 @@
         </p>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <form method="POST" action="{{ route('etiquetas.links.salvar') }}" class="cartao mb-5 grid gap-4 p-6">
         @csrf

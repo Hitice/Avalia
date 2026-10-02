@@ -24,7 +24,7 @@
         {{ $servico->exists ? $servico->nome : 'Novo serviço' }}
     </h1>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="cartao p-6">
         <form method="POST"

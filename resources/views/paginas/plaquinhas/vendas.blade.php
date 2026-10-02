@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Vendas QR'])
+@extends('layouts.ferramenta', ['title' => 'Vendas QR'])
 
 @php
     use App\Support\Dinheiro;

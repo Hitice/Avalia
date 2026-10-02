@@ -15,7 +15,7 @@
 
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- Os dois passos lado a lado, na ordem em que acontecem. Um formulario
          so para gerar um ou cem, porque para quem usa e a mesma coisa com um

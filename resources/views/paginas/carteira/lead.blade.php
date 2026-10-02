@@ -43,7 +43,7 @@
         @endif
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     @if ($falta && ! $lead->jaEhCliente())
         {{-- Botao desabilitado sem explicacao vira chamado no atendimento. --}}

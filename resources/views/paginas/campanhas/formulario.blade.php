@@ -17,7 +17,7 @@
         </p>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <form method="POST"
           action="{{ $campanha->exists ? route('campanhas.atualizar', $campanha) : route('campanhas.salvar') }}"

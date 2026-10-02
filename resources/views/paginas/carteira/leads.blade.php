@@ -8,7 +8,7 @@
         </p>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     @if ($total > 0 || $convertidos > 0)
         <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

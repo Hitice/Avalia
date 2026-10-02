@@ -16,7 +16,7 @@
         </form>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-avalia.cartao-indicador rotulo="Caixa" :valor="Dinheiro::brl($caixa)"

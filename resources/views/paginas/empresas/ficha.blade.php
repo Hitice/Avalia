@@ -30,7 +30,7 @@
         <x-avalia.botao variante="secundario" :href="route('empresas.editar', $empresa)">Editar cadastro</x-avalia.botao>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     @if ($motivo = $empresa->motivoSuspensao())
         <div class="aviso aviso-alerta mb-6">{{ $motivo }}</div>

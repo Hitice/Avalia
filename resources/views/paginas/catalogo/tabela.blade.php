@@ -46,7 +46,7 @@
 
     @include('paginas.catalogo.abas', ['atual' => 'catalogo'])
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     @if (! $catalogo)
         <div class="aviso aviso-alerta">

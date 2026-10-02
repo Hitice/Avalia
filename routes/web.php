@@ -68,6 +68,23 @@ Route::prefix('servicos-digitais')->name('digitais.')->group(function () {
     Route::get('/', [SiteController::class, 'digitais'])->name('index');
     Route::get('/plaquinhas', [SiteController::class, 'plaquinhas'])->name('plaquinhas');
     Route::get('/qr-code', [SiteController::class, 'qrCode'])->name('qr');
+
+    /*
+     * O gerador de link de avaliacao do Google.
+     *
+     * Unico servico desta vitrine que CHAMA uma API cobrada, entao o POST tem
+     * teto por origem e pede contato. Sem isso, a ferramenta aberta vira fatura
+     * do Google paga pela casa por conta de quem passa na rua.
+     */
+    Route::get('/avaliacao-google', [SiteController::class, 'avaliacaoGoogle'])->name('avaliacao');
+
+    Route::post('/avaliacao-google', [CadastroNegocioController::class, 'buscarAvaliacao'])
+        ->middleware('throttle:6,1')
+        ->name('avaliacao.buscar');
+
+    Route::post('/avaliacao-google/gerar', [CadastroNegocioController::class, 'gerarAvaliacao'])
+        ->middleware('throttle:6,1')
+        ->name('avaliacao.gerar');
 });
 
 Route::get('/quem-somos', [SiteController::class, 'quemSomos'])->name('site.quem-somos');

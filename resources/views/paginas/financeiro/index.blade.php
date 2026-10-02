@@ -35,7 +35,7 @@
         </x-avalia.botao>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- Os cartões separam três perguntas que a tela misturava numa só:
          quanto entrou, quanto vai entrar e quanto sai. Os números vêm de

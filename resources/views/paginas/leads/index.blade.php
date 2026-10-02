@@ -31,7 +31,7 @@
         </div>
     @endif
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- Os números do recorte, e não da base inteira: quem está montando uma
          distribuição precisa saber quantos leads ela alcança e quantos deles

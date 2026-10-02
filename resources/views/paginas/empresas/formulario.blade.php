@@ -35,7 +35,7 @@
         @endif
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- Conversao de lead: o formulario e o mesmo, com os campos copiados da
          ficha. O aviso existe porque salvar aqui tambem fecha o lead. --}}

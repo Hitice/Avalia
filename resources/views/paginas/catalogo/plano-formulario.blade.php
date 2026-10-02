@@ -28,7 +28,7 @@
         {{ $plano->exists ? $plano->nome : 'Novo plano' }}
     </h1>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="cartao p-6">
         <form method="POST"

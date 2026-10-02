@@ -24,7 +24,7 @@
         <a href="{{ route('etiquetas.index') }}" class="botao botao-secundario">Voltar</a>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="grid gap-5 lg:grid-cols-[1fr_22rem]">
         <div class="space-y-5">

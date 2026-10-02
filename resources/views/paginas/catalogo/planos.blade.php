@@ -14,7 +14,7 @@
 
     @include('paginas.catalogo.abas', ['atual' => 'planos'])
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="overflow-hidden cartao">
         <div class="overflow-x-auto">

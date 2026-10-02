@@ -15,7 +15,7 @@
 
     <h1 class="mb-6 text-2xl font-semibold text-gray-800 dark:text-white/90">Parâmetros comerciais</h1>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     <div class="cartao p-6">
         <form method="POST" action="{{ route('catalogo.parametros.salvar', $catalogo) }}"

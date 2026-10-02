@@ -58,6 +58,34 @@ return [
         'publico' => true,
     ],
 
+    'avaliacao-google' => [
+        'titulo' => 'Gerador de link de avaliação do Google',
+        'resumo' => 'Transforma o nome do seu estabelecimento no link curto que leva direto ao formulário de avaliação.',
+        'texto' => 'O endereço que abre a avaliação do Google é longo e cheio de parâmetro, e ninguém '
+            .'digita. Informe o nome como ele aparece no seu perfil: encontramos o identificador do '
+            .'estabelecimento, montamos o link e devolvemos encurtado, pronto para o adesivo do balcão, '
+            .'o cardápio ou a plaquinha. O link conta quantas pessoas abriram o pedido.',
+        // Estrela: o que o cliente pede ao freguês.
+        'icone' => 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L4.5 9.7l5.9-.9L12 3.5Z',
+        'rota' => 'digitais.avaliacao',
+
+        /*
+         * Sem `porta` e sem `ferramenta`: a pagina publica JA faz o trabalho.
+         *
+         * Diferente do gerador de QR, aqui cada busca e COBRADA pelo Google,
+         * entao a pagina pede contato antes de pesquisar. Nao e barreira de
+         * marketing: e o que impede a ferramenta aberta virar fatura paga pela
+         * casa por conta de quem passa na rua. O contato entra na base de
+         * negocios, e o custo vira cliente em vez de prejuizo.
+         *
+         * E a mesma razao do encurtador nao ter pagina publica, um degrau
+         * abaixo: ali o risco e phishing, aqui e a conta do Google.
+         */
+        'porta' => null,
+        'ferramenta' => null,
+        'selo' => 'Grátis',
+        'publico' => true,
+    ],
     'qr-code' => [
         'titulo' => 'Gerador de QR Code',
         'resumo' => 'Gere um QR Code e baixe em SVG ou PNG, sem cadastro e sem marca d\'água.',

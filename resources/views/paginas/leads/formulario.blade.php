@@ -31,7 +31,7 @@
         @endif
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     @if ($errors->any())
         <div class="aviso aviso-erro mb-6">

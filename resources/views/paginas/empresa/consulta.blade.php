@@ -29,7 +29,7 @@
         </p>
     </div>
 
-    @include('paginas.catalogo.avisos')
+    @include('parciais.avisos')
 
     {{-- Rever o resultado guardado nao custa nada: o dado ja esta aqui e
          ninguem paga o fornecedor de novo. O que custa e perguntar de novo,

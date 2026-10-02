@@ -153,23 +153,34 @@ it('so monta o pacote quando ha campanha escolhida', function () {
 |--------------------------------------------------------------------------
 */
 
-it('poe as plaquinhas na lateral, sem esconder atras de um pai', function () {
+it('poe o Avalia Salles na lateral, sem esconder atras de um pai', function () {
     // Item solto, e nao submenu. Submenu comeca fechado, e o modulo que so
     // aparece depois de um clique e o modulo que ninguem acha: foi assim que
     // as telas do vendedor sumiram dentro de Carteira.
+    //
+    // UM item, e nao os tres que havia (QR dinamico, Vendas QR, Negocios): o
+    // Avalia Salles e produto, com casca e menu proprios, e tres telas dele
+    // soltas na lateral do Avalia One faziam quem clicava sair do CRM sem
+    // perceber que tinha trocado de sistema.
     $painel = admin()->get(route('painel'))->assertOk();
 
     // A lateral monta href com caminho relativo, e nao com a URL inteira.
-    $painel->assertSee('QR dinâmico')->assertSee('href="/etiquetas"', false);
+    $painel->assertSee('Avalia Salles')->assertSee('href="/etiquetas"', false);
 
-    expect($painel->getContent())->not->toContain('Serviços digitais');
+    // As telas de dentro do produto nao se repetem aqui.
+    expect($painel->getContent())->not->toContain('Vendas QR')
+        ->and($painel->getContent())->not->toContain('Serviços digitais');
 });
 
-it('mostra o QR dinamico na lateral de toda conta', function () {
-    // A ferramenta atende todo mundo, entao o menu dela aparece para todo
+it('leva toda conta ao produto, com o nome que faz sentido para ela', function () {
+    // A ferramenta atende todo mundo, entao a porta dela aparece para todo
     // mundo. Menu escondido de quem tem acesso e modulo que ninguem acha.
+    //
+    // O NOME difere de proposito: a equipe ve o produto, porque vende os
+    // servicos dele; o cliente ve o servico que ele comprou, porque o nome
+    // comercial do nosso produto de vendas nao diz nada a ele.
     $vendedor = Staff::factory()->create(['papel' => 'vendedor']);
 
-    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertSee('QR dinâmico');
+    comoVendedor($vendedor)->get(route('painel'))->assertOk()->assertSee('Avalia Salles');
     comoEmpresa(empresaComPlano())->get(route('empresa.painel'))->assertOk()->assertSee('QR dinâmico');
 });
