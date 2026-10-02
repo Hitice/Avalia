@@ -37,9 +37,8 @@
 
     <title>{{ Empresa::marca() }} · {{ $titulo }}</title>
 
-    {{-- O medidor da marca em laranja. Laranja, e nao o azul da casa: a aba
-         e um quadrado de 16px no meio de outros, e o azul se perde entre os
-         favicons de sistema. --}}
+    {{-- O medidor da marca no azul da casa (02/10/2026). Era laranja para se
+         achar entre os favicons de sistema; a identidade pesou mais. --}}
     {{-- A versao no endereco existe porque o navegador guarda favicon com
          teimosia: sem ela, quem ja abriu o site continua vendo o icone antigo
          por tempo indeterminado. --}}
