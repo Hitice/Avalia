@@ -24,6 +24,20 @@ function fichaDeNegocio(array $troca = []): array
 |--------------------------------------------------------------------------
 */
 
+it('a administracao exclui de vez; a placa vendida fica, sem o vinculo', function () {
+    $negocio = App\Models\Negocio::factory()->create(['nome' => 'Teste ME']);
+    $placa = App\Models\Etiqueta::factory()->ativa()->create(['negocio_id' => $negocio->id]);
+
+    admin()->from(route('negocios'))->delete(route('negocios.excluir', $negocio))->assertRedirect(route('negocios'))->assertSessionHas('ok');
+
+    expect(App\Models\Negocio::find($negocio->id))->toBeNull()
+        ->and($placa->fresh()->negocio_id)->toBeNull()
+        ->and(App\Models\Vinculo::where('entidade_tipo', 'App\\Models\\Negocio')->where('entidade_id', $negocio->id)->count())->toBe(0);
+
+    $maria = App\Models\Staff::factory()->create(['papel' => 'vendedor']);
+    comoVendedor($maria)->withHeaders(['referer' => ''])->delete(route('negocios.excluir', App\Models\Negocio::factory()->create()))->assertForbidden();
+});
+
 it('abre sem login, porque o link vai por whatsapp', function () {
     $this->get(route('cadastro-negocio'))->assertOk()->assertSee('Cadastro do seu negócio');
 });

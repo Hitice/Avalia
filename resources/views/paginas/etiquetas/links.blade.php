@@ -48,14 +48,11 @@
             </div>
 
             @error('apelido')<p class="erro-campo">{{ $message }}</p>@enderror
-
-            <p class="ajuda-campo">Letras, números e hífen. Opcional.</p>
         </div>
 
         {{-- Endereco repetido devolve o codigo que ja existe: dois codigos para
              o mesmo lugar dividiriam a contagem de cliques ao meio, e ninguem
              saberia por que os numeros nao batem. --}}
-        <p class="ajuda-campo">Link já aberto não se apaga, só se desliga.</p>
     </form>
 
     <div class="cartao overflow-hidden">

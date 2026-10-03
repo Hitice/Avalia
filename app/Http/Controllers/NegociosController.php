@@ -48,6 +48,16 @@ class NegociosController extends Controller
     }
 
     /** Situacao e observacao, que e tudo o que a casa mexe depois do cadastro. */
+    /** Definitivo: cadastro de teste ou errado. A placa vendida fica, so perde o vinculo com o negocio. */
+    public function excluir(Negocio $negocio)
+    {
+        \App\Models\Vinculo::where('entidade_tipo', $negocio->getMorphClass())->where('entidade_id', $negocio->id)->delete();
+        \App\Support\Auditar::registrar('negocio.excluido', $negocio, ['nome' => $negocio->nome]);
+        $negocio->delete();
+
+        return back()->with('ok', 'Negócio '.$negocio->nome.' excluído.');
+    }
+
     public function atualizar(Request $pedido, Negocio $negocio)
     {
         $dados = $pedido->validate([

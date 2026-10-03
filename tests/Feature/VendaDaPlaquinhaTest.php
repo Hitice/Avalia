@@ -172,7 +172,7 @@ it('grava cliente, contato e valor pela ficha', function () {
     // a placa sem jeito de dizer para quem, e o valor caia sempre na tabela.
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
         'destino' => 'padariadoze.com.br',
         'cliente_nome' => 'Padaria do Zé',
         'cliente_contato' => '31999998888',

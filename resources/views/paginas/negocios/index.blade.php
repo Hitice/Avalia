@@ -181,6 +181,16 @@
                                     </select>
                                 </form>
 
+                                <form method="POST" action="{{ route('negocios.excluir', $negocio) }}" class="mt-2"
+                                      onsubmit="return confirm('Excluir {{ addslashes($negocio->nome) }} de vez?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <x-avalia.botao variante="secundario" tamanho="icone" title="Excluir de vez">
+                                        <x-avalia.icone nome="lixeira" />
+                                        <span class="sr-only">Excluir</span>
+                                    </x-avalia.botao>
+                                </form>
+
                                 @if ($negocio->cadastrado_no_google_em)
                                     <span class="block text-xs text-gray-500 dark:text-gray-400">
                                         no ar desde {{ $negocio->cadastrado_no_google_em->format('d/m/Y') }}

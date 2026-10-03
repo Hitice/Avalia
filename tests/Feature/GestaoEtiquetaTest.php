@@ -24,7 +24,7 @@ uses(RefreshDatabase::class);
 it('poe a plaquinha no ar na primeira venda', function () {
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
         'destino' => 'padariadoze.com.br',
         'cliente_nome' => 'Padaria do Zé',
     ])->assertRedirect();
@@ -173,7 +173,7 @@ it('batiza a campanha sozinho quando ninguem digita o nome', function () {
 it('guarda o cliente junto com o destino', function () {
     Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
 
-    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
         'codigo' => 'K7M2PX',
         'destino' => 'https://padaria.com.br',
         'cliente_nome' => 'Padaria do Zé',
@@ -205,7 +205,7 @@ it('gera cem de uma vez, e ai abre tiragem', function () {
 it('cadastra a url pelo codigo impresso', function () {
     Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
 
-    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
         'codigo' => 'k7m2px',
         'destino' => 'wa.me/5531999999999',
     ])->assertRedirect();
@@ -221,7 +221,7 @@ it('conserta a letra parecida no codigo digitado', function () {
     // proposito, e a leitura desfaz a troca.
     Etiqueta::factory()->create(['codigo' => 'K7M2P1']);
 
-    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
         'codigo' => 'K7M2PI', 'destino' => 'https://loja.com.br',
     ])->assertRedirect();
 
@@ -229,7 +229,7 @@ it('conserta a letra parecida no codigo digitado', function () {
 });
 
 it('diz o que conferir quando o codigo nao existe', function () {
-    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id,
         'codigo' => 'ZZZZZZ', 'destino' => 'https://loja.com.br',
     ])->assertRedirect()->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'I, L, O e U'));
 });

@@ -516,6 +516,7 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
     Route::middleware('admin')->group(function () {
         Route::get('/negocios', [NegociosController::class, 'index'])->name('negocios');
         Route::put('/negocios/{negocio}', [NegociosController::class, 'atualizar'])->name('negocios.atualizar');
+        Route::delete('/negocios/{negocio}', [NegociosController::class, 'excluir'])->name('negocios.excluir');
 
         // O link de avaliacao do Google. Duas portas porque a busca pode voltar
         // com mais de um homonimo, e ai quem conhece o cliente escolhe.
