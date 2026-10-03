@@ -1,7 +1,7 @@
-@extends('layouts.app', ['title' => 'Negócios'])
+@extends('layouts.app', ['title' => 'Gerar link'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Negócios" rotulo="Clientes de marketing">
+    <x-avalia.cabecalho-pagina titulo="Gerar link" rotulo="Link de avaliação e negócios">
         {{-- O formulario publico, para mandar ao cliente que ainda nao esta na base. --}}
         <span class="font-mono text-sm text-gray-600 dark:text-gray-300">{{ route('cadastro-negocio') }}</span>
         <x-avalia.botao variante="secundario" tamanho="sm" type="button" onclick="navigator.clipboard.writeText('{{ route('cadastro-negocio') }}')">Copiar link</x-avalia.botao>
