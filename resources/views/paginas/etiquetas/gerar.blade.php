@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Gerador QR Code'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Gerador QR Code" rotulo="Gerador de QR" />
+    <x-avalia.cabecalho-pagina titulo="Gerador QR Code" rotulo="Códigos em branco para a bancada" />
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2">
