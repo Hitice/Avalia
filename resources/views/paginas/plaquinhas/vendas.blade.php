@@ -173,6 +173,23 @@
             @empty
                 <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhuma comissão em aberto.</p>
             @endforelse
+
+            {{-- O que ja saiu, com dia e hora: e a prova da sexta. --}}
+            <h3 class="rotulo-grupo mt-8">Comissões pagas</h3>
+
+            @forelse ($pagas as $lote)
+                <div class="mt-3 flex items-center justify-between gap-3 text-sm">
+                    <span class="text-gray-800 dark:text-white/90">
+                        {{ $lote['nome'] }}
+                        <span class="text-gray-500 dark:text-gray-400">· {{ $lote['placas'] }} {{ $lote['placas'] === 1 ? 'placa' : 'placas' }}</span>
+                    </span>
+                    <span class="shrink-0 tabular-nums text-gray-600 dark:text-gray-300">
+                        {{ $lote['quando']->translatedFormat('D d/m H:i') }} · <span class="font-medium text-gray-800 dark:text-white/90">{{ Dinheiro::brl($lote['cents']) }}</span>
+                    </span>
+                </div>
+            @empty
+                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhuma comissão paga ainda.</p>
+            @endforelse
         </div>
 
         <div class="cartao overflow-hidden">

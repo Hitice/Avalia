@@ -63,7 +63,12 @@ it('mostra ao admin quem tem comissao a pagar, e ao vendedor nao abre', function
     [$maria, $comissao] = vendedorComDuasVendas();
 
     $html = admin()->get(route('plaquinhas.vendas'))->assertOk()->getContent();
-    expect($html)->toContain('Comissões a pagar')->and($html)->toContain('Pagar '.App\Support\Dinheiro::brl($comissao));
+    expect($html)->toContain('Comissões a pagar')->and($html)->toContain('Pagar '.App\Support\Dinheiro::brl($comissao))
+        ->and($html)->toContain('Nenhuma comissão paga ainda');
+
+    admin()->post(route('plaquinhas.comissao.pagar', $maria));
+    $depois = admin()->get(route('plaquinhas.vendas'))->assertOk()->getContent();
+    expect($depois)->toContain('Comissões pagas')->toContain(now()->format('d/m H:i'))->toContain('Maria');
 
     comoVendedor($maria)->post(route('plaquinhas.comissao.pagar', $maria))->assertForbidden();
 });

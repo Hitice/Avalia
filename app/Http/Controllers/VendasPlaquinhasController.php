@@ -92,6 +92,7 @@ class VendasPlaquinhasController extends Controller
 
             // Em aberto desde sempre, e nao so do mes: a sexta paga o que ficou.
             'aPagar' => Repasses::comissoesSales(),
+            'pagas' => Repasses::comissoesSalesPagas(),
 
             // O mes inteiro, e nao as dez ultimas: esta tabela e a leitura
             // alternativa dos graficos, para quem confere numero a numero ou usa

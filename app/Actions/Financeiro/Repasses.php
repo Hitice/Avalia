@@ -41,6 +41,28 @@ final class Repasses
         return collect($porVendedor)->sortByDesc('cents')->values();
     }
 
+    /**
+     * As comissoes de placa ja pagas, um lote por clique de Pagar: o lote e o
+     * que tem o mesmo carimbo de hora e o mesmo vendedor.
+     *
+     * @return Collection<int, array{nome: string, quando: \Illuminate\Support\Carbon, placas: int, cents: int}>
+     */
+    public static function comissoesSalesPagas(int $limite = 24): Collection
+    {
+        $socios = SociosDaPlaquinha::resolver()['ids'];
+
+        return Etiqueta::whereNotNull('comissao_paga_em')->with('vendedor:id,nome')
+            ->orderByDesc('comissao_paga_em')->get()
+            ->groupBy(fn (Etiqueta $e) => $e->vendedor_id.'|'.$e->comissao_paga_em->format('Y-m-d H:i:s'))
+            ->map(fn (Collection $lote) => [
+                'nome' => $lote->first()->vendedor?->nome ?? 'Conta removida',
+                'quando' => $lote->first()->comissao_paga_em,
+                'placas' => $lote->count(),
+                'cents' => (int) $lote->sum(fn (Etiqueta $e) => VendaNoRazao::reparte($e, $socios)['comissao']),
+            ])
+            ->values()->take($limite);
+    }
+
     /** @return Collection<int, array{id: int, nome: string, pix: ?string, faturas: int, liberado: int, demonstracoes: int, cents: int}> */
     public static function comissoesOne(): Collection
     {
