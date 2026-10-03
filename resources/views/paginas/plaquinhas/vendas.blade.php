@@ -85,8 +85,10 @@
             </div>
         @endif
     </div>
-    {{-- Tres colunas: o dinheiro, quem vendeu, o que se paga. --}}
-    <div class="grid gap-6 lg:grid-cols-3">
+    {{-- Duas colunas: o dinheiro da casa, e a equipe numa tabela so: quem
+         vendeu, quanto, a comissao do mes e o que esta em aberto, com o botao
+         de pagar na propria linha. --}}
+    <div class="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Caixa</h2>
@@ -151,75 +153,78 @@
             </table>
         </div>
 
-        <div class="cartao p-6">
-            <h2 class="titulo-cartao">Por vendedor</h2>
+        <div class="cartao overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h2 class="titulo-cartao">Equipe</h2>
+            </div>
+            <div class="tabela-rolagem">
+                <table class="tabela min-w-[36rem]">
+                    <thead class="tabela-cabecalho"><tr>
+                        <th scope="col" class="tabela-th text-left">Vendedor</th>
+                        <th scope="col" class="tabela-th text-right">Placas</th>
+                        <th scope="col" class="tabela-th text-right">Bruto</th>
+                        <th scope="col" class="tabela-th text-right">Comissão</th>
+                        <th scope="col" class="tabela-th text-right">A pagar</th>
+                    </tr></thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @php $aPagarPorId = $aPagar->keyBy('id'); $listados = collect(); @endphp
+                        @forelse ($porVendedor as $v)
+                            @php $listados->push($v['id']); $divida = $aPagarPorId->get($v['id']); @endphp
+                            <tr>
+                                <td class="tabela-td text-gray-800 dark:text-white/90">
+                                    {{ $v['nome'] }}
+                                    @if ($v['eh_socio'])<span class="etiqueta etiqueta-neutra ml-1">sócio</span>@endif
+                                </td>
+                                <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $v['placas'] }}</td>
+                                <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">{{ Dinheiro::brl($v['bruto']) }}</td>
+                                <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ $v['eh_socio'] ? '—' : Dinheiro::brl($v['comissao']) }}</td>
+                                <td class="tabela-td text-right">
+                                    @if ($divida)
+                                        <form method="POST" action="{{ route('plaquinhas.comissao.pagar', $divida['id']) }}"
+                                              onsubmit="return confirm('Marcar {{ Dinheiro::brl($divida['cents']) }} como pagos a {{ $divida['nome'] }}?')">
+                                            @csrf
+                                            <x-avalia.botao tamanho="sm">Pagar {{ Dinheiro::brl($divida['cents']) }}</x-avalia.botao>
+                                        </form>
+                                    @elseif (! $v['eh_socio'])
+                                        <span class="etiqueta etiqueta-sucesso">em dia</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="tabela-vazia">Nenhuma placa vendida neste mês.</td></tr>
+                        @endforelse
 
-            @php $maiorVendedor = max(1, $porVendedor->max('placas') ?? 0); @endphp
+                        {{-- Comissao de mes anterior ainda em aberto, de quem nao vendeu neste. --}}
+                        @foreach ($aPagar->reject(fn ($d) => $listados->contains($d['id'])) as $divida)
+                            <tr>
+                                <td class="tabela-td text-gray-800 dark:text-white/90">{{ $divida['nome'] }} <span class="ajuda-campo">de meses anteriores</span></td>
+                                <td class="tabela-td text-right tabular-nums text-gray-500 dark:text-gray-400">{{ $divida['placas'] }}</td>
+                                <td class="tabela-td"></td>
+                                <td class="tabela-td"></td>
+                                <td class="tabela-td text-right">
+                                    <form method="POST" action="{{ route('plaquinhas.comissao.pagar', $divida['id']) }}"
+                                          onsubmit="return confirm('Marcar {{ Dinheiro::brl($divida['cents']) }} como pagos a {{ $divida['nome'] }}?')">
+                                        @csrf
+                                        <x-avalia.botao tamanho="sm">Pagar {{ Dinheiro::brl($divida['cents']) }}</x-avalia.botao>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-            @forelse ($porVendedor as $v)
-                <div class="mt-5 first:mt-6">
-                    <div class="flex items-baseline justify-between gap-3 text-sm">
-                        <span class="text-gray-800 dark:text-white/90">
-                            {{ $v['nome'] }}
-                            @if ($v['eh_socio'])
-                                <span class="etiqueta etiqueta-neutra ml-1">sócio</span>
-                            @endif
-                        </span>
-                        <span class="tabular-nums text-gray-500 dark:text-gray-400">
-                            {{ $v['placas'] }} · {{ $v['eh_socio'] ? Dinheiro::brl($v['bruto']) : Dinheiro::brl($v['comissao']) }}
-                        </span>
+            <div class="border-t border-gray-100 px-6 py-4 dark:border-gray-800">
+                <h3 class="rotulo-grupo">Pagas</h3>
+                @forelse ($pagas as $lote)
+                    <div class="mt-2 flex items-center justify-between gap-3 text-sm">
+                        <span class="text-gray-800 dark:text-white/90">{{ $lote['nome'] }} <span class="text-gray-500 dark:text-gray-400">· {{ $lote['placas'] }} {{ $lote['placas'] === 1 ? 'placa' : 'placas' }}</span></span>
+                        <span class="shrink-0 tabular-nums text-gray-600 dark:text-gray-300">{{ $lote['quando']->translatedFormat('D d/m H:i') }} · <span class="font-medium text-gray-800 dark:text-white/90">{{ Dinheiro::brl($lote['cents']) }}</span></span>
                     </div>
-
-                    <div class="mt-2 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                        <div class="ponto-serie-1 h-full rounded-full"
-                             style="width: {{ round($v['placas'] / $maiorVendedor * 100, 2) }}%"></div>
-                    </div>
-                </div>
-            @empty
-                <p class="tabela-vazia mt-6">Nenhuma placa vendida neste mês.</p>
-            @endforelse
-
-            {{-- O que a sexta paga. Desde sempre, e nao do mes: comissao que
-                 ficou de um mes para o outro continua devida. --}}
+                @empty
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Nenhuma comissão paga ainda.</p>
+                @endforelse
+            </div>
         </div>
-
-        <div class="cartao p-6">
-            <h2 class="titulo-cartao">Comissões</h2>
-            <h3 class="rotulo-grupo mt-4">A pagar</h3>
-
-            @forelse ($aPagar as $divida)
-                <form method="POST" action="{{ route('plaquinhas.comissao.pagar', $divida['id']) }}"
-                      class="mt-3 flex items-center justify-between gap-3 text-sm">
-                    @csrf
-                    <span class="text-gray-800 dark:text-white/90">
-                        {{ $divida['nome'] }}
-                        <span class="text-gray-500 dark:text-gray-400">· {{ $divida['placas'] }} {{ $divida['placas'] === 1 ? 'placa' : 'placas' }}</span>
-                    </span>
-                    <button type="submit" class="botao botao-primario botao-sm"
-                            onclick="return confirm('Marcar {{ Dinheiro::brl($divida['cents']) }} como pagos a {{ $divida['nome'] }}?')">
-                        Pagar {{ Dinheiro::brl($divida['cents']) }}
-                    </button>
-                </form>
-            @empty
-                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhuma comissão em aberto.</p>
-            @endforelse
-
-            {{-- O que ja saiu, com dia e hora: e a prova da sexta. --}}
-            <h3 class="rotulo-grupo mt-8">Pagas</h3>
-
-            @forelse ($pagas as $lote)
-                <div class="mt-3 flex items-center justify-between gap-3 text-sm">
-                    <span class="text-gray-800 dark:text-white/90">
-                        {{ $lote['nome'] }}
-                        <span class="text-gray-500 dark:text-gray-400">· {{ $lote['placas'] }} {{ $lote['placas'] === 1 ? 'placa' : 'placas' }}</span>
-                    </span>
-                    <span class="shrink-0 tabular-nums text-gray-600 dark:text-gray-300">
-                        {{ $lote['quando']->translatedFormat('D d/m H:i') }} · <span class="font-medium text-gray-800 dark:text-white/90">{{ Dinheiro::brl($lote['cents']) }}</span>
-                    </span>
-                </div>
-            @empty
-                <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhuma comissão paga ainda.</p>
-            @endforelse
     </div>
-
 @endsection

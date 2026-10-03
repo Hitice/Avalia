@@ -332,6 +332,37 @@ class Etiqueta extends Model
         return $dias;
     }
 
+    /**
+     * As vendas do mes por nicho, para a pizza da home. O nicho e a categoria
+     * que o negocio declarou, texto livre: "Pizzaria" e "pizzaria " sao o mesmo
+     * recorte. As cinco maiores ficam nomeadas; o resto vira "Outros".
+     *
+     * @return Collection<int, array{nome: string, placas: int}>
+     */
+    public static function vendasPorNicho(Carbon $mes, ?int $vendedorId = null, int $nomeadas = 5): Collection
+    {
+        $fatias = static::query()
+            ->vendidasEntre($mes->copy()->startOfMonth(), $mes->copy()->endOfMonth())
+            ->when($vendedorId !== null, fn ($q) => $q->where('vendedor_id', $vendedorId))
+            ->with('negocio:id,categoria')
+            ->get(['id', 'negocio_id'])
+            ->groupBy(fn (Etiqueta $e) => mb_strtolower(trim((string) $e->negocio?->categoria)))
+            ->map(fn (Collection $vendas, string $chave) => [
+                'nome' => $chave === '' ? 'Sem categoria' : mb_strtoupper(mb_substr($chave, 0, 1)).mb_substr($chave, 1),
+                'placas' => $vendas->count(),
+            ])
+            ->sortByDesc('placas')->values();
+
+        if ($fatias->count() <= $nomeadas + 1) {
+            return $fatias;
+        }
+
+        return $fatias->take($nomeadas)->push([
+            'nome' => 'Outros',
+            'placas' => (int) $fatias->slice($nomeadas)->sum('placas'),
+        ]);
+    }
+
     public function scopeVisiveis(Builder $consulta): Builder
     {
         return Dono::tipo() === 'staff' ? $consulta : Dono::limitar($consulta);

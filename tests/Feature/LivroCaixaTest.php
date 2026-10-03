@@ -52,6 +52,19 @@ it('mostra entradas, saidas e o saldo linha a linha, e nao lista o que nao passo
     expect($categorias->pluck('nome')->all())->toContain('Fornecedores e materiais', 'Despesa');
 });
 
+it('nao conta como entrada e saida o lancamento estornado no mesmo mes', function () {
+    $socio = App\Models\Socio::create(['nome' => 'Pedro', 'participacao_bps' => 5_000, 'ativo' => true]);
+    lancarNoCaixa(NaturezaLancamento::Aporte, 100_000, ['socio_id' => $socio->id]);
+    $errado = lancarNoCaixa(NaturezaLancamento::Despesa, 30_000, ['descricao' => 'Placas', 'categoria_id' => ContaFinanceira::firstWhere('codigo', 'despesa:fornecedor')->id]);
+    app(App\Actions\Socios\EstornarLancamento::class)($errado, 'valor errado');
+
+    $doMes = LancamentoFinanceiro::daCompetencia(now()->format('Y-m'))->with('partidas.conta')->get();
+    $caixa = LivroCaixa::doMes($doMes, now()->format('Y-m'));
+
+    expect($caixa['entradas'])->toBe(100_000)
+        ->and($caixa['saidas'])->toBe(0)
+        ->and($caixa['movimentos'])->toHaveCount(1);
+});
 it('baixa o mes em planilha', function () {
     lancarNoCaixa(NaturezaLancamento::Despesa, 1_000, ['descricao' => 'Café']);
     $socio = App\Models\Staff::factory()->admin()->create(['pode_socios' => true]);

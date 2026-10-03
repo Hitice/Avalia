@@ -88,6 +88,7 @@ class SalesController extends Controller
 
             // Vendedor ve as proprias vendas; socio e admin, as da equipe.
             'porDia' => Etiqueta::vendasPorDia($inicio, $equipe === null ? (int) $conta->id : null),
+            'nichos' => Etiqueta::vendasPorNicho($inicio, $equipe === null ? (int) $conta->id : null),
             'meta' => $equipe === null
                 ? \App\Support\MetaDePlacas::doMes($inicio, 1, $minhas['placas'], (int) config('etiquetas.meta_por_pessoa'))
                 : \App\Support\MetaDePlacas::doMes($inicio, self::pessoasQueVendem($socios), $equipe['placas'], (int) config('etiquetas.meta_por_pessoa')),

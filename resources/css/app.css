@@ -498,12 +498,6 @@ textarea.campo {
   @apply fill-brand-500;
 }
 
-/* A previsao: contorno tracejado, sem preenchimento. O que ainda nao aconteceu nao se pinta. */
-@utility serie-meta {
-  @apply fill-none stroke-brand-400 dark:stroke-brand-500;
-  stroke-width: 1.5;
-  stroke-dasharray: 3 2;
-}
 
 /* As cores das series como fundo, para a bolinha da legenda. */
 @utility ponto-serie-1 {

@@ -62,9 +62,15 @@
             </div>
         </div>
 
-        <div class="cartao p-5">
-            <h2 class="titulo-cartao">Vendas por dia</h2>
-            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
+        <div class="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+            <div class="cartao p-5">
+                <h2 class="titulo-cartao">Vendas por dia</h2>
+                <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
+            </div>
+            <div class="cartao p-5">
+                <h2 class="titulo-cartao">Nichos</h2>
+                <x-avalia.grafico-nichos :fatias="$nichos" />
+            </div>
         </div>
     @else
         <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -101,9 +107,15 @@
             </div>
         @endif
 
-        <div class="cartao p-5">
-            <h2 class="titulo-cartao">{{ $equipe === null ? 'Minhas vendas por dia' : 'Vendas por dia' }}</h2>
-            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
+        <div class="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+            <div class="cartao p-5">
+                <h2 class="titulo-cartao">{{ $equipe === null ? 'Minhas vendas por dia' : 'Vendas por dia' }}</h2>
+                <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
+            </div>
+            <div class="cartao p-5">
+                <h2 class="titulo-cartao">{{ $equipe === null ? 'Meus nichos' : 'Nichos' }}</h2>
+                <x-avalia.grafico-nichos :fatias="$nichos" />
+            </div>
         </div>
     @endif
 @endsection

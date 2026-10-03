@@ -36,7 +36,14 @@ final class LivroCaixa
         $entradas = $saidas = 0;
         $movimentos = collect();
 
-        foreach ($doMes->sortBy([['ocorrido_em', 'asc'], ['id', 'asc']]) as $lancamento) {
+        // Estorno e original no mesmo mes nao sao dinheiro que entrou e saiu: sao
+        // a mesma venda corrigida, e a conta nao viu nada passar. O relancamento
+        // das plaquinhas inflava entradas e saidas em pares que se anulavam.
+        $ids = $doMes->pluck('id');
+        $desfeitos = $doMes->filter(fn (LancamentoFinanceiro $l) => $l->estorna_id !== null && $ids->contains($l->estorna_id));
+        $fora = $desfeitos->pluck('id')->merge($desfeitos->pluck('estorna_id'));
+
+        foreach ($doMes->reject(fn (LancamentoFinanceiro $l) => $fora->contains($l->id))->sortBy([['ocorrido_em', 'asc'], ['id', 'asc']]) as $lancamento) {
             $cents = self::movimento($lancamento);
 
             if ($cents === 0) {
