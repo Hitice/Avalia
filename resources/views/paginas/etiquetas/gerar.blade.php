@@ -5,7 +5,7 @@
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2">
-        <x-avalia.cartao-indicador rotulo="Geradas" :valor="$noBolo"
+        <x-avalia.cartao-indicador rotulo="Livres" :valor="$noBolo"
                                    />
         <x-avalia.cartao-indicador rotulo="Campanhas" :valor="$campanhas" />
     </div>
