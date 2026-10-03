@@ -195,46 +195,31 @@
             @endforelse
     </div>
 
-    <div class="mt-6">
-        <div class="cartao overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="titulo-cartao">Vendas do mês</h2>
-            </div>
-            <div class="tabela-rolagem">
-                <table class="tabela min-w-[32rem]">
-                    <thead class="tabela-cabecalho"><tr>
-                        <th scope="col" class="tabela-th text-left">Código</th>
-                        <th scope="col" class="tabela-th text-left">Cliente</th>
-                        <th scope="col" class="tabela-th text-left">Vendedor</th>
-                        <th scope="col" class="tabela-th text-right">Valor</th>
-                        <th scope="col" class="tabela-th text-right">Data</th>
-                    </tr></thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @forelse ($vendas as $venda)
-                            <tr>
-                                <td class="tabela-td">
-                                    <a href="{{ route('etiquetas.ficha', $venda) }}"
-                                       class="font-mono text-brand-600 hover:underline dark:text-brand-400">
-                                        {{ $venda->codigo }}
-                                    </a>
-                                </td>
-                                <td class="tabela-td text-gray-800 dark:text-white/90">{{ $venda->cliente_nome ?? '—' }}</td>
-                                <td class="tabela-td text-gray-600 dark:text-gray-300">
-                                    {{ $venda->vendedor?->nome ?? 'Não identificado' }}
-                                </td>
-                                <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">
-                                    {{ Dinheiro::brl((int) $venda->valor_cents) }}
-                                </td>
-                                <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">
-                                    {{ $venda->vendida_em->format('d/m H:i') }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="5" class="tabela-vazia">Nenhuma placa vendida neste mês.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    {{-- As vendas do mes numa fila que rola de lado: quatro por vez, uma
+         linha por venda. Lista inteira para quem confere e cada card leva a ficha. --}}
+    <div class="mt-6 cartao p-5">
+        <div class="flex items-baseline justify-between">
+            <h2 class="titulo-cartao">Vendas do mês</h2>
+            <span class="subtitulo-pagina mt-0">{{ $vendas->count() }} {{ $vendas->count() === 1 ? 'venda' : 'vendas' }}</span>
         </div>
+
+        @if ($vendas->isEmpty())
+            <p class="tabela-vazia mt-4">Nenhuma placa vendida neste mês.</p>
+        @else
+            <div class="-mx-5 mt-4 flex snap-x gap-3 overflow-x-auto px-5 pb-2">
+                @foreach ($vendas as $venda)
+                    <a href="{{ route('etiquetas.ficha', $venda) }}"
+                       class="flutuante flex w-[16rem] shrink-0 snap-start items-center justify-between gap-3 px-4 py-3 text-sm transition hover:border-brand-300">
+                        <span class="min-w-0">
+                            <span class="block truncate font-medium text-gray-800 dark:text-white/90">{{ $venda->cliente_nome ?? 'Sem cliente' }}</span>
+                            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">
+                                <span class="font-mono">{{ $venda->codigo }}</span> · {{ $venda->vendedor?->nome ?? 'Não identificado' }} · {{ $venda->vendida_em->format('d/m H:i') }}
+                            </span>
+                        </span>
+                        <span class="shrink-0 tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl((int) $venda->valor_cents) }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @endif
     </div>
 @endsection
