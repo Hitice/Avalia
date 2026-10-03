@@ -1353,6 +1353,11 @@ textarea.campo {
   .surge-linha { animation: none; opacity: 1; }
 }
 
+/* Os controles nativos (seta do numero, calendario, lista) seguem o tema:
+   sem isto o navegador os desenha claros no escuro e vice-versa. */
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+
 /* No celular o campo tem 16px: abaixo disso o iOS da zoom na pagina ao focar,
    e a pessoa sai do modal sem querer. */
 @media (max-width: 639px) {
