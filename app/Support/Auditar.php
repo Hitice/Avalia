@@ -73,6 +73,15 @@ final class Auditar
                 $entidade instanceof \App\Models\Adesao => $entidade->cliente?->razao_social,
                 $entidade instanceof \App\Models\AceiteDocumento => $entidade->documento?->titulo,
                 $entidade instanceof \App\Models\Conexao => \App\Support\Fornecedores::todos()[$entidade->fornecedor]['nome'] ?? $entidade->fornecedor,
+                $entidade instanceof \App\Models\Etiqueta => $entidade->codigo,
+                $entidade instanceof \App\Models\LoteEtiqueta => $entidade->titulo ?? $entidade->codigo,
+                $entidade instanceof \App\Models\Negocio => $entidade->nome,
+                $entidade instanceof \App\Models\Link => $entidade->apelido ?? $entidade->codigo,
+                $entidade instanceof \App\Models\Socio => $entidade->nome,
+                $entidade instanceof \App\Models\LancamentoFinanceiro => $entidade->descricao,
+                $entidade instanceof \App\Models\ContaAPagar => $entidade->descricao,
+                $entidade instanceof \App\Models\Servico => $entidade->nome,
+                $entidade instanceof \App\Models\Lead => $entidade->nome,
                 default => null,
             };
 

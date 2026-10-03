@@ -113,3 +113,8 @@ it('nao inventa parte negativa nem retencao fora de 0 a 100', function () {
         ->and(RepartePlaquinha::retencao(1_000, 150)['retido'])->toBe(1_000)
         ->and(RepartePlaquinha::retencao(1_000, -5)['retido'])->toBe(0);
 });
+
+it('divide o prejuizo sem perder centavo', function () {
+    expect(App\Support\RepartePlaquinha::dividir(-7, 2))->toBe([-4, -3])
+        ->and(array_sum(App\Support\RepartePlaquinha::dividir(-1001, 3)))->toBe(-1001);
+});

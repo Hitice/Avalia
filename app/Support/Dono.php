@@ -50,7 +50,9 @@ final class Dono
      */
     public static function veTudo(): bool
     {
-        return Auth::guard('staff')->check() && Auth::guard('staff')->user()?->papel === 'admin';
+        $conta = Auth::guard('staff')->user();
+
+        return $conta !== null && ($conta->ehAdmin() || $conta->ehSuper());
     }
 
     /** @return array{dono_tipo: ?string, dono_id: ?int} */

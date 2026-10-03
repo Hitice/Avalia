@@ -147,7 +147,7 @@ final class Rotulos
         'equipe.alterada' => 'Cadastro da equipe alterado',
         'equipe.removida' => 'Pessoa removida da equipe',
         'equipe.restaurada' => 'Pessoa restaurada na equipe',
-        'equipe.convite_enviado' => 'Redefinição de senha enviada',
+        'equipe.convite_enviado' => 'Convite de acesso reenviado',
         'acesso.senha_definida' => 'Senha definida pelo dono da conta',
         'documento.publicado' => 'Documento publicado',
         'documento.retirado' => 'Documento retirado de circulação',
@@ -197,6 +197,15 @@ final class Rotulos
         \App\Models\Conexao::class => 'Conexão',
         \App\Models\Operador::class => 'Operador',
         \App\Models\Lead::class => 'Lead',
+        \App\Models\Etiqueta::class => 'Plaquinha',
+        \App\Models\LoteEtiqueta::class => 'Campanha de placas',
+        \App\Models\Negocio::class => 'Negócio',
+        \App\Models\Link::class => 'Link',
+        \App\Models\Socio::class => 'Sócio',
+        \App\Models\LancamentoFinanceiro::class => 'Lançamento',
+        \App\Models\ContaAPagar::class => 'Conta a pagar',
+        \App\Models\Servico::class => 'Serviço',
+        \App\Models\Preco::class => 'Preço',
     ];
 
     /** @var array<string, string> */
@@ -270,7 +279,7 @@ final class Rotulos
         }
 
         if ($chave === 'guarda') {
-            return $valor === 'staff' ? 'Equipe' : 'Empresa';
+            return ['staff' => 'Equipe', 'empresa' => 'Empresa', 'produtor' => 'Produtor', 'operador' => 'Operador'][$valor] ?? (string) $valor;
         }
 
         if (str_ends_with($chave, '_cents')) {

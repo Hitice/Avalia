@@ -166,7 +166,6 @@ final class Documento
         return $primeiro.$segundo;
     }
 
-    /** 12345678000195 -> "12.345.678/0001-95" */
     /**
      * Documento com o miolo escondido, para tela e PDF compartilhavel.
      *
@@ -185,6 +184,7 @@ final class Documento
         return substr($digitos, 0, 3).str_repeat('*', strlen($digitos) - 5).substr($digitos, -2);
     }
 
+    /** 12345678000195 -> "12.345.678/0001-95" */
     public static function formatarCnpj(?string $entrada): string
     {
         $cnpj = self::normalizarCnpj($entrada);

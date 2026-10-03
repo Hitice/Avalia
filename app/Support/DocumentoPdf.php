@@ -19,8 +19,8 @@ final class DocumentoPdf
     {
         $pdf = (new Pdf)
             ->rodape(sprintf(
-                'Avalia One · %s · versão %s · íntegra sha256 %s',
-                $documento->tipo, $documento->versao, substr($documento->hashConteudo(), 0, 16),
+                '%s · %s · versão %s · íntegra sha256 %s',
+                Empresa::marcaCredito(), $documento->tipo, $documento->versao, substr($documento->hashConteudo(), 0, 16),
             ))
             ->titulo($documento->titulo)
             ->meta(sprintf('Versão %s · vigente · avaliaone.com.br', $documento->versao))
@@ -38,8 +38,8 @@ final class DocumentoPdf
 
         $pdf = (new Pdf)
             ->rodape(sprintf(
-                'Avalia One · comprovante de aceite · íntegra sha256 %s',
-                substr($aceite->hash_conteudo, 0, 16),
+                '%s · comprovante de aceite · íntegra sha256 %s',
+                Empresa::marcaCredito(), substr($aceite->hash_conteudo, 0, 16),
             ))
             ->titulo('Comprovante de aceite')
             ->meta($documento->titulo.' · versão '.$aceite->versao)

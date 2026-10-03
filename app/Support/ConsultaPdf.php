@@ -31,13 +31,13 @@ final class ConsultaPdf
 {
     public static function resultado(Consulta $consulta, ?string $emitidoPor = null): string
     {
-        $emissor = $emitidoPor ?? $consulta->solicitante ?? 'Avalia One';
+        $emissor = $emitidoPor ?? $consulta->solicitante ?? Empresa::marcaCredito();
         $resposta = (array) $consulta->resposta;
         $documento = Documento::mascarar($consulta->documento);
 
         $pdf = (new Pdf)
             ->rodape('Emitido por '.$emissor.' em '.now()->format('d/m/Y H:i')
-                .' · protocolo '.($consulta->referencia_externa ?? 's/n').' · avaliaone.com.br');
+                .' · protocolo '.($consulta->referencia_externa ?? 's/n').' · '.Empresa::site());
 
         // O nome do titular no canto oposto a marca, em negrito: e a primeira
         // coisa que se confere num laudo. Saindo do cabecalho, ele sai do
@@ -61,7 +61,7 @@ final class ConsultaPdf
         }
 
         $pdf->marca(resource_path('marca/avaliaone.jpg'))
-            ->meta('Relatório de consulta · avaliaone.com.br')
+            ->meta('Relatório de consulta · '.Empresa::site())
             ->espaco(6);
 
         $pdf->secao($consulta->servico?->nome ?? 'Consulta')

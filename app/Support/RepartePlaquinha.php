@@ -5,13 +5,12 @@ namespace App\Support;
 /**
  * Como o dinheiro de uma plaquinha vendida se reparte.
  *
- * Do que o cliente pagou sai primeiro o custo da placa, porque ele e desembolso
- * da casa e nao margem de ninguem. Sobre o que resta incide a comissao de quem
- * vendeu, e o que sobra depois disso se divide entre os socios.
+ * Do que o cliente pagou saem o custo da placa, que e desembolso da casa, e a
+ * comissao de quem vendeu. O que sobra se divide entre os socios.
  *
- * A base da comissao e o VALOR DE VENDA (02/10/2026). Diferente da escolha de
- * App\Support\Comissao, pelo mesmo motivo: comissionar faturamento pagaria
- * igual por uma venda que rende e por uma que sangra.
+ * A base da comissao e o VALOR DE VENDA, por decisao do dono em 02/10/2026.
+ * E o contrario de App\Support\Comissao, que comissiona lucro: a placa tem
+ * custo fixo e conhecido, e o vendedor nao influi nele.
  *
  * Duas situacoes nao geram comissao, e quem chama decide qual e o caso:
  *
@@ -101,9 +100,8 @@ final class RepartePlaquinha
      * `$entre` zero nao existe na pratica, mas config vazio existe, e dividir
      * por zero derrubaria o painel em vez de mostrar uma coluna a menos.
      *
-     * Espera `$cents` nao negativo, que e o que `de()` sempre entrega: o custo
-     * e limitado ao bruto e a comissao ao liquido, entao a sobra nunca vira
-     * divida.
+     * Aceita negativo: a comissao incide sobre o bruto, entao um mes pode
+     * fechar no prejuizo, e a perda se divide igual.
      *
      * @return list<int>
      */
@@ -113,11 +111,14 @@ final class RepartePlaquinha
             return [];
         }
 
-        $base = intdiv($cents, $entre);
-        $resto = $cents - ($base * $entre);
+        // Mes no prejuizo divide a perda do mesmo jeito: intdiv de negativo
+        // arredonda para cima e perdia o centavo da sobra.
+        $sinal = $cents < 0 ? -1 : 1;
+        $base = intdiv(abs($cents), $entre);
+        $resto = abs($cents) - ($base * $entre);
 
         return array_map(
-            fn (int $posicao) => $base + ($posicao < $resto ? 1 : 0),
+            fn (int $posicao) => $sinal * ($base + ($posicao < $resto ? 1 : 0)),
             range(0, $entre - 1),
         );
     }

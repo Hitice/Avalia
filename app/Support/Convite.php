@@ -45,7 +45,7 @@ final class Convite
         return substr(hash('sha256', (string) $conta->senha), 0, 12);
     }
 
-    /** @return Staff|Cliente|Operador|null */
+    /** @return Staff|Cliente|Operador|\App\Models\Produtor|null */
     public static function conta(string $guarda, int $id): ?object
     {
         return match ($guarda) {

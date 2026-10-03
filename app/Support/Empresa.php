@@ -119,13 +119,6 @@ final class Empresa
     }
 
     /**
-     * A linha que identifica o emissor no pe de um documento.
-     *
-     * Site e CNPJ, nessa ordem: quem recebe o PDF procura primeiro onde falar
-     * com a Avalia, e so depois confere quem emitiu. Cabe numa linha so, que e
-     * o que o fecho do PDF reserva.
-     */
-    /**
      * O que a casa diz de si aos buscadores (schema.org), para o JSON-LD da
      * pagina. A home leva LocalBusiness com o endereco da matriz; as demais,
      * Organization. O telefone e o canal atendido (WhatsApp), e nao o do
@@ -166,6 +159,13 @@ final class Empresa
         return $dados;
     }
 
+    /**
+     * A linha que identifica o emissor no pe de um documento.
+     *
+     * Site e CNPJ, nessa ordem: quem recebe o PDF procura primeiro onde falar
+     * com a Avalia, e so depois confere quem emitiu. Cabe numa linha so, que e
+     * o que o fecho do PDF reserva.
+     */
     public static function assinatura(): string
     {
         return self::site().' · CNPJ '.self::cnpj();

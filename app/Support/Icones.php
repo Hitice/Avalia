@@ -25,7 +25,6 @@ final class Icones
         'desfazer' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 0 1 0 12h-3"/>',
         'raio' => '<path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/>',
         'consulta' => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>',
-        'class' => '<path stroke-linecap="round" stroke-linejoin="round" d="size-4"/>',
 
         // Menu lateral (traco 1.5, no proprio desenho).
         'qr' => '<rect x="3.75" y="3.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13.75" y="3.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3.75" y="13.75" width="6.5" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M14 14h2v2h-2v-2Zm4 0h2m-2 4h2v2m-6 0h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',

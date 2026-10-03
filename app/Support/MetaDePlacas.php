@@ -6,7 +6,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * A meta e por dia: N placas por pessoa por dia util. O mes e a soma dos dias
- * uteis; a previsao desenha, nos dias uteis que faltam, a meta do dia.
+ * uteis, e o que falta se mede nos dias uteis que ainda vem.
  */
 final class MetaDePlacas
 {
