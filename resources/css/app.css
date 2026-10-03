@@ -488,6 +488,11 @@
   @apply bg-theme-purple-500;
 }
 
+/* A receita, o dinheiro que entrou. */
+@utility ponto-serie-4 {
+  @apply bg-success-500;
+}
+
 /* Grade e eixo recuam: a linha existe para situar o valor, nao para competir
  * com ele. */
 @utility grade-grafico {

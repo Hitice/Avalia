@@ -8,7 +8,7 @@
     // vai literal: montada em tempo de execucao o Tailwind nao a gera, e a
     // legenda saiu sem cor durante semanas sem ninguem perceber.
     $linhas = [
-        ['rotulo' => 'Receita', 'chave' => 'bruto', 'ponto' => null, 'sinal' => ''],
+        ['rotulo' => 'Receita', 'chave' => 'bruto', 'ponto' => 'ponto-serie-4', 'sinal' => ''],
         ['rotulo' => 'Custo das placas', 'chave' => 'custo', 'ponto' => 'ponto-serie-3', 'sinal' => '−'],
         ['rotulo' => 'Comissões', 'chave' => 'comissao', 'ponto' => 'ponto-serie-2', 'sinal' => '−'],
         ['rotulo' => 'Lucro', 'chave' => 'lucro', 'ponto' => 'ponto-serie-1', 'sinal' => ''],
@@ -75,11 +75,7 @@
                         <tr @class(['bg-gray-50/60 dark:bg-gray-800/40' => $ehLucro])>
                             <td class="tabela-td">
                                 <span class="flex items-center gap-2 {{ $ehLucro ? 'font-medium text-gray-800 dark:text-white/90' : 'text-gray-600 dark:text-gray-300' }}">
-                                    @if ($linha['ponto'])
-                                        <span class="{{ $linha['ponto'] }} size-2.5 shrink-0 rounded-full"></span>
-                                    @else
-                                        <span class="size-2.5 shrink-0"></span>
-                                    @endif
+                                    <span class="{{ $linha['ponto'] }} size-2.5 shrink-0 rounded-full"></span>
                                     {{ $linha['rotulo'] }}
                                 </span>
                             </td>
