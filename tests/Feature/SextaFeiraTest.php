@@ -121,20 +121,20 @@ it('mostra a sexta com as quatro partes e a lista de Pix, e lanca o pro-labore',
     test()->artisan('avalia:lastrear-plaquinhas')->assertSuccessful();
 
     $como = test()->actingAs($pedro, 'staff')->withSession(['versao_staff' => $pedro->sessao_versao]);
-    $html = $como->get(route('erp.sexta'))->assertOk()->getContent();
+    $html = $como->get(route('erp.pagamentos'))->assertOk()->getContent();
 
     expect($html)->toContain('Comissão de placas')->toContain('Comissão de consultas')->toContain('Pró-labore')->toContain('Lista de Pix')
         ->and($html)->toContain('maria@pix')->toContain('pedro@pix')
         ->and($html)->toContain('sem cadastro de sócio');
 
     $antes = saldo('caixa');
-    $como->from(route('erp.sexta'))->post(route('erp.sexta.prolabore', $socio), ['valor' => '25,00'])
-        ->assertRedirect(route('erp.sexta'))->assertSessionHas('ok');
+    $como->from(route('erp.pagamentos'))->post(route('erp.pagamentos.prolabore', $socio), ['valor' => '25,00'])
+        ->assertRedirect(route('erp.pagamentos'))->assertSessionHas('ok');
 
     expect(saldo('despesa:prolabore'))->toBe(2_500)->and(saldo('caixa'))->toBe($antes - 2_500);
 
     // Sem a permissao financeira, a porta fecha.
     $sem = Staff::factory()->admin()->create(['pode_financeiro' => false]);
     test()->actingAs($sem, 'staff')->withSession(['versao_staff' => $sem->sessao_versao])
-        ->withHeaders(['referer' => ''])->get(route('erp.sexta'))->assertForbidden();
+        ->withHeaders(['referer' => ''])->get(route('erp.pagamentos'))->assertForbidden();
 });

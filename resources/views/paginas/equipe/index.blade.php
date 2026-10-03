@@ -96,6 +96,18 @@
                                             <span class="sr-only">Editar</span>
                                         </x-avalia.botao>
 
+                                        <form method="POST" action="{{ route('equipe.transferir', $membro) }}" class="inline-flex items-center gap-1"
+                                              onsubmit="return this.para_id.value !== '' && confirm('Passar tudo que ' + {{ Illuminate\Support\Js::from($membro->nome) }} + ' vendeu para a conta escolhida?')">
+                                            @csrf
+                                            <select name="para_id" class="campo w-auto" title="Transferir vendas para">
+                                                <option value="">Transferir para</option>
+                                                @foreach ($membros->where('id', '!=', $membro->id)->whereNull('deleted_at') as $outro)
+                                                    <option value="{{ $outro->id }}">{{ $outro->nome }}</option>
+                                                @endforeach
+                                            </select>
+                                            <x-avalia.botao variante="secundario" tamanho="sm">Ir</x-avalia.botao>
+                                        </form>
+
                                         @if (! $membro->ehSuper() && $membro->id !== auth('staff')->id())
                                             {{-- Segundo clique confirma; 3,5s sem ele desarma. --}}
                                             <form method="POST" action="{{ route('equipe.remover', $membro) }}" class="inline"

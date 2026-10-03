@@ -156,7 +156,7 @@ class MenuHelper
         return [
             ['icon' => 'inicio', 'name' => 'Início', 'path' => '/erp'],
             ['icon' => 'grafico', 'name' => 'Financeiro', 'path' => '/financeiro', 'exigeFinanceiro' => true],
-            ['icon' => 'tarefa', 'name' => 'Sexta-feira', 'path' => '/erp/sexta', 'exigeFinanceiro' => true],
+            ['icon' => 'tarefa', 'name' => 'Pagamentos', 'path' => '/erp/pagamentos', 'exigeFinanceiro' => true],
             ['icon' => 'boleto', 'name' => 'Contas a pagar', 'path' => '/erp/contas', 'exigeFinanceiro' => true],
             ['icon' => 'grafico', 'name' => 'Sócios', 'path' => '/socios', 'exigeSocios' => true],
             ['icon' => 'grafico', 'name' => 'Controladoria', 'path' => '/controladoria', 'exigeSocios' => true],

@@ -656,7 +656,7 @@ sendo onde a operação acontece e deixa de ser onde o resultado mora.
 | 6. Coluna derivada sai do documento | depois da 5 |
 
 O que a operação de dois sócios pede, feito em 02/10/2026: contas a pagar com
-vencimento (`/erp/contas`); a **sexta-feira** (`/erp/sexta`: comissões do
+vencimento (`/erp/contas`); a tela de **Pagamentos** (`/erp/pagamentos`: comissões do
 One e do Sales, pró-labore sugerido por sócio, contas da semana, lista de Pix);
 natureza `prolabore` separada de retirada e distribuição. Falta: importação do
 extrato OFX do Nubank e conciliação contra a conta `caixa` (operação manual por
@@ -665,7 +665,7 @@ decisão, seção 10).
 ### Back office
 
 **Avalia ERP** e **Avalia CRM** (02/10/2026): duas laterais, no molde do Sales. O
-ERP tem Financeiro, Sexta-feira, Contas a pagar, Sócios, Controladoria,
+ERP tem Financeiro, Pagamentos, Contas a pagar, Sócios, Controladoria,
 Documentos, Equipe, Conexões e Auditoria; o CRM tem Contatos e Leads (o funil
 entra aqui). Saiu tudo do painel do One, que ficou com consultas, carteira,
 catálogo e campanhas. No pé de toda lateral, o grupo "Áreas" leva às outras que a

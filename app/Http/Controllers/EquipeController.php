@@ -7,6 +7,7 @@ use App\Mail\ConviteDeAcesso;
 use App\Models\Staff;
 use App\Support\Auditar;
 use App\Support\Convite;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -70,6 +71,23 @@ class EquipeController extends Controller
         $removido->forceDelete();
 
         return back()->with('ok', "Cadastro de '{$removido->nome}' excluído em definitivo.");
+    }
+
+    public function transferir(Request $request, Staff $membro, \App\Actions\Equipe\TransferirVendas $transferir)
+    {
+        $dados = $request->validate(['para_id' => ['required', 'integer', 'exists:staff,id']]);
+        $para = Staff::findOrFail($dados['para_id']);
+
+        try {
+            $contagens = $transferir($membro, $para);
+        } catch (\App\Exceptions\Recusa $e) {
+            return back()->with('erro', $e->getMessage());
+        }
+
+        // A comissao no razao depende de quem vendeu.
+        \Illuminate\Support\Facades\Artisan::call('avalia:relancar-plaquinhas');
+
+        return back()->with('ok', 'De '.$membro->nome.' para '.$para->nome.': '.collect($contagens)->map(fn ($n, $r) => "$n $r")->implode(', ').'. Razão relançado.');
     }
 
     public function restaurar(int $id)

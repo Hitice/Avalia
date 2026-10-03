@@ -31,6 +31,7 @@ use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\NegociosController;
+use App\Http\Controllers\PagamentosController;
 use App\Http\Controllers\PainelController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PlanilhaController;
@@ -39,7 +40,6 @@ use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServicoController;
-use App\Http\Controllers\SextaController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SociosController;
 use App\Http\Controllers\VendasPlaquinhasController;
@@ -493,6 +493,8 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
         // Remover e tirar de circulacao, nao apagar: fatura e carteira apontam
         // para a pessoa. Restaurar desfaz.
         Route::delete('/{membro}', [EquipeController::class, 'remover'])->name('remover');
+        // Passa as vendas de uma pessoa para outra; a comissao no razao e relancada junto.
+        Route::post('/{membro}/transferir', [EquipeController::class, 'transferir'])->name('transferir');
         Route::post('/{id}/restaurar', [EquipeController::class, 'restaurar'])->name('restaurar');
         Route::delete('/{id}/excluir', [EquipeController::class, 'excluir'])->name('excluir');
         // Liga ou desliga um produto para a pessoa, no clique.
@@ -546,13 +548,17 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
         Route::get('/contatos/{contato}', [ContatosController::class, 'ver'])->name('contatos.ver');
     });
 
-    // A sexta-feira e as contas a pagar mexem no caixa: admin com permissao financeira.
+    // Pagamentos e contas a pagar mexem no caixa: admin com permissao financeira.
     Route::middleware(['admin', 'financeiro'])->prefix('erp')->name('erp.')->group(function () {
-        Route::get('/sexta', [SextaController::class, 'index'])->name('sexta');
-        Route::post('/sexta/placas/{vendedor}', [SextaController::class, 'pagarSales'])->name('sexta.sales');
-        Route::post('/sexta/consultas/{vendedor}', [SextaController::class, 'pagarOne'])->name('sexta.one');
-        Route::post('/sexta/prolabore/{socio}', [SextaController::class, 'prolabore'])->name('sexta.prolabore');
-        Route::post('/sexta/contas/{conta}', [SextaController::class, 'pagarConta'])->name('sexta.conta');
+        Route::get('/pagamentos', [PagamentosController::class, 'index'])->name('pagamentos');
+        Route::post('/pagamentos/placas/{vendedor}', [PagamentosController::class, 'pagarSales'])->name('pagamentos.sales');
+        Route::post('/pagamentos/consultas/{vendedor}', [PagamentosController::class, 'pagarOne'])->name('pagamentos.one');
+        Route::post('/pagamentos/prolabore/{socio}', [PagamentosController::class, 'prolabore'])->name('pagamentos.prolabore');
+        Route::post('/pagamentos/contas/{conta}', [PagamentosController::class, 'pagarConta'])->name('pagamentos.conta');
+
+        // Os lastros e o relancamento, pela tela: producao nao tem SSH, e sao idempotentes.
+        Route::post('/razao/conciliar', [ErpController::class, 'conciliar'])->name('razao.conciliar');
+        Route::post('/razao/apagar-aportes', [ErpController::class, 'apagarAportes'])->middleware('socios')->name('razao.apagar-aportes');
 
         Route::get('/contas', [ContasAPagarController::class, 'index'])->name('contas');
         Route::post('/contas', [ContasAPagarController::class, 'salvar'])->name('contas.salvar');

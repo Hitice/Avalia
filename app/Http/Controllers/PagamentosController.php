@@ -16,10 +16,10 @@ use App\Support\Dinheiro;
 use Illuminate\Http\Request;
 
 /**
- * A sexta-feira: tudo que sai do caixa para gente, numa tela, com a lista de
- * Pix. Cada botao chama a acao que ja existe; aqui so o fluxo.
+ * Pagamentos: tudo que sai do caixa para gente, numa tela, com a lista de
+ * Pix. A casa paga na sexta, mas a tela e o sistema de pagamento. Cada botao chama a acao que ja existe; aqui so o fluxo.
  */
-class SextaController extends Controller
+class PagamentosController extends Controller
 {
     public function index()
     {
@@ -35,7 +35,7 @@ class SextaController extends Controller
             ->concat($prolabore->where('sugerido', '>', 0)->map(fn ($r) => ['nome' => $r['staff']->nome, 'chave' => $r['staff']->pix_chave, 'cents' => $r['sugerido'], 'motivo' => 'pró-labore']))
             ->values();
 
-        return view('paginas.erp.sexta', compact('sales', 'one', 'prolabore', 'contas', 'pix'));
+        return view('paginas.erp.pagamentos', compact('sales', 'one', 'prolabore', 'contas', 'pix'));
     }
 
     public function pagarSales(Staff $vendedor, PagarComissao $pagar)

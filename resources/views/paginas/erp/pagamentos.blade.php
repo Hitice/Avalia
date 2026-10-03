@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Sexta-feira'])
+@extends('layouts.app', ['title' => 'Pagamentos'])
 
 @php use App\Support\Dinheiro; @endphp
 
@@ -11,7 +11,7 @@
         <div class="cartao p-6">
             <h2 class="titulo-cartao">Comissão de placas</h2>
             @forelse ($sales as $r)
-                <form method="POST" action="{{ route('erp.sexta.sales', $r['id']) }}" class="mt-4 flex items-center justify-between gap-3 text-sm">
+                <form method="POST" action="{{ route('erp.pagamentos.sales', $r['id']) }}" class="mt-4 flex items-center justify-between gap-3 text-sm">
                     @csrf
                     <span class="text-gray-800 dark:text-white/90">{{ $r['nome'] }} <span class="ajuda-campo">{{ $r['placas'] }} {{ $r['placas'] === 1 ? 'placa' : 'placas' }}</span></span>
                     <x-avalia.botao tamanho="sm" onclick="return confirm('Marcar {{ Dinheiro::brl($r['cents']) }} como pagos a {{ $r['nome'] }}?')">Pagar {{ Dinheiro::brl($r['cents']) }}</x-avalia.botao>
@@ -24,7 +24,7 @@
         <div class="cartao p-6">
             <h2 class="titulo-cartao">Comissão de consultas</h2>
             @forelse ($one as $r)
-                <form method="POST" action="{{ route('erp.sexta.one', $r['id']) }}" class="mt-4 flex items-center justify-between gap-3 text-sm">
+                <form method="POST" action="{{ route('erp.pagamentos.one', $r['id']) }}" class="mt-4 flex items-center justify-between gap-3 text-sm">
                     @csrf
                     <span class="text-gray-800 dark:text-white/90">
                         {{ $r['nome'] }}
@@ -52,7 +52,7 @@
                     @if ($r['socio'] === null)
                         <span class="etiqueta etiqueta-alerta" title="Cadastre o sócio em Sócios, ligado a esta conta">sem cadastro de sócio</span>
                     @elseif ($r['sugerido'] > 0)
-                        <form method="POST" action="{{ route('erp.sexta.prolabore', $r['socio']) }}" class="flex items-center gap-2">
+                        <form method="POST" action="{{ route('erp.pagamentos.prolabore', $r['socio']) }}" class="flex items-center gap-2">
                             @csrf
                             <input name="valor" type="text" inputmode="decimal" class="campo w-28 text-right" value="{{ Dinheiro::numero($r['sugerido']) }}">
                             <x-avalia.botao tamanho="sm">Lançar</x-avalia.botao>
@@ -67,7 +67,7 @@
         <div class="cartao p-6">
             <h2 class="titulo-cartao">Contas que vencem até {{ now()->endOfWeek()->format('d/m') }}</h2>
             @forelse ($contas as $conta)
-                <form method="POST" action="{{ route('erp.sexta.conta', $conta) }}" class="mt-4 flex items-center justify-between gap-3 text-sm">
+                <form method="POST" action="{{ route('erp.pagamentos.conta', $conta) }}" class="mt-4 flex items-center justify-between gap-3 text-sm">
                     @csrf
                     <span class="text-gray-800 dark:text-white/90">
                         {{ $conta->descricao }}
@@ -102,7 +102,7 @@
                         <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl($p['cents']) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="tabela-vazia">Nada a pagar nesta sexta.</td></tr>
+                    <tr><td colspan="4" class="tabela-vazia">Nada a pagar nesta semana.</td></tr>
                 @endforelse
                 @if ($pix->isNotEmpty())
                     <tr class="border-t-2 border-gray-200 dark:border-gray-700">

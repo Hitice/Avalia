@@ -30,3 +30,24 @@ it('passa placas vendidas, em maos e negocios de uma conta para outra, e so simu
 
     test()->artisan('avalia:transferir-vendas ninguem@x.com pedromuska@gmail.com')->assertFailed();
 });
+
+it('transfere pela tela de Equipe e relanca o razao', function () {
+    $mestre = Staff::factory()->admin()->create(['email' => 'comercial@avaliaone.com.br']);
+    $pedro = Staff::factory()->admin()->create(['email' => 'pedromuska@gmail.com', 'nome' => 'Pedro']);
+    Etiqueta::factory()->ativa()->count(2)->create(['vendedor_id' => $mestre->id]);
+
+    admin()->from(route('equipe.index'))->post(route('equipe.transferir', $mestre), ['para_id' => $pedro->id])
+        ->assertRedirect(route('equipe.index'))->assertSessionHas('ok');
+
+    expect(Etiqueta::where('vendedor_id', $pedro->id)->count())->toBe(2);
+    admin()->get(route('equipe.index'))->assertOk()->assertSee('Transferir para');
+});
+
+it('concilia o razao e apaga aportes pela tela do ERP', function () {
+    $socio = Staff::factory()->admin()->create(['pode_socios' => true]);
+    $como = test()->actingAs($socio, 'staff')->withSession(['versao_staff' => $socio->sessao_versao]);
+
+    $como->from(route('erp.inicio'))->post(route('erp.razao.conciliar'))->assertRedirect(route('erp.inicio'))->assertSessionHas('ok');
+    $como->from(route('erp.inicio'))->post(route('erp.razao.apagar-aportes'))->assertRedirect(route('erp.inicio'))->assertSessionHas('ok');
+    $como->get(route('erp.inicio'))->assertOk()->assertSee('Conciliar razão')->assertSee('Apagar aportes');
+});
