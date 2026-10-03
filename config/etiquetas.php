@@ -96,6 +96,10 @@ return [
     'pasta_local' => env('ETIQUETAS_PASTA_LOCAL', '/Users/pedrohenriquemorais/Downloads'),
     'comissao_pct' => 25,
 
+    // Placas por pessoa no mes, socios inclusive. O grafico desenha, nos dias
+    // que faltam, quanto cada dia precisa render para fechar o mes na meta.
+    'meta_por_pessoa' => 5,
+
     // Da parte de cada socio no lucro (metade), quanto volta ao caixa. Com 40,
     // cada socio leva 30% do lucro de tudo, vendesse quem vendesse, e 40% fica
     // na empresa (02/10/2026). Pago toda sexta. Ver RepartePlaquinha::retencao().

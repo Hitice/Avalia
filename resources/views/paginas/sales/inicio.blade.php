@@ -29,18 +29,19 @@
                     <div><span class="rotulo-grupo block">Disponíveis</span><span class="text-2xl font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ $disponiveis }}</span></div>
                     <div><span class="rotulo-grupo block">Livres</span><span class="text-2xl font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ $noBolo }}</span></div>
                 </div>
-                <table class="tabela mt-3">
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @forelse ($emMaos as $lote)
-                            <tr>
-                                <td class="tabela-td py-2 text-gray-800 dark:text-white/90">{{ $lote->consignadaPara?->nome ?? 'Conta removida' }}</td>
-                                <td class="tabela-td py-2 text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $lote->total }} em mãos</td>
-                            </tr>
-                        @empty
-                            <tr><td class="tabela-vazia">Ninguém com placa em mãos.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                {{-- A lista cresce com a equipe: linhas curtas, numero pequeno,
+                     e rola a partir de dez. --}}
+                <span class="rotulo-grupo mt-4 block">Em mãos</span>
+                <ul class="mt-1 max-h-56 divide-y divide-gray-100 overflow-y-auto dark:divide-gray-800">
+                    @forelse ($emMaos as $lote)
+                        <li class="flex items-center justify-between gap-3 py-1.5 text-sm">
+                            <span class="truncate text-gray-800 dark:text-white/90">{{ $lote->consignadaPara?->nome ?? 'Conta removida' }}</span>
+                            <span class="shrink-0 text-xs tabular-nums text-gray-500 dark:text-gray-400">{{ $lote->total }}</span>
+                        </li>
+                    @empty
+                        <li class="py-2 text-sm text-gray-500 dark:text-gray-400">Ninguém com placa em mãos.</li>
+                    @endforelse
+                </ul>
             </div>
 
             <div class="cartao p-5">
@@ -66,7 +67,7 @@
 
         <div class="cartao p-5">
             <h2 class="titulo-cartao">Vendas por dia</h2>
-            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" />
+            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
         </div>
     @else
         <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -75,7 +76,7 @@
             <x-avalia.cartao-indicador rotulo="Vendas do mês" :valor="$minhas['placas']" :href="route('etiquetas.index')" />
             @if ($minhaParte)
                 <x-avalia.cartao-indicador rotulo="Pró-labore do mês" :valor="Dinheiro::brl($minhaParte['prolabore'])"
-                                           :ajuda="'Parte '.Dinheiro::brl($minhaParte['parte']).' · retido '.Dinheiro::brl($minhaParte['retido'])" />
+                                           :ajuda="'Parte '.Dinheiro::brl($minhaParte['parte']).' · reinvestimento '.Dinheiro::brl($minhaParte['retido'])" />
                 <x-avalia.cartao-indicador rotulo="Lucro da equipe" :valor="Dinheiro::brl($equipe['lucro'])" :href="route('plaquinhas.vendas')" />
             @else
                 {{-- Atual e o que ainda nao foi pago, de qualquer mes. --}}
@@ -105,7 +106,7 @@
 
         <div class="cartao p-5">
             <h2 class="titulo-cartao">{{ $equipe === null ? 'Minhas vendas por dia' : 'Vendas por dia' }}</h2>
-            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" />
+            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
         </div>
     @endif
 @endsection

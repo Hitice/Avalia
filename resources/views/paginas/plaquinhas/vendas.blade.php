@@ -51,13 +51,15 @@
                                    tom="text-brand-600 dark:text-brand-400" />
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
-        <div class="cartao p-6">
+    {{-- O ritmo do mes contra a meta, na largura inteira. --}}
+    <div class="cartao mb-6 p-6">
             <h2 class="titulo-cartao">Vendas por dia</h2>
 
-            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" />
+            <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
         </div>
 
+    {{-- Tres colunas: o dinheiro, quem vendeu, o que se paga. --}}
+    <div class="grid gap-6 lg:grid-cols-3">
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Caixa</h2>
@@ -105,7 +107,7 @@
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
                                 {{ $socio['nome'] }}
                                 <span class="block text-xs text-gray-500 dark:text-gray-400">
-                                    retido na empresa {{ Dinheiro::brl($socio['retido']) }}
+                                    reinvestimento {{ Dinheiro::brl($socio['retido']) }}
                                 </span>
                             </td>
                             <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">
@@ -121,9 +123,7 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_1.35fr]">
         <div class="cartao p-6">
             <h2 class="titulo-cartao">Por vendedor</h2>
 
@@ -154,7 +154,11 @@
 
             {{-- O que a sexta paga. Desde sempre, e nao do mes: comissao que
                  ficou de um mes para o outro continua devida. --}}
-            <h3 class="rotulo-grupo mt-8">Comissões a pagar</h3>
+        </div>
+
+        <div class="cartao p-6">
+            <h2 class="titulo-cartao">Comissões</h2>
+            <h3 class="rotulo-grupo mt-4">A pagar</h3>
 
             @forelse ($aPagar as $divida)
                 <form method="POST" action="{{ route('plaquinhas.comissao.pagar', $divida['id']) }}"
@@ -174,7 +178,7 @@
             @endforelse
 
             {{-- O que ja saiu, com dia e hora: e a prova da sexta. --}}
-            <h3 class="rotulo-grupo mt-8">Comissões pagas</h3>
+            <h3 class="rotulo-grupo mt-8">Pagas</h3>
 
             @forelse ($pagas as $lote)
                 <div class="mt-3 flex items-center justify-between gap-3 text-sm">
@@ -189,8 +193,9 @@
             @empty
                 <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhuma comissão paga ainda.</p>
             @endforelse
-        </div>
+    </div>
 
+    <div class="mt-6">
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Vendas do mês</h2>

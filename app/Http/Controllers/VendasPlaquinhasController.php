@@ -89,6 +89,7 @@ class VendasPlaquinhasController extends Controller
             'sociosAusentes' => $socios['ausentes'],
 
             'porDia' => Etiqueta::vendasPorDia($mes),
+            'meta' => \App\Support\MetaDePlacas::doMes($mes, SalesController::pessoasQueVendem($socios['ids']), $doMes->count(), (int) config('etiquetas.meta_por_pessoa')),
 
             // Em aberto desde sempre, e nao so do mes: a sexta paga o que ficou.
             'aPagar' => Repasses::comissoesSales(),

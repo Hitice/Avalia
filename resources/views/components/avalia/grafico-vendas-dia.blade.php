@@ -1,9 +1,11 @@
-@props(['porDia', 'mes'])
+@props(['porDia', 'mes', 'meta' => null])
 
 @php
     use App\Support\Dinheiro;
 
-    $maior = max(1, $porDia->max('placas'));
+    // A escala considera a previsao: barra vazia mais alta que a cheia nao
+    // pode sair do quadro.
+    $maior = max(1, $porDia->max('placas'), (int) ($meta['porDia'] ?? 0));
 
     // Geometria em PHP, e nao em JavaScript: o servidor ja tem os numeros, e
     // desenhar no cliente faria a tela aparecer vazia para preencher depois.
@@ -14,7 +16,11 @@
     $barra = max(3, min(18, $passo * 0.62));
 @endphp
 
-@if ($porDia->sum('placas') === 0)
+@if ($meta)
+    <p class="subtitulo-pagina">Meta {{ $meta['meta'] }} · feitas {{ $meta['vendidas'] }} · faltam {{ $meta['faltam'] }}@if ($meta['porDia'] > 0) · {{ $meta['porDia'] }} por dia nos {{ $meta['diasRestantes'] }} dias que restam @endif</p>
+@endif
+
+@if ($porDia->sum('placas') === 0 && ! ($meta && $meta['porDia'] > 0))
     <p class="tabela-vazia mt-6">Sem vendas no mês.</p>
 @else
     <svg viewBox="0 0 {{ $g['w'] }} {{ $g['h'] }}" class="mt-5 w-full" role="img"
@@ -32,6 +38,14 @@
                 $x = $i * $passo + ($passo - $barra) / 2;
                 $r = min(2, $barra / 2, max(0.01, $altura));
             @endphp
+
+            {{-- Dia que ainda vem: a barra vazia e o que ele precisa render. --}}
+            @if ($meta && $meta['porDia'] > 0 && $d['dia'] > $meta['hoje'])
+                @php $alturaMeta = $meta['porDia'] / $maior * $g['util']; @endphp
+                <rect class="serie-meta" x="{{ $x }}" y="{{ $g['base'] - $alturaMeta }}" width="{{ $barra }}" height="{{ $alturaMeta }}" rx="2">
+                    <title>{{ $d['rotulo'] }}: {{ $meta['porDia'] }} para a meta</title>
+                </rect>
+            @endif
 
             @if ($d['placas'] > 0)
                 <path class="serie-1"

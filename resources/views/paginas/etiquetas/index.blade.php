@@ -21,7 +21,7 @@
             {{-- O codigo e curto e o nome e longo: lado a lado eles ocupam a
                  mesma linha que o codigo ocupava sozinho, e o cartao nao cresce. --}}
             <div class="flex flex-wrap items-start gap-3">
-                <div class="w-36">
+                <div class="w-full sm:w-36">
                     <label for="codigo" class="rotulo-campo">Código impresso</label>
                     <input id="codigo" name="codigo" type="text" maxlength="20" required
                            value="{{ old('codigo') }}"
@@ -35,7 +35,7 @@
                            value="{{ old('cliente_nome') }}" class="campo" placeholder="Padaria do Zé">
                 </div>
                 @if (auth('staff')->user()?->ehAdmin() || auth('staff')->user()?->ehSuper())
-                    <div class="w-56">
+                    <div class="w-full sm:w-56">
                         <label for="vendedor_id" class="rotulo-campo">Vendedor</label>
                         <select id="vendedor_id" name="vendedor_id" class="campo" required>
                             <option value="">Escolha</option>
@@ -58,7 +58,7 @@
                            class="campo min-w-[12rem] flex-1"
                            value="{{ old('destino') }}" placeholder="https://wa.me/5531999999999">
 
-                    <x-avalia.botao class="shrink-0">Cadastrar destino</x-avalia.botao>
+                    <x-avalia.botao class="w-full shrink-0 sm:w-auto">Cadastrar destino</x-avalia.botao>
                 </div>
 
                 @error('destino')<p class="erro-campo">{{ $message }}</p>@enderror

@@ -17,6 +17,14 @@ use Illuminate\Http\Request;
  */
 class SalesController extends Controller
 {
+    /** Quem conta para a meta: vendedores ativos com acesso ao Sales, e os socios. */
+    public static function pessoasQueVendem(array $socios): int
+    {
+        return \App\Models\Staff::where('ativo', true)
+            ->where(fn ($q) => $q->where(fn ($v) => $v->where('papel', 'vendedor')->where('acessa_sales', true))->orWhereIn('id', $socios))
+            ->count();
+    }
+
     public function inicio(Request $pedido)
     {
         $conta = $pedido->user('staff');
@@ -39,7 +47,7 @@ class SalesController extends Controller
             return $t;
         };
 
-        $minhas = Etiqueta::where('vendedor_id', $conta->id)->whereBetween('vendida_em', [$inicio, $fim])->get();
+        $minhas = $soma(Etiqueta::where('vendedor_id', $conta->id)->whereBetween('vendida_em', [$inicio, $fim])->get());
         $posicao = array_search((int) $conta->id, $socios, true);
         $emAberto = $soma(Etiqueta::where('vendedor_id', $conta->id)->comissaoEmAberto()->get());
         $daEquipe = $ehAdmin || $posicao !== false
@@ -71,7 +79,7 @@ class SalesController extends Controller
         return view('paginas.sales.inicio', [
             'ehAdmin' => $ehAdmin,
             'emMaosMinhas' => Etiqueta::noEstoqueDe((int) $conta->id)->count(),
-            'minhas' => $soma($minhas),
+            'minhas' => $minhas,
             'equipe' => $equipe,
             'porVendedor' => $porVendedor,
             'minhaParte' => $minhaParte,
@@ -80,6 +88,9 @@ class SalesController extends Controller
 
             // Vendedor ve as proprias vendas; socio e admin, as da equipe.
             'porDia' => Etiqueta::vendasPorDia($inicio, $equipe === null ? (int) $conta->id : null),
+            'meta' => $equipe === null
+                ? \App\Support\MetaDePlacas::doMes($inicio, 1, $minhas['placas'], (int) config('etiquetas.meta_por_pessoa'))
+                : \App\Support\MetaDePlacas::doMes($inicio, self::pessoasQueVendem($socios), $equipe['placas'], (int) config('etiquetas.meta_por_pessoa')),
             'noBolo' => $ehAdmin ? Etiqueta::semDono()->count() : null,
             'disponiveis' => $ehAdmin ? Etiqueta::whereNull('vendida_em')->count() : null,
             'aPagar' => $ehAdmin ? \App\Actions\Financeiro\Repasses::comissoesSales() : collect(),

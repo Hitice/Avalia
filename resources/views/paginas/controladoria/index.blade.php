@@ -113,7 +113,7 @@
                 </div>
             @endif
 
-            <p class="ajuda-campo mt-3">Pró-labore sai em Pagamentos; o retido fica no caixa.</p>
+            <p class="ajuda-campo mt-3">Pró-labore sai em Pagamentos; o reinvestimento fica no caixa.</p>
         @endif
     </div>
 @endsection
