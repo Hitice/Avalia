@@ -247,24 +247,6 @@ class Etiqueta extends Model
         return $consulta->where('situacao', SituacaoEtiqueta::Ativa);
     }
 
-    /**
-     * O que a conta logada enxerga da tiragem.
-     *
-     * A EQUIPE ve tudo: administracao e vendedor. Nao e descuido, e a decisao de
-     * quem opera. A casa e pequena e o atendimento nao e de carteira fechada:
-     * quem esta na mesa atende a placa que tocar o telefone, e a placa parada
-     * porque o vendedor dela esta em campo custa mais que o risco de alguem
-     * abrir o que nao vendeu. Cada troca de destino fica na auditoria com nome,
-     * entao o controle e depois do ato, e nao antes.
-     *
-     * A primeira versao disto dava ao vendedor so o estoque em branco, as
-     * vendas dele e o que era dele por dono. Ficou de fora a venda de outro
-     * vendedor, e era esse o pedido: que apareca tudo.
-     *
-     * Cliente e produtor seguem so pelo dono, e essa linha nao se mexe: e o que
-     * impede um cliente de trocar o destino da placa de outro. Ver
-     * App\Support\Dono.
-     */
     public function negocio(): BelongsTo
     {
         return $this->belongsTo(Negocio::class);
@@ -363,6 +345,24 @@ class Etiqueta extends Model
         ]);
     }
 
+    /**
+     * O que a conta logada enxerga da tiragem.
+     *
+     * A EQUIPE ve tudo: administracao e vendedor. Nao e descuido, e a decisao de
+     * quem opera. A casa e pequena e o atendimento nao e de carteira fechada:
+     * quem esta na mesa atende a placa que tocar o telefone, e a placa parada
+     * porque o vendedor dela esta em campo custa mais que o risco de alguem
+     * abrir o que nao vendeu. Cada troca de destino fica na auditoria com nome,
+     * entao o controle e depois do ato, e nao antes.
+     *
+     * A primeira versao disto dava ao vendedor so o estoque em branco, as
+     * vendas dele e o que era dele por dono. Ficou de fora a venda de outro
+     * vendedor, e era esse o pedido: que apareca tudo.
+     *
+     * Cliente e produtor seguem so pelo dono, e essa linha nao se mexe: e o que
+     * impede um cliente de trocar o destino da placa de outro. Ver
+     * App\Support\Dono.
+     */
     public function scopeVisiveis(Builder $consulta): Builder
     {
         return Dono::tipo() === 'staff' ? $consulta : Dono::limitar($consulta);

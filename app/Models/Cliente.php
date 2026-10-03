@@ -127,7 +127,7 @@ class Cliente extends Authenticatable implements ContaAutenticavel, TemContato
     {
         return match ($this->situacao) {
             'inadimplente' => 'Consultas suspensas por fatura em aberto. Regularize para voltar a consultar.',
-            'bloqueado' => 'Acesso as consultas bloqueado pela administracao. Fale com seu vendedor.',
+            'bloqueado' => 'Acesso às consultas bloqueado pela administração. Fale com seu vendedor.',
             'inativo' => 'Contrato encerrado.',
             default => null,
         };

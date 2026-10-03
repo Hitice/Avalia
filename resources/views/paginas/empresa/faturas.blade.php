@@ -7,7 +7,7 @@
 
 @section('content')
     <x-avalia.cabecalho-pagina titulo="Faturas" :subtitulo="$empresa->razao_social">
-        <x-avalia.ajuda assunto="Fatura">Falar com a Avalia One</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Fatura" />
     </x-avalia.cabecalho-pagina>
 
     <div class="cartao overflow-hidden">

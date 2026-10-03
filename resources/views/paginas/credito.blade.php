@@ -23,7 +23,7 @@
         'dados' => [
             'titulo' => 'Inteligência de dados',
             'resumo' => 'Pesquise o score e os dados públicos antes de fechar a venda a prazo. O resultado chega em segundos, direto no painel.',
-            'detalhe' => 'Antes de parcelar, sua equipe pesquisa o CPF ou o CNPJ e recebe a pontuação e o histórico na hora. A Avalia One entrega a informação; a decisão de vender é sempre da sua empresa.',
+            'detalhe' => 'Antes de parcelar, sua equipe pesquisa o CPF ou o CNPJ e recebe a pontuação e o histórico na hora. A '.Empresa::marcaCredito().' entrega a informação; a decisão de vender é sempre da sua empresa.',
             'itens' => [
                 'Pontuação de score na versão mais recente do modelo',
                 'Tendência e estabilidade do comportamento ao longo do tempo',
@@ -115,7 +115,7 @@
                         Entrar
                     </x-avalia.botao>
 
-                    <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia One') }}" target="_blank" rel="noopener noreferrer"
+                    <a href="{{ Suporte::whatsapp('Quero conhecer a '.Empresa::marcaCredito()) }}" target="_blank" rel="noopener noreferrer"
                        class="botao botao-primario hidden sm:inline-flex">
                         <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm0 18.06h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.82.83-3.03-.2-.31a8.19 8.19 0 0 1-1.26-4.37c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Z"/>
@@ -207,7 +207,7 @@
                     </p>
 
                     <div class="entra-suave mt-8 flex flex-wrap items-center gap-3" style="animation-delay: 0.3s">
-                        <a href="{{ Suporte::whatsapp('Quero contratar a Avalia One') }}" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ Suporte::whatsapp('Quero contratar a '.Empresa::marcaCredito()) }}" target="_blank" rel="noopener noreferrer"
                            class="botao botao-primario">
                             <svg class="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39a9.86 9.86 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Z"/>
@@ -562,7 +562,7 @@
 
         {{-- WhatsApp suspenso, discreto, no prumo do interruptor de tema. O
              assunto vai pre-escrito e nenhum dado pessoal entra na URL. --}}
-        <a href="{{ Suporte::whatsapp('Quero conhecer a Avalia One') }}" target="_blank" rel="noopener noreferrer"
+        <a href="{{ Suporte::whatsapp('Quero conhecer a '.Empresa::marcaCredito()) }}" target="_blank" rel="noopener noreferrer"
            aria-label="Conversar no WhatsApp"
            class="fixed right-4 bottom-5 z-40 flex size-11 items-center justify-center rounded-full bg-success-500 text-white shadow-theme-lg opacity-40 transition hover:scale-110 hover:bg-success-600 hover:opacity-100">
             <svg class="size-6 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -584,7 +584,7 @@
                 </p>
 
                 <p class="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                    A Avalia One não concede empréstimos, não garante aprovação de crédito nem decide
+                    A {{ Empresa::marcaCredito() }} não concede empréstimos, não garante aprovação de crédito nem decide
                     por seus clientes. Informações confidenciais, vedado o repasse.
                 </p>
 
@@ -601,7 +601,7 @@
              faz na outra. --}}
         <p class="mx-auto w-full max-w-6xl px-6 pb-5 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
             Informações destinadas a decisões de negócio do próprio contratante, na finalidade de proteção ao crédito (Lei nº 12.414/2011 e art. 7º, X, da LGPD).<br>
-            A Avalia One não concede empréstimos, não garante aprovação de crédito nem decide por seus clientes. Informações confidenciais, vedado o repasse.
+            A {{ Empresa::marcaCredito() }} não concede empréstimos, não garante aprovação de crédito nem decide por seus clientes. Informações confidenciais, vedado o repasse.
         </p>
 
         <footer class="border-t border-gray-100 dark:border-gray-800">
@@ -632,7 +632,7 @@
              que desliza. A altura e unica por construcao (os slides dividem a
              mesma linha de flex), entao folhear nao muda o tamanho do card.
              Setinha, arrasto de mouse ou dedo, Esc e clique fora. --}}
-        <x-avalia.modal aberto="pilares.includes(aberto)" fechar="aberto = null" largura="max-w-4xl" :recheio="false" rotulo="Sobre a Avalia One">
+        <x-avalia.modal aberto="pilares.includes(aberto)" fechar="aberto = null" largura="max-w-4xl" :recheio="false" :rotulo="'Sobre a '.Empresa::marcaCredito()">
                 {{-- As setas ficam sobre o card, dentro do modal: fora dele
                      seriam recortadas pela rolagem. No celular e o dedo que folheia. --}}
                 <button type="button" x-show="idxPilar() > 0" @click="anteriorPilar()" aria-label="Assunto anterior"
@@ -764,7 +764,7 @@
                         </svg>
                     </x-avalia.botao>
 
-                    <p class="text-center text-xs text-gray-400 dark:text-gray-500">Seus dados ficam só com a Avalia One.</p>
+                    <p class="text-center text-xs text-gray-400 dark:text-gray-500">Seus dados ficam só com a {{ Empresa::marca() }}.</p>
                 </form>
         </x-avalia.modal>
 

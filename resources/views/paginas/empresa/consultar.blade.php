@@ -2,7 +2,7 @@
 
 @section('content')
     <x-avalia.cabecalho-pagina titulo="Nova consulta" :subtitulo="$empresa->razao_social">
-        <x-avalia.ajuda assunto="Consulta">Falar com a Avalia One</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Consulta" />
     </x-avalia.cabecalho-pagina>
 
     {{-- A consulta que acabou de sair abre aqui, por cima da tela: nao ha

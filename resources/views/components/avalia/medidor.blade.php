@@ -25,7 +25,7 @@
      Por opacidade, e nao por recorte girando: clipPath nao aceita grupo nem
      transformacao animada com a mesma sorte em todo navegador. --}}
 <svg width="{{ $tamanho }}" height="{{ $tamanho }}" viewBox="{{ Marca::CAIXA }}"
-    role="img" aria-label="Medidor de risco da Avalia One"
+    role="img" aria-label="Medidor de risco da {{ App\Support\Empresa::marcaCredito() }}"
     {{ $attributes->merge(['class' => 'text-gray-900 dark:text-white']) }}>
     <defs>{!! Marca::degrades($id) !!}</defs>
 

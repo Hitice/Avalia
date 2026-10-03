@@ -2,7 +2,7 @@
 
 @section('content')
     <x-avalia.cabecalho-pagina titulo="Documentos e aceites" :subtitulo="$empresa->razao_social">
-        <x-avalia.ajuda assunto="Documentos">Falar com a Avalia One</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Documentos" />
     </x-avalia.cabecalho-pagina>
 
     @if (session('ok'))

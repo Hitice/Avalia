@@ -19,8 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   consumo_minimo_cents -> piso do consumo do mes E a coluna de precos
  *
  * A fatura e mensalidade + max(minimo, consumido). Ver PDD.md, secao 6.
- * A comissao do vendedor nao sai daqui: e aliquota unica sobre o consumo
- * realizado, em App\Support\Comissao.
+ * A comissao do vendedor nao sai daqui: e aliquota sobre o lucro da
+ * competencia, em App\Support\Comissao.
  */
 class Plano extends Model
 {

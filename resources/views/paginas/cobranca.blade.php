@@ -534,7 +534,7 @@
                     <button type="submit" class="botao botao-primario mt-1 w-full">Enviar</button>
 
                     <p class="text-xs text-gray-400 dark:text-gray-500">
-                        Seus dados ficam só com a Avalia One e servem apenas para este contato.
+                        Seus dados ficam só com a {{ Empresa::marca() }} e servem apenas para este contato.
                     </p>
                 </form>
         </x-avalia.modal>

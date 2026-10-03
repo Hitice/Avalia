@@ -3,7 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Sexta-feira" subtitulo="Pagamentos da semana e lista de Pix" />
+    <x-avalia.cabecalho-pagina titulo="Pagamentos" subtitulo="Comissões, pró-labore, contas e a lista de Pix" />
 
     @include('parciais.avisos')
 

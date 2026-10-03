@@ -83,6 +83,14 @@ return [
      * endereco da conta de verdade, e a lista tem de casar com o que esta na
      * tabela `staff`, nao com o que seria mais bonito.
      */
+    'comissao_pct' => 25,
+    'socios' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env(
+            'ETIQUETAS_SOCIOS',
+            'pedromuska@gmail.com,atendimento.coorporativo93@gmail.com',
+        )),
+    ))),
     /*
      * A pasta onde o ZIP da tiragem e extraido, que vira o caminho da imagem no
      * CSV da mala direta.
@@ -94,24 +102,15 @@ return [
      * Em branco, o CSV sai so com o nome do arquivo.
      */
     'pasta_local' => env('ETIQUETAS_PASTA_LOCAL', '/Users/pedrohenriquemorais/Downloads'),
-    'comissao_pct' => 25,
 
-    // Placas por pessoa POR DIA UTIL, socios inclusive. O grafico desenha a
-    // meta do dia nos dias uteis que faltam, e soma o mes pelos dias uteis.
+    // Placas por pessoa POR DIA UTIL, socios inclusive. O mes soma pelos dias
+    // uteis, e o que falta se mede nos dias uteis que ainda vem.
     'meta_por_pessoa' => 5,
 
     // Da parte de cada socio no lucro (metade), quanto volta ao caixa. Com 40,
     // cada socio leva 30% do lucro de tudo, vendesse quem vendesse, e 40% fica
-    // na empresa (02/10/2026). Pago toda sexta. Ver RepartePlaquinha::retencao().
+    // na empresa (02/10/2026). Pago pela tela de Pagamentos. Ver RepartePlaquinha::retencao().
     'retencao_pct' => 40,
-
-    'socios' => array_values(array_filter(array_map(
-        'trim',
-        explode(',', (string) env(
-            'ETIQUETAS_SOCIOS',
-            'pedromuska@gmail.com,atendimento.coorporativo93@gmail.com',
-        )),
-    ))),
 
     // Teto de uma tiragem. Mais que isto e o navegador desenhando QR por
     // minutos a fio, e nenhuma grafica imprime mil placas de uma vez.

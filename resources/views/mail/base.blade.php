@@ -34,7 +34,7 @@
                     </tr>
                 </table>
                 <p style="margin:16px 0 0 0;color:#98a2b3;font-size:12px;">
-                    © {{ now()->year }} Avalia One · avaliaone.com.br
+                    © {{ now()->year }} {{ App\Support\Empresa::marca() }} · {{ App\Support\Empresa::site() }}
                 </p>
             </td>
         </tr>

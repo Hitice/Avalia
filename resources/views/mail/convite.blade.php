@@ -1,6 +1,6 @@
 @extends('mail.base')
 
-@section('titulo', $redefinicao ? 'Redefinição de senha' : 'Seu acesso à Avalia One')
+@section('titulo', $redefinicao ? 'Redefinição de senha' : 'Seu acesso à '.App\Support\Empresa::marca())
 
 @section('conteudo')
     @if ($redefinicao)
@@ -13,19 +13,19 @@
             Recebemos um pedido para redefinir a senha da sua conta. Para escolher uma nova:
         </p>
     @elseif ($operadorDe)
-        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia One.</p>
+        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à {{ App\Support\Empresa::marca() }}.</p>
         <p style="margin:0 0 12px 0;">
             Seu acesso às consultas de {{ $operadorDe }} foi criado. Para começar, defina a sua senha:
         </p>
     @elseif ($ehEmpresa)
-        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à Avalia One.</p>
+        <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo à {{ App\Support\Empresa::marca() }}.</p>
         <p style="margin:0 0 12px 0;">
             O acesso da sua empresa foi criado. Para começar a consultar, defina a sua senha:
         </p>
     @else
         <p style="margin:0 0 12px 0;">Olá, {{ $nome }}, seja bem-vindo ao time de vendas.</p>
         <p style="margin:0 0 12px 0;">
-            Seu acesso à Avalia One foi criado. Para entrar, defina a sua senha:
+            Seu acesso à {{ App\Support\Empresa::marca() }} foi criado. Para entrar, defina a sua senha:
         </p>
     @endif
 

@@ -7,7 +7,7 @@
     <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Avalia One' }} | Avalia One</title>
+    <title>{{ $title ?? App\Support\Empresa::marca() }} | {{ App\Support\Empresa::marca() }}</title>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

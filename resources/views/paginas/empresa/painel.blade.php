@@ -10,7 +10,7 @@
         <x-slot:subtitulo>
             Competência {{ $competencia }}
         </x-slot:subtitulo>
-        <x-avalia.ajuda assunto="Painel">Falar com a Avalia One</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Painel" />
     </x-avalia.cabecalho-pagina>
 
     {{-- Conta suspensa entra, mas nao consulta. A tela diz o porque em vez de

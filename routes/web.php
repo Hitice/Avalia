@@ -103,7 +103,7 @@ Route::get('/privacidade', [SiteController::class, 'privacidade'])->name('site.p
 /*
  * Os termos do site moram em /termos-de-uso, e nao em /termos.
  *
- * `/termos` ja e o aceite de termo do vendedor, atras do login da erp.
+ * `/termos` ja e o aceite de termo do vendedor, atras do login da equipe.
  * Duas paginas com o mesmo endereco e a mais silenciosa das trocas: uma delas
  * simplesmente para de existir, e so o usuario descobre.
  */
@@ -504,14 +504,6 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
     });
 
     /*
-     * Venda das plaquinhas, apurada e ja dividida.
-     *
-     * Fora do prefixo `/etiquetas` de proposito: la `/{etiqueta}` casa com
-     * qualquer coisa, e `/etiquetas/vendas` viraria uma busca por uma plaquinha
-     * chamada "vendas". Fora do grupo tambem, porque aquele abre para cliente e
-     * produtor e esta tela mostra a margem da casa.
-     */
-    /*
      * A base de negocios da frente de marketing.
      *
      * `admin` e nao `vendedor`: a lista mostra e-mail e telefone de todos os
@@ -569,6 +561,14 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
     });
     Route::get('/estoque', [EstoqueController::class, 'index'])->name('sales.estoque');
 
+    /*
+     * Venda das plaquinhas, apurada e ja dividida.
+     *
+     * Fora do prefixo `/etiquetas` de proposito: la `/{etiqueta}` casa com
+     * qualquer coisa, e `/etiquetas/vendas` viraria uma busca por uma plaquinha
+     * chamada "vendas". Fora do grupo tambem, porque aquele abre para cliente e
+     * produtor e esta tela mostra a margem da casa.
+     */
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)
         ->middleware('admin')->name('plaquinhas.vendas');
 
@@ -593,18 +593,18 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
     });
 
     /*
+     * A area da CASA, e nao de um produto dela. Mesma permissao de `socios`,
+     * em prefixo proprio para poder um dia sair daqui sozinha.
+     */
+    Route::get('/controladoria', ControladoriaController::class)
+        ->middleware(['admin', 'socios'])->name('controladoria');
+    /*
      * O caixa da sociedade.
      *
      * `socios` depois de `admin`, e nao no lugar dele: aporte, retirada e o que
      * a empresa deve a cada dono nao sao operacao do produto, e nem todo
      * administrador precisa ver. A permissao nasce negada.
      */
-    /*
-     * A area da CASA, e nao de um produto dela. Mesma permissao de `socios`,
-     * em prefixo proprio para poder um dia sair daqui sozinha.
-     */
-    Route::get('/controladoria', ControladoriaController::class)
-        ->middleware(['admin', 'socios'])->name('controladoria');
     Route::middleware(['admin', 'socios'])->prefix('socios')->name('socios.')->group(function () {
         Route::get('/', [SociosController::class, 'index'])->name('index');
         Route::get('/planilha', [SociosController::class, 'planilha'])->name('planilha');

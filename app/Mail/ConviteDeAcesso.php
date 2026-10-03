@@ -36,7 +36,7 @@ class ConviteDeAcesso extends Mailable
     {
         return new Envelope(subject: $this->redefinicao
             ? 'Redefinição de senha'
-            : 'Seu acesso à Avalia One');
+            : 'Seu acesso à '.\App\Support\Empresa::marca());
     }
 
     public function content(): Content

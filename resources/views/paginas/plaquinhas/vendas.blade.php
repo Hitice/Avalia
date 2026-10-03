@@ -129,7 +129,7 @@
                         </td>
                     </tr>
 
-                    {{-- O numero grande e o pro-labore, que sai na sexta. O retido
+                    {{-- O numero grande e o pro-labore, pago pela tela de Pagamentos. O retido
                          ja esta no caixa desde a venda; nao e dinheiro a pagar. --}}
                     @forelse ($porSocio as $socio)
                         <tr>

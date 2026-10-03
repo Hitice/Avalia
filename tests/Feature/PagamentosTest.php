@@ -19,7 +19,7 @@ uses(RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------
-| A fatura inteira no razao, e a sexta-feira
+| A fatura inteira no razao, e a pagamentos
 |--------------------------------------------------------------------------
 */
 
@@ -111,7 +111,7 @@ it('provisiona a conta a pagar na categoria e paga contra o caixa', function () 
     financeiro()->from(route('erp.contas'))->post(route('erp.contas.pagar', $conta))->assertSessionHas('erro');
 });
 
-it('mostra a sexta com as quatro partes e a lista de Pix, e lanca o pro-labore', function () {
+it('mostra os pagamentos com as quatro partes e a lista de Pix, e lanca o pro-labore', function () {
     $emails = config('etiquetas.socios');
     $pedro = Staff::factory()->admin()->create(['email' => $emails[0], 'nome' => 'Pedro', 'pode_financeiro' => true, 'pix_chave' => 'pedro@pix']);
     Staff::factory()->admin()->create(['email' => $emails[1], 'nome' => 'Ruan']);

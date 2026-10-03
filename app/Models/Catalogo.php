@@ -91,15 +91,6 @@ class Catalogo extends Model
     }
 
     /**
-     * Faixas ordenadas a partir de precos ja carregados, sem ir ao banco.
-     *
-     * O cast para int e obrigatorio: driver de banco decide se bigint volta
-     * como int ou como string, e faixa em string faz `$faixa === 0` falhar,
-     * trocando "Sem minimo" por "R$ 0,00" no cabecalho.
-     *
-     * @return list<int>
-     */
-    /**
      * Margem alvo de cada faixa, em pontos-base.
      *
      * Uma escada, e nao um numero unico: a faixa sem minimo entrega a margem
@@ -135,6 +126,15 @@ class Catalogo extends Model
         return self::pontosRotulo($this->degrau_margem_bps);
     }
 
+    /**
+     * Faixas ordenadas a partir de precos ja carregados, sem ir ao banco.
+     *
+     * O cast para int e obrigatorio: driver de banco decide se bigint volta
+     * como int ou como string, e faixa em string faz `$faixa === 0` falhar,
+     * trocando "Sem minimo" por "R$ 0,00" no cabecalho.
+     *
+     * @return list<int>
+     */
     public static function faixasDe(ColecaoEloquent $precos): array
     {
         return $precos

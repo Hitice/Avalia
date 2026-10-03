@@ -61,12 +61,6 @@ class Staff extends Authenticatable implements ContaAutenticavel
         return $this->hasMany(Cliente::class, 'vendedor_id');
     }
 
-    /**
-     * Os leads que a administracao compartilhou com esta pessoa.
-     *
-     * Nao e carteira: lead nao tem contrato, e o mesmo lead pode estar com mais
-     * de um vendedor. Quem distribui e sempre a administracao.
-     */
     /** As placas que estao na mao dele, vendidas ou nao. */
     public function placasConsignadas(): HasMany
     {
@@ -79,6 +73,12 @@ class Staff extends Authenticatable implements ContaAutenticavel
         return $this->hasMany(Etiqueta::class, 'vendedor_id');
     }
 
+    /**
+     * Os leads que a administracao compartilhou com esta pessoa.
+     *
+     * Nao e carteira: lead nao tem contrato, e o mesmo lead pode estar com mais
+     * de um vendedor. Quem distribui e sempre a administracao.
+     */
     public function leads(): BelongsToMany
     {
         return $this->belongsToMany(Lead::class, 'lead_staff', 'staff_id', 'lead_id')
@@ -139,7 +139,6 @@ class Staff extends Authenticatable implements ContaAutenticavel
         return (bool) $this->super;
     }
 
-    /** Regra unica de quem pode entrar. Vale no login e a cada requisicao. */
     /** Carteira, faturas, placas, consultas ou acoes registradas apontam para a pessoa: ela nao se apaga. */
     public function temHistorico(): bool
     {
@@ -150,6 +149,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
             || Auditoria::where('staff_id', $this->id)->exists();
     }
 
+    /** Regra unica de quem pode entrar. Vale no login e a cada requisicao. */
     public function podeEntrar(): bool
     {
         return $this->ativo && $this->deleted_at === null;
@@ -161,16 +161,9 @@ class Staff extends Authenticatable implements ContaAutenticavel
             return 'Esta conta foi removida.';
         }
 
-        return $this->ativo ? null : 'Esta conta esta desativada. Fale com a administracao.';
+        return $this->ativo ? null : 'Esta conta está desativada. Fale com a administração.';
     }
 
-    /**
-     * Derruba todas as sessoes abertas desta conta.
-     *
-     * Apaga tambem o token de lembranca: sem isso, quem tem o cookie de
-     * "manter conectado" voltaria a entrar depois de ter o acesso revogado, e
-     * a revogacao seria so aparente.
-     */
     /**
      * Ciencia dos termos do vendedor. So o papel vendedor tem gate: quem
      * administra e quem publica os proprios documentos.
@@ -189,6 +182,13 @@ class Staff extends Authenticatable implements ContaAutenticavel
                 ->count() === $obrigatorios->count();
     }
 
+    /**
+     * Derruba todas as sessoes abertas desta conta.
+     *
+     * Apaga tambem o token de lembranca: sem isso, quem tem o cookie de
+     * "manter conectado" voltaria a entrar depois de ter o acesso revogado, e
+     * a revogacao seria so aparente.
+     */
     public function revogaSessoes(): void
     {
         $this->increment('sessao_versao');

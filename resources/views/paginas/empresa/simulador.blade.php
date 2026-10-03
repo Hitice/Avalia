@@ -6,7 +6,7 @@
 
 @section('content')
     <x-avalia.cabecalho-pagina titulo="Simulador" subtitulo="Estimativa do mês, sem cobrança">
-        <x-avalia.ajuda assunto="Simulador">Falar com a Avalia One</x-avalia.ajuda>
+        <x-avalia.ajuda assunto="Simulador" />
     </x-avalia.cabecalho-pagina>
 
     @if (! $plano)

@@ -95,16 +95,6 @@ class ConferirAmbiente extends Command
     }
 
     /**
-     * Alguma coisa da aplicacao vai para a fila?
-     *
-     * Le o codigo em vez de perguntar a configuracao, porque a pergunta e sobre
-     * intencao: uma classe que implementa ShouldQueue existe para ser processada
-     * fora da requisicao, e a partir do momento em que a primeira aparece, a fila
-     * sincrona deixa de ser aceitavel e a hospedagem compartilhada deixa de
-     * servir. E o dia em que este item precisa reprovar sozinho, sem depender de
-     * alguem lembrar.
-     */
-    /**
      * A aplicacao manda algum e-mail?
      *
      * Mesma leitura de intencao que a da fila: a fachada Mail ou uma classe
@@ -117,6 +107,16 @@ class ConferirAmbiente extends Command
             || $this->codigoContem('Illuminate\Contracts\Mail\\'.'Mailable;');
     }
 
+    /**
+     * Alguma coisa da aplicacao vai para a fila?
+     *
+     * Le o codigo em vez de perguntar a configuracao, porque a pergunta e sobre
+     * intencao: uma classe que implementa ShouldQueue existe para ser processada
+     * fora da requisicao, e a partir do momento em que a primeira aparece, a fila
+     * sincrona deixa de ser aceitavel e a hospedagem compartilhada deixa de
+     * servir. E o dia em que este item precisa reprovar sozinho, sem depender de
+     * alguem lembrar.
+     */
     private function existeTrabalhoEnfileirado(): bool
     {
         return $this->codigoContem('Illuminate\Contracts\Queue\\'.'ShouldQueue;');
