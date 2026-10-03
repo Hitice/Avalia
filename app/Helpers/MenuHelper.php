@@ -178,11 +178,14 @@ class MenuHelper
     }
 
     /**
-     * As outras areas que esta conta abre, no pe de toda lateral. E a unica
-     * porta entre produtos: item de um produto dentro do menu do outro fazia
-     * quem clicava trocar de sistema sem perceber.
+     * As areas que esta conta abre, fixas no pe da lateral, cada uma com a sua
+     * cor; a atual vem marcada. E a unica porta entre produtos: item de um
+     * produto dentro do menu do outro fazia quem clicava trocar de sistema sem
+     * perceber. As classes sao literais, porque o Tailwind so gera o que le.
+     *
+     * @return list<array{icon: string, name: string, path: string, cor: string, fundo: string, atual: bool}>
      */
-    private static function outrasAreas(string $atual): array
+    public static function areas(): array
     {
         $conta = auth('staff')->user();
 
@@ -190,16 +193,23 @@ class MenuHelper
             return [];
         }
 
+        $atual = self::marcaDaArea();
         $areas = [
-            'credito' => ['icon' => 'pesquisa', 'name' => \App\Support\Empresa::marcaCredito(), 'path' => '/painel', 'abre' => $conta->acessa('one')],
-            'vendas' => ['icon' => 'qr', 'name' => \App\Support\Empresa::marcaVendas(), 'path' => '/sales', 'abre' => $conta->acessa('sales')],
-            'erp' => ['icon' => 'inicio', 'name' => \App\Support\Empresa::marcaErp(), 'path' => '/erp', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
-            'crm' => ['icon' => 'pessoas', 'name' => \App\Support\Empresa::marcaCrm(), 'path' => '/crm', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
+            'credito' => ['icon' => 'pesquisa', 'name' => \App\Support\Empresa::marcaCredito(), 'path' => '/painel', 'cor' => 'text-brand-500', 'fundo' => 'bg-brand-50 dark:bg-brand-500/15', 'abre' => $conta->acessa('one')],
+            'vendas' => ['icon' => 'qr', 'name' => \App\Support\Empresa::marcaVendas(), 'path' => '/sales', 'cor' => 'text-theme-pink-500', 'fundo' => 'bg-theme-pink-500/10 dark:bg-theme-pink-500/15', 'abre' => $conta->acessa('sales')],
+            'erp' => ['icon' => 'grafico', 'name' => \App\Support\Empresa::marcaErp(), 'path' => '/erp', 'cor' => 'text-success-500', 'fundo' => 'bg-success-50 dark:bg-success-500/15', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
+            'crm' => ['icon' => 'pessoas', 'name' => \App\Support\Empresa::marcaCrm(), 'path' => '/crm', 'cor' => 'text-theme-purple-500', 'fundo' => 'bg-theme-purple-500/10 dark:bg-theme-purple-500/15', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
         ];
 
-        unset($areas[$atual]);
+        $lista = [];
 
-        return array_values(array_filter($areas, fn (array $area) => $area['abre']));
+        foreach ($areas as $chave => $area) {
+            if ($area['abre']) {
+                $lista[] = $area + ['atual' => $chave === $atual];
+            }
+        }
+
+        return $lista;
     }
 
     public static function getMenuGroups()
@@ -230,13 +240,7 @@ class MenuHelper
             default => ['Menu', self::getMainNavItems()],
         };
 
-        $grupos = [['title' => $titulo, 'items' => array_values(array_filter($itens, $permitido))]];
-
-        if ($outras = self::outrasAreas($area)) {
-            $grupos[] = ['title' => 'Áreas', 'items' => $outras];
-        }
-
-        return $grupos;
+        return [['title' => $titulo, 'items' => array_values(array_filter($itens, $permitido))]];
     }
 
     public static function isActive($path)

@@ -88,7 +88,27 @@
 
     </div>
 
-    <footer class="-mx-5 mt-auto border-t border-gray-200 px-5 py-4 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400"
+    {{-- As areas, fixas no pe: a cor diz em qual modulo se esta. --}}
+    @if ($areas = MenuHelper::areas())
+        <nav class="-mx-5 mt-auto border-t border-gray-200 px-5 pt-4 pb-2 dark:border-gray-800" aria-label="Áreas">
+            <ul class="flex flex-col gap-1">
+                @foreach ($areas as $area)
+                    <li>
+                        <a href="{{ $area['path'] }}" @if ($area['atual']) aria-current="page" @endif
+                           class="menu-item group {{ $area['atual'] ? $area['fundo'].' font-semibold' : 'menu-item-inactive' }}"
+                           :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'xl:justify-center' : 'justify-start'"
+                           title="{{ $area['name'] }}">
+                            <span class="{{ $area['cor'] }}"><x-avalia.icone :nome="$area['icon']" class="size-6" /></span>
+                            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                  class="menu-item-text {{ $area['atual'] ? $area['cor'] : '' }}">{{ $area['name'] }}</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
+    @endif
+
+    <footer class="-mx-5 border-t border-gray-200 px-5 py-4 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400"
             :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'text-center' : ''">
         <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen">
             
