@@ -6,7 +6,7 @@
     <x-avalia.cabecalho-pagina titulo="Controladoria" rotulo="Resultado da casa">
         <form method="GET" class="flex flex-wrap items-center gap-2">
             <label for="competencia" class="sr-only">Competência</label>
-            <select id="competencia" name="competencia" class="campo w-auto py-2" onchange="this.form.submit()">
+            <select id="competencia" name="competencia" class="campo w-auto" onchange="this.form.submit()">
                 @foreach ($competencias as $mes)
                     <option value="{{ $mes }}" @selected($mes === $competencia)>{{ $mes }}</option>
                 @endforeach

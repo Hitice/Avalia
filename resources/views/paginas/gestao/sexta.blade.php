@@ -54,7 +54,7 @@
                     @elseif ($r['sugerido'] > 0)
                         <form method="POST" action="{{ route('gestao.sexta.prolabore', $r['socio']) }}" class="flex items-center gap-2">
                             @csrf
-                            <input name="valor" type="text" inputmode="decimal" class="campo w-28 py-1.5 text-right" value="{{ Dinheiro::numero($r['sugerido']) }}">
+                            <input name="valor" type="text" inputmode="decimal" class="campo w-28 text-right" value="{{ Dinheiro::numero($r['sugerido']) }}">
                             <x-avalia.botao tamanho="sm">Lançar</x-avalia.botao>
                         </form>
                     @else

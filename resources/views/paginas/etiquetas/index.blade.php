@@ -133,7 +133,7 @@
             <div class="barra-secao">
                 <div>
                     <label for="formato" class="rotulo-campo">Formato</label>
-                    <select id="formato" x-model="formato" class="campo w-auto py-2">
+                    <select id="formato" x-model="formato" class="campo w-auto">
                         <option value="svg">SVG</option>
                         <option value="png">PNG</option>
                         <option value="ambos">SVG e PNG</option>

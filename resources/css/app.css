@@ -356,8 +356,31 @@
   @apply px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400;
 }
 
+/* Campo, select e botao tem a mesma altura (44px): caixa e lista lado a lado
+   com alturas diferentes era o que fazia o formulario parecer remendado. */
 @utility campo {
-  @apply w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90;
+  @apply h-11 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-800 focus:border-brand-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white/90;
+}
+
+/* A lista nasce com a cara do navegador. Aqui ela vira a mesma caixa do campo,
+   com a seta da casa e espaco para ela; as opcoes seguem o tema escuro. */
+select.campo {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2398a2b3' stroke-width='1.8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.1rem;
+}
+
+select.campo option {
+  @apply bg-white text-gray-800 dark:bg-gray-900 dark:text-white/90;
+}
+
+textarea.campo {
+  height: auto;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
 }
 
 @utility campo-linha {
@@ -500,7 +523,7 @@
 }
 
 @utility botao {
-  @apply focus-visible:ring-brand-500/50 inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition focus:outline-none focus-visible:ring-2;
+  @apply focus-visible:ring-brand-500/50 inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition focus:outline-none focus-visible:ring-2;
 }
 
 @utility botao-sm {

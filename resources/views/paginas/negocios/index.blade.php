@@ -172,7 +172,7 @@
                                     @csrf
                                     @method('PUT')
 
-                                    <select name="situacao" class="campo w-auto py-1.5"
+                                    <select name="situacao" class="campo w-auto"
                                             onchange="this.form.submit()">
                                         @foreach ($situacoes as $valor => $rotulo)
                                             <option value="{{ $valor }}"

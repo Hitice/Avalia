@@ -84,7 +84,7 @@
 
                     <div class="flex flex-wrap items-center gap-2">
                         <label for="vendedor-lote" class="sr-only">Vendedor</label>
-                        <select id="vendedor-lote" name="vendedor" class="campo w-auto py-2" x-model="vendedor">
+                        <select id="vendedor-lote" name="vendedor" class="campo w-auto" x-model="vendedor">
                             <option value="">Escolha o vendedor</option>
                             @foreach ($vendedores as $vendedor)
                                 <option value="{{ $vendedor->id }}">{{ $vendedor->nome }}</option>

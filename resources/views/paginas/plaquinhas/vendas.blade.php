@@ -19,7 +19,7 @@
     <x-avalia.cabecalho-pagina titulo="Vendas QR">
         <form method="GET" action="{{ route('plaquinhas.vendas') }}" class="flex flex-wrap items-center gap-2">
             <label for="mes" class="sr-only">Mês</label>
-            <select id="mes" name="mes" class="campo w-auto py-2" onchange="this.form.submit()">
+            <select id="mes" name="mes" class="campo w-auto" onchange="this.form.submit()">
                 @foreach ($meses as $opcao)
                     <option value="{{ $opcao->format('Y-m') }}" @selected($opcao->format('Y-m') === $mes->format('Y-m'))>
                         {{ $opcao->translatedFormat('F/Y') }}

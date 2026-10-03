@@ -47,7 +47,7 @@ nunca montado em tempo de execucao.
 Vocabulario ja existente: `titulo-pagina`, `subtitulo-pagina`, `titulo-cartao`,
 `titulo-secao`, `flutuante` (menu da conta, modal, caixa de login), `cartao`, `tabela`, `tabela-cabecalho`,
 `tabela-cabecalho-fixo`, `tabela-rolagem`, `tabela-th`, `tabela-td`,
-`tabela-vazia`, `campo`, `campo-linha`, `campo-celula`, `rotulo-campo`,
+`tabela-vazia`, `campo` (44px, igual ao `botao`; select ganha a seta da casa por `select.campo`), `campo-linha`, `campo-celula`, `rotulo-campo`,
 `ajuda-campo`, `erro-campo`, `etiqueta` + `etiqueta-{neutra,alerta,erro}`,
 `aviso` + `aviso-{ok,erro,alerta}`, `botao` + `botao-{primario,secundario,sm}`,
 `segmento-grupo`, `segmento` + `segmento-{ativo,inativo}`, `rotulo-grupo`,
