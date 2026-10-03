@@ -7,14 +7,20 @@
 
     @include('parciais.avisos')
 
+    {{-- Quem vende ve o que e seu; o socio, o pro-labore; a administracao que
+         nao vende ve so a casa. Cartao pessoal para quem nao tem venda e numero
+         zero ocupando lugar. --}}
+    @php $pessoal = ! $ehAdmin || $minhas['placas'] > 0 || $emMaos > 0 || $comissaoAtual > 0; @endphp
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$emMaos" :href="route('sales.estoque')"
-                                   tom="text-brand-600 dark:text-brand-400" />
-        <x-avalia.cartao-indicador rotulo="Vendas do mês" :valor="$minhas['placas']" :href="route('etiquetas.index')" />
+        @if ($pessoal)
+            <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$emMaos" :href="route('sales.estoque')"
+                                       tom="text-brand-600 dark:text-brand-400" />
+            <x-avalia.cartao-indicador rotulo="Vendas do mês" :valor="$minhas['placas']" :href="route('etiquetas.index')" />
+        @endif
         @if ($minhaParte)
             <x-avalia.cartao-indicador rotulo="Pró-labore do mês" :valor="Dinheiro::brl($minhaParte['prolabore'])"
                                        :ajuda="'Parte '.Dinheiro::brl($minhaParte['parte']).' · retido '.Dinheiro::brl($minhaParte['retido'])" />
-        @else
+        @elseif ($pessoal)
             {{-- Atual e o que ainda nao foi pago, de qualquer mes; zera na sexta. --}}
             <x-avalia.cartao-indicador rotulo="Comissão atual" :valor="Dinheiro::brl($comissaoAtual)" ajuda="A receber" />
             <x-avalia.cartao-indicador rotulo="Comissão do mês" :valor="Dinheiro::brl($minhas['comissao'])" />

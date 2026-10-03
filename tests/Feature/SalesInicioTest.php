@@ -52,10 +52,11 @@ it('mostra ao socio a parte dele no lucro do mes, ja com a retencao', function (
         ->and($html)->not->toContain('Minha comissão no mês');
 });
 
-it('mostra a equipe ao admin', function () {
+it('mostra a equipe ao admin, sem cartao pessoal para quem nao vende', function () {
     $html = admin()->get(route('sales.inicio'))->assertOk()->getContent();
 
-    expect($html)->toContain('Equipe no mês')->and($html)->toContain('Estoque atual');
+    expect($html)->toContain('Equipe no mês')->and($html)->toContain('Estoque atual')
+        ->and($html)->not->toContain('Comissão atual')->not->toContain('Vendas do mês');
 });
 
 it('nao abre para cliente nem sem sessao', function () {
