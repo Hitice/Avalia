@@ -104,10 +104,20 @@ if [ -z "${AVALIA_FORCAR:-}" ] && [ "${1:-}" != "--forcar" ] \
     exit 0
 fi
 
-echo "==> Tirando do ar"
-# `|| true` porque `down` falha quando ja esta em manutencao, e uma publicacao
-# repetida depois de erro nao pode parar por causa disso.
-php artisan down --render=errors::503 --retry=15 || true
+# So sai do ar quando a versao nova traz migration: codigo e cache trocam em
+# menos de um segundo e nao justificam a tela de manutencao. Era a tela que o
+# dono via a cada publicacao, e eram dezenas por dia.
+#
+# `--refresh=8` manda o navegador recarregar sozinho; `|| true` porque `down`
+# falha quando ja esta em manutencao.
+if git diff --quiet HEAD origin/main -- database/migrations; then
+    echo "==> Sem migration: segue no ar"
+    AVALIA_FORA_DO_AR=
+else
+    echo "==> Tirando do ar"
+    php artisan down --render=errors::503 --retry=15 --refresh=8 || true
+    AVALIA_FORA_DO_AR=1
+fi
 
 echo "==> Trazendo a versao nova"
 git reset --hard --quiet origin/main
@@ -144,8 +154,10 @@ if systemctl list-unit-files 2> /dev/null | grep -q '^avalia-fila'; then
     sudo systemctl restart avalia-fila
 fi
 
-echo "==> Subindo"
-php artisan up
+if [ -n "${AVALIA_FORA_DO_AR:-}" ]; then
+    echo "==> Subindo"
+    php artisan up
+fi
 
 trap - ERR
 

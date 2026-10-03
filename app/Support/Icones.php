@@ -46,7 +46,11 @@ final class Icones
 
     public static function miolo(string $nome): string
     {
-        return self::MAPA[$nome] ?? throw new \InvalidArgumentException("Icone {$nome} nao existe.");
+        $miolo = self::MAPA[$nome] ?? throw new \InvalidArgumentException("Icone {$nome} nao existe.");
+
+        // O componente desenha com traco; o icone preenchido ganharia um
+        // contorno grosso por cima do preenchimento.
+        return str_contains($miolo, 'fill="currentColor"') ? '<g stroke="none">'.$miolo.'</g>' : $miolo;
     }
 
     /** @return list<string> */
