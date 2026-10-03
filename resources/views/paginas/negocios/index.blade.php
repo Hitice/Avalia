@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Gerar link'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Gerar link" rotulo="Link de avaliação e negócios">
+    <x-avalia.cabecalho-pagina titulo="Gerar link" rotulo="Link de avaliação do Google">
         {{-- O formulario publico, para mandar ao cliente que ainda nao esta na base. --}}
         <span class="font-mono text-sm text-gray-600 dark:text-gray-300">{{ route('cadastro-negocio') }}</span>
         <x-avalia.botao variante="secundario" tamanho="sm" type="button" onclick="navigator.clipboard.writeText('{{ route('cadastro-negocio') }}')">Copiar link</x-avalia.botao>
@@ -12,8 +12,8 @@
          Fica no topo porque e o pedido mais frequente do cliente de marketing, e
          nao depende de ele estar na base. --}}
     <div class="cartao mb-6 p-5">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Link de avaliação do Google</h2>
-        <p class="ajuda-campo mt-1">Nome como está no perfil do Google. O link sai encurtado.</p>
+        <h2 class="titulo-secao">Pelo nome do estabelecimento</h2>
+        <p class="ajuda-campo -mt-3 mb-1">A API do Google localiza o Place ID; o link de avaliação volta pronto e encurtado pela Avalia.</p>
 
         @if (session('linkPronto'))
             <div class="aviso aviso-ok mt-4 flex flex-wrap items-center gap-3">
@@ -77,6 +77,25 @@
         @endif
     </div>
 
+    <div class="cartao mb-6 p-5">
+        <h2 class="titulo-secao">Já tem o Place ID?</h2>
+        <p class="ajuda-campo -mt-3 mb-1">Cole o Place ID e o link de avaliação volta pronto, encurtado pela Avalia.</p>
+
+        <form method="POST" action="{{ route('negocios.avaliacao.gerar') }}" class="mt-4 flex flex-wrap items-end gap-3">
+            @csrf
+            <div class="min-w-[18rem] flex-1">
+                <label for="place-id" class="rotulo-campo">Place ID</label>
+                <input id="place-id" name="place_id" type="text" class="campo font-mono" required maxlength="255"
+                       value="{{ old('place_id') }}" placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4">
+                @error('place_id') <span class="erro-campo">{{ $message }}</span> @enderror
+            </div>
+            <div class="min-w-[14rem]">
+                <label for="nome-place" class="rotulo-campo">Nome do estabelecimento</label>
+                <input id="nome-place" name="nome" type="text" class="campo" required maxlength="150" value="{{ old('nome') }}">
+            </div>
+            <x-avalia.botao>Gerar link</x-avalia.botao>
+        </form>
+    </div>
     <div class="cartao overflow-hidden">
         <form method="GET" class="barra-secao">
             <div class="min-w-[14rem] flex-1">
