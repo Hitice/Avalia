@@ -70,7 +70,7 @@
 
                 <div class="flex items-center gap-3">
                     <x-avalia.botao>Entregar</x-avalia.botao>
-                    <span class="ajuda-campo">Até 20 placas por vez. Código errado recusa o lote.</span>
+                    <span class="ajuda-campo">Até 20 placas por vez.</span>
                 </div>
             </form>
         </div>
