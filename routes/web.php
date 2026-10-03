@@ -16,6 +16,7 @@ use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\ContasAPagarController;
+use App\Http\Controllers\ContatosController;
 use App\Http\Controllers\ControladoriaController;
 use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
@@ -535,6 +536,8 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
 
     // A home do back office: so administracao, como toda a lateral dele.
     Route::get('/gestao', [GestaoController::class, 'inicio'])->middleware('admin')->name('gestao.inicio');
+    Route::get('/gestao/contatos', [ContatosController::class, 'index'])->middleware('admin')->name('gestao.contatos');
+    Route::get('/gestao/contatos/{contato}', [ContatosController::class, 'ver'])->middleware('admin')->name('gestao.contatos.ver');
 
     // A sexta-feira e as contas a pagar mexem no caixa: admin com permissao financeira.
     Route::middleware(['admin', 'financeiro'])->prefix('gestao')->name('gestao.')->group(function () {

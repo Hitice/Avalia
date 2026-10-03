@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\ContaAutenticavel;
+use App\Crm\TemContato;
 use App\Support\Documento;
 use App\Support\Empresa;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,13 +18,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * pode vender: sem `asaas_wallet_id` nao ha para onde o split mandar a parte
  * dele, e a venda ficaria com o dinheiro na conta errada.
  */
-class Produtor extends Authenticatable implements ContaAutenticavel
+class Produtor extends Authenticatable implements ContaAutenticavel, TemContato
 {
     use SoftDeletes;
 
     protected $table = 'produtores';
 
-    protected $fillable = [
+    protected $fillable = ['contato_id',
         'pai_id', 'nome', 'documento', 'whatsapp', 'email', 'senha', 'situacao',
         'percentual_bps', 'profundidade',
         'asaas_account_id', 'asaas_wallet_id', 'asaas_api_key',
@@ -147,5 +148,15 @@ class Produtor extends Authenticatable implements ContaAutenticavel
     {
         $this->increment('sessao_versao');
         $this->forceFill(['remember_token' => null])->saveQuietly();
+    }
+
+    public function dadosDeContato(): array
+    {
+        return ['nome' => $this->nome, 'documento' => $this->documento, 'email' => $this->email, 'whatsapp' => $this->whatsapp];
+    }
+
+    public function papelNoCrm(): string
+    {
+        return 'produtor';
     }
 }

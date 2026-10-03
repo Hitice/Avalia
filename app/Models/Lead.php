@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Crm\TemContato;
 use App\Enums\SituacaoLead;
 use App\Support\Documento;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,13 +23,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * que faz a conversao ser copia, e nao entrevista de novo com o cliente na
  * linha.
  */
-class Lead extends Model
+class Lead extends Model implements TemContato
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'leads';
 
-    protected $fillable = [
+    protected $fillable = ['contato_id',
         'codigo', 'nome', 'cnpj', 'cidade', 'uf', 'telefone', 'email',
         'responsavel_nome', 'responsavel_cpf', 'cep', 'logradouro', 'numero',
         'complemento', 'bairro', 'origem', 'situacao', 'agendado_para', 'observacao',
@@ -183,5 +184,15 @@ class Lead extends Model
             'cidade' => $this->cidade,
             'uf' => $this->uf,
         ];
+    }
+
+    public function dadosDeContato(): array
+    {
+        return ['nome' => $this->nome, 'documento' => $this->cnpj, 'email' => $this->email, 'telefone' => $this->telefone, 'cidade' => $this->cidade, 'uf' => $this->uf];
+    }
+
+    public function papelNoCrm(): string
+    {
+        return 'lead';
     }
 }

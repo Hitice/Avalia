@@ -142,6 +142,7 @@ class MenuHelper
     {
         return [
             ['icon' => 'inicio', 'name' => 'Início', 'path' => '/gestao'],
+            ['icon' => 'pessoas', 'name' => 'Contatos', 'path' => '/gestao/contatos'],
             ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads'],
             ['icon' => 'grafico', 'name' => 'Financeiro', 'path' => '/financeiro', 'exigeFinanceiro' => true],
             ['icon' => 'tarefa', 'name' => 'Sexta-feira', 'path' => '/gestao/sexta', 'exigeFinanceiro' => true],

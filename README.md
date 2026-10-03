@@ -54,6 +54,8 @@ php artisan avalia:importar <arquivo>        # restaura a cópia
 php artisan avalia:conferir-exclusao --email= --empresa=
 php artisan avalia:lastrear-plaquinhas --simular    # vendas de placa que entrariam no razão
 php artisan avalia:relancar-plaquinhas --simular    # relança as que mudaram de regra
+php artisan avalia:lastrear-faturas --simular       # faturas liquidadas que faltam no razão
+php artisan avalia:lastrear-contatos --simular      # dá contato a todo cadastro que ainda não tem
 php artisan avalia:etiquetas-limpar
 ```
 
@@ -65,6 +67,7 @@ de comando do provedor não aceita aspas em três níveis ([DEPLOY.md](DEPLOY.md
 ```
 app/Actions/<Modulo>/     uma regra de negócio por classe, transacional
 app/Contabil/             o razão: único escritor (Lancar), partidas, competência, livro-caixa
+app/Crm/                  o contato único das cinco frentes: TemContato, Contatos (acha ou cria)
 app/Support/              cálculo puro, sem banco (Dinheiro, Margem, Comissao, RepartePlaquinha, Marca)
 app/Services/Conectores/  bureaus, atrás do contrato ConectorBureau
 app/Helpers/MenuHelper    qual lateral e qual marca cada rota mostra

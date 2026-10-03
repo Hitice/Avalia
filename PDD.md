@@ -492,7 +492,9 @@ linhas; a competência do estorno é a de hoje.
 | Transferência | Entre contas de dinheiro. Resultado não muda. |
 | Retirada | Caixa cai, dívida com o sócio cai. |
 | Distribuição | Caixa cai, patrimônio do sócio cai. Depende de decisão. |
-| Pagamento | Quita comissão a pagar. Sai do sistema, nunca do formulário. |
+| Pagamento | Quita comissão ou conta a pagar. Sai do sistema, nunca do formulário. |
+| Pró-labore | Caixa cai; despesa de pessoal do sócio. Sai da sexta-feira. |
+| Provisão | Despesa reconhecida, dívida com fornecedor; o caixa só cai no pagamento. Sai de Contas a pagar. |
 
 ### Plano de contas
 
@@ -518,11 +520,12 @@ automaticamente está na seção 15.
 
 | Evento | Lança no razão |
 |---|---|
-| Fatura do One liquidada | sim, na mesma transação (`ReconhecerReceita`) |
+| Fatura do One liquidada | sim, inteira: receita, imposto, custo do fornecedor e comissão (`FaturaNoRazao`); estorno desfaz |
 | Venda de plaquinha, cancelamento, correção de valor | sim |
-| Comissão do Sales paga | sim |
-| Consulta executada, fatura fechada, parcela do Gestor paga, comissão do One liberada | **não**: ainda é coluna no documento |
-| Aporte, retirada, despesa, receita de projeto | à mão, em Sócios |
+| Comissão do Sales e do One pagas | sim, pela sexta-feira |
+| Conta a pagar registrada e paga | sim (`provisao` e `pagamento`) |
+| Consulta executada, fatura fechada (a receber), parcela do Gestor paga | **não**: ainda é coluna no documento |
+| Aporte, retirada, pró-labore, despesa, receita de projeto | à mão, em Sócios ou na sexta |
 
 Fatura marcada como paga sem a linha no razão é divergência que só aparece na
 conferência do mês. Não duplica por construção: `origem_tipo`/`origem_id` é
@@ -623,13 +626,16 @@ o núcleo ouve, na mesma transação. API interna entre módulos, agregador
 bancário pago e CRM de terceiro foram avaliados e descartados por custo e por
 dupla fonte de verdade.
 
-### Núcleo CRM
+### Núcleo CRM (feito em 02/10/2026, menos o funil)
 
-`contatos` (pessoa ou empresa: nome, documento, e-mail, WhatsApp, telefone,
-endereço, origem), `vinculos` (que papel o contato tem em cada frente) e
-`interacoes` (linha do tempo única). As cinco tabelas atuais **ficam** e ganham
-`contato_id`; nada se apaga, login não muda. Deduplicação por documento, depois
-por WhatsApp, como a venda já faz. Funil por frente sobre a mesma tabela.
+`contatos` (nome, documento, e-mail, WhatsApp, telefone, cidade, origem),
+`vinculos` (que papel o contato tem em cada frente) e `interacoes` (linha do
+tempo). As cinco tabelas **ficaram** e ganharam `contato_id`; cada uma diz quem é
+pela interface `App\Crm\TemContato`, e `App\Crm\Contatos` acha ou cria no
+momento do cadastro (observer no provider) e no lastro (`avalia:lastrear-contatos`).
+Deduplica por documento, depois WhatsApp ou telefone, depois e-mail; nunca só
+pelo nome. O núcleo não importa modelo de frente (teste de fronteira). A tela é
+Contatos, na Gestão. Falta o funil sobre a mesma tabela.
 
 ### Núcleo ERP
 
@@ -641,16 +647,18 @@ sendo onde a operação acontece e deixa de ser onde o resultado mora.
 |---|---|
 | 0. Catraca (três razões, comentário, tema) | feita |
 | 1. Plano de contas por produto | feita |
-| 2. Regras de lançamento em `app/Contabil`, uma classe por evento | feita para a plaquinha; faltam consulta, fatura fechada, parcela paga, comissão do One |
-| 3. Lastro do histórico (lê, nunca escreve no documento) | feita para a plaquinha; faltam `faturas`, `pedidos_360`, `lancamentos_360` |
-| 4. Conciliação subrazão × razão com teste | feita para a plaquinha |
+| 2. Regras de lançamento, uma classe por evento | plaquinha e fatura liquidada do One feitas; faltam consulta executada, fatura fechada (a receber) e parcela do Gestor |
+| 3. Lastro do histórico (lê, nunca escreve no documento) | plaquinha e faturas feitos; faltam `pedidos_360`, `lancamentos_360` |
+| 4. Conciliação subrazão × razão com teste | feita para a plaquinha e para a fatura |
 | 5. Relatórios leem do razão (`PainelController`, `Caixa`, carteira, painéis) | pendente |
 | 6. Coluna derivada sai do documento | depois da 5 |
 
-Mais o que a operação de dois sócios pede: contas a pagar com vencimento; a
-**rotina de sexta** (comissões do One e do Sales, pró-labore de cada um, com a
-lista de Pix); natureza `prolabore` separada de retirada e distribuição;
-importação do extrato OFX do Nubank e conciliação contra a conta `caixa`.
+O que a operação de dois sócios pede, feito em 02/10/2026: contas a pagar com
+vencimento (`/gestao/contas`); a **sexta-feira** (`/gestao/sexta`: comissões do
+One e do Sales, pró-labore sugerido por sócio, contas da semana, lista de Pix);
+natureza `prolabore` separada de retirada e distribuição. Falta: importação do
+extrato OFX do Nubank e conciliação contra a conta `caixa` (operação manual por
+decisão, seção 10).
 
 ### Back office
 
@@ -663,10 +671,10 @@ porta entre produtos. Contatos e Funil entram aqui quando existirem.
 ### Ordem
 
 1. Lateral de back office, movendo o que existe. **Feita.**
-2. `contatos` + `contato_id` + lastro que casa os registros por documento e WhatsApp.
-3. Eventos das frentes para o CRM; teste de fronteira de `app/Crm`.
-4. Fases 2 a 4 do razão para One e Gestor; sexta unificada.
-5. Funil e linha do tempo; fase 5.
+2. `contatos` + `contato_id` + lastro. **Feito.**
+3. Cadastro nas frentes vira contato (observer) e teste de fronteira. **Feito**; venda de placa anota na linha do tempo, os demais eventos ainda não.
+4. Razão para One (fatura liquidada) e sexta unificada **feitos**; faltam consulta executada, fatura fechada e Gestor.
+5. Funil; fase 5 (relatórios lendo do razão).
 6. `/api/v1` quando aparecer o primeiro consumidor externo.
 
 ### Redundâncias a mitigar, por custo

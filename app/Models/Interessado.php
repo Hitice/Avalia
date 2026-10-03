@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Crm\TemContato;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,11 +12,11 @@ use Illuminate\Database\Eloquent\Model;
  * aqui para a conversa comecar do nosso lado, e nao pela URL de um servico de
  * terceiro. Nao guarda nada alem do que o formulario pede.
  */
-class Interessado extends Model
+class Interessado extends Model implements TemContato
 {
     protected $table = 'interessados';
 
-    protected $fillable = [
+    protected $fillable = ['contato_id',
         'nome', 'empresa', 'telefone', 'email', 'funcionarios',
         'assunto', 'mensagem', 'origem', 'atendido_em',
     ];
@@ -29,5 +30,15 @@ class Interessado extends Model
     public function scopeAguardando($consulta)
     {
         return $consulta->whereNull('atendido_em');
+    }
+
+    public function dadosDeContato(): array
+    {
+        return ['nome' => $this->empresa ?: $this->nome, 'email' => $this->email, 'telefone' => $this->telefone];
+    }
+
+    public function papelNoCrm(): string
+    {
+        return 'interessado';
     }
 }

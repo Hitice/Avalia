@@ -112,5 +112,9 @@ class VenderEtiqueta
         ])->save();
 
         $etiqueta->update(['negocio_id' => $negocio->id]);
+
+        if ($negocio->contato_id) {
+            \App\Crm\Contatos::anotar($negocio->fresh()->contato ?? \App\Crm\Contatos::vincular($negocio, 'venda'), 'venda', 'Plaquinha '.$etiqueta->codigo.' vendida');
+        }
     }
 }

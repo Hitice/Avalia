@@ -34,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Toda pessoa cadastrada numa frente vira contato na hora. O nucleo
+        // so conhece a interface; quem lista as tabelas e este provider.
+        foreach ([\App\Models\Cliente::class, \App\Models\Negocio::class, \App\Models\Lead::class, \App\Models\Interessado::class, \App\Models\Produtor::class] as $modelo) {
+            $modelo::created(fn ($entidade) => \App\Crm\Contatos::vincular($entidade, $entidade->getAttribute('origem') ?: null));
+        }
     }
 }

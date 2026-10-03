@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\ContaAutenticavel;
+use App\Crm\TemContato;
 use App\Support\Documento;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * O modulo Cadastro acrescenta a ficha completa (proposta comercial) por
  * migration propria. Aqui fica so o que o Acesso precisa.
  */
-class Cliente extends Authenticatable implements ContaAutenticavel
+class Cliente extends Authenticatable implements ContaAutenticavel, TemContato
 {
     use HasFactory, SoftDeletes;
 
@@ -26,7 +27,7 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     /** Situacoes que permitem consultar. As demais suspendem o uso. */
     public const SITUACOES_ATIVAS = ['ativo'];
 
-    protected $fillable = ['razao_social', 'cnpj', 'email', 'senha', 'situacao', 'plano_id', 'vendedor_id', 'telefone', 'responsavel_nome', 'responsavel_cpf', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'vigencia_tipo', 'contrato_inicio', 'contrato_fim', 'carencia_ate'];
+    protected $fillable = ['contato_id', 'razao_social', 'cnpj', 'email', 'senha', 'situacao', 'plano_id', 'vendedor_id', 'telefone', 'responsavel_nome', 'responsavel_cpf', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'vigencia_tipo', 'contrato_inicio', 'contrato_fim', 'carencia_ate'];
 
     protected $hidden = ['senha', 'sessao_versao'];
 
@@ -143,5 +144,15 @@ class Cliente extends Authenticatable implements ContaAutenticavel
     {
         $this->increment('sessao_versao');
         $this->forceFill(['remember_token' => null])->saveQuietly();
+    }
+
+    public function dadosDeContato(): array
+    {
+        return ['nome' => $this->razao_social, 'documento' => $this->cnpj, 'email' => $this->email, 'telefone' => $this->telefone, 'cidade' => $this->cidade, 'uf' => $this->uf];
+    }
+
+    public function papelNoCrm(): string
+    {
+        return 'cliente';
     }
 }

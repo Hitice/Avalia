@@ -99,6 +99,16 @@ it('mantem o razao sem saber de produto nenhum', function () use ($raiz) {
         }
     }
 
+    foreach (glob($raiz.'/app/Crm/*.php') as $caminho) {
+        $fonte = (string) file_get_contents($caminho);
+
+        foreach (array_merge($proibidos, ['Negocio', 'Interessado']) as $modelo) {
+            if (str_contains($fonte, 'App\\Models\\'.$modelo)) {
+                $vazamentos[] = 'Crm/'.basename($caminho).' usa '.$modelo;
+            }
+        }
+    }
+
     expect($vazamentos)->toBe(
         [],
         'O razao passou a conhecer produto: '.implode('; ', $vazamentos)

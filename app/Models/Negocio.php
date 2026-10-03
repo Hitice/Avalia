@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Crm\TemContato;
 use App\Enums\SituacaoNegocio;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,13 +16,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * hoje plaquinha e cadastro no Google Meu Negocio, e o que vier depois usa o
  * mesmo cadastro em vez de pedir os dados de novo.
  */
-class Negocio extends Model
+class Negocio extends Model implements TemContato
 {
     use HasFactory;
 
     protected $table = 'negocios';
 
-    protected $fillable = [
+    protected $fillable = ['contato_id',
         'nome', 'categoria', 'descricao', 'site', 'instagram',
         'responsavel', 'email', 'whatsapp', 'telefone', 'documento',
         'place_id', 'link_avaliacao_id',
@@ -117,5 +118,20 @@ class Negocio extends Model
         }
 
         return $falta;
+    }
+
+    public function contato(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Contato::class);
+    }
+
+    public function dadosDeContato(): array
+    {
+        return ['nome' => $this->nome, 'documento' => $this->documento, 'email' => $this->email, 'whatsapp' => $this->whatsapp, 'telefone' => $this->telefone, 'cidade' => $this->cidade, 'uf' => $this->uf];
+    }
+
+    public function papelNoCrm(): string
+    {
+        return 'negocio';
     }
 }
