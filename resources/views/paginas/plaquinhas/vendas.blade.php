@@ -58,6 +58,33 @@
             <x-avalia.grafico-vendas-dia :por-dia="$porDia" :mes="$mes" :meta="$meta" />
         </div>
 
+    {{-- As vendas do mes numa fila que rola de lado: quatro por vez, uma
+         linha por venda. Lista inteira para quem confere e cada card leva a ficha. --}}
+    <div class="mb-6 cartao p-5">
+        <div class="flex items-baseline justify-between">
+            <h2 class="titulo-cartao">Vendas do mês</h2>
+            <span class="subtitulo-pagina mt-0">{{ $vendas->count() }} {{ $vendas->count() === 1 ? 'venda' : 'vendas' }}</span>
+        </div>
+
+        @if ($vendas->isEmpty())
+            <p class="tabela-vazia mt-4">Nenhuma placa vendida neste mês.</p>
+        @else
+            <div class="-mx-5 mt-4 flex snap-x gap-3 overflow-x-auto px-5 pb-2">
+                @foreach ($vendas as $venda)
+                    <a href="{{ route('etiquetas.ficha', $venda) }}"
+                       class="flutuante flex w-[16rem] shrink-0 snap-start items-center justify-between gap-3 px-4 py-3 text-sm transition hover:border-brand-300">
+                        <span class="min-w-0">
+                            <span class="block truncate font-medium text-gray-800 dark:text-white/90">{{ $venda->cliente_nome ?? 'Sem cliente' }}</span>
+                            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">
+                                <span class="font-mono">{{ $venda->codigo }}</span> · {{ $venda->vendedor?->nome ?? 'Não identificado' }} · {{ $venda->vendida_em->format('d/m H:i') }}
+                            </span>
+                        </span>
+                        <span class="shrink-0 tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl((int) $venda->valor_cents) }}</span>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+    </div>
     {{-- Tres colunas: o dinheiro, quem vendeu, o que se paga. --}}
     <div class="grid gap-6 lg:grid-cols-3">
         <div class="cartao overflow-hidden">
@@ -195,31 +222,4 @@
             @endforelse
     </div>
 
-    {{-- As vendas do mes numa fila que rola de lado: quatro por vez, uma
-         linha por venda. Lista inteira para quem confere e cada card leva a ficha. --}}
-    <div class="mt-6 cartao p-5">
-        <div class="flex items-baseline justify-between">
-            <h2 class="titulo-cartao">Vendas do mês</h2>
-            <span class="subtitulo-pagina mt-0">{{ $vendas->count() }} {{ $vendas->count() === 1 ? 'venda' : 'vendas' }}</span>
-        </div>
-
-        @if ($vendas->isEmpty())
-            <p class="tabela-vazia mt-4">Nenhuma placa vendida neste mês.</p>
-        @else
-            <div class="-mx-5 mt-4 flex snap-x gap-3 overflow-x-auto px-5 pb-2">
-                @foreach ($vendas as $venda)
-                    <a href="{{ route('etiquetas.ficha', $venda) }}"
-                       class="flutuante flex w-[16rem] shrink-0 snap-start items-center justify-between gap-3 px-4 py-3 text-sm transition hover:border-brand-300">
-                        <span class="min-w-0">
-                            <span class="block truncate font-medium text-gray-800 dark:text-white/90">{{ $venda->cliente_nome ?? 'Sem cliente' }}</span>
-                            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">
-                                <span class="font-mono">{{ $venda->codigo }}</span> · {{ $venda->vendedor?->nome ?? 'Não identificado' }} · {{ $venda->vendida_em->format('d/m H:i') }}
-                            </span>
-                        </span>
-                        <span class="shrink-0 tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl((int) $venda->valor_cents) }}</span>
-                    </a>
-                @endforeach
-            </div>
-        @endif
-    </div>
 @endsection

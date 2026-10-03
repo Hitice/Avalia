@@ -25,18 +25,15 @@
                     <h2 class="titulo-cartao">Estoque</h2>
                     <a href="{{ route('sales.estoque') }}" class="text-sm text-brand-600 hover:underline dark:text-brand-400">ver</a>
                 </div>
-                <div class="mt-3 grid grid-cols-2 gap-3">
-                    <div><span class="rotulo-grupo block">Disponíveis</span><span class="text-2xl font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ $disponiveis }}</span></div>
-                    <div><span class="rotulo-grupo block">Livres</span><span class="text-2xl font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ $noBolo }}</span></div>
-                </div>
-                {{-- A lista cresce com a equipe: linhas curtas, numero pequeno,
-                     e rola a partir de dez. --}}
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Disponíveis <span class="font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ $disponiveis }}</span> · Livres <span class="font-semibold tabular-nums text-gray-800 dark:text-white/90">{{ $noBolo }}</span></p>
+                {{-- A lista cresce com a equipe: nome com espaco, quantidade
+                     pequena ao lado, e rola a partir de dez. --}}
                 <span class="rotulo-grupo mt-4 block">Em mãos</span>
                 <ul class="mt-1 max-h-56 divide-y divide-gray-100 overflow-y-auto dark:divide-gray-800">
                     @forelse ($emMaos as $lote)
-                        <li class="flex items-center justify-between gap-3 py-1.5 text-sm">
+                        <li class="flex items-center gap-2 py-1.5 text-sm">
                             <span class="truncate text-gray-800 dark:text-white/90">{{ $lote->consignadaPara?->nome ?? 'Conta removida' }}</span>
-                            <span class="shrink-0 text-xs tabular-nums text-gray-500 dark:text-gray-400">{{ $lote->total }}</span>
+                            <span class="shrink-0 text-xs tabular-nums text-gray-500 dark:text-gray-400">· {{ (int) $lote->total }} {{ (int) $lote->total === 1 ? 'placa' : 'placas' }}</span>
                         </li>
                     @empty
                         <li class="py-2 text-sm text-gray-500 dark:text-gray-400">Ninguém com placa em mãos.</li>
