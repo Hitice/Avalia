@@ -8,7 +8,7 @@
         @if ($ehAdmin)
             <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$disponiveis" tom="text-brand-600 dark:text-brand-400" ajuda="Geradas e ainda não vendidas" />
             <x-avalia.cartao-indicador rotulo="Geradas" :valor="$geradas" :href="route('etiquetas.criar')" />
-            <x-avalia.cartao-indicador rotulo="Sem dono" :valor="$noBolo" ajuda="Prontas para entregar" />
+            <x-avalia.cartao-indicador rotulo="Livres" :valor="$noBolo" ajuda="Prontas para entregar" />
         @else
             <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$minhas->count()" tom="text-brand-600 dark:text-brand-400" />
         @endif
