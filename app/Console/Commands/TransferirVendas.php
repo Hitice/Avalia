@@ -12,8 +12,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Passa o que uma conta vendeu para outra: placas (vendidas e em maos) e os
- * negocios que ela cadastrou. A carteira do One (clientes e faturas) so com
+ * Passa o que uma conta vendeu para outra: placas (vendidas, em maos e
+ * geradas) e os negocios que ela cadastrou. A carteira do One (clientes e faturas) so com
  * --carteira, porque muda quem recebe comissao de fatura ja liberada.
  *
  * Existe porque a conta mestre (comercial@) vendeu no comeco, e a venda e do
@@ -40,6 +40,7 @@ class TransferirVendas extends Command
         $lotes = [
             'placas vendidas' => Etiqueta::where('vendedor_id', $de->id),
             'placas em mãos' => Etiqueta::where('consignada_para_id', $de->id),
+            'placas geradas' => Etiqueta::where('staff_id', $de->id),
             'negócios' => Negocio::where('vendedor_id', $de->id),
         ];
 
@@ -48,7 +49,7 @@ class TransferirVendas extends Command
             $lotes['faturas'] = Fatura::where('vendedor_id', $de->id);
         }
 
-        $coluna = ['placas em mãos' => 'consignada_para_id'];
+        $coluna = ['placas em mãos' => 'consignada_para_id', 'placas geradas' => 'staff_id'];
         $contagens = [];
 
         DB::transaction(function () use ($lotes, $coluna, $de, $para, &$contagens) {
