@@ -42,9 +42,22 @@ class SalesController extends Controller
         $minhas = Etiqueta::where('vendedor_id', $conta->id)->whereBetween('vendida_em', [$inicio, $fim])->get();
         $posicao = array_search((int) $conta->id, $socios, true);
         $emAberto = $soma(Etiqueta::where('vendedor_id', $conta->id)->comissaoEmAberto()->get());
-        $equipe = $ehAdmin || $posicao !== false
-            ? $soma(Etiqueta::whereNotNull('vendida_em')->whereBetween('vendida_em', [$inicio, $fim])->get())
+        $daEquipe = $ehAdmin || $posicao !== false
+            ? Etiqueta::whereNotNull('vendida_em')->whereBetween('vendida_em', [$inicio, $fim])->with('vendedor:id,nome')->get()
             : null;
+        $equipe = $daEquipe === null ? null : $soma($daEquipe);
+
+        // A operacao inteira, vendedor a vendedor, socios inclusive: e o que a
+        // administracao abre a tela para ver.
+        $porVendedor = $daEquipe === null ? collect() : $daEquipe
+            ->groupBy(fn (Etiqueta $e) => $e->vendedor_id ?? 0)
+            ->map(fn ($vendas, $id) => [
+                'nome' => $id === 0 ? 'Sem vendedor' : ($vendas->first()->vendedor?->nome ?? 'Conta removida'),
+                'socio' => in_array((int) $id, $socios, true),
+                'placas' => $vendas->count(),
+                'bruto' => (int) $vendas->sum('valor_cents'),
+            ])
+            ->sortByDesc('placas')->values();
 
         // Socio nao tem comissao: tem a parte dele no lucro de todas as vendas
         // do mes, inclusive as dos vendedores, e metade dela fica na empresa.
@@ -60,6 +73,7 @@ class SalesController extends Controller
             'emMaos' => Etiqueta::noEstoqueDe((int) $conta->id)->count(),
             'minhas' => $soma($minhas),
             'equipe' => $equipe,
+            'porVendedor' => $porVendedor,
             'minhaParte' => $minhaParte,
             'comissaoAtual' => $emAberto['comissao'],
             'mes' => $inicio,

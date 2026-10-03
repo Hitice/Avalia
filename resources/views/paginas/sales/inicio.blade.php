@@ -38,6 +38,20 @@
                 <x-avalia.cartao-indicador rotulo="Bruto" :valor="Dinheiro::brl($equipe['bruto'])" :href="route('plaquinhas.vendas')" />
                 <x-avalia.cartao-indicador rotulo="Lucro" :valor="Dinheiro::brl($equipe['lucro'])" :href="route('plaquinhas.vendas')" />
             </div>
+
+            <table class="tabela mt-5">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    @forelse ($porVendedor as $v)
+                        <tr>
+                            <td class="tabela-td text-gray-800 dark:text-white/90">{{ $v['nome'] }}@if ($v['socio']) <span class="etiqueta etiqueta-neutra ml-1">sócio</span>@endif</td>
+                            <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $v['placas'] }} {{ $v['placas'] === 1 ? 'placa' : 'placas' }}</td>
+                            <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl($v['bruto']) }}</td>
+                        </tr>
+                    @empty
+                        <tr><td class="tabela-vazia">Nenhuma venda no mês.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     @endif
 
