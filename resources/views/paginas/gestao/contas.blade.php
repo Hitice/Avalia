@@ -3,7 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Contas a pagar" subtitulo="A despesa entra no mês quando a conta é registrada; o caixa cai quando ela é paga." />
+    <x-avalia.cabecalho-pagina titulo="Contas a pagar" subtitulo="Despesas provisionadas e pagas" />
 
     @include('parciais.avisos')
 

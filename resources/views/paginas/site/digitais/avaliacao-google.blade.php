@@ -80,7 +80,7 @@
                         <label for="av-nome" class="rotulo-campo">Nome do estabelecimento</label>
                         <input id="av-nome" name="nome" type="text" class="campo" required maxlength="150"
                                value="{{ old('nome') }}" placeholder="Como está no seu perfil do Google">
-                        <p class="ajuda-campo">Escreva igual ao perfil, com acento e pontuação, para achar de primeira.</p>
+                        <p class="ajuda-campo">Igual ao perfil do Google.</p>
                         @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 

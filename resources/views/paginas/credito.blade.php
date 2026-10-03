@@ -705,9 +705,7 @@
         <x-avalia.modal aberto="aberto === 'campanha'" fechar="aberto = null" rotulo="Pedido de contato">
                 <div>
                     <h3 class="text-xl font-semibold">Quase lá</h3>
-                    <p class="subtitulo-pagina">
-                        Deixe seu contato e um consultor retorna ainda hoje.
-                    </p>
+                    <p class="subtitulo-pagina">Deixe seu contato. Um consultor retorna em horário comercial.</p>
                 </div>
 
                 <form method="POST" action="{{ route('interesse.salvar') }}" class="mt-5 space-y-4">
@@ -721,7 +719,7 @@
                     <div>
                         <label for="int-nome" class="rotulo-campo">Seu nome</label>
                         <input id="int-nome" name="nome" type="text" class="campo" required
-                               maxlength="120" value="{{ old('nome') }}" placeholder="Como podemos te chamar">
+                               maxlength="120" value="{{ old('nome') }}" placeholder="Seu nome">
                         @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 
@@ -766,9 +764,7 @@
                         </svg>
                     </x-avalia.botao>
 
-                    <p class="text-center text-xs text-gray-400 dark:text-gray-500">
-                        Retornamos em horário comercial. Seus dados ficam só com a Avalia One.
-                    </p>
+                    <p class="text-center text-xs text-gray-400 dark:text-gray-500">Seus dados ficam só com a Avalia One.</p>
                 </form>
         </x-avalia.modal>
 
@@ -780,10 +776,7 @@
                     </svg>
                 </div>
                 <h3 class="mt-4 text-xl font-semibold">Pedido recebido</h3>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Obrigado pelo interesse. Um consultor entra em contato ainda hoje,
-                    em horário comercial.
-                </p>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Um consultor entra em contato em horário comercial.</p>
                 <x-avalia.botao variante="secundario" class="mt-6 w-full" @click="aberto = null" type="button">
                     Fechar
                 </x-avalia.botao>

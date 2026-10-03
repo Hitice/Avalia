@@ -52,9 +52,7 @@
 
                 <div>
                     <h2 class="rotulo-grupo">Para onde este código leva</h2>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        O código impresso é permanente. Alterações de destino entram em até um minuto.
-                    </p>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Destino novo vale em até um minuto.</p>
                 </div>
 
                 <div>
@@ -301,9 +299,7 @@
                             <x-avalia.botao variante="secundario" class="botao-sm">Corrigir</x-avalia.botao>
                         </div>
 
-                        <span class="ajuda-campo">
-                            Muda a comissão do mês. O lançamento antigo é estornado e o novo entra no mês atual.
-                        </span>
+                        <span class="ajuda-campo">Muda a comissão do mês.</span>
                         @error('valor') <span class="erro-campo">{{ $message }}</span> @enderror
                     </form>
                     <form method="POST" action="{{ route('plaquinhas.vendedor', $etiqueta) }}" class="mt-4">
@@ -323,7 +319,6 @@
                             </select>
                             <x-avalia.botao variante="secundario" tamanho="sm">Salvar</x-avalia.botao>
                         </div>
-                        <span class="ajuda-campo">A comissão do mês sai daqui.</span>
                         @error('vendedor_id')<span class="erro-campo">{{ $message }}</span>@enderror
                     </form>
 
@@ -331,7 +326,7 @@
                         <span class="text-sm text-gray-500 dark:text-gray-400">Não foi uma venda?</span>
 
                         <form method="POST" action="{{ route('plaquinhas.cancelar-venda', $etiqueta) }}"
-                              onsubmit="return confirm('Cancelar a venda de {{ $etiqueta->codigo }}?\n\nA plaquinha continua no ar, apontando para o mesmo lugar, e sai da apuração de vendas. Se esta venda for de mês já fechado, a comissão daquele mês muda.')">
+                              onsubmit="return confirm('Cancelar a venda de {{ $etiqueta->codigo }}? A placa continua no ar.')">
                             @csrf
                             @method('DELETE')
                             <x-avalia.botao variante="secundario" tamanho="sm">Cancelar venda</x-avalia.botao>

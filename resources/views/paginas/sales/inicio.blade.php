@@ -12,15 +12,15 @@
                                    tom="text-brand-600 dark:text-brand-400" />
         <x-avalia.cartao-indicador rotulo="Vendas do mês" :valor="$minhas['placas']" :href="route('etiquetas.index')" />
         @if ($minhaParte)
-            <x-avalia.cartao-indicador rotulo="Meu pró-labore no mês" :valor="Dinheiro::brl($minhaParte['prolabore'])"
-                                       :ajuda="'Minha parte é '.Dinheiro::brl($minhaParte['parte']).'; '.Dinheiro::brl($minhaParte['retido']).' ficam na empresa'" />
+            <x-avalia.cartao-indicador rotulo="Pró-labore do mês" :valor="Dinheiro::brl($minhaParte['prolabore'])"
+                                       :ajuda="'Parte '.Dinheiro::brl($minhaParte['parte']).' · retido '.Dinheiro::brl($minhaParte['retido'])" />
         @else
             {{-- Atual e o que ainda nao foi pago, de qualquer mes; zera na sexta. --}}
             <x-avalia.cartao-indicador rotulo="Comissão atual" :valor="Dinheiro::brl($comissaoAtual)" ajuda="A receber" />
             <x-avalia.cartao-indicador rotulo="Comissão do mês" :valor="Dinheiro::brl($minhas['comissao'])" />
         @endif
         @if ($ehAdmin)
-            <x-avalia.cartao-indicador rotulo="Livres no estoque da casa" :valor="$noBolo" :href="route('etiquetas.criar')" />
+            <x-avalia.cartao-indicador rotulo="Estoque atual" :valor="$noBolo" :href="route('etiquetas.criar')" />
         @endif
     </div>
 
@@ -30,7 +30,7 @@
             <div class="grid gap-4 sm:grid-cols-3">
                 <x-avalia.cartao-indicador rotulo="Placas vendidas" :valor="$equipe['placas']" :href="route('plaquinhas.vendas')" />
                 <x-avalia.cartao-indicador rotulo="Bruto" :valor="Dinheiro::brl($equipe['bruto'])" :href="route('plaquinhas.vendas')" />
-                <x-avalia.cartao-indicador rotulo="Lucro para dividir" :valor="Dinheiro::brl($equipe['lucro'])" :href="route('plaquinhas.vendas')" />
+                <x-avalia.cartao-indicador rotulo="Lucro" :valor="Dinheiro::brl($equipe['lucro'])" :href="route('plaquinhas.vendas')" />
             </div>
         </div>
     @endif

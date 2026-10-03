@@ -46,16 +46,16 @@ it('mostra ao socio a parte dele no lucro do mes, ja com a retencao', function (
     $parte = App\Support\RepartePlaquinha::dividir($lucro, 2)[0];
     $prolabore = App\Support\RepartePlaquinha::retencao($parte, (int) config('etiquetas.retencao_pct'))['prolabore'];
 
-    expect($html)->toContain('Meu pró-labore no mês')
+    expect($html)->toContain('Pró-labore do mês')
         ->and($html)->toContain(App\Support\Dinheiro::brl($prolabore))
-        ->and($html)->toContain('Minha parte é '.App\Support\Dinheiro::brl($parte))
+        ->and($html)->toContain('Parte '.App\Support\Dinheiro::brl($parte))
         ->and($html)->not->toContain('Minha comissão no mês');
 });
 
 it('mostra a equipe ao admin', function () {
     $html = admin()->get(route('sales.inicio'))->assertOk()->getContent();
 
-    expect($html)->toContain('Equipe no mês')->and($html)->toContain('Livres no estoque da casa');
+    expect($html)->toContain('Equipe no mês')->and($html)->toContain('Estoque atual');
 });
 
 it('nao abre para cliente nem sem sessao', function () {

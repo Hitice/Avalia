@@ -6,7 +6,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Minha carteira" subtitulo="Suas empresas e a sua comissão. A comissão é liberada quando a empresa paga a fatura.">
+    <x-avalia.cabecalho-pagina titulo="Minha carteira" subtitulo="Empresas e comissão">
         <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
     </x-avalia.cabecalho-pagina>
 
@@ -38,7 +38,7 @@
     <div class="cartao overflow-hidden">
         <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
             <h2 class="titulo-cartao">Empresas</h2>
-            <p class="ajuda-campo mt-1">Consumo de {{ $competencia }}, que ainda pode mudar até o fechamento.</p>
+            <p class="ajuda-campo mt-1">Consumo de {{ $competencia }}, parcial.</p>
         </div>
 
         <div class="overflow-x-auto">

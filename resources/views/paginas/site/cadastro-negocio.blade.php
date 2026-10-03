@@ -154,7 +154,7 @@
                 <div>
                     <label for="descricao" class="rotulo-campo">Uma descrição do negócio</label>
                     <textarea id="descricao" name="descricao" class="campo" rows="4" maxlength="1500"
-                              placeholder="O que vocês vendem, há quanto tempo, o que faz diferença">{{ old('descricao') }}</textarea>
+                              placeholder="O que vocês vendem">{{ old('descricao') }}</textarea>
                 </div>
             </fieldset>
 

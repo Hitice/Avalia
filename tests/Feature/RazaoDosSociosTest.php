@@ -379,7 +379,7 @@ it('poe o cadastro de socio na frente quando nao ha nenhum', function () {
         ->get(route('socios.index'))
         ->assertOk()
         ->assertSee('Cadastrar sócio', false)
-        ->assertSee('O caixa precisa saber de quem é cada parte', false)
+        ->assertSee('Cadastre os sócios para lançar', false)
         // A tabela de saldos nao aparece antes de existir saldo.
         ->assertDontSee('A devolver', false);
 });

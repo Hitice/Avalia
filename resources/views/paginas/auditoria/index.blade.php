@@ -5,7 +5,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Auditoria" subtitulo="Histórico das ações feitas na plataforma.">
+    <x-avalia.cabecalho-pagina titulo="Auditoria" subtitulo="Histórico de ações">
         {{-- Cada registro carrega o resumo do anterior: alterar uma linha no
              meio quebra a conferencia de todas as seguintes. O botao responde
              "esta trilha foi mexida?", que e a pergunta de quem a entrega a

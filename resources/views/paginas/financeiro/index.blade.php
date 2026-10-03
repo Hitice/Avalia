@@ -17,7 +17,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Financeiro" subtitulo="Acompanhe as faturas de todos os clientes e confirme os pagamentos recebidos.">
+    <x-avalia.cabecalho-pagina titulo="Financeiro" subtitulo="Faturas e pagamentos">
         {{-- Exporta o recorte que está na tela, com os números internos. É a
              planilha do contador e da conciliação, e por isso o nome do arquivo
              diz "interno": ela não pode ser encaminhada a cliente nem a
@@ -39,7 +39,7 @@
             <span class="mt-1 block text-xl font-semibold tabular-nums text-success-600 dark:text-success-500">
                 {{ Dinheiro::brl($totais['recebido_no_mes']) }}
             </span>
-            <span class="ajuda-campo">Pela data da baixa, não pela competência.</span>
+            <span class="ajuda-campo">Pela data da baixa.</span>
         </div>
         <div class="cartao p-5">
             <span class="rotulo-grupo block">A receber</span>
@@ -56,7 +56,7 @@
             <span class="ajuda-campo">Já dentro do valor a receber.</span>
         </div>
         <div class="cartao p-5">
-            <span class="rotulo-grupo block">Comissão a repassar</span>
+            <span class="rotulo-grupo block">Comissão a pagar</span>
             <span class="mt-1 block text-xl font-semibold tabular-nums text-gray-800 dark:text-white/90">
                 {{ Dinheiro::brl($totais['a_repassar']) }}
             </span>
@@ -274,7 +274,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="tabela-vazia">Nenhuma fatura corresponde a este filtro. Ajuste a busca para continuar.</td>
+                            <td colspan="9" class="tabela-vazia">Nenhuma fatura no filtro.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -341,8 +341,8 @@
     @if ($comissoes->isNotEmpty())
         <div class="cartao mt-6 overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
-                <h2 class="titulo-cartao">Comissão a repassar</h2>
-                <p class="ajuda-campo mt-1">Valores já devidos, apurados sobre faturas com pagamento confirmado.</p>
+                <h2 class="titulo-cartao">Comissão a pagar</h2>
+                <p class="ajuda-campo mt-1">Sobre faturas pagas.</p>
             </div>
 
             <div class="overflow-x-auto">

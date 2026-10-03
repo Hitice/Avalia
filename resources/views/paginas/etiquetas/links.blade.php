@@ -49,19 +49,13 @@
 
             @error('apelido')<p class="erro-campo">{{ $message }}</p>@enderror
 
-            <p class="ajuda-campo">
-                Letras, números e hífen. Deixe em branco para usar só o código sorteado. O código
-                continua valendo depois, então uma tag já gravada não para de funcionar.
-            </p>
+            <p class="ajuda-campo">Letras, números e hífen. Opcional.</p>
         </div>
 
         {{-- Endereco repetido devolve o codigo que ja existe: dois codigos para
              o mesmo lugar dividiriam a contagem de cliques ao meio, e ninguem
              saberia por que os numeros nao batem. --}}
-        <p class="ajuda-campo">
-            O mesmo endereço sempre devolve o mesmo código. Link que já foi aberto não se apaga,
-            só se desliga: ele pode estar gravado numa tag que já saiu.
-        </p>
+        <p class="ajuda-campo">Link já aberto não se apaga, só se desliga.</p>
     </form>
 
     <div class="cartao overflow-hidden">
@@ -165,7 +159,7 @@
                                          outra pessoa. --}}
                                     @if ($link->cliques === 0)
                                         <form method="POST" action="{{ route('etiquetas.links.excluir', $link) }}"
-                                              x-data x-on:submit="confirm('Apagar o link {{ $link->codigo }}? Ele nunca foi aberto.') || $event.preventDefault()">
+                                              x-data x-on:submit="confirm('Apagar o link {{ $link->codigo }}?') || $event.preventDefault()">
                                             @csrf
                                             @method('DELETE')
                                             <x-avalia.botao variante="secundario" tamanho="sm">Excluir</x-avalia.botao>

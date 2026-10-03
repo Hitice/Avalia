@@ -85,7 +85,7 @@
                                     <td class="px-5 py-4 text-right tabular-nums">{{ max(0, $franquia->quantidade - $utilizadas) }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="4" class="tabela-vazia">Solicite à sua equipe comercial a definição das franquias deste plano.</td></tr>
+                                <tr><td colspan="4" class="tabela-vazia">Sem franquias definidas.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

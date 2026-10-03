@@ -66,10 +66,7 @@
                         <option value="vendedor">Vendedor</option>
                         <option value="admin">Administração</option>
                     </select>
-                    <span class="ajuda-campo">
-                        A administração vê catálogo, financeiro e auditoria. O vendedor vê apenas
-                        a carteira dele.
-                    </span>
+                    <span class="ajuda-campo">Administração: tudo. Vendedor: a carteira dele.</span>
                 </div>
 
                 {{-- Escondido para a administracao de proposito: quem administra
@@ -86,10 +83,7 @@
                                value="{{ old('comissao_pct', $membro->comissao_pct ?? 10) }}">
                         <span class="text-sm text-gray-500 dark:text-gray-400">% do lucro</span>
                     </div>
-                    <span class="ajuda-campo">
-                        Vale a partir do próximo fechamento. Não vale para plaquinhas, que pagam
-                        {{ (int) config('etiquetas.comissao_pct') }}% para toda a equipe.
-                    </span>
+                    <span class="ajuda-campo">Vale do próximo fechamento. Só consultas.</span>
                     @error('comissao_pct') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
@@ -101,10 +95,7 @@
                                @checked(old('pode_financeiro', $membro->pode_financeiro ?? false))>
                         Pode confirmar pagamentos e fechar competências
                     </label>
-                    <span class="ajuda-campo">
-                        Confirmar um pagamento libera a comissão do vendedor na hora, mesmo que nada
-                        tenha entrado em conta. Conceda a quem confere o extrato.
-                    </span>
+                    <span class="ajuda-campo">Confirmar pagamento libera comissão. Conceda a quem confere o extrato.</span>
                 </div>
 
                 <div class="flex items-center sm:col-span-2">

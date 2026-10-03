@@ -49,12 +49,7 @@
             <x-avalia.botao variante="secundario">Salvar</x-avalia.botao>
         </form>
 
-        <p class="ajuda-campo mt-5">
-            A margem alvo é o que sobra depois do fornecedor, do imposto e da comissão.
-            Ela vale inteira na faixa sem mínimo e cede um degrau a cada faixa seguinte,
-            porque quem se compromete com mais consumo paga menos por consulta.
-            Salvar aqui não altera preço nenhum: o reajuste é um botão na tabela.
-        </p>
+        <p class="ajuda-campo mt-5">Sobra depois de fornecedor, imposto e comissão; cede um degrau por faixa. Salvar não altera preço nenhum.</p>
 
         {{-- A escada em números, na hora de decidir: dois campos abstratos
              viram sete alvos concretos, e o efeito do degrau nas faixas fundas

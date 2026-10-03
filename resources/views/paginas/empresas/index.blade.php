@@ -6,7 +6,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Clientes" subtitulo="As empresas que contratam a Avalia One e a situação de cada uma.">
+    <x-avalia.cabecalho-pagina titulo="Clientes" subtitulo="Empresas contratantes">
         <div class="flex flex-wrap items-center gap-3">
             {{-- Exporta o recorte que está na tela: o filtro inteiro vai na
                  query string, então o link já carrega a escolha. --}}

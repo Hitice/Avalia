@@ -13,9 +13,7 @@
 
     <div class="cartao max-w-xl p-6">
         <h2 class="titulo-cartao">Trocar a senha</h2>
-        <p class="ajuda-campo mt-1 mb-5">
-            Ao trocar, as outras sessões desta conta são encerradas. Esta continua aberta.
-        </p>
+        <p class="ajuda-campo mt-1 mb-5">Ao trocar, as outras sessões são encerradas.</p>
 
         <form method="POST" action="{{ route('perfil.senha') }}" class="grid gap-5" autocomplete="on">
             @csrf

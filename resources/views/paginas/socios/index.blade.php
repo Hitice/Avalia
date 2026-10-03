@@ -22,10 +22,9 @@
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-avalia.cartao-indicador rotulo="Caixa" :valor="Dinheiro::brl($caixa)"
                                    tom="text-brand-600 dark:text-brand-400" />
-        <x-avalia.cartao-indicador rotulo="Entradas no mês" :valor="Dinheiro::brl($entradas)" ajuda="O que entrou no dinheiro" />
-        <x-avalia.cartao-indicador rotulo="Saídas no mês" :valor="Dinheiro::brl($saidas)" ajuda="O que saiu do dinheiro" />
-        <x-avalia.cartao-indicador rotulo="Resultado do mês" :valor="Dinheiro::brl($receita - $despesa)"
-                                   ajuda="Só receita e despesa entram." />
+        <x-avalia.cartao-indicador rotulo="Entradas no mês" :valor="Dinheiro::brl($entradas)" />
+        <x-avalia.cartao-indicador rotulo="Saídas no mês" :valor="Dinheiro::brl($saidas)" />
+        <x-avalia.cartao-indicador rotulo="Resultado do mês" :valor="Dinheiro::brl($receita - $despesa)" />
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
@@ -35,9 +34,7 @@
                     {{ $socios->isEmpty() ? 'Cadastrar sócio' : 'Por sócio' }}
                 </h2>
                 @if ($socios->isEmpty())
-                    <p class="ajuda-campo mt-1">
-                        O caixa precisa saber de quem é cada parte. Comece por aqui.
-                    </p>
+                    <p class="ajuda-campo mt-1">Cadastre os sócios para lançar.</p>
                 @endif
             </div>
 
@@ -107,7 +104,6 @@
                             <option value="{{ $pessoa->id }}">{{ $pessoa->nome }}</option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">Sócio que não opera o sistema também tem quota.</span>
                 </div>
 
                 <div>
@@ -163,7 +159,7 @@
                     <label for="ocorrido_em" class="rotulo-campo">Quando</label>
                     <input id="ocorrido_em" name="ocorrido_em" type="date" required class="campo"
                            value="{{ old('ocorrido_em', now()->toDateString()) }}">
-                    <span class="ajuda-campo">A competência sai desta data.</span>
+                    <span class="ajuda-campo">Define a competência.</span>
                 </div>
 
                 <div x-show="['aporte','emprestimo','despesa_do_socio','reembolso','retirada','distribuicao'].includes(natureza)" x-cloak>
@@ -288,7 +284,7 @@
                                     <div class="flex items-center justify-end gap-2">
                                         @if ($lancamento->podeSerApagado())
                                             <form method="POST" action="{{ route('socios.excluir', $lancamento) }}"
-                                                  onsubmit="return confirm('Apagar este lançamento? Ele some do extrato, e isso não se desfaz.')">
+                                                  onsubmit="return confirm('Apagar este lançamento?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <x-avalia.botao variante="secundario" tamanho="sm">Apagar</x-avalia.botao>

@@ -92,7 +92,7 @@
     </section>
 
     <x-site.chamada titulo="Quer conversar sobre um projeto?">
-        Conte o que você quer automatizar ou desenvolver. Respondemos com uma proposta clara,
+        O que você quer automatizar ou desenvolver Respondemos com uma proposta clara,
         com escopo e investimento definidos.
     </x-site.chamada>
 @endsection

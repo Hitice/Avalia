@@ -12,9 +12,7 @@
             {{ $vendedor->ehAdmin() ? 'Simulador' : 'Minha carteira' }}
         </h1>
         @if ($vendedor->ehAdmin())
-            <p class="subtitulo-pagina">
-                Quanto o contrato custa para o cliente e quanto sobra para o vendedor.
-            </p>
+            <p class="subtitulo-pagina">Custo para o cliente e comissão.</p>
         @endif
     </div>
 
@@ -62,7 +60,7 @@
                     <label for="minimo" class="rotulo-campo">Consumo mínimo negociado</label>
                     <input id="minimo" name="minimo" type="text" class="campo"
                            inputmode="decimal" value="{{ $reais($entrada['minimo']) }}">
-                    <span class="ajuda-campo">Piso de cobrança em qualquer valor; a tabela acima define os preços.</span>
+                    <span class="ajuda-campo">Piso de cobrança.</span>
                     <span class="ajuda-campo">Abaixo do mínimo, a empresa paga o mínimo.</span>
                 </div>
 
@@ -102,7 +100,7 @@
                         <div class="flex items-center justify-between px-6 py-4">
                             <dt class="text-gray-600 dark:text-gray-300">
                                 Consumo mínimo não utilizado
-                                <span class="ajuda-campo block">Parte do mínimo que a empresa paga sem consumir.</span>
+                                <span class="ajuda-campo block">Mínimo não consumido.</span>
                             </dt>
                             <dd class="tabular-nums text-gray-500 dark:text-gray-400">{{ Dinheiro::brl($proposta['pagou_sem_usar_cents']) }}</dd>
                         </div>
@@ -117,7 +115,7 @@
             <div class="cartao overflow-hidden">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                     <h2 class="titulo-cartao">O que você recebe</h2>
-                    <p class="ajuda-campo mt-1">Comissão de {{ $pctComissao }}%, apurada no fechamento da competência.</p>
+                    <p class="ajuda-campo mt-1">Comissão de {{ $pctComissao }}%.</p>
                 </div>
                 <dl class="divide-y divide-gray-100 dark:divide-gray-800">
                     <div class="flex items-center justify-between px-6 py-4">
@@ -127,7 +125,7 @@
                     <div class="flex items-center justify-between px-6 py-4">
                         <dt class="text-gray-600 dark:text-gray-300">
                             Parte da adesão
-                            <span class="ajuda-campo block">Metade da parcela, conforme ela for liquidada.</span>
+                            <span class="ajuda-campo block">Metade de cada parcela liquidada.</span>
                         </dt>
                         <dd class="tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl($adesaoDoVendedor) }}</dd>
                     </div>
@@ -141,9 +139,6 @@
             </div>
         </div>
 
-        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-            Valores estimados. A comissão é apurada sobre a competência fechada e liberada após a
-            liquidação da fatura.
-        </p>
+        <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Valores estimados.</p>
     @endif
 @endsection

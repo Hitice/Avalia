@@ -102,7 +102,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="tabela-vazia">As faturas serão exibidas aqui após o primeiro fechamento mensal.</td></tr>
+                        <tr><td colspan="7" class="tabela-vazia">Nenhuma fatura.</td></tr>
                     @endforelse
                 </tbody>
             </table>

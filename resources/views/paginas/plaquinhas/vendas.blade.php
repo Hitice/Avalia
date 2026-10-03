@@ -98,15 +98,14 @@
                         </td>
                     </tr>
 
-                    {{-- O numero grande e o pro-labore, que e o que sai na sexta. A
-                         metade que fica na empresa vai na sublinha: ja esta no caixa
-                         desde a venda, e nao e dinheiro a pagar. --}}
+                    {{-- O numero grande e o pro-labore, que sai na sexta. O retido
+                         ja esta no caixa desde a venda; nao e dinheiro a pagar. --}}
                     @forelse ($porSocio as $socio)
                         <tr>
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
                                 {{ $socio['nome'] }}
                                 <span class="block text-xs text-gray-500 dark:text-gray-400">
-                                    pró-labore · fica na empresa {{ Dinheiro::brl($socio['retido']) }}
+                                    retido na empresa {{ Dinheiro::brl($socio['retido']) }}
                                 </span>
                             </td>
                             <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">

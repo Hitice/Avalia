@@ -8,7 +8,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina :titulo="$campanha->exists ? $campanha->nome : 'Nova campanha'" subtitulo="Defina o público e comunique a oferta. Preços continuam definidos no catálogo." />
+    <x-avalia.cabecalho-pagina :titulo="$campanha->exists ? $campanha->nome : 'Nova campanha'" subtitulo="Público e oferta" />
 
     @include('parciais.avisos')
 
@@ -23,17 +23,14 @@
         <div>
             <label class="rotulo-campo" for="nome">Nome</label>
             <input class="campo" id="nome" name="nome" value="{{ old('nome', $campanha->nome) }}" required>
-            <span class="ajuda-campo">Vira o selo do banner na página pública enquanto a campanha estiver vigente.</span>
+            <span class="ajuda-campo">Selo do banner no site.</span>
             @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
         </div>
 
         <div>
             <label class="rotulo-campo" for="oferta">Oferta</label>
             <textarea class="campo" id="oferta" name="oferta" rows="3" required>{{ old('oferta', $campanha->oferta) }}</textarea>
-            <span class="ajuda-campo">
-                Vira o texto do convite. Não cite preço, custo, margem nem nome de fornecedor:
-                a vitrine recusa o texto e volta ao padrão.
-            </span>
+            <span class="ajuda-campo">Texto do convite. Sem preço, custo, margem ou fornecedor.</span>
             @error('oferta') <span class="erro-campo">{{ $message }}</span> @enderror
         </div>
 
@@ -48,7 +45,7 @@
                 <label class="rotulo-campo" for="fim">Fim</label>
                 <input class="campo" id="fim" type="date" name="fim"
                        value="{{ old('fim', $campanha->fim?->format('Y-m-d')) }}">
-                <span class="ajuda-campo">Em branco, vale até ser encerrada.</span>
+                <span class="ajuda-campo">Em branco: sem prazo.</span>
                 @error('fim') <span class="erro-campo">{{ $message }}</span> @enderror
             </div>
         </div>

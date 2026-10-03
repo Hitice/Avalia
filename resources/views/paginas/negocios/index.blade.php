@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Negócios'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Negócios" rotulo="Os clientes da frente de marketing" />
+    <x-avalia.cabecalho-pagina titulo="Negócios" rotulo="Clientes de marketing" />
     @include('parciais.avisos')
 
     {{-- O servico: nome do estabelecimento entra, link curto de avaliacao sai.
@@ -9,10 +9,7 @@
          nao depende de ele estar na base. --}}
     <div class="cartao mb-6 p-5">
         <h2 class="text-lg font-semibold text-gray-800 dark:text-white/90">Link de avaliação do Google</h2>
-        <p class="ajuda-campo mt-1">
-            Digite o nome como ele aparece no perfil do Google. A gente acha o Place ID,
-            monta o link de avaliação e devolve encurtado, pronto para o adesivo.
-        </p>
+        <p class="ajuda-campo mt-1">Nome como está no perfil do Google. O link sai encurtado.</p>
 
         @if (session('linkPronto'))
             <div class="aviso aviso-ok mt-4 flex flex-wrap items-center gap-3">
@@ -20,7 +17,7 @@
                 <button type="button" class="botao botao-secundario botao-sm"
                         onclick="navigator.clipboard.writeText('{{ session('linkPronto') }}')">Copiar</button>
             </div>
-            <p class="ajuda-campo mt-2">Confira o link antes de cadastrar: abra e veja se cai no cliente certo. O gerador pode errar com nomes parecidos.</p>
+            <p class="ajuda-campo mt-2">Confira o link antes de cadastrar.</p>
         @endif
 
         @if (session('erro'))

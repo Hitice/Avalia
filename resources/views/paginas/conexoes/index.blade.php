@@ -54,7 +54,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <span class="ajuda-campo">A chave e o endereço andam juntos: chave de teste só vale no ambiente de teste.</span>
+                            <span class="ajuda-campo">Chave de teste só vale no ambiente de teste.</span>
                         </div>
                     @endif
 

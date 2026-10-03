@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Leads'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Leads" subtitulo="A base de prospecção e a distribuição dela.">
+    <x-avalia.cabecalho-pagina titulo="Leads" subtitulo="Base e distribuição">
         <div class="flex flex-wrap items-center gap-3">
             {{-- Exporta o recorte que está na tela: o filtro inteiro vai na
                  query string, então o link já carrega a escolha. --}}
@@ -30,7 +30,7 @@
          distribuição precisa saber quantos leads ela alcança e quantos deles
          têm por onde ligar. --}}
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <x-avalia.cartao-indicador rotulo="No recorte" :valor="number_format($noRecorte, 0, ',', '.')"
+        <x-avalia.cartao-indicador rotulo="Selecionados" :valor="number_format($noRecorte, 0, ',', '.')"
                                    :ajuda="$noRecorte === $naBase ? 'A base inteira' : 'De '.number_format($naBase, 0, ',', '.').' na base'" />
         {{-- Os recortes que não se digitam entram por aqui: o próprio número é o
              filtro, e o link preserva a busca e a cidade já escolhidas. --}}
@@ -105,7 +105,7 @@
                         @if (! $removidos)
                             <x-avalia.botao variante="secundario" tamanho="sm" type="submit" name="acao" value="remover"
                                             class="disabled:opacity-40" x-bind:disabled="vazio"
-                                            x-on:click="if (! confirm('Remover estes leads da base? Dá para restaurar depois.')) $event.preventDefault()">
+                                            x-on:click="if (! confirm('Remover estes leads?')) $event.preventDefault()">
                                 Remover
                             </x-avalia.botao>
                         @endif

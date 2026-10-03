@@ -28,7 +28,7 @@
             <span class="mt-1 block font-semibold text-gray-800 dark:text-white/90 tabular-nums">
                 {{ Rotulos::espera($saude['tempo_medio_ms']) }}
             </span>
-            <span class="ajuda-campo">Tempo médio até a resposta chegar.</span>
+            <span class="ajuda-campo">Tempo médio de resposta.</span>
         </div>
     </div>
 
@@ -36,7 +36,7 @@
         <div class="cartao mb-6 overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Consultas não concluídas por serviço</h2>
-                <p class="ajuda-campo mt-1">Não são cobradas da empresa. Concentração em um serviço é assunto para o fornecedor.</p>
+                <p class="ajuda-campo mt-1">Não são cobradas da empresa.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[28rem]">

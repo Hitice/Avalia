@@ -25,7 +25,7 @@
                     <label for="senha" class="rotulo-campo">Nova senha</label>
                     <x-avalia.senha id="senha" name="senha" required
                            minlength="10" autocomplete="new-password" autofocus />
-                    <span class="ajuda-campo">Pelo menos 10 caracteres. Misture palavras, números, o que só você lembra.</span>
+                    <span class="ajuda-campo">Pelo menos 10 caracteres.</span>
                     @error('senha') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 

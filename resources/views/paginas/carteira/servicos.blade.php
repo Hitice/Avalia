@@ -19,7 +19,7 @@
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Tabela de preços por plano</h2>
-                <p class="ajuda-campo mt-1">Preço por consulta que a empresa contratante paga em cada plano.</p>
+                <p class="ajuda-campo mt-1">Preço por consulta em cada plano.</p>
             </div>
 
             <div class="tabela-rolagem">

@@ -81,7 +81,7 @@
                     <input id="cnpj" name="cnpj" type="text" class="campo" required
                            value="{{ old('cnpj', Documento::formatarCnpj($empresa->cnpj)) }}"
                            placeholder="12.345.678/0001-95">
-                    <span class="ajuda-campo">Aceita letra: o CNPJ alfanumérico vale desde julho de 2026.</span>
+                    <span class="ajuda-campo">Aceita CNPJ alfanumérico.</span>
                     @error('cnpj') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
@@ -92,7 +92,7 @@
                             <option value="{{ $valor }}" @selected(old('situacao', $empresa->situacao) === $valor)>{{ $rotulo }}</option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">Só empresa ativa consulta. Suspensa e bloqueada ainda entram para ver a fatura.</span>
+                    <span class="ajuda-campo">Só empresa ativa consulta.</span>
                 </div>
 
                 <div>
@@ -130,7 +130,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">Define a faixa de preços aplicada às consultas desta empresa.</span>
+                    <span class="ajuda-campo">Faixa de preços da empresa.</span>
                 </div>
 
                 <div @class(['hidden' => ! $ehAdmin])>
@@ -143,7 +143,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">Quem recebe a comissão das faturas desta empresa.</span>
+                    <span class="ajuda-campo">Recebe a comissão desta empresa.</span>
                 </div>
 
                 @if ($ehAdmin)
@@ -183,7 +183,7 @@
                     <div>
                         <label for="adesao_valor" class="rotulo-campo">Taxa de adesão</label>
                         <input id="adesao_valor" name="adesao_valor" type="text" inputmode="decimal" class="campo" value="{{ old('adesao_valor', $empresa->adesao ? Dinheiro::numero($empresa->adesao->valor_cents) : '') }}" placeholder="0,00">
-                        <span class="ajuda-campo">O valor liquidado é dividido igualmente entre a Avalia One e o vendedor.</span>
+                        <span class="ajuda-campo">Dividido meio a meio com o vendedor.</span>
                     </div>
                     <div>
                         <label for="adesao_parcelas" class="rotulo-campo">Parcelas da adesão</label>
@@ -225,10 +225,7 @@
              convite por e-mail leva o link para a pessoa definir a dela. --}}
         <div class="cartao mt-6 p-6 lg:p-8">
             <h2 class="titulo-cartao">Operadores</h2>
-            <p class="ajuda-campo mt-1">
-                Pessoas da empresa que fazem consultas, cada uma com o próprio acesso e histórico.
-                Cada operador aceita os termos no primeiro acesso.
-            </p>
+            <p class="ajuda-campo mt-1">Cada operador tem acesso e histórico próprios.</p>
 
             @if ($empresa->operadores->isNotEmpty())
                 <div class="mt-5 overflow-x-auto">

@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Contatos'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Contatos" subtitulo="Toda pessoa ou empresa que passou por qualquer frente, uma vez só." />
+    <x-avalia.cabecalho-pagina titulo="Contatos" subtitulo="Pessoas e empresas de todas as frentes" />
 
     @include('parciais.avisos')
 
@@ -49,7 +49,7 @@
                             <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $contato->interacoes_count }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="tabela-vazia">Nenhum contato. Rode <code>avalia:lastrear-contatos</code> para trazer os cadastros que já existem.</td></tr>
+                        <tr><td colspan="5" class="tabela-vazia">Nenhum contato.</td></tr>
                     @endforelse
                 </tbody>
             </table>

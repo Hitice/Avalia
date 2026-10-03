@@ -91,7 +91,6 @@
                     <label for="agendado_para" class="rotulo-campo">Data e hora</label>
                     <input id="agendado_para" name="agendado_para" type="datetime-local" class="campo"
                            value="{{ old('agendado_para', $lead->agendado_para?->format('Y-m-d\TH:i')) }}">
-                    <span class="ajuda-campo">A lista se ordena por esta data.</span>
                     @error('agendado_para') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
@@ -106,9 +105,7 @@
 
         <div class="cartao p-6">
             <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Cadastro</h2>
-            <p class="ajuda-campo mb-4">
-                Os mesmos campos do cadastro de cliente. O que estiver aqui vai preenchido na conversão.
-            </p>
+            <p class="ajuda-campo mb-4">Vai preenchido na conversão.</p>
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2">

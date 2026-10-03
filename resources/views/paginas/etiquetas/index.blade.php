@@ -5,7 +5,7 @@
 @extends('layouts.app', ['title' => 'Códigos'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="QR Code dinâmico" subtitulo="Gere, baixe e cadastre a URL no futuro." />
+    <x-avalia.cabecalho-pagina titulo="QR Code dinâmico" subtitulo="Códigos e destinos" />
     @include('parciais.avisos')
 
     {{-- So o cadastro aqui. Gerar codigos tem pagina propria, de

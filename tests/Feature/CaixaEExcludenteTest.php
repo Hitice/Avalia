@@ -36,7 +36,7 @@ it('mostra na visao geral o dinheiro que entrou', function () {
     expect($resposta->viewData('recebidoCents'))->toBe($fatura->total_cents);
 
     $resposta->assertSee('Recebido no mês', false)
-        ->assertSee('Comissão a repassar', false);
+        ->assertSee('Comissão a pagar', false);
 });
 
 it('conta o recebido pela data da baixa, e nao pela competencia', function () {
@@ -102,7 +102,7 @@ it('mostra o mesmo caixa na visao geral e no financeiro', function () {
         ->toBe($financeiro->viewData('totais')['a_repassar']);
 
     $financeiro->assertSee('Recebido no mês', false)
-        ->assertSee('Comissão a repassar', false)
+        ->assertSee('Comissão a pagar', false)
         ->assertSee('Total liquidado desde o início', false);
 
     expect($financeiro->viewData('totais')['recebido_no_mes'])->toBe($fatura->total_cents);

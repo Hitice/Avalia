@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Documentos'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Documentos" subtitulo="Publique versões atualizadas para clientes e equipe.">
+    <x-avalia.cabecalho-pagina titulo="Documentos" subtitulo="Versões para clientes e equipe">
         <x-avalia.botao :href="route('documentos.criar')">Novo documento</x-avalia.botao>
     </x-avalia.cabecalho-pagina>
     @include('parciais.avisos')
@@ -11,7 +11,7 @@
             @forelse ($documentos as $documento)
                 <tr><td class="px-5 py-4 font-medium text-gray-800 dark:text-white/90">{{ $documento->titulo }}</td><td class="px-5 py-4 text-gray-600 dark:text-gray-300">{{ $documento->tipo }}</td><td class="px-5 py-4 text-gray-600 dark:text-gray-300">{{ $documento->versao }}</td><td class="px-5 py-4"><span class="etiqueta {{ $documento->ativo ? 'etiqueta-sucesso' : 'etiqueta-neutra' }}">{{ $documento->ativo ? 'Vigente' : 'Histórico' }}</span></td><td class="px-5 py-4 text-gray-600 dark:text-gray-300">{{ $documento->exige_aceite ? 'Obrigatório' : 'Opcional' }}</td><td class="px-5 py-4 text-right whitespace-nowrap"><x-avalia.botao variante="secundario" tamanho="sm" :href="route('documentos.pdf', $documento)" target="_blank">PDF</x-avalia.botao><form method="POST" action="{{ route('documentos.alternar', $documento) }}" class="ml-2 inline">@csrf<x-avalia.botao variante="secundario" tamanho="sm">{{ $documento->ativo ? 'Retirar' : 'Publicar' }}</x-avalia.botao></form></td></tr>
             @empty
-                <tr><td colspan="6" class="tabela-vazia">Publique um documento para disponibilizá-lo às empresas e à equipe.</td></tr>
+                <tr><td colspan="6" class="tabela-vazia">Nenhum documento.</td></tr>
             @endforelse
         </tbody>
     </table></div></div>

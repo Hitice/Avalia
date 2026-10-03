@@ -3,7 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Sexta-feira" subtitulo="Tudo que sai do caixa para gente nesta semana, e a lista de Pix." />
+    <x-avalia.cabecalho-pagina titulo="Sexta-feira" subtitulo="Pagamentos da semana e lista de Pix" />
 
     @include('parciais.avisos')
 
@@ -17,7 +17,7 @@
                     <x-avalia.botao tamanho="sm" onclick="return confirm('Marcar {{ Dinheiro::brl($r['cents']) }} como pagos a {{ $r['nome'] }}?')">Pagar {{ Dinheiro::brl($r['cents']) }}</x-avalia.botao>
                 </form>
             @empty
-                <p class="subtitulo-pagina">Nenhuma comissão de placa em aberto.</p>
+                <p class="subtitulo-pagina">Nenhuma comissão em aberto.</p>
             @endforelse
         </div>
 
@@ -37,7 +37,7 @@
                     @endif
                 </form>
             @empty
-                <p class="subtitulo-pagina">Nenhuma comissão de consulta liberada em aberto.</p>
+                <p class="subtitulo-pagina">Nenhuma comissão em aberto.</p>
             @endforelse
         </div>
 

@@ -20,7 +20,7 @@
             {{-- Fora do formulario principal: form dentro de form nao existe em
                  HTML. Remover tira do trabalho, e da para restaurar. --}}
             <form method="POST" action="{{ route('leads.remover', $lead) }}"
-                  onsubmit="return confirm('Remover {{ $lead->nome }} da base? Dá para restaurar depois.')">
+                  onsubmit="return confirm('Remover {{ $lead->nome }} da base?')">
                 @csrf
                 @method('DELETE')
                 <x-avalia.botao variante="secundario" tamanho="sm">Remover da base</x-avalia.botao>
@@ -64,7 +64,7 @@
                     {{-- Opcional e sem validacao de digito: metade da base chega
                          sem documento, e exigir CNPJ correto de quem ainda nao e
                          cliente jogaria fora o lead que a Receita vai confirmar. --}}
-                    <span class="ajuda-campo">Opcional. Serve para reconhecer o lead que já virou cliente.</span>
+                    <span class="ajuda-campo">Opcional.</span>
                     @error('cnpj') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
@@ -72,7 +72,7 @@
                     <label for="codigo" class="rotulo-campo">Código da base</label>
                     <input id="codigo" name="codigo" type="text" class="campo"
                            value="{{ old('codigo', $lead->codigo) }}">
-                    <span class="ajuda-campo">O número que o lead tinha na base de origem.</span>
+                    <span class="ajuda-campo">Número na base de origem.</span>
                     @error('codigo') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
 
@@ -185,7 +185,7 @@
                 <div class="sm:col-span-2">
                     <label for="observacao" class="rotulo-campo">Observação</label>
                     <textarea id="observacao" name="observacao" rows="3" class="campo">{{ old('observacao', $lead->observacao) }}</textarea>
-                    <span class="ajuda-campo">O vendedor lê isto na ficha dele.</span>
+                    <span class="ajuda-campo">Visível ao vendedor.</span>
                     @error('observacao') <span class="erro-campo">{{ $message }}</span> @enderror
                 </div>
             </div>
@@ -216,7 +216,6 @@
                             </span>
                         @endforeach
                     </div>
-                    <span class="ajuda-campo">A distribuição se faz na lista, selecionando os leads e escolhendo o vendedor.</span>
                 </div>
             @endif
 

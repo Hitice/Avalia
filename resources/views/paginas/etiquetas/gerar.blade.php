@@ -5,8 +5,8 @@
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2">
-        <x-avalia.cartao-indicador rotulo="Em branco, sem dono" :valor="$noBolo"
-                                   ajuda="Prontos para entregar a um vendedor" />
+        <x-avalia.cartao-indicador rotulo="Sem dono" :valor="$noBolo"
+                                   />
         <x-avalia.cartao-indicador rotulo="Campanhas" :valor="$campanhas" />
     </div>
 
@@ -33,10 +33,7 @@
             <x-avalia.botao>Gerar</x-avalia.botao>
         </div>
 
-        <span class="ajuda-campo">
-            A numeração continua da campanha anterior. Depois de gerar, baixe o ZIP na lista
-            e entregue as placas pelo estoque.
-        </span>
+        <span class="ajuda-campo">Numeração contínua entre campanhas.</span>
 
         @error('quantidade')<p class="erro-campo">{{ $message }}</p>@enderror
         @error('titulo')<p class="erro-campo">{{ $message }}</p>@enderror

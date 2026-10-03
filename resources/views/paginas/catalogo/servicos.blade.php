@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Serviços'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Serviços" subtitulo="Serviços do catálogo, agrupados por categoria.">
+    <x-avalia.cabecalho-pagina titulo="Serviços" subtitulo="Catálogo por categoria">
         <x-avalia.botao :href="route('catalogo.servicos.criar')">Novo serviço</x-avalia.botao>
     </x-avalia.cabecalho-pagina>
 

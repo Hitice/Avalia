@@ -8,7 +8,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Calculadora" subtitulo="Quanto um contrato rende para a Avalia One, antes de ele existir." />
+    <x-avalia.cabecalho-pagina titulo="Calculadora" subtitulo="Simulação de contrato" />
     @include('paginas.simulacao.abas', ['atual' => 'calculadora'])
 
     @if (! $catalogo || $faixas === [])
@@ -34,14 +34,14 @@
                         <label for="minimo" class="rotulo-campo">Consumo mínimo negociado</label>
                         <input id="minimo" name="minimo" type="text" inputmode="decimal" class="campo"
                                value="{{ Dinheiro::numero($entrada['minimo']) }}">
-                        <span class="ajuda-campo">Piso de cobrança, em qualquer valor. A tabela acima define preço e custo.</span>
+                        <span class="ajuda-campo">Piso de cobrança.</span>
                     </div>
 
                     <div>
                         <label for="consumo" class="rotulo-campo">Consumo estimado no mês</label>
                         <input id="consumo" name="consumo" type="text" inputmode="decimal" class="campo"
                                value="{{ Dinheiro::numero($entrada['consumo']) }}">
-                        <span class="ajuda-campo">O que o cliente deve consultar de fato.</span>
+                        <span class="ajuda-campo">Consultas previstas.</span>
                     </div>
 
                     <div>
@@ -168,9 +168,7 @@
                 @if ($temAdesao)
                     <div class="cartao p-6">
                         <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Adesão</h2>
-                        <p class="ajuda-campo mb-5">
-                            Rateio de metade para cada lado, parcela a parcela, conforme forem liquidadas.
-                        </p>
+                        <p class="ajuda-campo mb-5">Metade para cada lado, por parcela liquidada.</p>
 
                         <div class="grid grid-cols-3 gap-4 text-center">
                             <div>
@@ -195,9 +193,7 @@
                     </div>
                 @endif
 
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Simulação sobre o catálogo vigente. Serve de referência, e não substitui a proposta assinada.
-                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Referência sobre o catálogo vigente.</p>
             </div>
         </div>
     @endif

@@ -5,7 +5,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Simulador" subtitulo="Quanto sai o mês para o seu plano, antes de consultar. Nada aqui é cobrado.">
+    <x-avalia.cabecalho-pagina titulo="Simulador" subtitulo="Estimativa do mês, sem cobrança">
         <x-avalia.ajuda assunto="Simulador">Falar com a Avalia One</x-avalia.ajuda>
     </x-avalia.cabecalho-pagina>
 
@@ -20,7 +20,7 @@
             <div class="cartao overflow-hidden">
                 <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                     <h2 class="titulo-cartao">Consultas no mês</h2>
-                    <p class="ajuda-campo mt-1">Digite quantas consultas de cada serviço você estima fazer.</p>
+                    <p class="ajuda-campo mt-1">Consultas estimadas por serviço.</p>
                 </div>
                 <div class="tabela-rolagem">
                     <table class="tabela min-w-[36rem]">
@@ -84,9 +84,7 @@
                 </dl>
 
                 @if ($excedente < $minimo)
-                    <p class="ajuda-campo mt-4">
-                        Neste cenário o consumo fica abaixo do mínimo: o mês sai pelo piso contratado.
-                    </p>
+                    <p class="ajuda-campo mt-4">Abaixo do mínimo: o mês sai pelo piso.</p>
                 @endif
             </div>
         </form>

@@ -250,10 +250,7 @@
                                 </svg>
                             </div>
                             <h3 class="mt-4 text-xl font-semibold text-gray-800 dark:text-white/90">Pedido recebido</h3>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                Obrigado pelo interesse. Um consultor entra em contato ainda hoje,
-                                em horário comercial, com seus dados de acesso.
-                            </p>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Um consultor entra em contato em horário comercial.</p>
                             <x-avalia.botao variante="secundario" class="mt-6 w-full" type="button" @click="cadastro = false">
                                 Fechar
                             </x-avalia.botao>
@@ -261,9 +258,7 @@
                     @else
                         <div>
                             <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Solicite seu cadastro</h3>
-                            <p class="subtitulo-pagina">
-                                Deixe seu contato e um consultor retorna ainda hoje com seus dados de acesso.
-                            </p>
+                            <p class="subtitulo-pagina">Deixe seu contato. Um consultor retorna em horário comercial.</p>
                         </div>
 
                         <form method="POST" action="{{ route('interesse.salvar') }}" class="mt-5 space-y-4">
@@ -275,7 +270,7 @@
                             <div>
                                 <label for="cad-nome" class="rotulo-campo">Seu nome</label>
                                 <input id="cad-nome" name="nome" type="text" class="campo" required
-                                       maxlength="120" value="{{ old('nome') }}" placeholder="Como podemos te chamar">
+                                       maxlength="120" value="{{ old('nome') }}" placeholder="Seu nome">
                                 @error('nome') <span class="erro-campo">{{ $message }}</span> @enderror
                             </div>
 
@@ -322,9 +317,7 @@
                                 </svg>
                             </x-avalia.botao>
 
-                            <p class="text-center text-xs text-gray-400 dark:text-gray-500">
-                                Retornamos em horário comercial. Seus dados ficam só com a Avalia One.
-                            </p>
+                            <p class="text-center text-xs text-gray-400 dark:text-gray-500">Seus dados ficam só com a Avalia One.</p>
                         </form>
                     @endif
         </x-avalia.modal>

@@ -14,7 +14,6 @@
                                    tom="text-brand-600 dark:text-brand-400" />
         <x-avalia.cartao-indicador rotulo="Entradas no mês" :valor="Dinheiro::brl($entradas)" :href="route('socios.index')" />
         <x-avalia.cartao-indicador rotulo="Saídas no mês" :valor="Dinheiro::brl($saidas)" :href="route('socios.index')" />
-        <x-avalia.cartao-indicador rotulo="Placas com comissão a pagar" :valor="$placasAPagar" :href="route('plaquinhas.vendas')"
-                                   ajuda="Paga na sexta, em Vendas QR" />
+        <x-avalia.cartao-indicador rotulo="Comissões a pagar" :valor="$placasAPagar" :href="route('plaquinhas.vendas')" />
     </div>
 @endsection

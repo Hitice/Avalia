@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Termos'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Termos da equipe" subtitulo="Documentos do seu trabalho como vendedor. Os que exigem aceite destravam as demonstrações." />
+    <x-avalia.cabecalho-pagina titulo="Termos da equipe" subtitulo="Documentos e aceites" />
     @if (session('ok'))
         <div class="aviso aviso-ok mb-6">{{ session('ok') }}</div>
     @endif

@@ -142,7 +142,7 @@
                                 <option value="{{ $dia }}" @selected((int) old('melhor_dia') === $dia)>Dia {{ $dia }}</option>
                             @endfor
                         </select>
-                        <span class="ajuda-campo">Até o dia 28, que existe em todo mês.</span>
+                        <span class="ajuda-campo">Até o dia 28.</span>
                         @error('melhor_dia') <span class="erro-campo">{{ $message }}</span> @enderror
                     </div>
 

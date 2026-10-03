@@ -77,9 +77,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">
-                        Bonificação comercial: o cliente assume um mínimo menor e leva os preços de uma faixa maior.
-                    </span>
+                    <span class="ajuda-campo">Mínimo menor com preços de faixa maior.</span>
                     @error('faixa_preco') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
@@ -87,9 +85,7 @@
                     <label for="mensalidade" class="{{ $rotulo }}">Mensalidade</label>
                     <input id="mensalidade" name="mensalidade" type="text" inputmode="decimal" class="{{ $campo }}"
                            value="{{ old('mensalidade', Dinheiro::numero($plano->mensalidade_cents ?? 0)) }}" required>
-                    <span class="ajuda-campo">
-                        Cobrada sempre, consumindo ou não. Não entra na faixa de comissão.
-                    </span>
+                    <span class="ajuda-campo">Cobrada sempre, consumindo ou não.</span>
                     @error('mensalidade_cents') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
@@ -115,10 +111,7 @@
     @if ($plano->exists)
         <div class="mt-6 cartao p-6">
             <h2 class="titulo-cartao">Franquia por serviço</h2>
-            <p class="mt-1 mb-5 text-sm text-gray-500 dark:text-gray-400">
-                Quantas consultas de cada serviço já vêm pagas na mensalidade. Zero significa
-                que o serviço está liberado, mas toda consulta é excedente.
-            </p>
+            <p class="mt-1 mb-5 text-sm text-gray-500 dark:text-gray-400">Consultas inclusas na mensalidade.</p>
 
             @if ($servicos->isEmpty())
                 <div class="aviso aviso-alerta">

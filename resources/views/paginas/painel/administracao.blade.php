@@ -46,7 +46,7 @@
         <x-avalia.cartao-indicador rotulo="Margem do período" :valor="Dinheiro::brl($margemCents)"
                                    :href="route('catalogo.tabela', ['visao' => 'margem'])"
                                    :tom="$margemCents >= 0 ? 'text-success-600 dark:text-success-400' : 'text-error-600 dark:text-error-400'"
-                                   ajuda="Consumo menos custo, antes de imposto e comissão." />
+                                   />
 
         {{-- O caixa do mes: o que entrou de fato, contado pela data da baixa e
              não pela competência, porque o mês do dinheiro é o mês em que ele
@@ -54,11 +54,11 @@
         <x-avalia.cartao-indicador rotulo="Recebido no mês" :valor="Dinheiro::brl($recebidoCents)"
                                    :href="$staff->podeFinanceiro() ? route('financeiro.index', ['situacao' => 'liquidado']) : null"
                                    tom="text-success-600 dark:text-success-500"
-                                   ajuda="Faturas com pagamento confirmado neste mês." />
+                                   />
 
-        <x-avalia.cartao-indicador rotulo="Comissão a repassar" :valor="Dinheiro::brl($aRepassarCents)"
+        <x-avalia.cartao-indicador rotulo="Comissão a pagar" :valor="Dinheiro::brl($aRepassarCents)"
                                    :href="$staff->podeFinanceiro() ? route('financeiro.index') : null"
-                                   ajuda="Já liberada, líquida das demonstrações." />
+                                   ajuda="Líquida das demonstrações" />
 
         <x-avalia.cartao-indicador rotulo="A receber" :valor="Dinheiro::brl($aReceber)"
                                    :href="$staff->podeFinanceiro() ? route('financeiro.index', ['situacao' => 'pendente']) : null" />
@@ -94,7 +94,7 @@
         <div class="cartao mb-6 overflow-hidden border-brand-200 dark:border-brand-500/40">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Pedidos de contato aguardando retorno</h2>
-                <p class="ajuda-campo mt-1">Chegaram pela campanha da página pública. Retorno prometido: ainda hoje.</p>
+                <p class="ajuda-campo mt-1">Da campanha do site. Retorno no mesmo dia.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[44rem]">
@@ -184,7 +184,7 @@
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Comissão liberada por vendedor</h2>
-                <p class="ajuda-campo mt-1">Faturas já liquidadas, menos o custo das demonstrações de cada vendedor.</p>
+                <p class="ajuda-campo mt-1">Faturas liquidadas, menos demonstrações.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[24rem]">

@@ -45,7 +45,7 @@
         <div class="cartao overflow-hidden">
             <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">Ligar hoje</h2>
-                <p class="ajuda-campo mt-1">Fatura vencida. Passado o prazo, as consultas são suspensas.</p>
+                <p class="ajuda-campo mt-1">Fatura vencida. Consultas suspensas após o prazo.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="tabela min-w-[26rem]">

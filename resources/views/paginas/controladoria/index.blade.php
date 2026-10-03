@@ -3,7 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Controladoria" rotulo="O resultado da casa, somado do razão">
+    <x-avalia.cabecalho-pagina titulo="Controladoria" rotulo="Resultado da casa">
         <form method="GET" class="flex flex-wrap items-center gap-2">
             <label for="competencia" class="sr-only">Competência</label>
             <select id="competencia" name="competencia" class="campo w-auto py-2" onchange="this.form.submit()">
@@ -19,8 +19,8 @@
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-avalia.cartao-indicador rotulo="Caixa" :valor="Dinheiro::brl($caixa)"
                                    tom="text-brand-600 dark:text-brand-400"
-                                   ajuda="Saldo de sempre, e não do mês" />
-        <x-avalia.cartao-indicador rotulo="Lucro dos produtos no mês" :valor="Dinheiro::brl($lucro)" />
+                                   ajuda="Saldo atual" />
+        <x-avalia.cartao-indicador rotulo="Lucro do mês" :valor="Dinheiro::brl($lucro)" />
         <x-avalia.cartao-indicador rotulo="A receber de clientes" :valor="Dinheiro::brl($aReceber)" />
         <x-avalia.cartao-indicador rotulo="Comissão a pagar" :valor="Dinheiro::brl($aPagarDeComissao)" />
     </div>
@@ -77,7 +77,7 @@
         <h2 class="titulo-secao">Sócios</h2>
 
         @if ($porSocio->isEmpty())
-            <p class="tabela-vazia">Nenhum sócio cadastrado. O cadastro fica em Sócios.</p>
+            <p class="tabela-vazia">Nenhum sócio cadastrado.</p>
         @else
             <div class="tabela-rolagem">
                 <table class="tabela">
@@ -113,10 +113,7 @@
                 </div>
             @endif
 
-            <p class="ajuda-campo mt-3">
-                Pró-labore é o que sai toda sexta, como Retirada em Sócios. O que fica na empresa já
-                está no caixa desde a venda e não precisa de lançamento.
-            </p>
+            <p class="ajuda-campo mt-3">Pró-labore sai na sexta; o retido fica no caixa.</p>
         @endif
     </div>
 @endsection

@@ -37,9 +37,7 @@
                     <label for="nome" class="{{ $rotulo }}">Nome comercial</label>
                     <input id="nome" name="nome" type="text" class="{{ $campo }}"
                            value="{{ old('nome', $servico->nome) }}" required>
-                    <span class="ajuda-campo">
-                        É o que o cliente vê. Não use marca nem nomenclatura do fornecedor.
-                    </span>
+                    <span class="ajuda-campo">Nome visível ao cliente, sem marca de fornecedor.</span>
                     @error('nome') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
@@ -47,10 +45,7 @@
                     <label for="descricao" class="{{ $rotulo }}">O que a consulta devolve</label>
                     <textarea id="descricao" name="descricao" class="{{ $campo }}" rows="2"
                               maxlength="300">{{ old('descricao', $servico->descricao) }}</textarea>
-                    <span class="ajuda-campo">
-                        Aparece para o cliente no formulário de consulta, junto do preço. Uma frase
-                        do que vem no resultado, sem citar fornecedor.
-                    </span>
+                    <span class="ajuda-campo">Uma frase sobre o resultado, sem fornecedor.</span>
                     @error('descricao') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
@@ -59,16 +54,11 @@
                     @if ($servico->exists)
                         <input id="codigo" type="text" class="{{ $campo }} cursor-not-allowed opacity-60"
                                value="{{ $servico->codigo }}" disabled>
-                        <span class="ajuda-campo">
-                            Não muda depois de criado: é por ele que franquia, relatório e catálogo
-                            identificam o serviço.
-                        </span>
+                        <span class="ajuda-campo">Definitivo.</span>
                     @else
                         <input id="codigo" name="codigo" type="text" class="{{ $campo }}"
                                value="{{ old('codigo') }}" placeholder="score-positivo" required>
-                        <span class="ajuda-campo">
-                            Minúsculas, números e hífen. Escolha com calma: é definitivo.
-                        </span>
+                        <span class="ajuda-campo">Minúsculas, números e hífen. Definitivo.</span>
                     @endif
                     @error('codigo') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
@@ -98,11 +88,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <span class="ajuda-campo">
-                        De qual bureau esta linha vem. O catálogo mistura bases, e sem isto
-                        ligar um fornecedor mandaria para ele até o que ele não vende.
-                        Em branco, vale a escolha geral do sistema.
-                    </span>
+                    <span class="ajuda-campo">Bureau desta linha. Em branco, vale a escolha global.</span>
                     @error('codigo_fornecedor') <span class="{{ $erro }}">{{ $message }}</span> @enderror
                 </div>
 
@@ -150,20 +136,13 @@
                     </label>
                 </div>
 
-                <p class="text-xs text-gray-500 sm:col-span-2 dark:text-gray-400">
-                    Serviço que aguarda liberação aparece no catálogo e pode ser precificado, mas não
-                    entra em plano nenhum e nenhuma consulta sai para o fornecedor. E o estado dos
-                    serviços de SCR até a homologação jurídica e contratual.
-                </p>
+                <p class="text-xs text-gray-500 sm:col-span-2 dark:text-gray-400">Aguardando liberação: precificável, fora dos planos.</p>
             </div>
 
             @if ($servico->exists && $faixas !== [])
                 <div class="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
                     <h2 class="mb-1 font-medium text-gray-800 dark:text-white/90">Custo e preço</h2>
-                    <p class="ajuda-campo mb-5">
-                        O custo vale para todas as faixas: o fornecedor cobra por consulta, não pelo
-                        pacote do cliente. Campo em branco significa custo ainda não cadastrado.
-                    </p>
+                    <p class="ajuda-campo mb-5">Por consulta, igual em todas as faixas. Em branco: não cadastrado.</p>
 
                     @if ($servico->suprimido())
                         {{-- Os campos continuam editaveis: e aqui que a estimativa se mantem.

@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Meu estoque'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Meu estoque" rotulo="As placas que estão na sua mão, ainda sem venda" />
+    <x-avalia.cabecalho-pagina titulo="Meu estoque" rotulo="Placas em mãos" />
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -9,7 +9,7 @@
                                    tom="text-brand-600 dark:text-brand-400" />
 
         @if ($ehAdmin)
-            <x-avalia.cartao-indicador rotulo="Livres no estoque da casa" :valor="$noBolo" />
+            <x-avalia.cartao-indicador rotulo="Estoque atual" :valor="$noBolo" />
         @endif
     </div>
 
@@ -39,9 +39,7 @@
                 <x-avalia.botao>Entregar</x-avalia.botao>
             </form>
 
-            <p class="ajuda-campo mt-3">
-                Saem as de menor número primeiro, para o lote chegar em ordem à bancada.
-            </p>
+            <p class="ajuda-campo mt-3">Saem as de menor número primeiro.</p>
         </div>
 
         {{-- Entregar placas ESCOLHIDAS: o admin le os codigos impressos nas que
@@ -71,7 +69,7 @@
 
                 <div class="flex items-center gap-3">
                     <x-avalia.botao>Entregar estas</x-avalia.botao>
-                    <span class="ajuda-campo">De 10 em 10 funciona bem. Um código errado recusa o lote inteiro e diz qual.</span>
+                    <span class="ajuda-campo">Até 10 por vez. Código errado recusa o lote.</span>
                 </div>
             </form>
         </div>
