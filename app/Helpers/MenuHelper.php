@@ -142,8 +142,8 @@ class MenuHelper
         return [
             ['icon' => 'inicio', 'name' => 'Início', 'path' => '/sales'],
             ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
-            ['icon' => 'paginas', 'name' => 'Gerar códigos', 'path' => '/etiquetas/gerar', 'papeis' => ['admin'], 'exigePlacas' => true],
-            ['icon' => 'conexao', 'name' => 'Gerar link', 'path' => '/negocios', 'papeis' => ['admin']],
+            ['icon' => 'paginas', 'name' => 'Gerador QR Code', 'path' => '/etiquetas/gerar', 'papeis' => ['admin'], 'exigePlacas' => true],
+            ['icon' => 'conexao', 'name' => 'Gerador de Links', 'path' => '/negocios', 'papeis' => ['admin']],
             ['icon' => 'conexao', 'name' => 'Encurtador', 'path' => '/etiquetas/links'],
             ['icon' => 'lista', 'name' => 'Estoque', 'path' => '/estoque'],
             ['icon' => 'grafico', 'name' => 'Vendas', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
