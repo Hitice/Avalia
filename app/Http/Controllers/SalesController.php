@@ -70,7 +70,7 @@ class SalesController extends Controller
 
         return view('paginas.sales.inicio', [
             'ehAdmin' => $ehAdmin,
-            'emMaos' => Etiqueta::noEstoqueDe((int) $conta->id)->count(),
+            'emMaosMinhas' => Etiqueta::noEstoqueDe((int) $conta->id)->count(),
             'minhas' => $soma($minhas),
             'equipe' => $equipe,
             'porVendedor' => $porVendedor,
@@ -81,6 +81,11 @@ class SalesController extends Controller
             // Vendedor ve as proprias vendas; socio e admin, as da equipe.
             'porDia' => Etiqueta::vendasPorDia($inicio, $equipe === null ? (int) $conta->id : null),
             'noBolo' => $ehAdmin ? Etiqueta::semDono()->count() : null,
+            'disponiveis' => $ehAdmin ? Etiqueta::whereNull('vendida_em')->count() : null,
+            'aPagar' => $ehAdmin ? \App\Actions\Financeiro\Repasses::comissoesSales() : collect(),
+            // Quem esta com placa na mao, para a administracao ver de relance.
+            'emMaos' => $ehAdmin ? Etiqueta::whereNull('vendida_em')->whereNotNull('consignada_para_id')
+                ->selectRaw('consignada_para_id, count(*) as total')->groupBy('consignada_para_id')->with('consignadaPara:id,nome')->get() : collect(),
         ]);
     }
 }
