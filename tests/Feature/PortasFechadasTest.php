@@ -42,6 +42,8 @@ const PORTAS_PUBLICAS = [
     'site.contato' => 'formulario de contato da casa',
     'site.contato.enviar' => 'envio do contato, com teto por origem e campo armadilha',
     'site.sitemap' => 'mapa do site para buscadores, so com endereco de pagina publica',
+    'site.robots' => 'o que o buscador pode rastrear; so lista segmentos, sem dado',
+    'site.llms' => 'resumo da casa para assistentes de IA, so dado de configuracao',
     // A leitura de plaquinha e o produto: um desconhecido encosta o celular
     // numa placa de balcao e precisa cair no site do lojista. Nao ha conta, nao
     // ha sessao e nao ha dado de ninguem, so um codigo publico impresso em

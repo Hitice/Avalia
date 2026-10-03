@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Contato',
-    'descricao' => 'Fale com a Avalia e receba uma proposta com escopo e investimento definidos.',
+    'titulo' => 'Contato: peça uma proposta de software sob medida',
+    'descricao' => 'Fale com a Avalia, software house de Uberlândia e Florianópolis, e receba uma proposta com escopo e investimento definidos. Atendimento por WhatsApp e e-mail.',
     'secao' => 'site.contato',
 ])
 

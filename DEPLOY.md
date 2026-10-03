@@ -98,6 +98,20 @@ DB_HOST=127.0.0.1
 SESSION_SECURE_COOKIE=true
 ```
 
+## Medição e verificação do Google
+
+Duas variáveis no `.env`, vazias por padrão. Vazias, a página não emite nada.
+
+```
+GA4_ID=G-XXXXXXXXXX              # tag do Google Analytics 4; liga o gtag e os eventos clique_whatsapp e envio_formulario
+GOOGLE_SITE_VERIFICATION=xxxx    # meta tag do Search Console, alternativa ao registro TXT no DNS
+```
+
+A hospedagem sobrescreve o `Content-Security-Policy` da aplicação por
+`upgrade-insecure-requests` (medido em 03/10/2026 em `/`, `/entrar` e `/q/...`).
+A política completa só vale se a opção Forçar HTTPS do hPanel for desligada,
+e aí o redirecionamento de HTTP para HTTPS precisa entrar no `.htaccess` antes.
+
 ## GitHub
 
 `.github/workflows/testes.yml` roda estilo e suíte a cada push e pull request. É

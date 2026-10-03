@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # Um endereco so: www vai para o apex com 301. O canonical e o sitemap
+    # dizem avaliaone.com.br, e duas versoes do mesmo site dividem entre si a
+    # autoridade no buscador. HTTP para HTTPS ja e feito pela hospedagem.
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

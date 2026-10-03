@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Automação e software sob medida',
-    'descricao' => 'Software sob medida que conecta sistemas e pessoas: automação de processos, atendimento humanizado com IA, cobrança, análise de mercado e integração de sistemas.',
+    'titulo' => 'Software sob medida, automação e cobrança',
+    'descricao' => 'Software sob medida que conecta sistemas e pessoas: automação de processos, atendimento humanizado com IA, cobrança e análise de mercado. Peça uma proposta.',
 ])
 
 @php

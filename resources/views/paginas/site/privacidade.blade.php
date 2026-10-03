@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Política de privacidade',
-    'descricao' => 'Como a Avalia coleta, usa e protege dados pessoais, conforme a Lei Geral de Proteção de Dados (LGPD).',
+    'titulo' => 'Política de privacidade e proteção de dados',
+    'descricao' => 'Como a Avalia coleta, usa e protege dados pessoais no site e nas plataformas Avalia One e Avalia Gestor, conforme a Lei Geral de Proteção de Dados (LGPD).',
 ])
 
 @php

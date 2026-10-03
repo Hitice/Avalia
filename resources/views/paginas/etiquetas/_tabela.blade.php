@@ -44,7 +44,7 @@
                             </td>
 
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
-                                {{ $etiqueta->cliente_nome ?? '—' }}
+                                {{ $etiqueta->cliente_nome ?? '-' }}
                             </td>
 
                             {{-- Placa em branco nao tem vendedor porque nao foi
@@ -53,14 +53,14 @@
                                  diferentes e a coluna diz qual e qual. --}}
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
                                 @if ($etiqueta->vendida_em === null)
-                                    <span class="text-gray-400 dark:text-gray-500">—</span>
+                                    <span class="text-gray-400 dark:text-gray-500">-</span>
                                 @else
                                     {{ $etiqueta->vendedor?->nome ?? 'Não identificado' }}
                                 @endif
                             </td>
 
                             <td class="tabela-td max-w-[22rem] truncate text-gray-600 dark:text-gray-300">
-                                {{ $etiqueta->destino ?? '—' }}
+                                {{ $etiqueta->destino ?? '-' }}
                             </td>
 
                             <td class="tabela-td">
@@ -83,7 +83,7 @@
                             </td>
 
                             <td class="tabela-td text-gray-600 dark:text-gray-300">
-                                {{ $etiqueta->vence_em?->format('d/m/Y') ?? '—' }}
+                                {{ $etiqueta->vence_em?->format('d/m/Y') ?? '-' }}
                             </td>
 
                             <td class="tabela-td text-right tabular-nums">{{ $etiqueta->total_acessos }}</td>

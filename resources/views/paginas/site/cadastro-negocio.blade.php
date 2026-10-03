@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Cadastro do seu negócio',
-    'descricao' => 'Preencha os dados do seu negócio para publicarmos seu perfil no Google e nos canais de busca.',
+    'titulo' => 'Cadastro do seu negócio para o perfil no Google',
+    'descricao' => 'Preencha os dados do seu negócio para a Avalia publicar seu perfil no Google e nos canais de busca. Leva poucos minutos e dá para fazer pelo celular.',
     'secao' => 'cadastro-negocio',
     'semCabecalho' => true,
 ])

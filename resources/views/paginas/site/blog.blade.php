@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Blog',
-    'descricao' => 'Artigos práticos sobre automação de processos, atendimento humanizado no WhatsApp, cobrança e tecnologia para empresas.',
+    'titulo' => 'Blog de automação, atendimento e cobrança',
+    'descricao' => 'Artigos práticos sobre automação de processos, atendimento humanizado no WhatsApp, cobrança e tecnologia para empresas, escritos pela equipe da Avalia.',
     'secao' => 'site.blog',
 ])
 

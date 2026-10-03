@@ -3,8 +3,8 @@
 @endphp
 
 @extends('layouts.site', [
-    'titulo' => 'Gerador de QR Code',
-    'descricao' => 'Gere um QR Code e baixe em SVG vetorial ou PNG, no tamanho em milímetros que precisar. Sem cadastro e sem marca d\'água.',
+    'titulo' => 'Gerador de QR Code grátis em SVG e PNG, sem marca',
+    'descricao' => 'Gere um QR Code grátis na Avalia e baixe em SVG vetorial ou PNG, no tamanho em milímetros que precisar. Sem cadastro e sem marca d\'água, gerado no navegador.',
     'secao' => 'digitais.index',
 ])
 

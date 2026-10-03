@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Perguntas frequentes',
-    'descricao' => 'Respostas sobre prazos, investimento, integração com o ERP, segurança dos dados e como começar um projeto com a Avalia.',
+    'titulo' => 'Perguntas frequentes sobre projetos de software',
+    'descricao' => 'Respostas sobre prazos, investimento, integração com o ERP, segurança dos dados e como começar um projeto de software sob medida com a Avalia.',
 ])
 
 @php

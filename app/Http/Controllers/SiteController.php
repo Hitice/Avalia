@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Support\Artigos;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -116,41 +118,100 @@ class SiteController extends Controller
     }
 
     /**
+     * As paginas publicas de leitura, com a view de cada uma: o sitemap tira
+     * dai o endereco e a data da ultima alteracao (a do arquivo da view). A
+     * area do produtor e as telas de login ficam de fora: nao ha o que
+     * indexar numa porta.
+     */
+    private const PAGINAS = [
+        'inicio' => 'paginas.site.inicio',
+        'site.softwares' => 'paginas.site.softwares',
+        'digitais.index' => 'paginas.site.digitais.index',
+        'digitais.plaquinhas' => 'paginas.site.digitais.plaquinhas',
+        'digitais.qr' => 'paginas.site.digitais.qr-code',
+        'digitais.avaliacao' => 'paginas.site.digitais.avaliacao-google',
+        'site.quem-somos' => 'paginas.site.quem-somos',
+        'site.blog' => 'paginas.site.blog',
+        'site.contato' => 'paginas.site.contato',
+        'site.perguntas' => 'paginas.site.perguntas',
+        'site.privacidade' => 'paginas.site.privacidade',
+        'site.termos' => 'paginas.site.termos',
+        'cadastro-negocio' => 'paginas.site.cadastro-negocio',
+        'credito' => 'paginas.credito',
+        'cobranca' => 'paginas.cobranca',
+    ];
+
+    /**
      * O mapa do site para os buscadores.
      *
      * Gerado da mesma lista que a navegacao usa, e nao escrito a mao: o
      * sitemap escrito a parte e o primeiro arquivo a ficar velho, porque
      * ninguem lembra dele ao publicar uma pagina nova.
-     *
-     * So paginas publicas de leitura. A area do produtor e as telas de login
-     * ficam de fora: nao ha o que indexar numa porta.
      */
     public function sitemap()
     {
-        $enderecos = array_map(fn (string $rota) => route($rota), [
-            'inicio',
-            'site.softwares',
-            'digitais.index',
-            'digitais.plaquinhas',
-            'digitais.qr',
-            'digitais.avaliacao',
-            'site.quem-somos',
-            'site.blog',
-            'site.contato',
-            'site.perguntas',
-            'site.privacidade',
-            'site.termos',
-            'credito',
-            'cobranca',
-        ]);
+        $enderecos = [];
+
+        foreach (self::PAGINAS as $rota => $view) {
+            $enderecos[] = ['loc' => route($rota), 'lastmod' => date('Y-m-d', (int) filemtime(view($view)->getPath()))];
+        }
 
         foreach (Artigos::todos() as $artigo) {
-            $enderecos[] = route('site.artigo', $artigo['slug']);
+            $enderecos[] = ['loc' => route('site.artigo', $artigo['slug']), 'lastmod' => Carbon::parse($artigo['data'])->toDateString()];
         }
 
         return response()
             ->view('paginas.site.sitemap', ['enderecos' => $enderecos])
             ->header('Content-Type', 'application/xml');
+    }
+
+    /**
+     * O robots.txt sai das rotas, e nao de uma lista escrita a mao: toda rota
+     * atras de uma porta (auth, guest, assinada) ou fora do grupo web (as
+     * leituras de placa e link) tem o primeiro segmento bloqueado. Rota nova
+     * atras de login nasce bloqueada sem ninguem lembrar do arquivo.
+     */
+    public function robots()
+    {
+        $publicos = $fechados = [];
+
+        foreach (Route::getRoutes() as $rota) {
+            $segmento = strtok($rota->uri(), '/');
+
+            if (! in_array('GET', $rota->methods(), true) || $segmento === false || str_starts_with($segmento, '{')) {
+                continue;
+            }
+
+            $meios = $rota->gatherMiddleware();
+            $fechada = ! in_array('web', $meios, true)
+                || $rota->getName() === 'token'
+                || collect($meios)->contains(fn (string $m) => preg_match('/^(auth:|guest:|sessao:|signed$|admin$)/', $m) === 1);
+
+            $fechada ? $fechados['/'.$segmento] = true : $publicos['/'.$segmento] = true;
+        }
+
+        $bloqueios = [];
+
+        foreach (array_diff(array_keys($fechados), array_keys($publicos)) as $caminho) {
+            // "/termos" bloquearia "/termos-de-uso" por prefixo: quando um
+            // caminho publico comeca igual, o bloqueio e exato ou com barra.
+            $temPrefixoPublico = collect(array_keys($publicos))->contains(fn (string $p) => str_starts_with($p, $caminho.'-') || str_starts_with($p, $caminho.'.'));
+            array_push($bloqueios, ...($temPrefixoPublico ? [$caminho.'$', $caminho.'/'] : [$caminho]));
+        }
+
+        sort($bloqueios);
+
+        return response()
+            ->view('paginas.site.robots', ['bloqueios' => $bloqueios])
+            ->header('Content-Type', 'text/plain; charset=UTF-8');
+    }
+
+    /** O resumo da casa para assistentes de IA, no padrao llmstxt.org. */
+    public function llms()
+    {
+        return response()
+            ->view('paginas.site.llms', ['softwares' => config('softwares'), 'servicos' => self::servicosPublicos()])
+            ->header('Content-Type', 'text/plain; charset=UTF-8');
     }
 
     /**

@@ -57,6 +57,15 @@ return [
      * Canal de duvidas do cliente. So o numero: a mensagem e montada em
      * App\Support\Suporte, que decide o que pode e o que nao pode ir na URL.
      */
+    /*
+     * Google: medicao (GA4) e verificacao do Search Console. Vazios, a pagina
+     * nao emite nada: o site nao carrega script de terceiro sem o id.
+     */
+    'google' => [
+        'ga4' => env('GA4_ID'),
+        'verificacao' => env('GOOGLE_SITE_VERIFICATION'),
+    ],
+
     'suporte' => [
         'whatsapp' => env('SUPORTE_WHATSAPP', '5534991176599'),
     ],

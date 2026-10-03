@@ -126,6 +126,8 @@ Route::get('/area-do-produtor', AreaController::class)->name('area');
 
 // Mapa do site, montado da mesma lista que a navegacao usa.
 Route::get('/sitemap.xml', [SiteController::class, 'sitemap'])->name('site.sitemap');
+Route::get('/robots.txt', [SiteController::class, 'robots'])->name('site.robots');
+Route::get('/llms.txt', [SiteController::class, 'llms'])->name('site.llms');
 
 /*
 |--------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Softwares',
-    'descricao' => 'Automação de processos, chat e atendimento humanizados, análise de mercado, automação de cobranças, integração de sistemas, controle de produção com CRM e desenvolvimento de sites, SaaS e web apps.',
+    'titulo' => 'Softwares: automação, cobrança, CRM e web apps',
+    'descricao' => 'Automação de processos, atendimento humanizado, análise de mercado, cobrança, integração de sistemas, CRM e web apps sob medida. Peça uma proposta à Avalia.',
 ])
 
 @section('content')

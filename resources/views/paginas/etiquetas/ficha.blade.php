@@ -217,7 +217,7 @@
                          que creditava toda venda a quem operou a impressora. --}}
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Cadastrada por</dt>
-                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->staff?->nome ?? '—' }}</dd>
+                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->staff?->nome ?? '-' }}</dd>
                     </div>
                     @if ($etiqueta->vendida_em)
                         <div class="flex justify-between gap-4">
@@ -229,7 +229,7 @@
                     @endif
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Vendida em</dt>
-                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->vendida_em?->format('d/m/Y') ?? '—' }}</dd>
+                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->vendida_em?->format('d/m/Y') ?? '-' }}</dd>
                     </div>
                     @if ($etiqueta->vendida_em && $etiqueta->valor_cents !== null)
                         <div class="flex justify-between gap-4">
@@ -241,7 +241,7 @@
                     @endif
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Vence em</dt>
-                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->vence_em?->format('d/m/Y') ?? '—' }}</dd>
+                        <dd class="text-gray-700 dark:text-gray-300">{{ $etiqueta->vence_em?->format('d/m/Y') ?? '-' }}</dd>
                     </div>
                     <div class="flex justify-between gap-4">
                         <dt class="text-gray-500 dark:text-gray-400">Leituras</dt>

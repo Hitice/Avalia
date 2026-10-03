@@ -31,13 +31,17 @@ class CabecalhosDeSeguranca
     {
         $resposta = $next($request);
 
+        // As origens do GA4 entram so com o id configurado: sem medicao, a
+        // politica nao abre porta para ninguem.
+        $google = config('services.google.ga4') ? ' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com' : '';
+
         $politica = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'".$google,
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com data:",
-            "img-src 'self' data:",
-            "connect-src 'self'",
+            "img-src 'self' data:".$google,
+            "connect-src 'self'".$google,
             "form-action 'self'",
             // O PROPRIO site pode se emoldurar: o visor de laudo abre o PDF
             // num iframe da mesma origem. Terceiros continuam proibidos, que e
@@ -55,6 +59,12 @@ class CabecalhosDeSeguranca
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
         ] as $cabecalho => $valor) {
             $resposta->headers->set($cabecalho, $valor);
+        }
+
+        // HSTS so em resposta que ja veio por HTTPS: mandado em HTTP, o
+        // navegador ignora, e em desenvolvimento local nao ha certificado.
+        if ($request->isSecure()) {
+            $resposta->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
         return $resposta;

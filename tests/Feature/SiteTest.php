@@ -34,6 +34,9 @@ it('abre toda pagina publica do site', function (string $rota) {
     'site.privacidade',
     'site.termos',
     'area',
+    'cadastro-negocio',
+    'site.robots',
+    'site.llms',
 ]);
 
 it('leva da porta do dominio as duas plataformas da casa', function () {
@@ -195,6 +198,7 @@ it('publica o mapa do site com as paginas publicas e os artigos', function () {
         ->getContent();
 
     expect($xml)->toContain(route('inicio'))
+        ->toContain('<lastmod>'.date('Y').'-')
         ->toContain(route('credito'))
         ->toContain(route('cobranca'))
         ->toContain(route('site.artigo', 'rpa-rotina-fiscal'))
@@ -340,4 +344,59 @@ it('leva o cliente ao painel dele, e nao ao da equipe', function () {
 
     expect($html)->toContain('href="'.route('empresa.painel').'"')
         ->and($html)->not->toContain('href="'.route('painel').'"');
+});
+
+/*
+|--------------------------------------------------------------------------
+| O que o buscador e o assistente de IA leem
+|--------------------------------------------------------------------------
+*/
+
+it('bloqueia no robots.txt toda porta e leitura, sem esconder pagina publica', function () {
+    $robots = $this->get(route('site.robots'))->assertOk()->assertHeader('Content-Type', 'text/plain; charset=UTF-8')->getContent();
+
+    expect($robots)->toContain("Disallow: /entrar\n")->toContain("Disallow: /painel\n")->toContain("Disallow: /q\n")
+        ->toContain("Disallow: /token\n")->toContain('Sitemap: '.route('site.sitemap'))
+        // "/termos" (porta) nao pode engolir "/termos-de-uso" (publica).
+        ->toContain("Disallow: /termos$\n")->not->toContain("Disallow: /termos\n")
+        ->not->toContain('Disallow: /blog')->not->toContain('Disallow: /contato');
+});
+
+it('resume a casa em llms.txt com os servicos, o sobre e o contato', function () {
+    $texto = $this->get(route('site.llms'))->assertOk()->getContent();
+
+    expect($texto)->toStartWith('# '.App\Support\Empresa::marca())
+        ->toContain(route('digitais.qr'))->toContain(route('site.quem-somos'))->toContain(App\Support\Empresa::email())
+        ->toContain(App\Support\Empresa::cnpj());
+});
+
+it('da a cada pagina um title de 50 a 60 e uma descricao de 140 a 160', function (string $rota) {
+    $html = $this->get(route($rota))->assertOk()->getContent();
+    preg_match('/<title>([^<]+)<\/title>/', $html, $titulo);
+    preg_match('/<meta name="description" content="([^"]+)">/', $html, $descricao);
+    $titulo = html_entity_decode($titulo[1]);
+    $descricao = html_entity_decode($descricao[1]);
+
+    expect(mb_strlen($titulo))->toBeGreaterThanOrEqual(50, $titulo)->toBeLessThanOrEqual(60, $titulo)
+        ->and(mb_strlen($descricao))->toBeGreaterThanOrEqual(140, $descricao)->toBeLessThanOrEqual(160, $descricao)
+        ->and(substr_count($html, '<h1'))->toBe(1);
+})->with(['inicio', 'site.softwares', 'site.quem-somos', 'site.blog', 'site.contato', 'site.perguntas', 'site.privacidade', 'site.termos', 'area', 'cadastro-negocio', 'digitais.index', 'digitais.plaquinhas', 'digitais.qr', 'digitais.avaliacao']);
+
+it('descreve a casa em JSON-LD, com endereco so na home', function () {
+    $home = $this->get(route('inicio'))->assertOk()->getContent();
+    $outra = $this->get(route('site.contato'))->assertOk()->getContent();
+
+    expect($home)->toContain('"@type":"LocalBusiness"')->toContain('"addressLocality":"Uberlândia"')
+        ->toContain('"telephone":"+'.preg_replace('/\D/', '', App\Support\Suporte::telefone()).'"')
+        ->toContain('property="og:image"')
+        ->and($outra)->toContain('"@type":"Organization"')->not->toContain('LocalBusiness');
+});
+
+it('so carrega o GA4 com o id configurado, e marca o envio do formulario', function () {
+    expect($this->get(route('inicio'))->getContent())->not->toContain('googletagmanager');
+
+    config(['services.google.ga4' => 'G-TESTE']);
+    $html = $this->withSession(['contato_ok' => true])->get(route('site.contato'))->getContent();
+
+    expect($html)->toContain('gtag/js?id=G-TESTE')->toContain("envio_formulario', { formulario: \"contato\" }")->toContain('clique_whatsapp');
 });

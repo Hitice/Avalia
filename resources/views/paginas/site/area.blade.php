@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Área do produtor',
-    'descricao' => 'Entradas das plataformas da casa: pesquisa de score para venda a prazo e venda parcelada com cobrança automática.',
+    'titulo' => 'Área do produtor: entrar no One e no Gestor',
+    'descricao' => 'Entradas das plataformas da Avalia: pesquisa de score para venda a prazo no Avalia One e venda parcelada com cobrança automática no Avalia Gestor.',
     'secao' => 'area',
 ])
 

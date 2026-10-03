@@ -54,6 +54,16 @@
     <meta property="og:title" content="{{ $titulo }}">
     <meta property="og:description" content="{{ $descricao }}">
     <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('marca/og.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    @if ($verificacao = config('services.google.verificacao'))
+        <meta name="google-site-verification" content="{{ $verificacao }}">
+    @endif
+
+    {{-- O que a casa diz de si aos buscadores. So dado de configuracao. --}}
+    <script type="application/ld+json">{!! json_encode(Empresa::esquema(request()->routeIs('inicio')), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
     {{-- Sora e Manrope so aqui: o sistema segue em Outfit, e carregar duas
          familias a mais nas telas de trabalho custaria sem ninguem pedir. --}}
@@ -63,6 +73,28 @@
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @if ($ga4 = config('services.google.ga4'))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $ga4 }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', @json($ga4));
+
+            // Conversoes: clique no WhatsApp e formulario enviado. O envio
+            // conta na volta, pela marca de sessao, e nao no clique do botao:
+            // envio recusado pela validacao nao e conversao.
+            document.addEventListener('click', function (evento) {
+                if (evento.target.closest('a[href^="https://wa.me"]')) {
+                    gtag('event', 'clique_whatsapp', { pagina: location.pathname });
+                }
+            });
+            @if ($formulario = session('contato_ok') ? 'contato' : (session('linkPronto') ? 'link-avaliacao' : (session('ok') ? 'cadastro-negocio' : null)))
+                gtag('event', 'envio_formulario', { formulario: @json($formulario) });
+            @endif
+        </script>
+    @endif
 </head>
 
 {{--

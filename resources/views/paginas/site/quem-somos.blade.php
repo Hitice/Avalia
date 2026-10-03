@@ -1,5 +1,5 @@
 @extends('layouts.site', [
-    'titulo' => 'Quem somos',
+    'titulo' => 'Quem somos: software house em Uberlândia MG',
     'descricao' => 'Software house de produtos digitais com foco em controle fiscal, finanças, marketing e investimentos: automação, atendimento humanizado e sistemas sob medida.',
 ])
 

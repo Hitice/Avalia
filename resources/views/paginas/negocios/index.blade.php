@@ -151,7 +151,7 @@
                             </td>
 
                             <td class="tabela-td">
-                                {{ $negocio->cidade ?: '—' }}
+                                {{ $negocio->cidade ?: '-' }}
                                 @unless ($negocio->atende_no_endereco)
                                     <span class="etiqueta etiqueta-neutra">vai ao cliente</span>
                                 @endunless
@@ -187,7 +187,7 @@
                                 @endif
                             </td>
                             <td class="tabela-td text-right tabular-nums">{{ $negocio->etiquetas_count }}</td>
-                            <td class="tabela-td">{{ $negocio->origem ?: '—' }}</td>
+                            <td class="tabela-td">{{ $negocio->origem ?: '-' }}</td>
 
                             <td class="tabela-td">
                                 <form method="POST" action="{{ route('negocios.atualizar', $negocio) }}"

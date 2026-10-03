@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Termos de uso',
-    'descricao' => 'Condições de uso do site da Avalia.',
+    'titulo' => 'Termos de uso do site, do One e do Gestor',
+    'descricao' => 'Condições de uso do site da Avalia e das plataformas Avalia One e Avalia Gestor. Leia antes de criar conta, contratar ou usar os serviços da casa.',
 ])
 
 @php

@@ -6,8 +6,8 @@
 @endphp
 
 @extends('layouts.site', [
-    'titulo' => 'Gerador de QR Code dinâmico',
-    'descricao' => 'QR Code cujo destino muda depois de impresso. Gere, mande imprimir, venda, e só então diga para onde cada código leva.',
+    'titulo' => 'Gerador de QR Code dinâmico para impressão',
+    'descricao' => 'QR Code dinâmico da Avalia: o destino muda depois de impresso. Gere, mande imprimir, venda, e só então diga para onde cada código leva. Preço de tabela.',
     // A aba do menu continua marcada nas paginas de dentro da frente.
     'secao' => 'digitais.index',
 ])

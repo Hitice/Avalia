@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Gerador de link de avaliação do Google',
-    'descricao' => 'Informe o nome do seu estabelecimento e receba o link curto que leva o cliente direto ao formulário de avaliação do Google.',
+    'titulo' => 'Gerador de link de avaliação do Google, grátis',
+    'descricao' => 'Informe o nome do seu estabelecimento e receba da Avalia o link curto que leva o cliente direto ao formulário de avaliação do Google. Grátis.',
     'secao' => 'digitais.index',
 ])
 

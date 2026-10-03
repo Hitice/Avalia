@@ -177,7 +177,7 @@
                                 </td>
                                 <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">{{ $v['placas'] }}</td>
                                 <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">{{ Dinheiro::brl($v['bruto']) }}</td>
-                                <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ $v['eh_socio'] ? '—' : Dinheiro::brl($v['comissao']) }}</td>
+                                <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ $v['eh_socio'] ? '-' : Dinheiro::brl($v['comissao']) }}</td>
                                 <td class="tabela-td text-right">
                                     @if ($divida)
                                         <form method="POST" action="{{ route('plaquinhas.comissao.pagar', $divida['id']) }}"

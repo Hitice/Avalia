@@ -1,6 +1,6 @@
 @extends('layouts.site', [
-    'titulo' => 'Serviços digitais',
-    'descricao' => 'QR Code dinâmico, cujo destino muda depois de impresso, e gerador de QR Code grátis em SVG e PNG.',
+    'titulo' => 'Serviços digitais: QR Code dinâmico e avaliações',
+    'descricao' => 'Serviços digitais da Avalia: QR Code dinâmico, cujo destino muda depois de impresso, gerador de QR Code grátis em SVG e PNG e link de avaliação do Google.',
 ])
 
 @section('content')

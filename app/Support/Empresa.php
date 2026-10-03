@@ -125,6 +125,47 @@ final class Empresa
      * com a Avalia, e so depois confere quem emitiu. Cabe numa linha so, que e
      * o que o fecho do PDF reserva.
      */
+    /**
+     * O que a casa diz de si aos buscadores (schema.org), para o JSON-LD da
+     * pagina. A home leva LocalBusiness com o endereco da matriz; as demais,
+     * Organization. O telefone e o canal atendido (WhatsApp), e nao o do
+     * cartao CNPJ, que ninguem atende: o Perfil da Empresa no Google precisa
+     * dizer o mesmo numero.
+     */
+    public static function esquema(bool $comEndereco = false): array
+    {
+        $dados = [
+            '@context' => 'https://schema.org',
+            '@type' => $comEndereco ? 'LocalBusiness' : 'Organization',
+            'name' => self::marca(),
+            'legalName' => self::razaoSocial(),
+            'url' => url('/'),
+            'logo' => asset('marca/icone-180.png'),
+            'image' => asset('marca/og.png'),
+            'email' => self::email(),
+            'telephone' => '+'.preg_replace('/\D/', '', Suporte::telefone()),
+            'taxID' => self::cnpj(),
+        ];
+
+        if ($comEndereco) {
+            $e = (array) config('empresa.endereco', []);
+            $dados['address'] = [
+                '@type' => 'PostalAddress',
+                'streetAddress' => trim(implode(', ', array_filter([
+                    trim(($e['logradouro'] ?? '').' '.($e['numero'] ?? '')),
+                    $e['complemento'] ?? '',
+                ]))),
+                'addressLocality' => $e['cidade'] ?? '',
+                'addressRegion' => $e['uf'] ?? '',
+                'postalCode' => $e['cep'] ?? '',
+                'addressCountry' => 'BR',
+            ];
+            $dados['areaServed'] = 'BR';
+        }
+
+        return $dados;
+    }
+
     public static function assinatura(): string
     {
         return self::site().' · CNPJ '.self::cnpj();

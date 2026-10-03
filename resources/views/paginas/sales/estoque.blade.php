@@ -109,9 +109,9 @@
                 <tbody>
                     @forelse ($minhas as $placa)
                         <tr>
-                            <td class="tabela-td tabular-nums">{{ $placa->sequencia ?? '—' }}</td>
+                            <td class="tabela-td tabular-nums">{{ $placa->sequencia ?? '-' }}</td>
                             <td class="tabela-td font-mono">{{ $placa->codigo }}</td>
-                            <td class="tabela-td">{{ $placa->consignada_em?->format('d/m/Y') ?? '—' }}</td>
+                            <td class="tabela-td">{{ $placa->consignada_em?->format('d/m/Y') ?? '-' }}</td>
                             <td class="tabela-td text-right">
                                 <a href="{{ route('etiquetas.ficha', $placa) }}"
                                    class="botao botao-secundario botao-sm">Apontar</a>

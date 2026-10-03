@@ -20,6 +20,11 @@ it('manda os cabecalhos de seguranca em toda resposta', function () {
         ->and($resposta->headers->get('Referrer-Policy'))->toBe('same-origin');
 });
 
+it('pede HTTPS por um ano so quando a resposta ja veio por HTTPS', function () {
+    expect($this->get(route('entrar'))->headers->get('Strict-Transport-Security'))->toBeNull()
+        ->and($this->get('https://localhost/entrar')->headers->get('Strict-Transport-Security'))->toBe('max-age=31536000; includeSubDomains');
+});
+
 it('manda os cabecalhos tambem em redirecionamento e erro', function () {
     // Resposta de erro tambem renderiza HTML, e e onde um script injetado
     // teria mais chance de passar despercebido.
