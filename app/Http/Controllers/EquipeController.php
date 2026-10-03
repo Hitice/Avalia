@@ -18,8 +18,8 @@ use Illuminate\Support\Str;
  * do proximo fechamento em diante, porque a fatura congela o percentual usado
  * na emissao (PDD.md, secao 9).
  *
- * Nao ha exclusao, so desativacao: fatura, carteira e trilha de auditoria
- * apontam para o membro, e apagar deixaria historico orfao.
+ * Remover e desativar: fatura, carteira e trilha de auditoria apontam para o
+ * membro. Exclusao definitiva so para quem nunca operou.
  */
 class EquipeController extends Controller
 {

@@ -12,7 +12,7 @@ use App\Support\RepartePlaquinha;
  * Uma venda de plaquinha, traduzida em pernas do razao.
  *
  * O reparte sai de `RepartePlaquinha`: nascer aqui de novo daria dois lugares
- * com direito de dizer quanto o Warley ganhou.
+ * com direito de dizer quanto cada vendedor ganhou.
  *
  * Custo entra na VENDA, e nao na compra do lote, porque nao existe registro de
  * compra. Quando existir, a contrapartida passa a ser estoque.

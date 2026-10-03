@@ -47,7 +47,6 @@ class NegociosController extends Controller
         ]);
     }
 
-    /** Situacao e observacao, que e tudo o que a casa mexe depois do cadastro. */
     /** Definitivo: cadastro de teste ou errado. A placa vendida fica, so perde o vinculo com o negocio. */
     public function excluir(Negocio $negocio)
     {
@@ -58,6 +57,7 @@ class NegociosController extends Controller
         return back()->with('ok', 'Negócio '.$negocio->nome.' excluído.');
     }
 
+    /** Situacao e observacao, que e tudo o que a casa mexe depois do cadastro. */
     public function atualizar(Request $pedido, Negocio $negocio)
     {
         $dados = $pedido->validate([

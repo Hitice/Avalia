@@ -47,14 +47,14 @@ class ExecutarDemonstracao
 
     public static function teto(Staff $conta): int
     {
-        return $conta->ehAdmin() ? Consulta::LIMITE_DIARIO_OPERACAO : Consulta::LIMITE_DIARIO_DEMONSTRACAO;
+        return $conta->ehAdmin() || $conta->ehSuper() ? Consulta::LIMITE_DIARIO_OPERACAO : Consulta::LIMITE_DIARIO_DEMONSTRACAO;
     }
 
     /** @return array{erro: string|null, consulta: Consulta|null} */
     public function __invoke(Staff $vendedor, Servico $servico, string $documento): array
     {
         $documento = preg_replace('/\D/', '', $documento) ?? '';
-        $daCasa = $vendedor->ehAdmin();
+        $daCasa = $vendedor->ehAdmin() || $vendedor->ehSuper();
         $finalidade = $daCasa ? self::FINALIDADE_OPERACAO : self::FINALIDADE;
         $teto = self::teto($vendedor);
 

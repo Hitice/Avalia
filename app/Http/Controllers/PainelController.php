@@ -34,7 +34,7 @@ class PainelController extends Controller
     {
         $staff = Auth::guard('staff')->user();
 
-        return $staff->ehAdmin() ? $this->administracao($staff) : $this->vendedor($staff);
+        return $staff->ehAdmin() || $staff->ehSuper() ? $this->administracao($staff) : $this->vendedor($staff);
     }
 
     /** A operacao esta saudavel? Quanto entra, quanto sai, quem esta devendo. */

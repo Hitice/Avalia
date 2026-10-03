@@ -16,7 +16,7 @@ use App\Support\SociosDaPlaquinha;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
-/** O que a sexta-feira paga, lido de uma vez: comissoes dos dois produtos, pro-labore e contas. */
+/** O que a tela de Pagamentos paga, lido de uma vez: comissoes dos dois produtos, pro-labore e contas. */
 final class Repasses
 {
     /** @return Collection<int, array{id: int, nome: string, pix: ?string, placas: int, cents: int}> */

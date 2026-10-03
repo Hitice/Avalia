@@ -59,30 +59,31 @@ it('ignora valor zero', function () {
         ->and(LancamentoFinanceiro::count())->toBe(0);
 });
 
-it('recusa receita digitada na competencia que ja tem receita automatica', function () {
-    // O caminho da maquina nao duplica. O que duplicaria e alguem lancar a mao
-    // a receita da mesma fatura que ja entrou sozinha.
-    reconhecer();
+it('recusa receita digitada na conta de um produto, que entra sozinha pela liquidacao', function () {
+    $conta = ContaFinanceira::firstOrCreate(['codigo' => 'receita:one'], ['nome' => 'Receita do One', 'grupo' => 'receita']);
 
     expect(fn () => app(App\Actions\Socios\RegistrarLancamento::class)(NaturezaLancamento::Receita, [
         'descricao' => 'a mesma fatura, digitada',
         'competencia' => now()->format('Y-m'),
         'ocorrido_em' => now()->toDateString(),
         'valor_cents' => 50_000,
+        'categoria_id' => $conta->id,
     ]))->toThrow(Recusa::class);
 });
 
-it('deixa lancar receita a mao na competencia sem receita automatica', function () {
+it('deixa lancar receita a mao de outra natureza no mesmo mes da automatica', function () {
     // Receita digitada existe para o que NAO tem origem no sistema, como um
-    // projeto de software fechado por fora.
+    // projeto de software fechado por fora, e placa vendendo todo mes nao
+    // pode fechar essa porta.
     reconhecer();
 
     $outra = app(App\Actions\Socios\RegistrarLancamento::class)(NaturezaLancamento::Receita, [
         'descricao' => 'projeto de RPA',
-        'competencia' => now()->subMonth()->format('Y-m'),
-        'ocorrido_em' => now()->subMonth()->toDateString(),
+        'competencia' => now()->format('Y-m'),
+        'ocorrido_em' => now()->toDateString(),
         'valor_cents' => 300_000,
     ]);
 
-    expect($outra->partidas->sum('valor_cents'))->toBe(0);
+    expect($outra->origem_tipo)->toBeNull()
+        ->and(LancamentoFinanceiro::count())->toBe(2);
 });

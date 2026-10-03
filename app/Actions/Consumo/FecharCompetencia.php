@@ -37,7 +37,7 @@ class FecharCompetencia
         }
 
         if (Fatura::where('cliente_id', $cliente->id)->where('competencia', $competencia)->exists()) {
-            return ['erro' => "A competencia {$competencia} ja esta fechada.", 'fatura' => null];
+            return ['erro' => "A competência {$competencia} já está fechada.", 'fatura' => null];
         }
 
         $plano = $cliente->plano;

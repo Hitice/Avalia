@@ -86,7 +86,7 @@ class LoginController extends Controller
                 Auth::guard($guarda)->logout();
 
                 throw ValidationException::withMessages([
-                    'email' => $conta->motivoSuspensao() ?? 'Esta conta esta desativada.',
+                    'email' => $conta->motivoSuspensao() ?? 'Esta conta está desativada.',
                 ]);
             }
 
@@ -146,7 +146,7 @@ class LoginController extends Controller
 
         if (! $operador->podeEntrar()) {
             throw ValidationException::withMessages([
-                'email' => $operador->motivoSuspensao() ?? 'Esta conta esta desativada.',
+                'email' => $operador->motivoSuspensao() ?? 'Esta conta está desativada.',
             ]);
         }
 

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  * Marca venda a venda e lanca no razao a saida: a divida em comissao-a-pagar
  * baixa e o caixa cai no mesmo valor. A despesa nao entra de novo, ja foi
  * reconhecida na venda. Tudo ou nada, com as linhas travadas, porque dois
- * cliques na sexta pagariam a mesma placa duas vezes.
+ * cliques no dia do pagamento pagariam a mesma placa duas vezes.
  */
 class PagarComissao
 {

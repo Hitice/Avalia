@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 
 /**
  * Pagamentos: tudo que sai do caixa para gente, numa tela, com a lista de
- * Pix. A casa paga na sexta, mas a tela e o sistema de pagamento. Cada botao chama a acao que ja existe; aqui so o fluxo.
+ * Pix. Cada botao chama a acao que ja existe; aqui so o fluxo.
  */
 class PagamentosController extends Controller
 {
@@ -54,7 +54,7 @@ class PagamentosController extends Controller
         $cents = Dinheiro::paraCentavos($dados['valor']) ?? 0;
 
         return $this->tenta(fn () => $registrar(NaturezaLancamento::Prolabore, [
-            'descricao' => 'Pró-labore de '.$socio->nome.', semana de '.now()->format('d/m'),
+            'descricao' => 'Pró-labore de '.$socio->nome.', '.now()->format('d/m'),
             'valor_cents' => $cents,
             'competencia' => now()->format('Y-m'),
             'ocorrido_em' => now()->toDateString(),

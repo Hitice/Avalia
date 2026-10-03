@@ -203,8 +203,6 @@ class SociosController extends Controller
         return back()->with('ok', 'Lançamento estornado. As duas linhas ficam no extrato.');
     }
 
-    /** @return list<string> */
-    /** @param \Illuminate\Support\Collection<int, LancamentoFinanceiro> $lancamentos */
     /** O mes em planilha: o livro-caixa e o por categoria, para conferir fora do sistema. */
     public function planilha(Request $pedido, MontarPlanilhaCaixa $montar): StreamedResponse
     {

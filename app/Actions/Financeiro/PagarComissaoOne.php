@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  * Paga ao vendedor a comissao de consultas liberada e ainda nao paga, ja
  * descontadas as demonstracoes que ele fez e ainda nao foram cobradas. Marca
  * fatura a fatura e consulta a consulta, e baixa comissao-a-pagar contra o
- * caixa. Demonstracao que passa da comissao fica para a proxima sexta.
+ * caixa. Demonstracao que passa da comissao fica para o proximo pagamento.
  */
 class PagarComissaoOne
 {

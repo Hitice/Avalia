@@ -50,7 +50,7 @@ class GerarLinkDeAvaliacao
 
             $negocio->update(['place_id' => $placeId, 'link_avaliacao_id' => $link->id]);
 
-            Auditar::registrar('negocio.link-avaliacao', $negocio ?? $link, [
+            Auditar::registrar('negocio.link-avaliacao', $negocio, [
                 'place_id' => $placeId,
                 'codigo' => $link->codigo,
             ]);

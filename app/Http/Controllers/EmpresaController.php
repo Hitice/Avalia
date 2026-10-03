@@ -394,7 +394,7 @@ class EmpresaController extends Controller
         }
 
         return back()->with('ok', sprintf(
-            'Competencia fechada: fatura de %s, vencimento em %s.',
+            'Competência fechada: fatura de %s, vencimento em %s.',
             $resultado['fatura']->totalRotulo(),
             $resultado['fatura']->vencimento()->format('d/m/Y'),
         ));
@@ -408,7 +408,9 @@ class EmpresaController extends Controller
 
     private function ehAdmin(): bool
     {
-        return (bool) auth('staff')->user()?->ehAdmin();
+        $conta = auth('staff')->user();
+
+        return (bool) ($conta?->ehAdmin() || $conta?->ehSuper());
     }
 
     /** Vendedor so abre empresa da carteira dele. */

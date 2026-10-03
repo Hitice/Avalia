@@ -86,7 +86,7 @@ it('nao consulta servico que aguarda liberacao juridica', function () {
     $servico->update(['exige_liberacao' => true]);
 
     expect(app(RegistrarConsulta::class)($cliente, $servico)['erro'])
-        ->toContain('nao esta liberado');
+        ->toContain('não está liberado');
 
     expect(Consulta::count())->toBe(0);
 });
@@ -98,7 +98,7 @@ it('recusa consulta em competencia ja fechada', function () {
     app(FecharCompetencia::class)($cliente, Consulta::competenciaDe());
 
     expect(app(RegistrarConsulta::class)($cliente, $servico)['erro'])
-        ->toContain('ja foi fechada');
+        ->toContain('já foi fechada');
 });
 
 /*
@@ -159,7 +159,7 @@ it('nao fecha a mesma competencia duas vezes', function () {
 
     app(FecharCompetencia::class)($cliente, $mes);
 
-    expect(app(FecharCompetencia::class)($cliente, $mes)['erro'])->toContain('ja esta fechada');
+    expect(app(FecharCompetencia::class)($cliente, $mes)['erro'])->toContain('já está fechada');
     expect($cliente->faturas()->count())->toBe(1);
 });
 

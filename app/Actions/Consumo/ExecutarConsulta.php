@@ -78,8 +78,8 @@ class ExecutarConsulta
 
         if ($hoje >= Consulta::LIMITE_DIARIO) {
             return $this->recusa(sprintf(
-                'Limite de %d consultas por dia atingido. Fale com a Avalia One para liberar mais.',
-                Consulta::LIMITE_DIARIO,
+                'Limite de %d consultas por dia atingido. Fale com a %s para liberar mais.',
+                Consulta::LIMITE_DIARIO, \App\Support\Empresa::marcaCredito(),
             ));
         }
 

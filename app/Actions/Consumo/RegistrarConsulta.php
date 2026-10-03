@@ -39,7 +39,7 @@ class RegistrarConsulta
         }
 
         if (! $servico->disponivel()) {
-            return $this->falha("Servico '{$servico->nome}' nao esta liberado para consulta.");
+            return $this->falha("O serviço {$servico->nome} não está liberado para consulta.");
         }
 
         $preco = $cliente->plano->catalogo
@@ -49,7 +49,7 @@ class RegistrarConsulta
             ->first();
 
         if (! $preco) {
-            return $this->falha("Servico '{$servico->nome}' nao tem preco na faixa do plano.");
+            return $this->falha("O serviço {$servico->nome} não tem preço na faixa do plano.");
         }
 
         $competencia = Consulta::competenciaDe();
@@ -61,7 +61,7 @@ class RegistrarConsulta
             ->exists();
 
         if ($fechada) {
-            return $this->falha("A competencia {$competencia} ja foi fechada.");
+            return $this->falha("A competência {$competencia} já foi fechada.");
         }
 
         DB::transaction(function () use ($cliente, $servico, $preco, $competencia, $quantidade) {

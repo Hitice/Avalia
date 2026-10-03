@@ -115,14 +115,6 @@ class EtiquetaController extends Controller
         ]);
     }
 
-    /**
-     * Gera os codigos de uma campanha.
-     *
-     * SEMPRE campanha, mesmo para um codigo so. O caminho e o mesmo dos cem:
-     * a pessoa fica na tabela, escolhe a campanha no seletor e baixa o pacote.
-     * Abrir uma tela diferente quando a quantidade e um faria a mesma tarefa
-     * ter dois roteiros, e o de uma unidade seria o que ninguem lembra.
-     */
     /** A pagina de gerar, so de administracao: producao, e nao venda. */
     public function criar()
     {
@@ -132,6 +124,14 @@ class EtiquetaController extends Controller
         ]);
     }
 
+    /**
+     * Gera os codigos de uma campanha.
+     *
+     * SEMPRE campanha, mesmo para um codigo so. O caminho e o mesmo dos cem:
+     * a pessoa fica na tabela, escolhe a campanha no seletor e baixa o pacote.
+     * Abrir uma tela diferente quando a quantidade e um faria a mesma tarefa
+     * ter dois roteiros, e o de uma unidade seria o que ninguem lembra.
+     */
     public function gerar(Request $pedido, GerarLote $lote)
     {
         $dados = $pedido->validate([
@@ -153,14 +153,6 @@ class EtiquetaController extends Controller
     }
 
     /**
-     * O passo de depois da venda: o codigo impresso, e para onde ele leva.
-     *
-     * Existe porque e assim que o trabalho acontece de verdade. Quem acabou de
-     * vender tem a plaquinha na mao e le o codigo dela; procurar essa placa
-     * numa lista de mil seria o caminho longo para a unica coisa que ele quer
-     * fazer.
-     */
-    /**
      * A administracao nao vende: na primeira venda ela diz de quem e. Quem
      * vende aponta no proprio nome e nao escolhe.
      */
@@ -181,6 +173,14 @@ class EtiquetaController extends Controller
         return Staff::where('ativo', true)->where('id', '!=', auth('staff')->id())->orderBy('nome')->get(['id', 'nome']);
     }
 
+    /**
+     * O passo de depois da venda: o codigo impresso, e para onde ele leva.
+     *
+     * Existe porque e assim que o trabalho acontece de verdade. Quem acabou de
+     * vender tem a plaquinha na mao e le o codigo dela; procurar essa placa
+     * numa lista de mil seria o caminho longo para a unica coisa que ele quer
+     * fazer.
+     */
     public function apontarPorCodigo(Request $pedido, VenderEtiqueta $vender)
     {
         $pedido->validate([

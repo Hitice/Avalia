@@ -154,45 +154,32 @@ class RegistrarLancamento
     }
 
     /**
-     * Receita de fatura, parcela ou plaquinha ja entra sozinha.
+     * Receita de fatura, parcela ou plaquinha ja entra sozinha, na conta do
+     * produto. A mao so entra receita de outra natureza, como um projeto de
+     * software fechado por fora: lancar na conta de um produto contaria o
+     * mesmo dinheiro duas vezes. Quem quiser corrigir uma receita automatica
+     * estorna a que existe, que e o caminho que preserva o rastro.
      *
-     * Desde que a liquidacao passou a reconhecer receita, o caminho da maquina
-     * nao duplica: a origem e unica no banco. O que ainda duplicaria e alguem
-     * lancar a mao a receita da mesma fatura que ja entrou.
-     *
-     * A protecao e regra e nao aviso: receita digitada existe para o que NAO
-     * tem origem no sistema, como um projeto de software fechado por fora.
-     * Quem quiser corrigir uma receita automatica estorna a que existe, que e o
-     * caminho que preserva o rastro.
+     * A regra barra a CONTA, e nao o mes: com placa vendendo todo mes, barrar
+     * o mes inteiro deixava a receita de servico sem lugar para entrar.
      */
     private function conferirQueAReceitaNaoDuplica(NaturezaLancamento $natureza, array $dados): void
     {
-        if ($natureza !== NaturezaLancamento::Receita) {
+        if ($natureza !== NaturezaLancamento::Receita || ($dados['origem_tipo'] ?? null) !== null) {
             return;
         }
 
-        if (($dados['origem_tipo'] ?? null) !== null) {
-            return;
-        }
+        $categoria = isset($dados['categoria_id']) ? ContaFinanceira::find($dados['categoria_id']) : null;
 
-        $competencia = (string) ($dados['competencia'] ?? '');
-
-        $automatica = LancamentoFinanceiro::query()
-            ->where('natureza', NaturezaLancamento::Receita->value)
-            ->whereNotNull('origem_tipo')
-            ->where('competencia', $competencia)
-            ->exists();
-
-        if ($automatica) {
+        if ($categoria && in_array($categoria->codigo, ['receita:one', 'receita:gestor', 'receita:plaquinha'], true)) {
             throw new Recusa(
-                'Esta competência já tem receita reconhecida automaticamente pelas liquidações. '
-                .'Lançar receita à mão aqui contaria o mesmo dinheiro duas vezes. '
+                'A receita de '.$categoria->nome.' entra sozinha, pela liquidação. '
+                .'Lançar à mão aqui contaria o mesmo dinheiro duas vezes. '
                 .'Para corrigir uma receita automática, estorne a que existe.'
             );
         }
     }
 
-    /** @param array<int, int> $pernas */
     /**
      * A conta que recebe a transferencia.
      *
@@ -231,8 +218,11 @@ class RegistrarLancamento
         return $socio;
     }
 
-    /** A conta da empresa, pelo codigo, ou a que veio escolhida. */
-    /** $grupo, quando dado, e o que a conta escolhida precisa ser: categoria de receita numa despesa trocaria o sinal do mes. */
+    /**
+     * A conta da empresa, pelo codigo, ou a que veio escolhida. `$grupo`, quando
+     * dado, e o que a conta escolhida precisa ser: categoria de receita numa
+     * despesa trocaria o sinal do mes.
+     */
     private function conta(string $codigo, ?int $escolhida = null, ?string $grupo = null): int
     {
         if ($escolhida !== null) {

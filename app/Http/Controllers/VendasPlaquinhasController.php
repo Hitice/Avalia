@@ -26,7 +26,7 @@ use Illuminate\Support\Collection;
  *
  *   receita    o que o cliente pagou, gravado na venda
  *   custo      a placa fisica, desembolso direto de cada unidade
- *   comissao   25% do que resta, de quem vendeu
+ *   comissao   o percentual do config sobre o valor de venda, de quem vendeu
  *   lucro      o que fica, dividido entre os socios
  *
  * `lucro` aqui e lucro DESTE produto, antes de custo fixo e imposto: hospedagem,
@@ -91,7 +91,7 @@ class VendasPlaquinhasController extends Controller
             'porDia' => Etiqueta::vendasPorDia($mes),
             'meta' => \App\Support\MetaDePlacas::doMes($mes, SalesController::pessoasQueVendem($socios['ids']), $doMes->count(), (int) config('etiquetas.meta_por_pessoa')),
 
-            // Em aberto desde sempre, e nao so do mes: a sexta paga o que ficou.
+            // Em aberto desde sempre, e nao so do mes: o pagamento quita o que ficou.
             'aPagar' => Repasses::comissoesSales(),
             'pagas' => Repasses::comissoesSalesPagas(),
 
