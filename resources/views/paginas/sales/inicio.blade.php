@@ -8,9 +8,8 @@
     @include('parciais.avisos')
 
     {{-- Quem vende ve o que e seu; o socio, o pro-labore; a administracao que
-         nao vende ve so a casa. Cartao pessoal para quem nao tem venda e numero
-         zero ocupando lugar. --}}
-    @php $pessoal = ! $ehAdmin || $minhas['placas'] > 0 || $emMaos > 0 || $comissaoAtual > 0; @endphp
+         nao e socia ve so a casa. --}}
+    @php $pessoal = ! $ehAdmin || $minhaParte !== null; @endphp
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @if ($pessoal)
             <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$emMaos" :href="route('sales.estoque')"
