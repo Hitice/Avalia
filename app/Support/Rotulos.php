@@ -131,6 +131,7 @@ final class Rotulos
         'caixa.exportado' => 'Livro-caixa exportado em planilha',
         'conta-a-pagar.criada' => 'Conta a pagar registrada',
         'conta-a-pagar.paga' => 'Conta a pagar quitada',
+        'vendas.transferidas' => 'Vendas transferidas de uma conta para outra',
         'cobranca.criada' => 'Cobrança emitida',
         'cliente.inadimplente' => 'Empresa suspensa por débito',
         'empresa.removida' => 'Empresa removida',

@@ -104,7 +104,7 @@ return [
         'trim',
         explode(',', (string) env(
             'ETIQUETAS_SOCIOS',
-            'comercial@avaliaone.com.br,atendimento.coorporativo93@gmail.com',
+            'pedromuska@gmail.com,atendimento.coorporativo93@gmail.com',
         )),
     ))),
 
