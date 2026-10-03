@@ -89,7 +89,7 @@ class VenderEtiqueta
      * Pelo contato primeiro: nome de loja repete, telefone nao. Sem nome nao ha o
      * que cadastrar.
      */
-    private function registrarNaBase(Etiqueta $etiqueta): void
+    public function registrarNaBase(Etiqueta $etiqueta): void
     {
         $nome = trim((string) $etiqueta->cliente_nome);
 

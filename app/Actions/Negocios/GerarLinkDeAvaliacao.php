@@ -43,9 +43,12 @@ class GerarLinkDeAvaliacao
                 'Avaliação no Google: '.trim($nome),
             );
 
-            if ($negocio) {
-                $negocio->update(['place_id' => $placeId, 'link_avaliacao_id' => $link->id]);
-            }
+            // Sem negocio na base, o link cria um: senao o que a casa ativou
+            // ficava so no encurtador, e a lista de negocios nao sabia dele.
+            $negocio ??= Negocio::firstWhere('place_id', $placeId)
+                ?? Negocio::create(['nome' => trim($nome), 'situacao' => \App\Enums\SituacaoNegocio::Recebido->value, 'origem' => 'link', 'vendedor_id' => auth('staff')->id()]);
+
+            $negocio->update(['place_id' => $placeId, 'link_avaliacao_id' => $link->id]);
 
             Auditar::registrar('negocio.link-avaliacao', $negocio ?? $link, [
                 'place_id' => $placeId,

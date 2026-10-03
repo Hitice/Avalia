@@ -15,7 +15,7 @@ class ErpController extends Controller
     {
         $saida = '';
 
-        foreach (['avalia:lastrear-plaquinhas', 'avalia:relancar-plaquinhas', 'avalia:lastrear-faturas', 'avalia:lastrear-parcelas', 'avalia:lastrear-contatos'] as $comando) {
+        foreach (['avalia:lastrear-plaquinhas', 'avalia:relancar-plaquinhas', 'avalia:lastrear-faturas', 'avalia:lastrear-parcelas', 'avalia:lastrear-negocios', 'avalia:lastrear-contatos'] as $comando) {
             \Illuminate\Support\Facades\Artisan::call($comando);
             $saida .= $comando.': '.trim(preg_replace('/\s+/', ' ', (string) \Illuminate\Support\Facades\Artisan::output())).' · ';
         }

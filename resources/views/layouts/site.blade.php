@@ -85,6 +85,8 @@
          conteudo. Ao rolar, encolhe para uma ilha arredondada e solta, que
          flutua sobre o texto: e o mesmo gesto de um cabecalho que sai do
          caminho sem sumir, e diz sozinho que a pagina saiu do topo. --}}
+    {{-- Pagina que e so um formulario (o cadastro do negocio) vai sem o cabecalho. --}}
+    @unless ($semCabecalho ?? false)
     <header x-data="{
                 menu: false,
                 rolou: false,
@@ -236,6 +238,7 @@
             </nav>
         </div>
     </header>
+    @endunless
 
     {{-- Sem respiro no topo: a faixa escura de cada pagina comeca no alto e
          passa por baixo da ilha. Quem reserva o espaco do cabecalho e a

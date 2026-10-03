@@ -2,13 +2,15 @@
     'titulo' => 'Cadastro do seu negócio',
     'descricao' => 'Preencha os dados do seu negócio para publicarmos seu perfil no Google e nos canais de busca.',
     'secao' => 'cadastro-negocio',
+    'semCabecalho' => true,
 ])
 
 @section('content')
     {{-- Feito para o telefone: uma coluna, campos de 44px, teclado certo em
          cada campo e o CEP preenchendo o endereco. So o primeiro bloco e
          obrigatorio. --}}
-    <section class="mx-auto w-full max-w-xl px-4 pt-28 pb-12 sm:px-6 sm:pt-32 sm:pb-16">
+    <section class="mx-auto w-full max-w-xl px-4 py-10 sm:px-6 sm:py-14">
+        <x-avalia.logotipo :tamanho="32" texto="1.25rem" class="mb-8" />
         <h1 class="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Cadastro do seu negócio</h1>
         <p class="mt-2 text-gray-600">Com isto publicamos seu perfil no Google. Só o primeiro bloco é obrigatório.</p>
 

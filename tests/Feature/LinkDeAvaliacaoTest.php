@@ -1,5 +1,22 @@
 <?php
 
+it('link gerado sem negocio cria o negocio, e o lastro traz os antigos', function () {
+    $link = app(App\Actions\Negocios\GerarLinkDeAvaliacao::class)('ChIJN1t_tDeuEmsRUsoyG83frY4', 'Padaria do Zé');
+    $negocio = App\Models\Negocio::where('link_avaliacao_id', $link->id)->sole();
+    expect($negocio->nome)->toBe('Padaria do Zé')->and($negocio->place_id)->toBe('ChIJN1t_tDeuEmsRUsoyG83frY4');
+
+    // Um link antigo, solto, e uma placa vendida sem negocio.
+    App\Models\Negocio::query()->delete();
+    App\Models\Etiqueta::factory()->ativa()->create(['cliente_nome' => 'Bar do João', 'cliente_contato' => '34988881111', 'negocio_id' => null]);
+
+    test()->artisan('avalia:lastrear-negocios')->assertSuccessful();
+    test()->artisan('avalia:lastrear-negocios')->assertSuccessful();
+
+    expect(App\Models\Negocio::count())->toBe(2)
+        ->and(App\Models\Negocio::where('link_avaliacao_id', $link->id)->exists())->toBeTrue()
+        ->and(App\Models\Etiqueta::whereNull('negocio_id')->whereNotNull('vendida_em')->count())->toBe(0);
+});
+
 use App\Models\Conexao;
 use App\Models\Link;
 use App\Models\Negocio;
