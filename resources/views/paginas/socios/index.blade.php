@@ -29,10 +29,17 @@
 
     <div class="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <div class="cartao overflow-hidden">
-            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+            <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-6 py-4 dark:border-gray-800">
                 <h2 class="titulo-cartao">
                     {{ $socios->isEmpty() ? 'Cadastrar sócio' : 'Por sócio' }}
                 </h2>
+                @if ($porSocio->sum('aportou') > 0)
+                    {{-- Apaga todos os aportes, com rastro: foram de montagem, nao de dinheiro que entrou. --}}
+                    <form method="POST" action="{{ route('erp.razao.apagar-aportes') }}" onsubmit="return confirm('Apagar todos os aportes de capital? Não se desfaz.')">
+                        @csrf
+                        <x-avalia.botao variante="secundario" tamanho="sm">Apagar aportes</x-avalia.botao>
+                    </form>
+                @endif
                 @if ($socios->isEmpty())
                     <p class="ajuda-campo mt-1">Cadastre os sócios para lançar.</p>
                 @endif
