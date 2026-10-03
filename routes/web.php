@@ -559,6 +559,7 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
         // Os lastros e o relancamento, pela tela: producao nao tem SSH, e sao idempotentes.
         Route::post('/razao/conciliar', [ErpController::class, 'conciliar'])->name('razao.conciliar');
         Route::post('/razao/apagar-aportes', [ErpController::class, 'apagarAportes'])->middleware('socios')->name('razao.apagar-aportes');
+        Route::post('/razao/zerar-mes', [ErpController::class, 'zerarMes'])->middleware('socios')->name('razao.zerar-mes');
 
         Route::get('/contas', [ContasAPagarController::class, 'index'])->name('contas');
         Route::post('/contas', [ContasAPagarController::class, 'salvar'])->name('contas.salvar');

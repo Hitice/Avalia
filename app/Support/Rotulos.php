@@ -121,6 +121,7 @@ final class Rotulos
         'etiquetas.venda.cancelada' => 'Venda da etiqueta cancelada',
         'socios.socio.criado' => 'Sócio cadastrado',
         'socios.socio.removido' => 'Sócio removido',
+        'mes.zerado' => 'Mês apagado para recomeçar',
         'socios.lancamento.registrado' => 'Lançamento financeiro registrado',
         'socios.lancamento.estornado' => 'Lançamento financeiro estornado',
         'socios.lancamento.excluido' => 'Lançamento financeiro apagado',

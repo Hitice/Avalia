@@ -35,6 +35,15 @@
                         @csrf
                         <x-avalia.botao variante="secundario">Apagar aportes</x-avalia.botao>
                     </form>
+
+                    {{-- Apaga a operacao de um mes inteiro. Digitar o mes duas vezes e a trava. --}}
+                    <form method="POST" action="{{ route('erp.razao.zerar-mes') }}" class="flex items-center gap-2"
+                          onsubmit="this.confirmo.value = prompt('Apagar razão, vendas de placa, consultas e faturas de ' + this.competencia.value + '? Digite o mês de novo para confirmar.') || ''; return this.confirmo.value !== '';">
+                        @csrf
+                        <input type="hidden" name="confirmo" value="">
+                        <input name="competencia" type="month" class="campo w-auto" required value="{{ now()->subMonth()->format('Y-m') }}">
+                        <x-avalia.botao variante="secundario">Zerar mês</x-avalia.botao>
+                    </form>
                 @endif
             </div>
         </div>

@@ -23,6 +23,16 @@ class ErpController extends Controller
         return back()->with('ok', rtrim($saida, ' ·'));
     }
 
+    public function zerarMes(\Illuminate\Http\Request $pedido)
+    {
+        $dados = $pedido->validate(['competencia' => ['required', 'regex:/^\d{4}-\d{2}$/'], 'confirmo' => ['required', 'in:'.$pedido->input('competencia')]]);
+
+        $codigo = \Illuminate\Support\Facades\Artisan::call('avalia:zerar-mes', ['competencia' => $dados['competencia']]);
+        $saida = trim(preg_replace('/\s+/', ' ', (string) \Illuminate\Support\Facades\Artisan::output()));
+
+        return back()->with($codigo === 0 ? 'ok' : 'erro', $saida);
+    }
+
     public function apagarAportes()
     {
         \Illuminate\Support\Facades\Artisan::call('avalia:apagar-aportes');
