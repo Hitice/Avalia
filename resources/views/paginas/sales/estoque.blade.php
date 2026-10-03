@@ -7,7 +7,7 @@
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         @if ($ehAdmin)
             <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$disponiveis" tom="text-brand-600 dark:text-brand-400" ajuda="Geradas e ainda não vendidas" />
-            <x-avalia.cartao-indicador rotulo="Geradas" :valor="$geradas" :href="route('etiquetas.criar')" />
+            <x-avalia.cartao-indicador rotulo="Geradas" :valor="$geradas" :href="route('etiquetas.criar')" ajuda="Total de todas as campanhas" />
             <x-avalia.cartao-indicador rotulo="Livres" :valor="$noBolo" ajuda="Prontas para entregar" />
         @else
             <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$minhas->count()" tom="text-brand-600 dark:text-brand-400" />
