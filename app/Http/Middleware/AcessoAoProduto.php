@@ -30,9 +30,9 @@ class AcessoAoProduto
         }
 
         if (MenuHelper::naSales()) {
-            abort_unless($conta->acessa('sales'), 403, 'Sem acesso ao Avalia Sales.');
+            abort_unless($conta->acessa('sales'), 403, 'Sem acesso ao '.\App\Support\Empresa::marcaVendas().'.');
         } else {
-            abort_unless($conta->acessa('one'), 403, 'Sem acesso ao Avalia One.');
+            abort_unless($conta->acessa('one'), 403, 'Sem acesso ao '.\App\Support\Empresa::marcaCredito().'.');
         }
 
         return $next($request);

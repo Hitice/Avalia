@@ -47,7 +47,7 @@ enum NaturezaLancamento: string
     /** Quita uma divida ja reconhecida (comissao a pagar). Sai do sistema, nunca do formulario. */
     case Pagamento = 'pagamento';
 
-    /** A parte do socio que sai na sexta. Despesa de pessoal, nao retirada. */
+    /** A parte do socio, paga pela tela de Pagamentos. Despesa de pessoal, nao retirada. */
     case Prolabore = 'prolabore';
 
     /** Despesa reconhecida antes de pagar: divida com fornecedor. Sai da tela de contas a pagar. */

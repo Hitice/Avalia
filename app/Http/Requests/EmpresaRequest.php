@@ -25,6 +25,10 @@ class EmpresaRequest extends FormRequest
         $this->merge([
             'cnpj' => Documento::normalizarCnpj($this->input('cnpj')) ?: null,
             'email' => mb_strtolower(trim((string) $this->input('email'))),
+            // Com mascara, "38400-192" tem nove caracteres e falhava no
+            // tamanho sem dizer por que. Guarda-se so o digito, como no lead.
+            'cep' => preg_replace('/\D/', '', (string) $this->input('cep')) ?: null,
+            'responsavel_cpf' => preg_replace('/\D/', '', (string) $this->input('responsavel_cpf')) ?: null,
         ]);
     }
 
@@ -52,8 +56,8 @@ class EmpresaRequest extends FormRequest
             'vendedor_id' => ['nullable', 'exists:staff,id'],
             'telefone' => ['nullable', 'string', 'max:20'],
             'responsavel_nome' => ['nullable', 'string', 'max:150'],
-            'responsavel_cpf' => ['nullable', 'string', 'max:14'],
-            'cep' => ['nullable', 'string', 'max:8'],
+            'responsavel_cpf' => ['nullable', 'string', 'size:11'],
+            'cep' => ['nullable', 'string', 'size:8'],
             'logradouro' => ['nullable', 'string', 'max:150'],
             'numero' => ['nullable', 'string', 'max:20'],
             'complemento' => ['nullable', 'string', 'max:100'],
@@ -108,10 +112,19 @@ class EmpresaRequest extends FormRequest
         );
     }
 
+    public function messages(): array
+    {
+        return [
+            'responsavel_cpf.size' => 'O CPF do responsável precisa ter 11 dígitos.',
+            'cep.size' => 'O CEP precisa ter 8 dígitos.',
+        ];
+    }
+
     public function attributes(): array
     {
         return [
             'razao_social' => 'razão social',
+            'responsavel_cpf' => 'CPF do responsável',
             'plano_id' => 'plano',
             'vendedor_id' => 'vendedor',
         ];

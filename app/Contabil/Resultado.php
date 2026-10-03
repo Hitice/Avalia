@@ -2,6 +2,7 @@
 
 namespace App\Contabil;
 
+use App\Support\Empresa;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -12,12 +13,19 @@ use Illuminate\Support\Facades\DB;
  */
 final class Resultado
 {
-    /** Os produtos, na ordem em que aparecem, e o sufixo dos codigos de conta. */
-    public const PRODUTOS = [
-        'one' => 'Avalia One',
-        'gestor' => 'Avalia Gestor',
-        'plaquinha' => 'QR dinâmico',
-    ];
+    /**
+     * Os produtos, na ordem em que aparecem, e o sufixo dos codigos de conta.
+     *
+     * @return array<string, string>
+     */
+    public static function produtos(): array
+    {
+        return [
+            'one' => Empresa::marcaCredito(),
+            'gestor' => Empresa::marcaCobranca(),
+            'plaquinha' => 'QR dinâmico',
+        ];
+    }
 
     /**
      * Saldo de cada conta, com o sinal que a pessoa espera ler.
@@ -63,7 +71,7 @@ final class Resultado
         // lancarem, ela se divide em `comissao:<produto>` e esta linha sai.
         $linhas = [];
 
-        foreach (self::PRODUTOS as $chave => $nome) {
+        foreach (self::produtos() as $chave => $nome) {
             $receita = $saldos["receita:{$chave}"] ?? 0;
             $custo = $saldos["custo:{$chave}"] ?? 0;
             $daComissao = $chave === 'plaquinha' ? $comissao : 0;

@@ -5,7 +5,7 @@ namespace App\Helpers;
 class MenuHelper
 {
     /**
-     * Menu da area de erp.
+     * Menu do Avalia One para a equipe: vendedor e administracao.
      *
      * `papeis` restringe o item. Ausente = todo mundo do staff ve.
      */
