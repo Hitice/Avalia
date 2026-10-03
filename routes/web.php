@@ -606,6 +606,7 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
         Route::get('/', [SociosController::class, 'index'])->name('index');
         Route::get('/planilha', [SociosController::class, 'planilha'])->name('planilha');
         Route::post('/socios', [SociosController::class, 'criarSocio'])->name('criar');
+        Route::delete('/socios/{socio}', [SociosController::class, 'removerSocio'])->name('remover');
         Route::post('/lancamentos', [SociosController::class, 'registrar'])->name('registrar');
         Route::post('/lancamentos/{lancamento}/estorno', [SociosController::class, 'estornar'])->name('estornar');
         Route::delete('/lancamentos/{lancamento}', [SociosController::class, 'excluir'])->name('excluir');

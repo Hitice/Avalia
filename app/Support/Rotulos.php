@@ -120,6 +120,7 @@ final class Rotulos
         'etiquetas.vendedor.trocado' => 'Venda da etiqueta creditada a outra pessoa',
         'etiquetas.venda.cancelada' => 'Venda da etiqueta cancelada',
         'socios.socio.criado' => 'Sócio cadastrado',
+        'socios.socio.removido' => 'Sócio removido',
         'socios.lancamento.registrado' => 'Lançamento financeiro registrado',
         'socios.lancamento.estornado' => 'Lançamento financeiro estornado',
         'socios.lancamento.excluido' => 'Lançamento financeiro apagado',

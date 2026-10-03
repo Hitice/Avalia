@@ -62,6 +62,19 @@ it('grava toda natureza com partidas que somam zero', function () {
     }
 });
 
+it('remove socio sem lancamento, e segura o que tem', function () {
+    $admin = Staff::factory()->admin()->create(['pode_socios' => true]);
+    $como = fn () => test()->actingAs($admin, 'staff')->withSession(['versao_staff' => $admin->sessao_versao]);
+    $comLancamento = socio('Pedro');
+    lancar(NaturezaLancamento::Aporte, ['socio_id' => $comLancamento->id]);
+    $duplicado = socio('Pedro Pavanelli');
+
+    $como()->from(route('socios.index'))->delete(route('socios.remover', $duplicado))->assertRedirect(route('socios.index'))->assertSessionHas('ok');
+    $como()->from(route('socios.index'))->delete(route('socios.remover', $comLancamento))->assertSessionHas('erro');
+
+    expect(Socio::find($duplicado->id))->toBeNull()->and(Socio::find($comLancamento->id))->not->toBeNull();
+});
+
 it('recusa valor zero ou negativo', function () {
     expect(fn () => lancar(NaturezaLancamento::Despesa, ['valor_cents' => 0]))->toThrow(Recusa::class)
         ->and(fn () => lancar(NaturezaLancamento::Despesa, ['valor_cents' => -100]))->toThrow(Recusa::class);

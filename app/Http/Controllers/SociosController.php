@@ -60,7 +60,11 @@ class SociosController extends Controller
             'despesa' => $this->doGrupo($doMes, 'despesa'),
 
             'porSocio' => $socios->map(fn (Socio $socio) => [
+                'id' => $socio->id,
                 'nome' => $socio->nome,
+                'conta' => $socio->staff?->email,
+                // So se remove socio sem lancamento: o que tem partida fica, para o extrato se explicar.
+                'removivel' => ! \App\Models\PartidaFinanceira::whereIn('conta_id', $socio->contas()->select('id'))->exists(),
                 'aportou' => $this->saldoDoSocio($socio, ContaFinanceira::APORTE),
                 'a_devolver' => $this->saldoDoSocio($socio, ContaFinanceira::EMPRESTIMO),
             ]),
@@ -110,6 +114,20 @@ class SociosController extends Controller
         Auditar::registrar('socios.socio.criado', null, ['nome' => $dados['nome']]);
 
         return back()->with('ok', 'Sócio cadastrado.');
+    }
+
+    /** Remove um socio cadastrado por engano. Com lancamento, nao sai: o extrato aponta para ele. */
+    public function removerSocio(Socio $socio)
+    {
+        if (\App\Models\PartidaFinanceira::whereIn('conta_id', $socio->contas()->select('id'))->exists()) {
+            return back()->with('erro', $socio->nome.' tem lançamentos e não se remove.');
+        }
+
+        \App\Support\Auditar::registrar('socios.socio.removido', $socio, ['nome' => $socio->nome]);
+        $socio->contas()->delete();
+        $socio->delete();
+
+        return back()->with('ok', 'Sócio '.$socio->nome.' removido.');
     }
 
     public function registrar(Request $pedido, RegistrarLancamento $registrar)

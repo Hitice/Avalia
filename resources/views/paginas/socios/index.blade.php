@@ -54,16 +54,29 @@
                     <th scope="col" class="tabela-th text-left">Sócio</th>
                     <th scope="col" class="tabela-th text-right">Aportou</th>
                     <th scope="col" class="tabela-th text-right">A devolver</th>
+                    <th scope="col" class="tabela-th text-right"><span class="sr-only">Remover</span></th>
                 </tr></thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($porSocio as $socio)
                         <tr>
-                            <td class="tabela-td text-gray-800 dark:text-white/90">{{ $socio['nome'] }}</td>
+                            <td class="tabela-td text-gray-800 dark:text-white/90">
+                                {{ $socio['nome'] }}
+                                <span class="ajuda-campo">{{ $socio['conta'] ?? 'sem conta de acesso' }}</span>
+                            </td>
                             <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">
                                 {{ Dinheiro::brl($socio['aportou']) }}
                             </td>
                             <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">
                                 {{ Dinheiro::brl($socio['a_devolver']) }}
+                            </td>
+                            <td class="tabela-td text-right">
+                                @if ($socio['removivel'])
+                                    <form method="POST" action="{{ route('socios.remover', $socio['id']) }}" onsubmit="return confirm('Remover {{ addslashes($socio['nome']) }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-avalia.botao variante="secundario" tamanho="icone" title="Remover"><x-avalia.icone nome="lixeira" /><span class="sr-only">Remover</span></x-avalia.botao>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
