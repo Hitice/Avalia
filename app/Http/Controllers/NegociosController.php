@@ -131,7 +131,7 @@ class NegociosController extends Controller
     {
         $dados = $pedido->validate([
             'place_id' => ['required', 'string', 'max:255'],
-            'nome' => ['required', 'string', 'max:150'],
+            'nome' => ['nullable', 'string', 'max:150'],
             'negocio_id' => ['nullable', 'integer', 'exists:negocios,id'],
         ]);
 
@@ -139,7 +139,7 @@ class NegociosController extends Controller
 
         return $this->entregar($gerar, [
             'place_id' => $dados['place_id'],
-            'nome' => $dados['nome'],
+            'nome' => trim((string) ($dados['nome'] ?? '')) ?: 'Place ID '.substr($dados['place_id'], 0, 10),
         ], $negocio);
     }
 

@@ -90,8 +90,8 @@
                 @error('place_id') <span class="erro-campo">{{ $message }}</span> @enderror
             </div>
             <div class="min-w-[14rem]">
-                <label for="nome-place" class="rotulo-campo">Nome do estabelecimento</label>
-                <input id="nome-place" name="nome" type="text" class="campo" required maxlength="150" value="{{ old('nome') }}">
+                <label for="nome-place" class="rotulo-campo">Nome (opcional)</label>
+                <input id="nome-place" name="nome" type="text" class="campo" maxlength="150" value="{{ old('nome') }}" placeholder="Rótulo do link">
             </div>
             <x-avalia.botao>Gerar link</x-avalia.botao>
         </form>
