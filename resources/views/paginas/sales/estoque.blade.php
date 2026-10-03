@@ -15,38 +15,10 @@
     </div>
 
     @if ($podePlacas)
+        {{-- A entrega e sempre por codigo: quem entrega le os impressos nas que
+             separou. Tudo ou nada, e a recusa nomeia o codigo errado. --}}
         <div class="cartao mb-6 p-5">
             <h2 class="titulo-secao">Entregar placas</h2>
-
-            <form method="POST" action="{{ route('sales.estoque.entregar') }}"
-                  class="flex flex-wrap items-end gap-3">
-                @csrf
-
-                <div class="min-w-[14rem]">
-                    <label for="vendedor_id" class="rotulo-campo">Para quem</label>
-                    <select id="vendedor_id" name="vendedor_id" class="campo" required>
-                        @foreach ($equipe as $pessoa)
-                            <option value="{{ $pessoa->id }}">{{ $pessoa->nome }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label for="quantas" class="rotulo-campo">Quantas</label>
-                    <input id="quantas" name="quantas" type="number" min="1" max="500" value="20"
-                           class="campo w-28" required>
-                </div>
-
-                <x-avalia.botao>Entregar</x-avalia.botao>
-            </form>
-
-            <p class="ajuda-campo mt-3">Saem as de menor número primeiro.</p>
-        </div>
-
-        {{-- Entregar placas ESCOLHIDAS: o admin le os codigos impressos nas que
-             separou e digita. Tudo ou nada, e a recusa nomeia o codigo errado. --}}
-        <div class="cartao mb-6 p-5">
-            <h2 class="titulo-secao">Entregar por código</h2>
 
             <form method="POST" action="{{ route('sales.estoque.entregar-codigos') }}" class="grid gap-3">
                 @csrf
@@ -55,6 +27,7 @@
                     <div>
                         <label for="vendedor_codigos" class="rotulo-campo">Para quem</label>
                         <select id="vendedor_codigos" name="vendedor_id" class="campo" required>
+                            <option value="">Selecione</option>
                             @foreach ($equipe as $pessoa)
                                 <option value="{{ $pessoa->id }}" @selected(old('vendedor_id') == $pessoa->id)>{{ $pessoa->nome }}</option>
                             @endforeach
