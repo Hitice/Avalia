@@ -8,7 +8,7 @@
     @include('parciais.avisos')
 
     <div class="grid gap-6 lg:grid-cols-[1fr_1.6fr]">
-        <form method="POST" action="{{ route('gestao.contas.salvar') }}" class="cartao grid gap-4 p-6">
+        <form method="POST" action="{{ route('erp.contas.salvar') }}" class="cartao grid gap-4 p-6">
             @csrf
             <h2 class="rotulo-grupo">Nova conta</h2>
             <div>
@@ -63,7 +63,7 @@
                                 <td class="tabela-td text-gray-600 dark:text-gray-300">{{ $conta->categoria->nome }}</td>
                                 <td class="tabela-td text-right tabular-nums text-gray-800 dark:text-white/90">{{ Dinheiro::brl($conta->valor_cents) }}</td>
                                 <td class="tabela-td text-right">
-                                    <form method="POST" action="{{ route('gestao.contas.pagar', $conta) }}" onsubmit="return confirm('Marcar como paga?')">
+                                    <form method="POST" action="{{ route('erp.contas.pagar', $conta) }}" onsubmit="return confirm('Marcar como paga?')">
                                         @csrf
                                         <x-avalia.botao variante="secundario" tamanho="sm">Pagar</x-avalia.botao>
                                     </form>

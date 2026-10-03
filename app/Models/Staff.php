@@ -133,6 +133,16 @@ class Staff extends Authenticatable implements ContaAutenticavel
     }
 
     /** Regra unica de quem pode entrar. Vale no login e a cada requisicao. */
+    /** Carteira, faturas, placas, consultas ou acoes registradas apontam para a pessoa: ela nao se apaga. */
+    public function temHistorico(): bool
+    {
+        return Cliente::withTrashed()->where('vendedor_id', $this->id)->exists()
+            || Fatura::where('vendedor_id', $this->id)->exists()
+            || Etiqueta::where('vendedor_id', $this->id)->orWhere('consignada_para_id', $this->id)->orWhere('staff_id', $this->id)->exists()
+            || Consulta::where('vendedor_id', $this->id)->exists()
+            || Auditoria::where('staff_id', $this->id)->exists();
+    }
+
     public function podeEntrar(): bool
     {
         return $this->ativo && $this->deleted_at === null;

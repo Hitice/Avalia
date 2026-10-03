@@ -110,7 +110,7 @@ valendo inteira, e `RevisaoDeSegurancaTest` cobra.
 - **Avalia One**, pesquisa de score: `Empresa::marcaCredito()`
 - **Avalia Gestor**, venda parcelada: `Empresa::marcaCobranca()`
 - **Avalia Sales**, vendas de rua: `Empresa::marcaVendas()`
-- **Avalia Gestão**, o back office: `Empresa::marcaGestao()`
+- **Avalia ERP**, o back office: `Empresa::marcaErp()`
 
 O logotipo sai de `<x-avalia.logotipo marca="casa|credito|cobranca|vendas|gestao" />`:
 o desenho vem de `App\Support\Marca` (arco e ponteiro do dono) e o nome escrito

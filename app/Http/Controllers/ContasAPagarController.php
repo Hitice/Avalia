@@ -14,7 +14,7 @@ class ContasAPagarController extends Controller
 {
     public function index()
     {
-        return view('paginas.gestao.contas', [
+        return view('paginas.erp.contas', [
             'abertas' => ContaAPagar::emAberto()->with('categoria')->orderBy('vence_em')->get(),
             'pagas' => ContaAPagar::whereNotNull('pago_em')->with('categoria')->orderByDesc('pago_em')->limit(30)->get(),
             'categorias' => ContaFinanceira::where('grupo', 'despesa')->where('ativa', true)->orderBy('nome')->get(),

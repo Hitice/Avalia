@@ -48,8 +48,8 @@ it('lastreia o que ja existe sem duplicar, e a tela lista e busca', function () 
 
     expect(Cliente::whereNull('contato_id')->count())->toBe(0)->and(Contato::count())->toBe(2);
 
-    $html = admin()->get(route('gestao.contatos', ['busca' => '11.222']))->assertOk()->getContent();
+    $html = admin()->get(route('crm.contatos', ['busca' => '11.222']))->assertOk()->getContent();
     expect($html)->toContain('Mercearia Central')->not->toContain('Sem Contato ME');
 
-    admin()->get(route('gestao.contatos.ver', $cliente->fresh()->contato_id))->assertOk()->assertSee('Cadastrado como cliente');
+    admin()->get(route('crm.contatos.ver', $cliente->fresh()->contato_id))->assertOk()->assertSee('Cadastrado como cliente');
 });

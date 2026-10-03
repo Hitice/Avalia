@@ -35,7 +35,7 @@ class SextaController extends Controller
             ->concat($prolabore->where('sugerido', '>', 0)->map(fn ($r) => ['nome' => $r['staff']->nome, 'chave' => $r['staff']->pix_chave, 'cents' => $r['sugerido'], 'motivo' => 'pró-labore']))
             ->values();
 
-        return view('paginas.gestao.sexta', compact('sales', 'one', 'prolabore', 'contas', 'pix'));
+        return view('paginas.erp.sexta', compact('sales', 'one', 'prolabore', 'contas', 'pix'));
     }
 
     public function pagarSales(Staff $vendedor, PagarComissao $pagar)

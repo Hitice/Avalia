@@ -42,7 +42,7 @@ expect()->extend('toBeOne', function () {
 */
 
 /**
- * Sessao de administrador pronta para pedir uma rota de gestao.
+ * Sessao de administrador pronta para pedir uma rota de erp.
  *
  * O `versao_staff` na sessao nao e detalhe de teste: sem ele o ConfereSessao
  * derruba a sessao na primeira requisicao, e todo teste de tela viraria um

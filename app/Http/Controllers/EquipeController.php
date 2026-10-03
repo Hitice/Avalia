@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StaffRequest;
 use App\Mail\ConviteDeAcesso;
-use App\Models\Cliente;
 use App\Models\Staff;
 use App\Support\Auditar;
 use App\Support\Convite;
@@ -63,12 +62,8 @@ class EquipeController extends Controller
     {
         $removido = Staff::onlyTrashed()->findOrFail($id);
 
-        $temHistorico = Cliente::withTrashed()->where('vendedor_id', $removido->id)->exists()
-            || \App\Models\Fatura::where('vendedor_id', $removido->id)->exists()
-            || \App\Models\Auditoria::where('staff_id', $removido->id)->exists();
-
-        if ($temHistorico) {
-            return back()->with('erro', 'Esta pessoa tem carteira, faturas ou ações registradas: o histórico aponta para ela e não se apaga. Mantenha como removida.');
+        if ($removido->temHistorico()) {
+            return back()->with('erro', $removido->nome.' tem histórico (carteira, faturas, placas ou ações) e não se apaga. Fica como removido: não entra e não aparece nas listas.');
         }
 
         Auditar::registrar('equipe.excluida', $removido, ['email' => $removido->email]);

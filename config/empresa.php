@@ -30,9 +30,11 @@ return [
     // Vendas externas: plaquinha e os servicos de presenca local que a
     // sustentam, e o que mantem o time de rua operacional.
     'marca_vendas' => 'Avalia Sales',
-    // O back office da casa: equipe, caixa, contatos, auditoria. Nao e produto
-    // de prateleira; e onde os socios tocam a operacao.
-    'marca_gestao' => 'Avalia Gestão',
+    // O back office da casa, em dois: o ERP (caixa, equipe, auditoria) e o CRM
+    // (contatos, leads, funil). Nao sao de prateleira; e onde os socios tocam
+    // a operacao.
+    'marca_erp' => 'Avalia ERP',
+    'marca_crm' => 'Avalia CRM',
 
     'cnpj' => '68.715.987/0001-64',
     'abertura' => '21/08/2026',

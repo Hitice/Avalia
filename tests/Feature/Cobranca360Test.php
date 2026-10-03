@@ -206,6 +206,27 @@ function avisaPagamento(string $evento, Parcela360 $parcela, array $extra = []):
         ]);
 }
 
+it('poe a taxa da plataforma no razao da casa, como receita do Gestor', function () {
+    Http::fake([
+        '*/customers' => Http::response(['id' => 'cus_1']),
+        '*/payments' => Http::response(['id' => 'pay_1', 'status' => 'PENDING']),
+    ]);
+
+    $pedido = pedidoComEntrada(produtorPronto());
+    app(EmitirCobrancaDaParcela::class)($pedido->entrada());
+    $entrada = $pedido->entrada()->fresh();
+    avisaPagamento('PAYMENT_RECEIVED', $entrada)->assertOk();
+
+    $casa = abs((int) Lancamento360::where('parcela_360_id', $entrada->id)->where('tipo', 'taxa_plataforma')->value('valor_cents'));
+
+    expect($casa)->toBeGreaterThan(0)
+        ->and(saldo('receita:gestor'))->toBe($casa)
+        ->and(saldo('caixa'))->toBe($casa);
+
+    test()->artisan('avalia:lastrear-parcelas')->assertSuccessful();
+    expect(saldo('receita:gestor'))->toBe($casa);
+});
+
 it('da baixa na parcela e escreve o razao fechando em zero', function () {
     Http::fake([
         '*/customers' => Http::response(['id' => 'cus_1']),

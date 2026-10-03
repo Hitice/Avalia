@@ -133,7 +133,7 @@ it('preenche o produto sugerido so onde esta vazio', function () {
     expect($preenchidos)->toBe(1)
         ->and($vazio->fresh()->codigo_fornecedor)->toBe('SCORE_PF|SCORE_PJ')
         ->and($vazio->fresh()->fornecedor)->toBe('boa-vista')
-        // Escolha de quem sabe nunca e sobrescrita por sugestao.
+        // Escolha de quem sabe nunca e sobrescrita por suerp.
         ->and($escolhido->fresh()->codigo_fornecedor)->toBe('PRODUTO_DO_CONTRATO');
 
     expect(App\Models\Auditoria::where('acao', 'servico.produto_sugerido')->count())->toBe(1);

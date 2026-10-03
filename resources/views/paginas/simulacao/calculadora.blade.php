@@ -8,7 +8,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Calculadora" subtitulo="Simulação de contrato" />
+    <x-avalia.cabecalho-pagina titulo="Simulador" subtitulo="Calculadora e proposta" />
     @include('paginas.simulacao.abas', ['atual' => 'calculadora'])
 
     @if (! $catalogo || $faixas === [])

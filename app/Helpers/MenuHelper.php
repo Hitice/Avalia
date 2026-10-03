@@ -5,7 +5,7 @@ namespace App\Helpers;
 class MenuHelper
 {
     /**
-     * Menu da area de gestao.
+     * Menu da area de erp.
      *
      * `papeis` restringe o item. Ausente = todo mundo do staff ve.
      */
@@ -72,16 +72,24 @@ class MenuHelper
     public const ROTAS_SALES = ['etiquetas.', 'negocios', 'plaquinhas.', 'sales.'];
 
     /** As rotas do back office: o que e da casa, e nao de um produto. */
-    public const ROTAS_GESTAO = ['gestao.', 'equipe.', 'financeiro.', 'socios.', 'controladoria', 'auditoria', 'conexoes.', 'leads.', 'documentos.'];
+    public const ROTAS_ERP = ['erp.', 'equipe.', 'financeiro.', 'socios.', 'controladoria', 'auditoria', 'conexoes.', 'documentos.'];
+
+    /** As rotas do CRM: gente, antes de virar documento. */
+    public const ROTAS_CRM = ['crm.', 'leads.'];
 
     public static function naSales(): bool
     {
         return self::rotaEm(self::ROTAS_SALES);
     }
 
-    public static function naGestao(): bool
+    public static function naErp(): bool
     {
-        return self::rotaEm(self::ROTAS_GESTAO);
+        return self::rotaEm(self::ROTAS_ERP);
+    }
+
+    public static function naCrm(): bool
+    {
+        return self::rotaEm(self::ROTAS_CRM);
     }
 
     private static function rotaEm(array $prefixos): bool
@@ -101,7 +109,8 @@ class MenuHelper
     {
         return match (true) {
             self::naSales() => 'vendas',
-            self::naGestao() => 'gestao',
+            self::naErp() => 'erp',
+            self::naCrm() => 'crm',
             default => 'credito',
         };
     }
@@ -113,8 +122,12 @@ class MenuHelper
             return auth('staff')->check() ? route('sales.inicio') : route('etiquetas.index');
         }
 
-        if (self::naGestao()) {
-            return route('gestao.inicio');
+        if (self::naErp()) {
+            return route('erp.inicio');
+        }
+
+        if (self::naCrm()) {
+            return route('crm.inicio');
         }
 
         return auth('empresa')->check() ? route('empresa.painel') : \App\Support\Porta::painelDe('staff');
@@ -138,21 +151,29 @@ class MenuHelper
     }
 
     /** O back office. A lateral inteira e de administracao; o que exige permissao propria some de quem nao a tem. */
-    public static function getItensDaGestao()
+    public static function getItensDoErp()
     {
         return [
-            ['icon' => 'inicio', 'name' => 'Início', 'path' => '/gestao'],
-            ['icon' => 'pessoas', 'name' => 'Contatos', 'path' => '/gestao/contatos'],
-            ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads'],
+            ['icon' => 'inicio', 'name' => 'Início', 'path' => '/erp'],
             ['icon' => 'grafico', 'name' => 'Financeiro', 'path' => '/financeiro', 'exigeFinanceiro' => true],
-            ['icon' => 'tarefa', 'name' => 'Sexta-feira', 'path' => '/gestao/sexta', 'exigeFinanceiro' => true],
-            ['icon' => 'boleto', 'name' => 'Contas a pagar', 'path' => '/gestao/contas', 'exigeFinanceiro' => true],
+            ['icon' => 'tarefa', 'name' => 'Sexta-feira', 'path' => '/erp/sexta', 'exigeFinanceiro' => true],
+            ['icon' => 'boleto', 'name' => 'Contas a pagar', 'path' => '/erp/contas', 'exigeFinanceiro' => true],
             ['icon' => 'grafico', 'name' => 'Sócios', 'path' => '/socios', 'exigeSocios' => true],
             ['icon' => 'grafico', 'name' => 'Controladoria', 'path' => '/controladoria', 'exigeSocios' => true],
             ['icon' => 'documentos', 'name' => 'Documentos', 'path' => '/documentos'],
             ['icon' => 'tarefa', 'name' => 'Equipe', 'path' => '/equipe'],
             ['icon' => 'conexao', 'name' => 'Conexões', 'path' => '/conexoes'],
             ['icon' => 'cadeado', 'name' => 'Auditoria', 'path' => '/auditoria'],
+        ];
+    }
+
+    /** O CRM: quem a casa conhece, de qualquer frente. So administracao. */
+    public static function getItensDoCrm()
+    {
+        return [
+            ['icon' => 'inicio', 'name' => 'Início', 'path' => '/crm'],
+            ['icon' => 'pessoas', 'name' => 'Contatos', 'path' => '/crm/contatos'],
+            ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads'],
         ];
     }
 
@@ -172,7 +193,8 @@ class MenuHelper
         $areas = [
             'credito' => ['icon' => 'pesquisa', 'name' => \App\Support\Empresa::marcaCredito(), 'path' => '/painel', 'abre' => $conta->acessa('one')],
             'vendas' => ['icon' => 'qr', 'name' => \App\Support\Empresa::marcaVendas(), 'path' => '/sales', 'abre' => $conta->acessa('sales')],
-            'gestao' => ['icon' => 'inicio', 'name' => \App\Support\Empresa::marcaGestao(), 'path' => '/gestao', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
+            'erp' => ['icon' => 'inicio', 'name' => \App\Support\Empresa::marcaErp(), 'path' => '/erp', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
+            'crm' => ['icon' => 'pessoas', 'name' => \App\Support\Empresa::marcaCrm(), 'path' => '/crm', 'abre' => $conta->ehAdmin() || $conta->ehSuper()],
         ];
 
         unset($areas[$atual]);
@@ -203,7 +225,8 @@ class MenuHelper
 
         [$titulo, $itens] = match ($area) {
             'vendas' => [\App\Support\Empresa::marcaVendas(), self::getItensDaSales()],
-            'gestao' => [\App\Support\Empresa::marcaGestao(), self::getItensDaGestao()],
+            'erp' => [\App\Support\Empresa::marcaErp(), self::getItensDoErp()],
+            'crm' => [\App\Support\Empresa::marcaCrm(), self::getItensDoCrm()],
             default => ['Menu', self::getMainNavItems()],
         };
 

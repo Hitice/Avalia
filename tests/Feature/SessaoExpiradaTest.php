@@ -74,7 +74,7 @@ it('devolve quem ja esta dentro para a propria pagina, nao para o login', functi
 
 it('manda a empresa autenticada para a area dela, e nao para a gestao', function () {
     // Cada porta resolve pelo guard: a empresa vai para a area dela e o staff
-    // para a gestao. Antes a raiz ERA a gestao, e a empresa que a abrisse caia
+    // para a erp. Antes a raiz ERA a gestao, e a empresa que a abrisse caia
     // num laco entre o auth:staff e o guest.
     //
     // A raiz hoje e o site institucional e nao redireciona ninguem: e pagina

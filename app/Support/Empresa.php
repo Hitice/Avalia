@@ -45,9 +45,14 @@ final class Empresa
         return (string) config('empresa.marca_vendas', '');
     }
 
-    public static function marcaGestao(): string
+    public static function marcaErp(): string
     {
-        return (string) config('empresa.marca_gestao', '');
+        return (string) config('empresa.marca_erp', '');
+    }
+
+    public static function marcaCrm(): string
+    {
+        return (string) config('empresa.marca_crm', '');
     }
 
     public static function cnpj(): string

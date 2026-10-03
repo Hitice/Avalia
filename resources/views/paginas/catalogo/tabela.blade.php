@@ -42,7 +42,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="TABELAS" />
+    <x-avalia.cabecalho-pagina titulo="Catálogo" subtitulo="Planos, preços e serviços" />
     @include('paginas.catalogo.abas', ['atual' => 'catalogo'])
 
     @include('parciais.avisos')

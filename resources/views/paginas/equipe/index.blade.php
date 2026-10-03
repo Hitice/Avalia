@@ -72,15 +72,21 @@
                                             @csrf
                                             <x-avalia.botao variante="secundario" tamanho="sm">Restaurar</x-avalia.botao>
                                         </form>
-                                        {{-- Definitivo, so sem historico: dois cliques de proposito. --}}
-                                        <form method="POST" action="{{ route('equipe.excluir', $membro->id) }}" class="inline"
-                                              x-data="{ armado: false }"
-                                              @submit="if (! armado) { $event.preventDefault(); armado = true; setTimeout(() => armado = false, 3500) }">
-                                            @csrf
-                                            @method('DELETE')
-                                            <x-avalia.botao variante="secundario" tamanho="sm" x-show="! armado">Excluir de vez</x-avalia.botao>
-                                            <x-avalia.botao tamanho="sm" x-cloak x-show="armado">Confirmar exclusão</x-avalia.botao>
-                                        </form>
+                                        {{-- Definitivo, so sem historico: quem tem carteira, fatura,
+                                             placa ou acao registrada fica como removido, e a tela nao
+                                             oferece o que vai recusar. Dois cliques de proposito. --}}
+                                        @if ($membro->temHistorico())
+                                            <span class="etiqueta etiqueta-neutra" title="Tem carteira, faturas, placas ou ações registradas">com histórico</span>
+                                        @else
+                                            <form method="POST" action="{{ route('equipe.excluir', $membro->id) }}" class="inline"
+                                                  x-data="{ armado: false }"
+                                                  @submit="if (! armado) { $event.preventDefault(); armado = true; setTimeout(() => armado = false, 3500) }">
+                                                @csrf
+                                                @method('DELETE')
+                                                <x-avalia.botao variante="secundario" tamanho="sm" x-show="! armado">Excluir de vez</x-avalia.botao>
+                                                <x-avalia.botao tamanho="sm" x-cloak x-show="armado">Confirmar exclusão</x-avalia.botao>
+                                            </form>
+                                        @endif
                                     </div>
                                 @else
                                     <div class="inline-flex items-center gap-2">

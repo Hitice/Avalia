@@ -6,7 +6,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Minha carteira" subtitulo="Empresas e comissão">
+    <x-avalia.cabecalho-pagina titulo="Minha carteira" subtitulo="Empresas, consultas e serviços">
         <x-avalia.botao :href="route('empresas.criar')">Nova empresa</x-avalia.botao>
     </x-avalia.cabecalho-pagina>
 

@@ -1,21 +1,13 @@
 @extends('layouts.app', ['title' => 'Consultar'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina :titulo="$vendedor->ehAdmin() ? 'Consultar' : 'Minha carteira'">
-        <x-slot:subtitulo>
-            @if ($vendedor->ehAdmin())
-                            Consulta da operação: nenhuma empresa é cobrada e o custo do fornecedor entra
-                            no custo do período, sem comissão.
-                        @else
-                            Demonstração para fechar venda: consulte o documento do seu prospect e mostre
-                            o resultado na hora. Ninguém é cobrado; o custo sai da sua comissão.
-                        @endif
-                        Você ainda tem {{ $restantes }} {{ $restantes === 1 ? 'consulta' : 'consultas' }} hoje.
-        </x-slot:subtitulo>
-    </x-avalia.cabecalho-pagina>
+    <x-avalia.cabecalho-pagina :titulo="$vendedor->ehAdmin() ? 'Consultar' : 'Minha carteira'"
+                               :subtitulo="$vendedor->ehAdmin() ? 'Consulta da operação, sem cobrança' : 'Empresas, consultas e serviços'" />
 
     @unless ($vendedor->ehAdmin())
         @include('paginas.carteira.abas')
+
+    <p class="subtitulo-pagina mb-6 -mt-2">{{ $vendedor->ehAdmin() ? 'Sem cobrança à empresa.' : 'Demonstração: ninguém é cobrado, o custo sai da sua comissão.' }} Restam {{ $restantes }} hoje.</p>
     @endunless
 
     @if (session('erro'))

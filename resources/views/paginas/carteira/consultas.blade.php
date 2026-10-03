@@ -5,7 +5,7 @@
 @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Minha carteira" />
+    <x-avalia.cabecalho-pagina titulo="Minha carteira" subtitulo="Empresas, consultas e serviços" />
     @include('paginas.carteira.abas')
 
     <x-avalia.filtro-consultas :acao="route('carteira.consultas')" :servicos="$servicos" :escolha="$escolha" />

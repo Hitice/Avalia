@@ -91,6 +91,7 @@ class RegistrarPagamentoDaParcela
 
             if ($divisao['casa_cents'] !== 0) {
                 $lancar('taxa_plataforma', -$divisao['casa_cents']);
+                app(ParcelaNoRazao::class)->registrar($parcela, $divisao['casa_cents'], $quando, $rotulo.': taxa da plataforma');
             }
 
             $parcela->update(['situacao' => 'paga', 'paga_em' => $quando]);

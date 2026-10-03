@@ -7,14 +7,8 @@
 @endphp
 
 @section('content')
-    <div class="mb-6">
-        <h1 class="titulo-pagina">
-            {{ $vendedor->ehAdmin() ? 'Simulador' : 'Minha carteira' }}
-        </h1>
-        @if ($vendedor->ehAdmin())
-            <p class="subtitulo-pagina">Custo para o cliente e comissão.</p>
-        @endif
-    </div>
+    <x-avalia.cabecalho-pagina :titulo="$vendedor->ehAdmin() ? 'Simulador' : 'Minha carteira'"
+                               :subtitulo="$vendedor->ehAdmin() ? 'Calculadora e proposta' : 'Empresas, consultas e serviços'" />
 
     {{-- Cada papel entra pelo seu modulo: o vendedor pela carteira, a
          administracao por Simulador. A tela e a mesma, a navegacao nao. --}}

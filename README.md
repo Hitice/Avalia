@@ -7,7 +7,8 @@ Software house de Uberlândia e os produtos que ela opera numa aplicação só:
 | **Avalia One** | Pesquisa de score: plano mensal com franquia de consultas | `/painel` |
 | **Avalia Gestor** | Venda parcelada: carnê e cobrança para quem vende a prazo | `/cobranca` (produtor) |
 | **Avalia Sales** | Vendas de rua: plaquinha de QR e NFC, encurtador, base de negócios | `/sales` |
-| **Avalia** | O site, os serviços de software sob contrato e o back office | `/`, `/socios`, `/equipe` |
+| **Avalia ERP** / **Avalia CRM** | O back office: caixa, equipe, auditoria; contatos e leads | `/erp`, `/crm` |
+| **Avalia** | O site e os serviços de software sob contrato | `/` |
 
 A regra de negócio mora na [PDD.md](PDD.md). Publicar está na [DEPLOY.md](DEPLOY.md).
 Este arquivo põe para rodar.
@@ -56,6 +57,7 @@ php artisan avalia:lastrear-plaquinhas --simular    # vendas de placa que entrar
 php artisan avalia:relancar-plaquinhas --simular    # relança as que mudaram de regra
 php artisan avalia:lastrear-faturas --simular       # faturas liquidadas que faltam no razão
 php artisan avalia:lastrear-contatos --simular      # dá contato a todo cadastro que ainda não tem
+php artisan avalia:lastrear-parcelas --simular      # taxa da plataforma das parcelas pagas do Gestor
 php artisan avalia:etiquetas-limpar
 ```
 

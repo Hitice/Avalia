@@ -6,7 +6,7 @@
             {{ $contato->documento ? App\Support\Documento::formatar($contato->documento) : 'sem documento' }}
             {{ $contato->whatsapp ? ' · '.$contato->whatsapp : '' }}{{ $contato->email ? ' · '.$contato->email : '' }}
         </x-slot:subtitulo>
-        <x-avalia.botao variante="secundario" :href="route('gestao.contatos')">Voltar</x-avalia.botao>
+        <x-avalia.botao variante="secundario" :href="route('crm.contatos')">Voltar</x-avalia.botao>
     </x-avalia.cabecalho-pagina>
 
     <div class="grid gap-6 lg:grid-cols-[1fr_1.6fr]">

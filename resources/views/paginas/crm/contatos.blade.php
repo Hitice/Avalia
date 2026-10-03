@@ -36,7 +36,7 @@
                     @forelse ($contatos as $contato)
                         <tr>
                             <td class="tabela-td">
-                                <a href="{{ route('gestao.contatos.ver', $contato) }}" class="font-medium text-gray-800 hover:text-brand-500 dark:text-white/90">{{ $contato->nome }}</a>
+                                <a href="{{ route('crm.contatos.ver', $contato) }}" class="font-medium text-gray-800 hover:text-brand-500 dark:text-white/90">{{ $contato->nome }}</a>
                                 <span class="ajuda-campo">{{ $contato->email }}{{ $contato->cidade ? ' · '.$contato->cidade : '' }}</span>
                             </td>
                             <td class="tabela-td font-mono text-gray-600 dark:text-gray-300">{{ $contato->documento ? App\Support\Documento::formatar($contato->documento) : '' }}</td>

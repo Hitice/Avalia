@@ -8,7 +8,7 @@ use App\Models\LancamentoFinanceiro;
 use App\Models\Staff;
 
 /** A home do back office: o que os socios olham ao abrir, lido do razao. */
-class GestaoController extends Controller
+class ErpController extends Controller
 {
     public function inicio()
     {
@@ -16,7 +16,7 @@ class GestaoController extends Controller
         $doMes = LancamentoFinanceiro::daCompetencia($competencia)->with('partidas.conta')->get();
         $caixa = LivroCaixa::doMes($doMes, $competencia);
 
-        return view('paginas.gestao.inicio', [
+        return view('paginas.erp.inicio', [
             'competencia' => $competencia,
             'saldo' => LivroCaixa::saldoAtual(),
             'entradas' => $caixa['entradas'],

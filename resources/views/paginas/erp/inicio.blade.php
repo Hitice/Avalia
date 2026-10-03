@@ -3,7 +3,7 @@
 @php use App\Support\Dinheiro; @endphp
 
 @section('content')
-    <x-avalia.cabecalho-pagina :titulo="App\Support\Empresa::marcaGestao()" :rotulo="now()->translatedFormat('F')" />
+    <x-avalia.cabecalho-pagina :titulo="App\Support\Empresa::marcaErp()" :rotulo="now()->translatedFormat('F')" />
 
     @include('parciais.avisos')
 

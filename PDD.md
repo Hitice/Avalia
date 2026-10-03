@@ -24,7 +24,7 @@ nunca escrito na tela. Dois sócios meio a meio, Pedro e Ruan, tocam a operaçã
 | Pesquisa de score | **Avalia One** | Plano mensal com franquia de consultas | Mensalidade + consumo |
 | Venda parcelada | **Avalia Gestor** | Carnê e cobrança para quem vende a prazo | Taxa sobre cada pagamento |
 | Vendas de rua | **Avalia Sales** | Plaquinha de QR e NFC, encurtador, base de negócios | Venda unitária + renovação |
-| Back office | **Avalia Gestão** | Equipe, caixa, leads, documentos, auditoria: a casa | (não vende) |
+| Back office | **Avalia ERP** e **Avalia CRM** | Caixa, equipe, documentos, auditoria; contatos e leads | (não vende) |
 | Serviços de software | **Avalia** | RPA, integrações, URA, desenvolvimento | Projeto, sob contrato |
 
 As três primeiras são produtos de prateleira na mesma aplicação, cada um com
@@ -524,7 +524,8 @@ automaticamente está na seção 15.
 | Venda de plaquinha, cancelamento, correção de valor | sim |
 | Comissão do Sales e do One pagas | sim, pela sexta-feira |
 | Conta a pagar registrada e paga | sim (`provisao` e `pagamento`) |
-| Consulta executada, fatura fechada (a receber), parcela do Gestor paga | **não**: ainda é coluna no documento |
+| Parcela do Gestor paga | sim, a parte da casa como receita do Gestor (`ParcelaNoRazao`) |
+| Consulta executada, fatura fechada (a receber) | **não**: ainda é coluna no documento |
 | Aporte, retirada, pró-labore, despesa, receita de projeto | à mão, em Sócios ou na sexta |
 
 Fatura marcada como paga sem a linha no razão é divergência que só aparece na
@@ -635,7 +636,7 @@ pela interface `App\Crm\TemContato`, e `App\Crm\Contatos` acha ou cria no
 momento do cadastro (observer no provider) e no lastro (`avalia:lastrear-contatos`).
 Deduplica por documento, depois WhatsApp ou telefone, depois e-mail; nunca só
 pelo nome. O núcleo não importa modelo de frente (teste de fronteira). A tela é
-Contatos, na Gestão. Falta o funil sobre a mesma tabela.
+Contatos, no ERP. Falta o funil sobre a mesma tabela.
 
 ### Núcleo ERP
 
@@ -647,14 +648,14 @@ sendo onde a operação acontece e deixa de ser onde o resultado mora.
 |---|---|
 | 0. Catraca (três razões, comentário, tema) | feita |
 | 1. Plano de contas por produto | feita |
-| 2. Regras de lançamento, uma classe por evento | plaquinha e fatura liquidada do One feitas; faltam consulta executada, fatura fechada (a receber) e parcela do Gestor |
-| 3. Lastro do histórico (lê, nunca escreve no documento) | plaquinha e faturas feitos; faltam `pedidos_360`, `lancamentos_360` |
+| 2. Regras de lançamento, uma classe por evento | plaquinha, fatura liquidada do One e parcela do Gestor feitas; faltam consulta executada e fatura fechada (a receber) |
+| 3. Lastro do histórico (lê, nunca escreve no documento) | plaquinha, faturas e parcelas feitos |
 | 4. Conciliação subrazão × razão com teste | feita para a plaquinha e para a fatura |
 | 5. Relatórios leem do razão (`PainelController`, `Caixa`, carteira, painéis) | pendente |
 | 6. Coluna derivada sai do documento | depois da 5 |
 
 O que a operação de dois sócios pede, feito em 02/10/2026: contas a pagar com
-vencimento (`/gestao/contas`); a **sexta-feira** (`/gestao/sexta`: comissões do
+vencimento (`/erp/contas`); a **sexta-feira** (`/erp/sexta`: comissões do
 One e do Sales, pró-labore sugerido por sócio, contas da semana, lista de Pix);
 natureza `prolabore` separada de retirada e distribuição. Falta: importação do
 extrato OFX do Nubank e conciliação contra a conta `caixa` (operação manual por
@@ -662,11 +663,14 @@ decisão, seção 10).
 
 ### Back office
 
-**Avalia Gestão** (02/10/2026): a quarta lateral, no molde do Sales, com Leads,
-Financeiro, Sócios, Controladoria, Documentos, Equipe, Conexões e Auditoria. Saiu
-tudo do painel do One, que ficou com consultas, carteira, catálogo e campanhas.
-No pé de toda lateral, o grupo "Áreas" leva às outras que a conta abre; é a única
-porta entre produtos. Contatos e Funil entram aqui quando existirem.
+**Avalia ERP** e **Avalia CRM** (02/10/2026): duas laterais, no molde do Sales. O
+ERP tem Financeiro, Sexta-feira, Contas a pagar, Sócios, Controladoria,
+Documentos, Equipe, Conexões e Auditoria; o CRM tem Contatos e Leads (o funil
+entra aqui). Saiu tudo do painel do One, que ficou com consultas, carteira,
+catálogo e campanhas. No pé de toda lateral, o grupo "Áreas" leva às outras que a
+conta abre; é a única porta entre produtos. São áreas do mesmo sistema, não
+serviços separados: a separação é de menu e de namespace (`app/Contabil`,
+`app/Crm`), cobrada por teste de fronteira.
 
 ### Ordem
 

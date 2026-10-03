@@ -19,13 +19,14 @@ use App\Http\Controllers\ContasAPagarController;
 use App\Http\Controllers\ContatosController;
 use App\Http\Controllers\ControladoriaController;
 use App\Http\Controllers\CreditoController;
+use App\Http\Controllers\CrmController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EquipeController;
+use App\Http\Controllers\ErpController;
 use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\FinanceiroController;
-use App\Http\Controllers\GestaoController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LinkController;
@@ -102,7 +103,7 @@ Route::get('/privacidade', [SiteController::class, 'privacidade'])->name('site.p
 /*
  * Os termos do site moram em /termos-de-uso, e nao em /termos.
  *
- * `/termos` ja e o aceite de termo do vendedor, atras do login da gestao.
+ * `/termos` ja e o aceite de termo do vendedor, atras do login da erp.
  * Duas paginas com o mesmo endereco e a mais silenciosa das trocas: uma delas
  * simplesmente para de existir, e so o usuario descobre.
  */
@@ -535,12 +536,17 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
     Route::get('/sales', [SalesController::class, 'inicio'])->name('sales.inicio');
 
     // A home do back office: so administracao, como toda a lateral dele.
-    Route::get('/gestao', [GestaoController::class, 'inicio'])->middleware('admin')->name('gestao.inicio');
-    Route::get('/gestao/contatos', [ContatosController::class, 'index'])->middleware('admin')->name('gestao.contatos');
-    Route::get('/gestao/contatos/{contato}', [ContatosController::class, 'ver'])->middleware('admin')->name('gestao.contatos.ver');
+    Route::get('/erp', [ErpController::class, 'inicio'])->middleware('admin')->name('erp.inicio');
+
+    // O CRM: so administracao, como o ERP.
+    Route::middleware('admin')->prefix('crm')->name('crm.')->group(function () {
+        Route::get('/', [CrmController::class, 'inicio'])->name('inicio');
+        Route::get('/contatos', [ContatosController::class, 'index'])->name('contatos');
+        Route::get('/contatos/{contato}', [ContatosController::class, 'ver'])->name('contatos.ver');
+    });
 
     // A sexta-feira e as contas a pagar mexem no caixa: admin com permissao financeira.
-    Route::middleware(['admin', 'financeiro'])->prefix('gestao')->name('gestao.')->group(function () {
+    Route::middleware(['admin', 'financeiro'])->prefix('erp')->name('erp.')->group(function () {
         Route::get('/sexta', [SextaController::class, 'index'])->name('sexta');
         Route::post('/sexta/placas/{vendedor}', [SextaController::class, 'pagarSales'])->name('sexta.sales');
         Route::post('/sexta/consultas/{vendedor}', [SextaController::class, 'pagarOne'])->name('sexta.one');

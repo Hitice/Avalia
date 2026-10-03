@@ -98,17 +98,17 @@ it('completa no lastro a fatura que entrou so com a receita', function () {
 it('provisiona a conta a pagar na categoria e paga contra o caixa', function () {
     $infra = ContaFinanceira::firstWhere('codigo', 'despesa:infra');
 
-    financeiro()->from(route('gestao.contas'))->post(route('gestao.contas.salvar'), [
+    financeiro()->from(route('erp.contas'))->post(route('erp.contas.salvar'), [
         'descricao' => 'Hostinger', 'fornecedor' => 'Hostinger', 'categoria_id' => $infra->id, 'valor' => '89,90', 'vence_em' => now()->addDays(2)->toDateString(),
-    ])->assertRedirect(route('gestao.contas'))->assertSessionHas('ok');
+    ])->assertRedirect(route('erp.contas'))->assertSessionHas('ok');
 
     $conta = ContaAPagar::sole();
     expect(saldo('despesa:infra'))->toBe(8_990)->and(saldo('fornecedores-a-pagar'))->toBe(8_990)->and(saldo('caixa'))->toBe(0);
 
-    financeiro()->post(route('gestao.contas.pagar', $conta));
+    financeiro()->post(route('erp.contas.pagar', $conta));
     expect(saldo('fornecedores-a-pagar'))->toBe(0)->and(saldo('caixa'))->toBe(-8_990)->and($conta->fresh()->pago_em)->not->toBeNull();
 
-    financeiro()->from(route('gestao.contas'))->post(route('gestao.contas.pagar', $conta))->assertSessionHas('erro');
+    financeiro()->from(route('erp.contas'))->post(route('erp.contas.pagar', $conta))->assertSessionHas('erro');
 });
 
 it('mostra a sexta com as quatro partes e a lista de Pix, e lanca o pro-labore', function () {
@@ -121,20 +121,20 @@ it('mostra a sexta com as quatro partes e a lista de Pix, e lanca o pro-labore',
     test()->artisan('avalia:lastrear-plaquinhas')->assertSuccessful();
 
     $como = test()->actingAs($pedro, 'staff')->withSession(['versao_staff' => $pedro->sessao_versao]);
-    $html = $como->get(route('gestao.sexta'))->assertOk()->getContent();
+    $html = $como->get(route('erp.sexta'))->assertOk()->getContent();
 
     expect($html)->toContain('Comissão de placas')->toContain('Comissão de consultas')->toContain('Pró-labore')->toContain('Lista de Pix')
         ->and($html)->toContain('maria@pix')->toContain('pedro@pix')
         ->and($html)->toContain('sem cadastro de sócio');
 
     $antes = saldo('caixa');
-    $como->from(route('gestao.sexta'))->post(route('gestao.sexta.prolabore', $socio), ['valor' => '25,00'])
-        ->assertRedirect(route('gestao.sexta'))->assertSessionHas('ok');
+    $como->from(route('erp.sexta'))->post(route('erp.sexta.prolabore', $socio), ['valor' => '25,00'])
+        ->assertRedirect(route('erp.sexta'))->assertSessionHas('ok');
 
     expect(saldo('despesa:prolabore'))->toBe(2_500)->and(saldo('caixa'))->toBe($antes - 2_500);
 
     // Sem a permissao financeira, a porta fecha.
     $sem = Staff::factory()->admin()->create(['pode_financeiro' => false]);
     test()->actingAs($sem, 'staff')->withSession(['versao_staff' => $sem->sessao_versao])
-        ->withHeaders(['referer' => ''])->get(route('gestao.sexta'))->assertForbidden();
+        ->withHeaders(['referer' => ''])->get(route('erp.sexta'))->assertForbidden();
 });

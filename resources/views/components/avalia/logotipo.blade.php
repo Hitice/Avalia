@@ -26,7 +26,8 @@
         'credito' => Empresa::marcaCredito(),
         'cobranca' => Empresa::marcaCobranca(),
         'vendas' => Empresa::marcaVendas(),
-        'gestao' => Empresa::marcaGestao(),
+        'erp' => Empresa::marcaErp(),
+        'crm' => Empresa::marcaCrm(),
         default => Empresa::marca(),
     };
 

@@ -22,7 +22,7 @@ class ContatosController extends Controller
             ->with('vinculos')->withCount('interacoes')
             ->orderBy('nome')->paginate(30)->appends($pedido->except('page'));
 
-        return view('paginas.gestao.contatos', [
+        return view('paginas.crm.contatos', [
             'contatos' => $contatos,
             'filtros' => ['busca' => $busca, 'papel' => $papel],
             'papeis' => ['cliente' => 'Cliente do One', 'negocio' => 'Negócio do Sales', 'produtor' => 'Produtor do Gestor', 'lead' => 'Lead', 'interessado' => 'Interessado'],
@@ -31,7 +31,7 @@ class ContatosController extends Controller
 
     public function ver(Contato $contato)
     {
-        return view('paginas.gestao.contato', [
+        return view('paginas.crm.contato', [
             'contato' => $contato->load(['vinculos.entidade', 'interacoes.staff:id,nome']),
         ]);
     }
