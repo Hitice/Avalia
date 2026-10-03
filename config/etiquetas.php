@@ -96,8 +96,8 @@ return [
     'pasta_local' => env('ETIQUETAS_PASTA_LOCAL', '/Users/pedrohenriquemorais/Downloads'),
     'comissao_pct' => 25,
 
-    // Placas por pessoa no mes, socios inclusive. O grafico desenha, nos dias
-    // que faltam, quanto cada dia precisa render para fechar o mes na meta.
+    // Placas por pessoa POR DIA UTIL, socios inclusive. O grafico desenha a
+    // meta do dia nos dias uteis que faltam, e soma o mes pelos dias uteis.
     'meta_por_pessoa' => 5,
 
     // Da parte de cada socio no lucro (metade), quanto volta ao caixa. Com 40,

@@ -17,7 +17,7 @@
 @endphp
 
 @if ($meta)
-    <p class="subtitulo-pagina">Meta {{ $meta['meta'] }} · feitas {{ $meta['vendidas'] }} · faltam {{ $meta['faltam'] }}@if ($meta['porDia'] > 0) · {{ $meta['porDia'] }} por dia nos {{ $meta['diasRestantes'] }} dias que restam @endif</p>
+    <p class="subtitulo-pagina">Meta {{ $meta['porDia'] }} por dia útil · mês {{ $meta['vendidas'] }} de {{ $meta['meta'] }}@if ($meta['faltam'] > 0 && $meta['diasRestantes'] > 0) · faltam {{ $meta['faltam'] }} em {{ $meta['diasRestantes'] }} {{ $meta['diasRestantes'] === 1 ? 'dia útil' : 'dias úteis' }}@endif</p>
 @endif
 
 @if ($porDia->sum('placas') === 0 && ! ($meta && $meta['porDia'] > 0))
@@ -40,10 +40,10 @@
             @endphp
 
             {{-- Dia que ainda vem: a barra vazia e o que ele precisa render. --}}
-            @if ($meta && $meta['porDia'] > 0 && $d['dia'] > $meta['hoje'])
+            @if ($meta && $meta['porDia'] > 0 && $d['dia'] > $meta['hoje'] && ! $d['fimDeSemana'])
                 @php $alturaMeta = $meta['porDia'] / $maior * $g['util']; @endphp
                 <rect class="serie-meta" x="{{ $x }}" y="{{ $g['base'] - $alturaMeta }}" width="{{ $barra }}" height="{{ $alturaMeta }}" rx="2">
-                    <title>{{ $d['rotulo'] }}: {{ $meta['porDia'] }} para a meta</title>
+                    <title>{{ $d['rotulo'] }}: meta {{ $meta['porDia'] }}</title>
                 </rect>
             @endif
 
