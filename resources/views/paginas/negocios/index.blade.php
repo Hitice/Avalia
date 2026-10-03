@@ -1,7 +1,11 @@
 @extends('layouts.app', ['title' => 'Negócios'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Negócios" rotulo="Clientes de marketing" />
+    <x-avalia.cabecalho-pagina titulo="Negócios" rotulo="Clientes de marketing">
+        {{-- O formulario publico, para mandar ao cliente que ainda nao esta na base. --}}
+        <span class="font-mono text-sm text-gray-600 dark:text-gray-300">{{ route('cadastro-negocio') }}</span>
+        <x-avalia.botao variante="secundario" tamanho="sm" type="button" onclick="navigator.clipboard.writeText('{{ route('cadastro-negocio') }}')">Copiar link</x-avalia.botao>
+    </x-avalia.cabecalho-pagina>
     @include('parciais.avisos')
 
     {{-- O servico: nome do estabelecimento entra, link curto de avaliacao sai.
@@ -201,7 +205,7 @@
                     @empty
                         <tr>
                             <td colspan="8" class="tabela-vazia">
-                                Nenhum negócio ainda. Mande o link de cadastro acima para o cliente preencher.
+                                Nenhum negócio.
                             </td>
                         </tr>
                     @endforelse
