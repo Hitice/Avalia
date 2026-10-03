@@ -61,7 +61,7 @@ class VenderEtiqueta
                 // casa: cliente e produtor mexem no proprio codigo, e isso nao
                 // e venda de ninguem. `staff_id` nao serve aqui porque responde
                 // quem gerou a tiragem, que e sempre a administracao.
-                'vendedor_id' => auth('staff')->id(),
+                'vendedor_id' => $dados['vendedor_id'] ?? auth('staff')->id(),
             ] : []));
 
             if ($primeiraVenda) {
@@ -108,7 +108,7 @@ class VenderEtiqueta
         $negocio->fill([
             'whatsapp' => $negocio->whatsapp ?: $whatsapp,
             'responsavel' => $negocio->responsavel ?: ($whatsapp ? null : (trim((string) $etiqueta->cliente_contato) ?: null)),
-            'vendedor_id' => $negocio->vendedor_id ?: auth('staff')->id(),
+            'vendedor_id' => $negocio->vendedor_id ?: $etiqueta->vendedor_id,
         ])->save();
 
         $etiqueta->update(['negocio_id' => $negocio->id]);

@@ -24,12 +24,17 @@ class EstoqueController extends Controller
 
         return view('paginas.sales.estoque', [
             'ehAdmin' => $ehAdmin,
+            'podePlacas' => (bool) $conta?->podePlacas(),
+            // Para a administracao, o estoque e o da casa: geradas e ainda nao vendidas.
+            'disponiveis' => $ehAdmin ? Etiqueta::whereNull('vendida_em')->count() : null,
+            'geradas' => $ehAdmin ? Etiqueta::count() : null,
             'minhas' => Etiqueta::noEstoqueDe((int) $conta->id)->orderBy('sequencia')->get(),
 
             // So a administracao ve a conta dos outros: quanto cada um tem na mao
             // e quanto ja vendeu daquilo.
             'porVendedor' => $ehAdmin ? $this->porVendedor() : collect(),
-            'equipe' => $ehAdmin ? Staff::orderBy('nome')->get(['id', 'nome']) : collect(),
+            // Entrega para os outros: quem entrega nao entrega para si.
+            'equipe' => $ehAdmin ? Staff::where('ativo', true)->where('id', '!=', $conta->id)->orderBy('nome')->get(['id', 'nome']) : collect(),
             'noBolo' => $ehAdmin ? Etiqueta::semDono()->count() : null,
         ]);
     }

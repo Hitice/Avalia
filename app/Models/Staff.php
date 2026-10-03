@@ -23,7 +23,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
 
     protected $fillable = [
         'nome', 'email', 'senha', 'papel', 'super', 'ativo',
-        'comissao_pct', 'pode_financeiro', 'pode_socios', 'acessa_one', 'acessa_sales', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
+        'comissao_pct', 'pode_financeiro', 'pode_socios', 'pode_placas', 'acessa_one', 'acessa_sales', 'cpf', 'pix_chave', 'banco', 'agencia', 'conta',
     ];
 
     protected $hidden = ['senha', 'sessao_versao'];
@@ -40,6 +40,7 @@ class Staff extends Authenticatable implements ContaAutenticavel
             'ativo' => 'boolean',
             'pode_financeiro' => 'boolean',
             'pode_socios' => 'boolean',
+            'pode_placas' => 'boolean',
             'acessa_one' => 'boolean',
             'acessa_sales' => 'boolean',
             'comissao_pct' => 'integer',
@@ -119,6 +120,12 @@ class Staff extends Authenticatable implements ContaAutenticavel
         }
 
         return $produto === 'sales' ? (bool) $this->acessa_sales : (bool) $this->acessa_one;
+    }
+
+    /** Gera placas, entrega e recolhe. E producao, separada de administrar e de vender. */
+    public function podePlacas(): bool
+    {
+        return $this->ehSuper() || ($this->ehAdmin() && (bool) $this->pode_placas);
     }
 
     public function ehAdmin(): bool

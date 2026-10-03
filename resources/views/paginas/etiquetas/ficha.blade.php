@@ -92,6 +92,19 @@
                     </div>
                 </div>
 
+        @if ($etiqueta->vendida_em === null && (auth('staff')->user()?->ehAdmin() || auth('staff')->user()?->ehSuper()))
+            <div class="sm:max-w-[16rem]">
+                <label for="vendedor_id" class="rotulo-campo">Vendedor</label>
+                <select id="vendedor_id" name="vendedor_id" class="campo" required>
+                    <option value="">Escolha</option>
+                    @foreach (App\Http\Controllers\EtiquetaController::vendedoresParaEscolher() as $pessoa)
+                        <option value="{{ $pessoa->id }}" @selected((string) old('vendedor_id') === (string) $pessoa->id)>{{ $pessoa->nome }}</option>
+                    @endforeach
+                </select>
+                @error('vendedor_id')<p class="erro-campo">{{ $message }}</p>@enderror
+            </div>
+        @endif
+
                 <div class="sm:max-w-[16rem]">
                     <label for="valor" class="rotulo-campo">Valor cobrado</label>
                     <input id="valor" name="valor" type="text" inputmode="decimal" class="campo"

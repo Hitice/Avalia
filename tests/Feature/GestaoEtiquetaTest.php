@@ -24,7 +24,7 @@ uses(RefreshDatabase::class);
 it('poe a plaquinha no ar na primeira venda', function () {
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), [
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
         'destino' => 'padariadoze.com.br',
         'cliente_nome' => 'Padaria do Zé',
     ])->assertRedirect();
@@ -47,8 +47,8 @@ it('guarda para onde a plaquinha apontava antes', function () {
     // e a coluna `destino` so sabe responder pelo presente.
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://antigo.com.br']);
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://novo.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://antigo.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://novo.com.br']);
 
     expect(DestinoEtiqueta::count())->toBe(2)
         ->and(DestinoEtiqueta::vigente()->count())->toBe(1)
@@ -59,8 +59,8 @@ it('guarda para onde a plaquinha apontava antes', function () {
 it('nao abre linha nova quando o destino nao mudou', function () {
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://igual.com.br']);
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://igual.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://igual.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://igual.com.br']);
 
     expect(DestinoEtiqueta::count())->toBe(1);
 });
@@ -68,7 +68,7 @@ it('nao abre linha nova quando o destino nao mudou', function () {
 it('nao deixa a plaquinha virar porta para o navegador executar coisa', function () {
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'javascript:alert(1)'])
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'javascript:alert(1)'])
         ->assertSessionHasErrors('destino');
 
     expect($etiqueta->refresh()->destino)->toBeNull()
@@ -79,11 +79,11 @@ it('nao guarda a primeira venda duas vezes', function () {
     // Trocar o destino dois anos depois nao pode reiniciar o prazo pago.
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://um.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://um.com.br']);
     $vencimento = $etiqueta->refresh()->vence_em;
 
     $this->travel(40)->days();
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://dois.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://dois.com.br']);
 
     expect($etiqueta->refresh()->vence_em->toDateString())->toBe($vencimento->toDateString());
 });
@@ -173,7 +173,7 @@ it('batiza a campanha sozinho quando ninguem digita o nome', function () {
 it('guarda o cliente junto com o destino', function () {
     Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
 
-    admin()->post(route('etiquetas.apontar-codigo'), [
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
         'codigo' => 'K7M2PX',
         'destino' => 'https://padaria.com.br',
         'cliente_nome' => 'Padaria do Zé',
@@ -205,7 +205,7 @@ it('gera cem de uma vez, e ai abre tiragem', function () {
 it('cadastra a url pelo codigo impresso', function () {
     Etiqueta::factory()->create(['codigo' => 'K7M2PX']);
 
-    admin()->post(route('etiquetas.apontar-codigo'), [
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
         'codigo' => 'k7m2px',
         'destino' => 'wa.me/5531999999999',
     ])->assertRedirect();
@@ -221,7 +221,7 @@ it('conserta a letra parecida no codigo digitado', function () {
     // proposito, e a leitura desfaz a troca.
     Etiqueta::factory()->create(['codigo' => 'K7M2P1']);
 
-    admin()->post(route('etiquetas.apontar-codigo'), [
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
         'codigo' => 'K7M2PI', 'destino' => 'https://loja.com.br',
     ])->assertRedirect();
 
@@ -229,7 +229,7 @@ it('conserta a letra parecida no codigo digitado', function () {
 });
 
 it('diz o que conferir quando o codigo nao existe', function () {
-    admin()->post(route('etiquetas.apontar-codigo'), [
+    admin()->post(route('etiquetas.apontar-codigo'), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 
         'codigo' => 'ZZZZZZ', 'destino' => 'https://loja.com.br',
     ])->assertRedirect()->assertSessionHas('erro', fn (string $aviso) => str_contains($aviso, 'I, L, O e U'));
 });
@@ -237,7 +237,7 @@ it('diz o que conferir quando o codigo nao existe', function () {
 it('registra na auditoria tudo que muda a plaquinha', function () {
     $etiqueta = Etiqueta::factory()->create();
 
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://loja.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://loja.com.br']);
     admin()->post(route('etiquetas.alternar', $etiqueta));
     admin()->post(route('etiquetas.renovar', $etiqueta));
 
@@ -350,7 +350,7 @@ it('abre no painel do Avalia Sales, com o menu do produto e nao o do credito', f
     $conteudo = admin()->get(route('etiquetas.index'))->assertOk()->getContent();
 
     expect($conteudo)->toContain('Avalia Sales')
-        ->and($conteudo)->toContain('Meu estoque')
+        ->and($conteudo)->toContain('Estoque')
         // Nenhum modulo do Avalia One no menu daqui.
         ->and($conteudo)->not->toContain('Catálogo')
         ->and($conteudo)->not->toContain('Simulador');
@@ -392,7 +392,7 @@ it('so apaga tudo quando alguem confirma por escrito', function () {
     // numa lista de rotina por engano.
     admin()->post(route('etiquetas.gerar'), ['quantidade' => 5]);
     $etiqueta = Etiqueta::first();
-    admin()->put(route('etiquetas.apontar', $etiqueta), ['destino' => 'https://loja.com.br']);
+    admin()->put(route('etiquetas.apontar', $etiqueta), ['vendedor_id' => App\Models\Staff::factory()->create(['papel' => 'vendedor'])->id, 'destino' => 'https://loja.com.br']);
 
     $this->artisan('avalia:etiquetas-limpar')->assertSuccessful();
 

@@ -98,6 +98,16 @@
                     <span class="ajuda-campo">Confirmar pagamento libera comissão. Conceda a quem confere o extrato.</span>
                 </div>
 
+                <div x-show="papel === 'admin'" x-cloak class="sm:col-span-2">
+                    <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                        <input type="hidden" name="pode_placas" value="0">
+                        <input type="checkbox" name="pode_placas" value="1"
+                               class="size-4 rounded border-gray-300 dark:border-gray-700"
+                               @checked(old('pode_placas', $membro->pode_placas ?? false))>
+                        Gera placas, entrega e recolhe
+                    </label>
+                </div>
+
                 <div class="flex items-center sm:col-span-2">
                     <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                         <input type="hidden" name="ativo" value="0">

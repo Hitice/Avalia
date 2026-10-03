@@ -142,8 +142,8 @@ class MenuHelper
         return [
             ['icon' => 'inicio', 'name' => 'Início', 'path' => '/sales'],
             ['icon' => 'qr', 'name' => 'QR dinâmico', 'path' => '/etiquetas'],
-            ['icon' => 'paginas', 'name' => 'Gerar códigos', 'path' => '/etiquetas/gerar', 'papeis' => ['admin']],
-            ['icon' => 'lista', 'name' => 'Meu estoque', 'path' => '/estoque'],
+            ['icon' => 'paginas', 'name' => 'Gerar códigos', 'path' => '/etiquetas/gerar', 'papeis' => ['admin'], 'exigePlacas' => true],
+            ['icon' => 'lista', 'name' => 'Estoque', 'path' => '/estoque'],
             ['icon' => 'pessoas', 'name' => 'Negócios', 'path' => '/negocios', 'papeis' => ['admin']],
             ['icon' => 'conexao', 'name' => 'Encurtador', 'path' => '/etiquetas/links'],
             ['icon' => 'grafico', 'name' => 'Vendas', 'path' => '/plaquinhas/vendas', 'papeis' => ['admin']],
@@ -229,6 +229,7 @@ class MenuHelper
             // que leva a 403 ensina o operador a ignorar o menu.
             && (empty($item['exigeFinanceiro']) || (bool) $conta?->podeFinanceiro())
             && (empty($item['exigeSocios']) || (bool) $conta?->podeSocios())
+            && (empty($item['exigePlacas']) || (bool) $conta?->podePlacas())
             && (empty($item['exigeSales']) || $conta === null || $conta->acessa('sales'));
 
         $area = self::marcaDaArea();

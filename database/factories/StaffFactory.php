@@ -25,12 +25,12 @@ class StaffFactory extends Factory
 
     public function admin(): static
     {
-        return $this->state(['papel' => 'admin', 'pode_financeiro' => true]);
+        return $this->state(['papel' => 'admin', 'pode_financeiro' => true, 'pode_placas' => true]);
     }
 
     public function super(): static
     {
-        return $this->state(['papel' => 'admin', 'super' => true, 'pode_financeiro' => true]);
+        return $this->state(['papel' => 'admin', 'super' => true, 'pode_financeiro' => true, 'pode_placas' => true]);
     }
 
     public function inativo(): static

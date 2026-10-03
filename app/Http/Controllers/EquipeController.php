@@ -163,6 +163,7 @@ class EquipeController extends Controller
             'papel' => $membro->papel,
             'comissao_pct' => $membro->comissao_pct,
             'pode_financeiro' => (bool) $membro->pode_financeiro,
+            'pode_placas' => (bool) $membro->pode_placas,
             'acessa_one' => (bool) $membro->acessa_one,
             'acessa_sales' => (bool) $membro->acessa_sales,
         ];

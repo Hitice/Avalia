@@ -154,8 +154,8 @@ Route::middleware(['auth:staff,empresa,produtor', 'sessao:staff', 'sessao:empres
         Route::post('/apontar', [EtiquetaController::class, 'apontarPorCodigo'])->name('apontar-codigo');
 
         Route::middleware('admin')->group(function () {
-            Route::get('/gerar', [EtiquetaController::class, 'criar'])->name('criar');
-            Route::post('/gerar', [EtiquetaController::class, 'gerar'])->name('gerar');
+            Route::get('/gerar', [EtiquetaController::class, 'criar'])->middleware('placas')->name('criar');
+            Route::post('/gerar', [EtiquetaController::class, 'gerar'])->middleware('placas')->name('gerar');
         });
 
         // O encurtador, atras da mesma porta.
@@ -527,9 +527,9 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
         // Estoque pessoal: o vendedor ve o que esta na mao dele, a administracao
         // ve de todos e entrega lotes. A entrega e so de admin, porque mexe no
         // que cada um vai prestar conta.
-        Route::post('/estoque/entregar', [EstoqueController::class, 'entregar'])->name('sales.estoque.entregar');
-        Route::post('/estoque/entregar-codigos', [EstoqueController::class, 'entregarPorCodigos'])->name('sales.estoque.entregar-codigos');
-        Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->name('sales.estoque.devolver');
+        Route::post('/estoque/entregar', [EstoqueController::class, 'entregar'])->middleware('placas')->name('sales.estoque.entregar');
+        Route::post('/estoque/entregar-codigos', [EstoqueController::class, 'entregarPorCodigos'])->middleware('placas')->name('sales.estoque.entregar-codigos');
+        Route::post('/estoque/{vendedor}/devolver', [EstoqueController::class, 'devolver'])->middleware('placas')->name('sales.estoque.devolver');
     });
     // A home do produto, para a equipe. Cliente e produtor entram pelo QR
     // dinamico e veem o proprio codigo; home de estoque e comissao nao e deles.

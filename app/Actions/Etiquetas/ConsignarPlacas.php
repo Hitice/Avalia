@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ConsignarPlacas
 {
-    private const TETO = 500;
+    private const TETO = 20;
 
     /** @return int quantas foram entregues */
     public function __invoke(Staff $vendedor, int $quantas): int

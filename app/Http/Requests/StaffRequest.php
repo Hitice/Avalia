@@ -27,6 +27,7 @@ class StaffRequest extends FormRequest
             'email' => mb_strtolower(trim((string) $this->input('email'))),
             'ativo' => $this->boolean('ativo'),
             'pode_financeiro' => $this->boolean('pode_financeiro'),
+            'pode_placas' => $this->boolean('pode_placas'),
         ]);
     }
 
@@ -44,6 +45,7 @@ class StaffRequest extends FormRequest
             'comissao_pct' => ['required', 'integer', 'min:0', 'max:'.Comissao::PCT_MAXIMO],
             'ativo' => ['boolean'],
             'pode_financeiro' => ['boolean'],
+            'pode_placas' => ['boolean'],
         ];
     }
 

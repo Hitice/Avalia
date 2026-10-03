@@ -160,6 +160,27 @@ class EtiquetaController extends Controller
      * numa lista de mil seria o caminho longo para a unica coisa que ele quer
      * fazer.
      */
+    /**
+     * A administracao nao vende: na primeira venda ela diz de quem e. Quem
+     * vende aponta no proprio nome e nao escolhe.
+     */
+    private function regraDoVendedor(Etiqueta $etiqueta): array
+    {
+        $conta = auth('staff')->user();
+
+        if (! $conta || ! ($conta->ehAdmin() || $conta->ehSuper()) || $etiqueta->vendida_em !== null) {
+            return [];
+        }
+
+        return ['vendedor_id' => ['required', 'integer', 'exists:staff,id']];
+    }
+
+    /** Quem pode receber uma venda no nome: a equipe ativa, menos quem esta apontando. */
+    public static function vendedoresParaEscolher(): \Illuminate\Support\Collection
+    {
+        return Staff::where('ativo', true)->where('id', '!=', auth('staff')->id())->orderBy('nome')->get(['id', 'nome']);
+    }
+
     public function apontarPorCodigo(Request $pedido, VenderEtiqueta $vender)
     {
         $pedido->validate([
@@ -170,6 +191,10 @@ class EtiquetaController extends Controller
 
         $codigo = CodigoCurto::normalizar($pedido->input('codigo'));
         $etiqueta = $codigo === '' ? null : Etiqueta::firstWhere('codigo', $codigo);
+
+        if ($etiqueta) {
+            $pedido->validate($this->regraDoVendedor($etiqueta));
+        }
 
         // Codigo de outra conta responde como inexistente, e nao como
         // proibido: o codigo esta impresso e qualquer um pode ler um. Dizer
@@ -191,6 +216,7 @@ class EtiquetaController extends Controller
             'cliente_nome' => $pedido->input('cliente_nome'),
             'cliente_contato' => null,
             'valor_cents' => null,
+            'vendedor_id' => $pedido->input('vendedor_id'),
         ]);
 
         return redirect()->route('etiquetas.ficha', $etiqueta)
@@ -267,7 +293,7 @@ class EtiquetaController extends Controller
             'cliente_nome' => ['nullable', 'string', 'max:150'],
             'cliente_contato' => ['nullable', 'string', 'max:150'],
             'valor' => ['nullable', 'string', 'max:20'],
-        ]);
+        ] + $this->regraDoVendedor($etiqueta));
 
         $vender($etiqueta, [
             'destino' => $dados['destino'],
@@ -275,6 +301,7 @@ class EtiquetaController extends Controller
             'cliente_nome' => $dados['cliente_nome'] ?? null,
             'cliente_contato' => $dados['cliente_contato'] ?? null,
             'valor_cents' => Dinheiro::paraCentavos($dados['valor'] ?? null),
+            'vendedor_id' => $dados['vendedor_id'] ?? null,
         ]);
 
         return back()->with('ok', 'Etiqueta apontada com sucesso.');

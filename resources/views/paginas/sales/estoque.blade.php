@@ -1,19 +1,20 @@
-@extends('layouts.app', ['title' => 'Meu estoque'])
+@extends('layouts.app', ['title' => 'Estoque'])
 
 @section('content')
-    <x-avalia.cabecalho-pagina titulo="Meu estoque" rotulo="Placas em mãos" />
+    <x-avalia.cabecalho-pagina titulo="Estoque" rotulo="Placas disponíveis" />
     @include('parciais.avisos')
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$minhas->count()"
-                                   tom="text-brand-600 dark:text-brand-400" />
-
         @if ($ehAdmin)
-            <x-avalia.cartao-indicador rotulo="Estoque atual" :valor="$noBolo" />
+            <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$disponiveis" tom="text-brand-600 dark:text-brand-400" ajuda="Geradas e ainda não vendidas" />
+            <x-avalia.cartao-indicador rotulo="Geradas" :valor="$geradas" :href="route('etiquetas.criar')" />
+            <x-avalia.cartao-indicador rotulo="Sem dono" :valor="$noBolo" ajuda="Prontas para entregar" />
+        @else
+            <x-avalia.cartao-indicador rotulo="Placas disponíveis" :valor="$minhas->count()" tom="text-brand-600 dark:text-brand-400" />
         @endif
     </div>
 
-    @if ($ehAdmin)
+    @if ($podePlacas)
         <div class="cartao mb-6 p-5">
             <h2 class="titulo-secao">Entregar placas</h2>
 
@@ -62,14 +63,14 @@
 
                     <div>
                         <label for="codigos" class="rotulo-campo">Códigos, separados por vírgula</label>
-                        <textarea id="codigos" name="codigos" rows="2" class="campo font-mono" required maxlength="2000"
-                                  placeholder="4VRBD6, FSNSE3, 1R94CH">{{ old('codigos') }}</textarea>
+                        <input id="codigos" name="codigos" type="text" class="campo font-mono" required maxlength="2000"
+                                  placeholder="4VRBD6, FSNSE3, 1R94CH" value="{{ old('codigos') }}">
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <x-avalia.botao>Entregar estas</x-avalia.botao>
-                    <span class="ajuda-campo">Até 10 por vez. Código errado recusa o lote.</span>
+                    <x-avalia.botao>Entregar</x-avalia.botao>
+                    <span class="ajuda-campo">Até 20 placas por vez. Código errado recusa o lote.</span>
                 </div>
             </form>
         </div>

@@ -34,6 +34,18 @@
                     <input id="cliente_nome" name="cliente_nome" type="text" maxlength="150"
                            value="{{ old('cliente_nome') }}" class="campo" placeholder="Padaria do Zé">
                 </div>
+                @if (auth('staff')->user()?->ehAdmin() || auth('staff')->user()?->ehSuper())
+                    <div class="w-56">
+                        <label for="vendedor_id" class="rotulo-campo">Vendedor</label>
+                        <select id="vendedor_id" name="vendedor_id" class="campo" required>
+                            <option value="">Escolha</option>
+                            @foreach (App\Http\Controllers\EtiquetaController::vendedoresParaEscolher() as $pessoa)
+                                <option value="{{ $pessoa->id }}" @selected((string) old('vendedor_id') === (string) $pessoa->id)>{{ $pessoa->nome }}</option>
+                            @endforeach
+                        </select>
+                        @error('vendedor_id')<p class="erro-campo">{{ $message }}</p>@enderror
+                    </div>
+                @endif
             </div>
 
             {{-- O botao ao lado do campo, e nao embaixo: os dois formam uma
