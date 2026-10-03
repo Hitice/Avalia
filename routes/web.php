@@ -610,6 +610,8 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
         Route::get('/planilha', [SociosController::class, 'planilha'])->name('planilha');
         Route::post('/socios', [SociosController::class, 'criarSocio'])->name('criar');
         Route::delete('/socios/{socio}', [SociosController::class, 'removerSocio'])->name('remover');
+        // A participacao se corrige na linha: cadastro errado nao obriga a remover e recriar.
+        Route::put('/socios/{socio}/participacao', [SociosController::class, 'participacao'])->name('participacao');
         Route::post('/lancamentos', [SociosController::class, 'registrar'])->name('registrar');
         Route::post('/lancamentos/{lancamento}/estorno', [SociosController::class, 'estornar'])->name('estornar');
         Route::delete('/lancamentos/{lancamento}', [SociosController::class, 'excluir'])->name('excluir');

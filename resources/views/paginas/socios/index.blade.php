@@ -52,6 +52,7 @@
             <table class="tabela">
                 <thead class="tabela-cabecalho"><tr>
                     <th scope="col" class="tabela-th text-left">Sócio</th>
+                    <th scope="col" class="tabela-th text-right">Participação</th>
                     <th scope="col" class="tabela-th text-right">Aportou</th>
                     <th scope="col" class="tabela-th text-right">A devolver</th>
                     <th scope="col" class="tabela-th text-right"><span class="sr-only">Remover</span></th>
@@ -62,6 +63,17 @@
                             <td class="tabela-td text-gray-800 dark:text-white/90">
                                 {{ $socio['nome'] }}
                                 <span class="ajuda-campo">{{ $socio['conta'] ?? 'sem conta de acesso' }}</span>
+                            </td>
+                            <td class="tabela-td text-right">
+                                <form method="POST" action="{{ route('socios.participacao', $socio['id']) }}" class="inline-flex items-center justify-end gap-1">
+                                    @csrf
+                                    @method('PUT')
+                                    <label for="participacao-{{ $socio['id'] }}" class="sr-only">Participação de {{ $socio['nome'] }}</label>
+                                    <input id="participacao-{{ $socio['id'] }}" name="participacao" type="number" step="0.01" min="0" max="100"
+                                           class="campo w-24 text-right tabular-nums" value="{{ number_format($socio['participacao'] / 100, 2, '.', '') }}">
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">%</span>
+                                    <x-avalia.botao variante="secundario" tamanho="icone" title="Salvar"><x-avalia.icone nome="confirmar" /><span class="sr-only">Salvar</span></x-avalia.botao>
+                                </form>
                             </td>
                             <td class="tabela-td text-right tabular-nums text-gray-600 dark:text-gray-300">
                                 {{ Dinheiro::brl($socio['aportou']) }}

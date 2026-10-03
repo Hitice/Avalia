@@ -63,6 +63,7 @@ class SociosController extends Controller
                 'id' => $socio->id,
                 'nome' => $socio->nome,
                 'conta' => $socio->staff?->email,
+                'participacao' => $socio->participacao_bps,
                 // So se remove socio sem lancamento: o que tem partida fica, para o extrato se explicar.
                 'removivel' => ! \App\Models\PartidaFinanceira::whereIn('conta_id', $socio->contas()->select('id'))->exists(),
                 'aportou' => $this->saldoDoSocio($socio, ContaFinanceira::APORTE),
@@ -114,6 +115,16 @@ class SociosController extends Controller
         Auditar::registrar('socios.socio.criado', null, ['nome' => $dados['nome']]);
 
         return back()->with('ok', 'Sócio cadastrado.');
+    }
+
+    /** Corrige a participacao de um socio, em pontos-base como no cadastro. */
+    public function participacao(Request $pedido, Socio $socio)
+    {
+        $dados = $pedido->validate(['participacao' => ['required', 'numeric', 'min:0', 'max:100']]);
+        $socio->update(['participacao_bps' => (int) round(((float) $dados['participacao']) * 100)]);
+        Auditar::registrar('socios.socio.alterado', $socio, ['participacao_bps' => $socio->participacao_bps]);
+
+        return back()->with('ok', 'Participação de '.$socio->nome.': '.number_format($socio->participacao_bps / 100, 2, ',', '.').'%.');
     }
 
     /** Remove um socio cadastrado por engano. Com lancamento, nao sai: o extrato aponta para ele. */

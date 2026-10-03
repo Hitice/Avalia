@@ -342,6 +342,17 @@ it('cadastra socio pela tela', function () {
         ->and($socio->participacao_bps)->toBe(5_000);
 });
 
+it('corrige a participacao do socio na propria linha', function () {
+    $admin = Staff::factory()->admin()->create(['super' => true]);
+    $socio = Socio::create(['nome' => 'Pedro', 'participacao_bps' => 2_500, 'ativo' => true]);
+
+    test()->actingAs($admin, 'staff')->withSession(['versao_staff' => 1])
+        ->put(route('socios.participacao', $socio), ['participacao' => '50'])
+        ->assertRedirect();
+
+    expect($socio->fresh()->participacao_bps)->toBe(5_000);
+});
+
 it('avisa quando as participacoes nao fecham cem por cento', function () {
     $admin = Staff::factory()->admin()->create(['super' => true]);
     Socio::create(['nome' => 'Pedro', 'participacao_bps' => 4_000, 'ativo' => true]);
