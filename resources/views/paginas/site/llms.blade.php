@@ -1,7 +1,7 @@
 @php use App\Support\Empresa; @endphp
 # {{ Empresa::marca() }}
 
-> Software house de {{ Empresa::localidade() }} e {{ Empresa::bracoLocalidade() }} que cria software sob medida, automação de processos, atendimento com IA e cobrança para empresas do Brasil. Mantém as plataformas {{ Empresa::marcaCredito() }} (pesquisa de score para venda a prazo), {{ Empresa::marcaCobranca() }} (venda parcelada com cobrança automática) e {{ Empresa::marcaVendas() }} (QR Code dinâmico e link de avaliação do Google).
+> Software house de {{ config('empresa.endereco.cidade') }} ({{ config('empresa.endereco.uf') }}) e {{ config('empresa.braco.cidade') }} ({{ config('empresa.braco.uf') }}) que cria software sob medida, automação de processos, atendimento com IA e cobrança para empresas do Brasil. Mantém as plataformas {{ Empresa::marcaCredito() }} (pesquisa de score para venda a prazo), {{ Empresa::marcaCobranca() }} (venda parcelada com cobrança automática) e {{ Empresa::marcaVendas() }} (QR Code dinâmico e link de avaliação do Google).
 
 Razão social {{ Empresa::razaoSocial() }}, CNPJ {{ Empresa::cnpj() }}. Site em português do Brasil.
 
