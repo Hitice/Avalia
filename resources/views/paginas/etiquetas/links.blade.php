@@ -22,7 +22,7 @@
                 @error('destino')<p class="erro-campo">{{ $message }}</p>@enderror
             </div>
 
-            <div class="w-52">
+            <div class="w-full sm:w-52">
                 <label for="titulo" class="rotulo-campo">Nome interno</label>
                 <input id="titulo" name="titulo" type="text" maxlength="120" class="campo"
                        value="{{ old('titulo') }}" placeholder="Promo Floripa">
