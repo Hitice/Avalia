@@ -123,7 +123,7 @@ final class RepartePlaquinha
     }
 
     /**
-     * A parte de um socio: metade fica, metade e pro-labore (02/10/2026). Centavo impar fica com o socio.
+     * A parte de um socio: o que fica na empresa (retencao_pct) e o resto, pro-labore. Centavo impar fica com o socio.
      *
      * @return array{retido: int, prolabore: int}
      */

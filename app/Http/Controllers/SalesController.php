@@ -60,7 +60,7 @@ class SalesController extends Controller
             ->sortByDesc('placas')->values();
 
         // Socio nao tem comissao: tem a parte dele no lucro de todas as vendas
-        // do mes, inclusive as dos vendedores, e metade dela fica na empresa.
+        // do mes, inclusive as dos vendedores, menos o que fica na empresa.
         $minhaParte = null;
 
         if ($posicao !== false) {

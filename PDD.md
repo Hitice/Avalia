@@ -443,10 +443,11 @@ venda sem vendedor (não houve venda de ninguém).
     lucro    = líquido − comissão
     parte    = lucro ÷ sócios, centavo ímpar ao primeiro do config
 
-**Da parte de cada sócio, metade fica na empresa e metade é pró-labore.** Em
-R$ 100 de lucro: R$ 50 ficam, R$ 25 para cada um. O que fica não gera
-lançamento, porque já está no caixa desde a venda. A divisão roda uma vez
-sobre o mês; a comissão, por venda.
+**Cada sócio leva 30% do lucro de tudo, vendesse quem vendesse; 40% fica na
+empresa** (02/10/2026; antes era 25% e 50%). Em R$ 100 de lucro: R$ 30 para
+cada um, R$ 40 ficam. No código isso é a parte de cada um (metade) com retenção
+de 40%. O que fica não gera lançamento, porque já está no caixa desde a venda. A
+divisão roda uma vez sobre o mês; a comissão, por venda.
 
 **Os pagamentos saem toda sexta-feira**: pró-labore e comissões. A comissão do
 Sales se paga em Vendas QR, por vendedor: marca cada venda (`comissao_paga_em`)
@@ -548,7 +549,7 @@ Hoje um único parâmetro é configurável pela tela: a alíquota de imposto. O 
 | Janela anti cobrança dupla | 120 s | `Consulta::SEGUNDOS_SEM_REPETIR` |
 | Validade do convite | 48 h | `Convite` |
 | Comissão padrão e teto | 10%, 50% | `Comissao` |
-| Placa: preço, custo, comissão, retenção | 99,90; 6,00; 25%; 50% | `config/etiquetas.php` |
+| Placa: preço, custo, comissão, retenção | 99,90; 6,00; 25%; 40% | `config/etiquetas.php` |
 | Gestor: taxa, parcelas, piso | 5%, 12, R$ 100 | `config/cobranca.php` |
 
 Um cadastro de Diretivas com vigência, autor e motivo é pendência. Retenção e
