@@ -79,16 +79,8 @@ class RegistrarLiquidacao
             // Dentro da transacao de proposito. Fatura marcada como paga sem a
             // linha correspondente no razao e uma divergencia que so aparece na
             // conferencia do mes, e ai ninguem lembra qual das duas esta certa.
-            // Nao ha como falhar por falta de conta: `ReconhecerReceita` cria a
-            // que precisar, e a unicidade da origem impede reconhecer duas
-            // vezes a mesma fatura.
-            app(\App\Actions\Socios\ReconhecerReceita::class)(
-                'fatura',
-                $fatura->id,
-                (int) $fatura->total_cents,
-                'Fatura '.$fatura->competencia.' de '.($fatura->cliente?->razao_social ?? 'cliente'),
-                $momento,
-            );
+            // A unicidade da origem impede lancar duas vezes a mesma fatura.
+            app(FaturaNoRazao::class)->registrar($fatura->fresh(), $momento);
 
             // A origem entra na trilha porque separa a baixa conferida no
             // extrato da digitada a mao. Baixa manual libera comissao sem que

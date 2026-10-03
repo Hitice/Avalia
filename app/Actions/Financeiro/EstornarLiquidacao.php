@@ -54,6 +54,9 @@ class EstornarLiquidacao
 
             // A empresa perde de volta o acesso se a fatura ja passou do prazo.
             // Bloqueio administrativo e contrato encerrado ficam como estao.
+            // O razao desfaz junto: receita, imposto, custo e comissao voltam.
+            app(FaturaNoRazao::class)->estornar($fatura, 'Liquidação estornada: '.$motivo);
+
             $cliente = Cliente::lockForUpdate()->find($fatura->cliente_id);
 
             if ($venceu && $cliente && $cliente->situacao === 'ativo') {

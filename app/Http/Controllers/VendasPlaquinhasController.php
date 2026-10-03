@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Etiquetas\PagarComissao;
 use App\Actions\Etiquetas\VendaNoRazao;
+use App\Actions\Financeiro\Repasses;
 use App\Exceptions\Recusa;
 use App\Models\Etiqueta;
 use App\Models\Staff;
@@ -90,7 +91,7 @@ class VendasPlaquinhasController extends Controller
             'porDia' => Etiqueta::vendasPorDia($mes),
 
             // Em aberto desde sempre, e nao so do mes: a sexta paga o que ficou.
-            'aPagar' => $this->comissoesEmAberto($socios['ids']),
+            'aPagar' => Repasses::comissoesSales(),
 
             // O mes inteiro, e nao as dez ultimas: esta tabela e a leitura
             // alternativa dos graficos, para quem confere numero a numero ou usa
@@ -205,27 +206,6 @@ class VendasPlaquinhasController extends Controller
                 'prolaboreTotal' => $deSempre['prolabore'],
             ];
         });
-    }
-
-    /** @return Collection<int, array{id: int, nome: string, placas: int, cents: int}> */
-    private function comissoesEmAberto(array $sociosIds): Collection
-    {
-        $porVendedor = [];
-
-        foreach (Etiqueta::comissaoEmAberto()->whereNotNull('vendedor_id')->with('vendedor:id,nome')->get() as $venda) {
-            $cents = VendaNoRazao::reparte($venda, $sociosIds)['comissao'];
-
-            if ($cents <= 0) {
-                continue;
-            }
-
-            $id = (int) $venda->vendedor_id;
-            $porVendedor[$id] ??= ['id' => $id, 'nome' => $venda->vendedor?->nome ?? 'Conta removida', 'placas' => 0, 'cents' => 0];
-            $porVendedor[$id]['placas']++;
-            $porVendedor[$id]['cents'] += $cents;
-        }
-
-        return collect($porVendedor)->sortByDesc('cents')->values();
     }
 
     public function pagarComissao(Staff $vendedor, PagarComissao $pagar)

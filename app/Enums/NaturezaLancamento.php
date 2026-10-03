@@ -47,6 +47,12 @@ enum NaturezaLancamento: string
     /** Quita uma divida ja reconhecida (comissao a pagar). Sai do sistema, nunca do formulario. */
     case Pagamento = 'pagamento';
 
+    /** A parte do socio que sai na sexta. Despesa de pessoal, nao retirada. */
+    case Prolabore = 'prolabore';
+
+    /** Despesa reconhecida antes de pagar: divida com fornecedor. Sai da tela de contas a pagar. */
+    case Provisao = 'provisao';
+
     public function rotulo(): string
     {
         return match ($this) {
@@ -60,6 +66,8 @@ enum NaturezaLancamento: string
             self::Retirada => 'Retirada do sócio',
             self::Distribuicao => 'Distribuição de resultado',
             self::Pagamento => 'Pagamento de dívida',
+            self::Prolabore => 'Pró-labore',
+            self::Provisao => 'Despesa a pagar',
         };
     }
 
@@ -86,6 +94,8 @@ enum NaturezaLancamento: string
             self::Retirada => 'O caixa caiu {valor} e o que a empresa devia a {socio} diminuiu.',
             self::Distribuicao => 'O caixa caiu {valor} e o patrimônio de {socio} diminuiu.',
             self::Pagamento => 'O caixa caiu {valor} e a dívida diminuiu no mesmo tanto. Não gera despesa nova.',
+            self::Prolabore => 'O caixa caiu {valor}: pró-labore de {socio}.',
+            self::Provisao => 'A despesa entrou no mês e a empresa passou a dever {valor} ao fornecedor. O caixa só cai no pagamento.',
         };
     }
 
@@ -94,7 +104,7 @@ enum NaturezaLancamento: string
     {
         return in_array($this, [
             self::Aporte, self::Emprestimo, self::DespesaDoSocio,
-            self::Reembolso, self::Retirada, self::Distribuicao,
+            self::Reembolso, self::Retirada, self::Distribuicao, self::Prolabore,
         ], true);
     }
 
@@ -107,7 +117,7 @@ enum NaturezaLancamento: string
      */
     public function afetaResultado(): bool
     {
-        return in_array($this, [self::Despesa, self::DespesaDoSocio, self::Receita], true);
+        return in_array($this, [self::Despesa, self::DespesaDoSocio, self::Receita, self::Prolabore, self::Provisao], true);
     }
 
     /** @return array<string, string> valor => rotulo */
@@ -123,7 +133,7 @@ enum NaturezaLancamento: string
     /** As que o formulario oferece: Pagamento nasce da tela que sabe a quem se deve. */
     public static function rotulosManuais(): array
     {
-        return array_diff_key(self::rotulos(), [self::Pagamento->value => true]);
+        return array_diff_key(self::rotulos(), [self::Pagamento->value => true, self::Provisao->value => true]);
     }
 
     public static function tentar(?string $valor): ?self

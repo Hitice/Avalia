@@ -15,6 +15,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CobrancaController;
 use App\Http\Controllers\ConexaoController;
 use App\Http\Controllers\ConsultaController;
+use App\Http\Controllers\ContasAPagarController;
 use App\Http\Controllers\ControladoriaController;
 use App\Http\Controllers\CreditoController;
 use App\Http\Controllers\DocumentoController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\FinanceiroController;
+use App\Http\Controllers\GestaoController;
 use App\Http\Controllers\InteresseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LinkController;
@@ -33,9 +35,9 @@ use App\Http\Controllers\PlanilhaController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ProdutorAcessoController;
 use App\Http\Controllers\ProdutorPainelController;
-use App\Http\Controllers\GestaoController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServicoController;
+use App\Http\Controllers\SextaController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SociosController;
 use App\Http\Controllers\VendasPlaquinhasController;
@@ -533,6 +535,19 @@ Route::middleware(['auth:staff', 'sessao:staff', 'produto'])->group(function () 
 
     // A home do back office: so administracao, como toda a lateral dele.
     Route::get('/gestao', [GestaoController::class, 'inicio'])->middleware('admin')->name('gestao.inicio');
+
+    // A sexta-feira e as contas a pagar mexem no caixa: admin com permissao financeira.
+    Route::middleware(['admin', 'financeiro'])->prefix('gestao')->name('gestao.')->group(function () {
+        Route::get('/sexta', [SextaController::class, 'index'])->name('sexta');
+        Route::post('/sexta/placas/{vendedor}', [SextaController::class, 'pagarSales'])->name('sexta.sales');
+        Route::post('/sexta/consultas/{vendedor}', [SextaController::class, 'pagarOne'])->name('sexta.one');
+        Route::post('/sexta/prolabore/{socio}', [SextaController::class, 'prolabore'])->name('sexta.prolabore');
+        Route::post('/sexta/contas/{conta}', [SextaController::class, 'pagarConta'])->name('sexta.conta');
+
+        Route::get('/contas', [ContasAPagarController::class, 'index'])->name('contas');
+        Route::post('/contas', [ContasAPagarController::class, 'salvar'])->name('contas.salvar');
+        Route::post('/contas/{conta}/pagar', [ContasAPagarController::class, 'pagar'])->name('contas.pagar');
+    });
     Route::get('/estoque', [EstoqueController::class, 'index'])->name('sales.estoque');
 
     Route::get('/plaquinhas/vendas', VendasPlaquinhasController::class)

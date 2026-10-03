@@ -144,6 +144,8 @@ class MenuHelper
             ['icon' => 'inicio', 'name' => 'Início', 'path' => '/gestao'],
             ['icon' => 'lead', 'name' => 'Leads', 'path' => '/leads'],
             ['icon' => 'grafico', 'name' => 'Financeiro', 'path' => '/financeiro', 'exigeFinanceiro' => true],
+            ['icon' => 'tarefa', 'name' => 'Sexta-feira', 'path' => '/gestao/sexta', 'exigeFinanceiro' => true],
+            ['icon' => 'boleto', 'name' => 'Contas a pagar', 'path' => '/gestao/contas', 'exigeFinanceiro' => true],
             ['icon' => 'grafico', 'name' => 'Sócios', 'path' => '/socios', 'exigeSocios' => true],
             ['icon' => 'grafico', 'name' => 'Controladoria', 'path' => '/controladoria', 'exigeSocios' => true],
             ['icon' => 'documentos', 'name' => 'Documentos', 'path' => '/documentos'],

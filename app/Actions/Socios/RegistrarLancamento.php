@@ -81,6 +81,17 @@ class RegistrarLancamento
                 $caixa => -$valor,
             ],
 
+            NaturezaLancamento::Prolabore => [
+                $this->conta('despesa:prolabore') => $valor,
+                $caixa => -$valor,
+            ],
+
+            // A despesa e de agora; o dinheiro sai quando a conta for paga.
+            NaturezaLancamento::Provisao => [
+                $this->conta(ContaFinanceira::DESPESA, $dados['categoria_id'] ?? null, 'despesa') => $valor,
+                $this->conta('fornecedores-a-pagar') => -$valor,
+            ],
+
             // Entra dinheiro e cresce o patrimonio do socio. Receita nao entra
             // na conversa: ninguem vendeu nada.
             NaturezaLancamento::Aporte => [

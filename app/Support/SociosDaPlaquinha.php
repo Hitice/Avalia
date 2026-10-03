@@ -27,7 +27,7 @@ final class SociosDaPlaquinha
         // sem isso, a venda dele voltaria a comissionar retroativamente.
         $achadas = Staff::withTrashed()
             ->whereIn('email', $emails->all())
-            ->get(['id', 'nome', 'email'])
+            ->get(['id', 'nome', 'email', 'pix_chave'])
             ->keyBy(fn (Staff $s) => mb_strtolower($s->email));
 
         $contas = $emails->map(fn (string $email) => $achadas->get($email))->filter()->values();

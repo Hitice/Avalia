@@ -26,16 +26,12 @@ function reconhecer(int $origemId = 1, int $cents = 50_000): ?LancamentoFinancei
     );
 }
 
-it('cria a conta que precisa em vez de falhar por falta dela', function () {
-    // Depender de seeder foi o que subiu o modulo inutilizavel: liquidacao de
-    // fatura nao pode falhar porque uma linha do plano de contas nao existe.
-    // A migration semeia as contas, e este teste apaga para provar que o
-    // reconhecimento se vira sozinho quando elas nao estao la.
+it('recusa em voz alta quando falta conta, em vez de criar uma por fora do plano', function () {
+    // Conta nasce em migration, com codigo estavel. Criar sob demanda foi o
+    // que deixou producao com conta fora do plano; agora a falta e erro dito.
     ContaFinanceira::query()->delete();
 
-    reconhecer();
-
-    expect(ContaFinanceira::pluck('codigo')->sort()->values()->all())->toBe(['caixa', 'receita']);
+    expect(fn () => reconhecer())->toThrow(App\Exceptions\Recusa::class);
 });
 
 it('leva o valor ao caixa e fecha em zero', function () {

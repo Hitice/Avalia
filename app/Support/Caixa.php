@@ -41,11 +41,12 @@ final class Caixa
      */
     public static function aRepassarCents(): int
     {
-        $liberada = (int) Fatura::whereNotNull('comissao_liberada_em')->sum('comissao_cents');
+        $liberada = (int) Fatura::whereNotNull('comissao_liberada_em')->whereNull('comissao_paga_em')->sum('comissao_cents');
 
         $demonstracoes = (int) Consulta::query()
             ->whereIn('vendedor_id', Staff::query()->where('papel', 'vendedor')->select('id'))
             ->where('situacao', Consulta::SUCESSO)
+            ->whereNull('descontada_em')
             ->sum('custo_cents');
 
         // Nunca negativo: vendedor que demonstrou mais do que vendeu nao deve

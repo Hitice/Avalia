@@ -163,7 +163,7 @@ it('sabe quais naturezas mexem no resultado', function () {
         ->values()
         ->all();
 
-    expect($mexem)->toBe(['despesa', 'despesa_do_socio', 'receita']);
+    expect($mexem)->toBe(['despesa', 'despesa_do_socio', 'receita', 'prolabore', 'provisao']);
 });
 
 it('nao deixa lancamento mudar depois de gravado', function () {
